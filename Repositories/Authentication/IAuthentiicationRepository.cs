@@ -11,7 +11,7 @@ namespace Repositories.Authentication
 {
     public interface IAuthentiicationRepository
     {
-        public User? Login(LoginDTO loginDto);
+        public AuthResponseDTO? Login(LoginDTO loginDto);
         public User Register(RegisterDTO registerDto);
     }
 }

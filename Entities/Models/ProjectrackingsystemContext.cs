@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System.IO;
 
 namespace Entities.Models;
 
@@ -20,20 +18,9 @@ public partial class ProjectrackingsystemContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            // Load appsettings.json
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())  // cần thêm using System.IO;
-                .AddJsonFile("appsettings.json")
-                .Build();
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=projectrackingsystem;Username=postgres;Password=123456");
 
-            var connectionString = config.GetConnectionString("DefaultConnection");
-
-            optionsBuilder.UseNpgsql(connectionString);
-        }
-    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>(entity =>
@@ -55,7 +42,8 @@ public partial class ProjectrackingsystemContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("password");
             entity.Property(e => e.Role)
-                .HasDefaultValue(0)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'user'::character varying")
                 .HasColumnName("role");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)

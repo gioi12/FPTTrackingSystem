@@ -15,5 +15,5 @@ public partial class User
 
     public string? Gender { get; set; }
 
-    public int Role { get; set; }
+    public string Role { get; set; } = null!;
 }
