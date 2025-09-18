@@ -19,7 +19,7 @@ namespace Repositories.Authentication
             _authDao = authDao;
         }
 
-        public User? Login(LoginDTO loginDto)
+        public AuthResponseDTO? Login(LoginDTO loginDto)
         {
             return _authDao.Login(loginDto);
         }

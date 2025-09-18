@@ -10,6 +10,6 @@ namespace DataTranferObjects.Login
     {
         public string userName { get; set; } = null!;
         public string Password { get; set; } = null!;
-        public int Role { get; set; }
+        public string Role { get; set; }
     }
-}
+}   
