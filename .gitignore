@@ -9,3 +9,6 @@ obj/
 
 # VS Code
 .vscode/
+
+appsettings.*.json
+!appsettings.json

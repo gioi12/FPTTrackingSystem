@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataAccessObjects\DataAccessObjects.csproj" />
     <ProjectReference Include="..\Dtos\DataTranferObjects.csproj" />
     <ProjectReference Include="..\Entities\Entities.csproj" />
   </ItemGroup>

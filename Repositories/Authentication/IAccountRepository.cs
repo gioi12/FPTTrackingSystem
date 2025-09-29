@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 
 namespace Repositories.Authentication
 {
-    public interface IAuthentiicationRepository
+    public interface IAccountRepository
     {
-        public AuthResponseDTO? Login(LoginDTO loginDto);
-        public User Register(RegisterDTO registerDto);
+        public Task<Account?> LoginAsync(LoginDTO loginDto);
     }
 }

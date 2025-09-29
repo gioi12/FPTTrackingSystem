@@ -1,30 +1,25 @@
-﻿using DataAccessObjects.Login;
+﻿using FPTTrackingSystem.Extensions;
+using FPTTrackingSystem.Middlewares;
 using Repositories.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<AuthenticationDAO>();
-builder.Services.AddScoped<IAuthentiicationRepository, AuthenticationRepository>();
+builder.Services.AddRepositories();
+builder.Services.AddServices();
+builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddSwaggerDocumentation();
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseGlobalErrorHandler();
+// xoa sau
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapControllers();
-
+app.MapControllers().RequireAuthorization();
 app.Run();

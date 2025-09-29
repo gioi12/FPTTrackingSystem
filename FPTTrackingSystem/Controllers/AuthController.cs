@@ -1,44 +1,32 @@
 ﻿using DataTranferObjects.Login;
+using FPTTrackingSystem.Services.Login;
+using FPTTrackingSystem.Wrappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Authentication;
 
 namespace FPTTrackingSystem.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthentiicationRepository _authRepo; 
+        private readonly IAccountService _accountService; 
 
-        public AuthController(IAuthentiicationRepository authRepo) 
+        public AuthController(IAccountService accountService) 
         {
-            _authRepo = authRepo;
+            _accountService = accountService;
         }
-
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDTO loginDto)
+        [AllowAnonymous]
+        [HttpPost("v1/auth/login")]
+        public async Task<object> Login([FromBody] LoginDTO req)
         {
-            var user = _authRepo.Login(loginDto);
-            if (user == null)
-            {
-                return Unauthorized("Invalid username or password");
-            }
-            return Ok(user);
-        }
-
-        [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterDTO registerDTO)
-        {
-            try
-            {
-                var user = _authRepo.Register(registerDTO);
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message); 
-            }
+            string token = await _accountService.LoginAsync(req);
+            return ApiResponse<string>.Success(
+                token,"Login Successfully",200
+                );
+           
         }
     }
 }

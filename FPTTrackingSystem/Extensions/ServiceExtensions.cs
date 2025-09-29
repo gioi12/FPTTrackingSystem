@@ -1,0 +1,105 @@
+﻿using Microsoft.OpenApi.Models;
+using Repositories.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Entities.Models;
+using Microsoft.EntityFrameworkCore;
+using FPTTrackingSystem.Services.Token;
+using FPTTrackingSystem.Services.Login;
+using FPTTrackingSystem.Services.Authentication;
+namespace FPTTrackingSystem.Extensions
+{
+    public static class ServiceExtensions
+    {
+        // add repo , service 
+        public  static IServiceCollection AddRepositories(this IServiceCollection services)
+        {
+            services.AddScoped<IAccountRepository, AccountRepository>();
+            return services;
+        }
+        public static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IAccountService, AccountService>();
+            return services;
+        }
+        public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)
+        {
+            var connectionString = config.GetConnectionString("DefaultConnection");
+            services.AddDbContext<FpttrackingSystemContext>(options =>
+                options.UseSqlServer(connectionString));
+            return services;
+        }
+
+        public static IServiceCollection AddSwaggerDocumentation(this IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Your API",
+                    Version = "v1",
+                    Description = "API documentation for YourApp"
+                });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Nhập JWT token với Bearer {token}",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
+            return services;
+        }
+
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration config)
+        {
+            var jwtSettings = config.GetSection("JwtSettings");
+            var secretKey = jwtSettings["SecretKey"];
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                };
+            });
+
+            return services;
+        }
+
+        //public static IServiceCollection AddMappings(this IServiceCollection services)
+        //{
+        //    services.AddAutoMapper(typeof(Program)); 
+        //    return services;
+        //}
+    }
+}
