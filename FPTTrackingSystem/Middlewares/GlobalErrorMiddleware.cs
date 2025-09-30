@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Net;
 using FPTTrackingSystem.Wrappers;
 
 namespace FPTTrackingSystem.Middlewares
@@ -20,11 +21,35 @@ namespace FPTTrackingSystem.Middlewares
             }
             catch (Exception ex)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                var statusCode = HttpStatusCode.InternalServerError;
+                object? responseBody = null;
+
+                switch (ex)
+                {
+                    case ValidationException ve:
+                        statusCode = HttpStatusCode.BadRequest; // 400
+                        responseBody = ApiResponse<object>.Fail(ve.Message, (int)statusCode);
+                        break;
+
+                    case UnauthorizedAccessException ue:
+                        statusCode = HttpStatusCode.Unauthorized; // 401
+                        responseBody = ApiResponse<object>.Fail(ue.Message, (int)statusCode);
+                        break;
+
+                    case KeyNotFoundException knf:
+                        statusCode = HttpStatusCode.NotFound; // 404
+                        responseBody = ApiResponse<object>.Fail(knf.Message, (int)statusCode);
+                        break;
+
+                    default:
+                        responseBody = ApiResponse<object>.InternalError(ex.Message);
+                        break;
+                }
+
+                context.Response.StatusCode = (int)statusCode;
                 context.Response.ContentType = "application/json";
 
-                var response = ApiResponse<object>.InternalError(ex.Message);
-                await context.Response.WriteAsJsonAsync(response);
+                await context.Response.WriteAsJsonAsync(responseBody);
             }
         }
     }
