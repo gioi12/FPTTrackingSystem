@@ -10,5 +10,5 @@ obj/
 # VS Code
 .vscode/
 
-appsettings.*.json
-!appsettings.json
+FPTTrackingSystem/appsettings.*.json
+!FPTTrackingSystem/appsettings.json
