@@ -126,20 +126,21 @@ public partial class FpttrackingSystemContext : DbContext
 
         modelBuilder.Entity<GroupUser>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("Group_User");
+            entity.ToTable("Group_User");
+            entity.HasKey(e => new { e.GroupId, e.UserId });
 
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
-            entity.HasOne(d => d.Group).WithMany()
-                .HasForeignKey(d => d.GroupId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Group_User_Group");
+            entity.HasOne(d => d.Group)
+                   .WithMany(p => p.GroupUsers) 
+                   .HasForeignKey(d => d.GroupId)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_Group_User_Group");
 
-            entity.HasOne(d => d.User).WithMany()
+            entity.HasOne(d => d.User)
+                .WithMany(p => p.GroupUsers) 
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Group_User_User");
