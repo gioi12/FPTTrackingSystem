@@ -25,7 +25,7 @@ jobs:
 
       # 4. Build để check lỗi compile
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet publish -c Release -r win-x64 --self-contained true -o ./publish
 
       # 6. Publish ra thư mục ./publish
       - name: Publish
