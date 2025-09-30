@@ -23,8 +23,8 @@ namespace FPTTrackingSystem.Controllers
         public async Task<object> Login([FromBody] LoginDTO req)
         {
             string token = await _accountService.LoginAsync(req);
-            return ApiResponse<string>.Success(
-                token,"Login Successfully",200
+            return ApiResponse<object>.Success(
+              new  {accessToken = token},"Login Successfully",200
                 );
            
         }

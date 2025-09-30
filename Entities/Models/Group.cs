@@ -21,7 +21,11 @@ public partial class Group
 
     public string? VietnameseTitle { get; set; }
 
+    public int? CourseId { get; set; }
+
     public int? StatusId { get; set; }
+
+    public virtual Couse? Course { get; set; }
 
     public virtual Major? Major { get; set; }
 

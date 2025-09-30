@@ -22,7 +22,7 @@ namespace FPTTrackingSystem.Services.Authentication
             Account? acc = await _accountRepository.LoginAsync(req);
             if (acc == null)
             {
-                throw new KeyNotFoundException("login error");
+                throw new KeyNotFoundException("Not Found");
             }
             return 
                 _jwtService.GenerateToken(acc.Id.ToString(), acc.Role.Name);
