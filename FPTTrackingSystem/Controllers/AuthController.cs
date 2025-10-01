@@ -23,10 +23,46 @@ namespace FPTTrackingSystem.Controllers
         public async Task<object> Login([FromBody] LoginDTO req)
         {
             string token = await _accountService.LoginAsync(req);
-            return ApiResponse<string>.Success(
-                token,"Login Successfully",200
-                );
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,           
+                Secure = false,             
+                SameSite = SameSiteMode.Strict,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            };
+            Response.Cookies.Append("token", token, cookieOptions);
+            return ApiResponse<object>.Success(
+             null,"Login Successfully",200);
            
         }
+        [Authorize] 
+        [HttpPost("v1/auth/logout")]
+        public async Task<object> Logout()
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,           
+                Secure = false,             
+                SameSite = SameSiteMode.Strict,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddDays(-1) 
+            };
+
+            Response.Cookies.Append("token", "", cookieOptions);
+            // fix
+            return  ApiResponse<object>.Success(
+             null, "Logout Successfully", 200);
+        }
+
+        [Authorize]
+        [HttpGet("v1/auth/user-info")]
+        public async Task<object> Info()
+        {
+            var info =  await _accountService.UserInfo(HttpContext.User);
+            return ApiResponse<object>.Success(
+             info, "User information", 200);
+        }
+        
     }
 }

@@ -81,6 +81,14 @@ namespace FPTTrackingSystem.Extensions
             })
             .AddJwtBearer(options =>
             {
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        context.Token = context.Request.Cookies["token"];
+                        return System.Threading.Tasks.Task.CompletedTask;
+                    }
+                };
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -92,7 +100,8 @@ namespace FPTTrackingSystem.Extensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
                 };
             });
-
+            // phan quyen
+            services.AddAuthorization();
             return services;
         }
 

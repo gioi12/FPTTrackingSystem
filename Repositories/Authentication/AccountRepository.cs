@@ -25,5 +25,17 @@ namespace Repositories.Authentication
                 .Include(x=>x.Role)
                 .FirstOrDefaultAsync(x => x.Username == req.UserName && x.Password == req.Password);
         }
+
+        public async Task<UserInfo?> UserInfo(int id)
+        {
+            return await _context.Accounts.Include(x => x.Users)
+                .Where(x => x.Id == id)
+                .Select(x => new UserInfo
+                {
+                    Id = x.Id,
+                    Name = x.Users.FirstOrDefault().Fullname,
+                    Role = x.Role.Name,
+                }).FirstOrDefaultAsync();
+        }
     }
 }
