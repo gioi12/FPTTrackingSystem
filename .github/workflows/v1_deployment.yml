@@ -23,14 +23,15 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      # 4. Build để check lỗi compile
-      - name: Build
-        run: dotnet publish -c Release -r win-x64 --self-contained true -o ./publish
-
       # 6. Publish ra thư mục ./publish
-      - name: Publish
-        run: dotnet publish -c Release -o ./publish
-
+      #- name: Publish
+       # run: dotnet publish ./FPTTrackingSystem/FPTTrackingSystem.csproj -c Release -r win-x64 --self-contained true -o ./publish
+      - name: Build & Publish self-contained
+        run: dotnet publish ./FPTTrackingSystem/FPTTrackingSystem.csproj `
+          -c Release -r win-x64 --self-contained true `
+          -p:TreatWarningsAsErrors=false `
+          -o ./publish
+            
       - name: Deploy to IIS via PowerShell
         shell: pwsh
         run: |
@@ -44,7 +45,7 @@ jobs:
       
           # Thực thi deploy trên server
           Invoke-Command -Session $session -ScriptBlock {
-              $target = "C:\inetpub\myapp"
+              $target = "C:\Users\Administrator\Desktop\Publish-BE"
       
               # Xoá file cũ
               Remove-Item "$target\*" -Recurse -Force
