@@ -33,6 +33,7 @@ namespace FPTTrackingSystem.Services.Authentication
 
         public Task<UserInfo?> UserInfo(ClaimsPrincipal userClaims)
         {
+            // find name 
             var userIdClaim = userClaims.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null) throw new UnauthorizedAccessException();
 
