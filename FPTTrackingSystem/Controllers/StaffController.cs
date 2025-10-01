@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [Authorize]
     [ApiController]
     public class StaffController : ControllerBase
