@@ -13,6 +13,8 @@ builder.Services.AddServices();
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
