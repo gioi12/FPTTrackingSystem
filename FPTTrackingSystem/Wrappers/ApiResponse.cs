@@ -12,7 +12,7 @@
             Message = message;
             Data = data;
         }
-        public static ApiResponse<T> Success(T data, string message = "Success", int code = 200)
+        public static ApiResponse<T> Success(T? data, string message = "Success", int code = 200)
              => new ApiResponse<T>(code, message, data);
 
         public static ApiResponse<T> Fail(string message, int code = 400)

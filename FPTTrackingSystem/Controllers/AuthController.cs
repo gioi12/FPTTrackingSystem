@@ -50,7 +50,7 @@ namespace FPTTrackingSystem.Controllers
             };
 
             Response.Cookies.Append("token", "", cookieOptions);
-
+            // fix
             return  ApiResponse<object>.Success(
              null, "Logout Successfully", 200);
         }
@@ -59,7 +59,6 @@ namespace FPTTrackingSystem.Controllers
         [HttpGet("v1/auth/user-info")]
         public async Task<object> Info()
         {
-
             var info =  await _accountService.UserInfo(HttpContext.User);
             return ApiResponse<object>.Success(
              info, "User information", 200);
