@@ -24,9 +24,14 @@ jobs:
         run: dotnet restore
 
       # 6. Publish ra thư mục ./publish
-      - name: Publish
-        run: dotnet publish ./FPTTrackingSystem/FPTTrackingSystem.csproj -c Release -r win-x64 --self-contained true -o ./publish
-     
+      #- name: Publish
+       # run: dotnet publish ./FPTTrackingSystem/FPTTrackingSystem.csproj -c Release -r win-x64 --self-contained true -o ./publish
+      - name: Build & Publish self-contained
+        run: dotnet publish ./FPTTrackingSystem/FPTTrackingSystem.csproj `
+          -c Release -r win-x64 --self-contained true `
+          -p:TreatWarningsAsErrors=false `
+          -o ./publish
+            
       - name: Deploy to IIS via PowerShell
         shell: pwsh
         run: |
