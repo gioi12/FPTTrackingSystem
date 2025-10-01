@@ -31,21 +31,30 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o ./publish
 
-      # 7. Deploy lên IIS qua WinRM
-      - name: Deploy to IIS via WinRM
-        uses: microsoft/psremoting@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASS }}
-          script: |
-            $target = "C:\inetpub\myapp"
-
-            # Xoá file cũ
-            Remove-Item "$target\*" -Recurse -Force
-
-            # Copy file mới từ thư mục publish
-            Copy-Item ".\publish\*" $target -Recurse -Force
-
-            # Restart IIS để chạy code mới
-            iisreset
+      - name: Deploy to IIS via PowerShell
+        shell: pwsh
+        run: |
+          # Tạo credential từ secrets
+          $user = "${{ secrets.VPS_USER }}"
+          $pass = ConvertTo-SecureString "${{ secrets.VPS_PASS }}" -AsPlainText -Force
+          $cred = New-Object System.Management.Automation.PSCredential ($user, $pass)
+      
+          # Kết nối WinRM tới server IIS
+          $session = New-PSSession -ComputerName ${{ secrets.VPS_HOST }} -Credential $cred
+      
+          # Thực thi deploy trên server
+          Invoke-Command -Session $session -ScriptBlock {
+              $target = "C:\inetpub\myapp"
+      
+              # Xoá file cũ
+              Remove-Item "$target\*" -Recurse -Force
+      
+              # Copy file mới từ thư mục publish
+              Copy-Item "\\runner\_work\myapp\publish\*" $target -Recurse -Force
+      
+              # Restart IIS
+              iisreset
+          }
+      
+          # Đóng session
+          Remove-PSSession $session
