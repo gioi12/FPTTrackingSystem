@@ -60,7 +60,9 @@ namespace FPTTrackingSystem.Controllers
         public async Task<object> Info()
         {
 
-            return await _accountService.UserInfo(HttpContext.User);
+            var info =  await _accountService.UserInfo(HttpContext.User);
+            return ApiResponse<object>.Success(
+             info, "User information", 200);
         }
         
     }
