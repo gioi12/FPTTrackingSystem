@@ -4,6 +4,8 @@ using FPTTrackingSystem.Services.Login;
 using FPTTrackingSystem.Services.Token;
 using FPTTrackingSystem.Wrappers;
 using Repositories.Authentication;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace FPTTrackingSystem.Services.Authentication
 {
@@ -24,8 +26,17 @@ namespace FPTTrackingSystem.Services.Authentication
             {
                 throw new KeyNotFoundException("Not Found");
             }
+
             return 
                 _jwtService.GenerateToken(acc.Id.ToString(), acc.Role.Name);
+        }
+
+        public Task<UserInfo?> UserInfo(ClaimsPrincipal userClaims)
+        {
+            var userIdClaim = userClaims.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) throw new UnauthorizedAccessException();
+
+            return _accountRepository.UserInfo(int.Parse(userIdClaim.Value));
         }
     }
 }
