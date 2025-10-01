@@ -26,8 +26,8 @@ namespace FPTTrackingSystem.Controllers
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,           
-                Secure = true,             
-                SameSite = SameSiteMode.None,
+                Secure = false,             
+                SameSite = SameSiteMode.Strict,
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddHours(1)
             };
@@ -43,8 +43,8 @@ namespace FPTTrackingSystem.Controllers
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,           
-                Secure = true,             
-                SameSite = SameSiteMode.None,
+                Secure = false,             
+                SameSite = SameSiteMode.Strict,
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddDays(-1) 
             };
