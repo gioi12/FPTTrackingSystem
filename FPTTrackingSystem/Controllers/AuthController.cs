@@ -56,7 +56,7 @@ namespace FPTTrackingSystem.Controllers
         }
 
         [Authorize]
-        [HttpGet("v1/user-info")]
+        [HttpGet("v1/auth/user-info")]
         public async Task<object> Info()
         {
 
