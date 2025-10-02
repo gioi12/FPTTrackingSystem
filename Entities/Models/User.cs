@@ -46,4 +46,6 @@ public partial class User
     public virtual Status? Status { get; set; }
 
     public virtual ICollection<TaskAttachment> TaskAttachments { get; set; } = new List<TaskAttachment>();
+    public virtual ICollection<GroupUser> GroupUsers { get; set; } = new List<GroupUser>();
+
 }

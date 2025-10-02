@@ -1,6 +1,9 @@
 ﻿using FPTTrackingSystem.Extensions;
 using FPTTrackingSystem.Middlewares;
+using FPTTrackingSystem.Services.Group;
 using Repositories.Authentication;
+using Repositories.Group;
+using Repositories.GroupRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,8 @@ builder.Services.AddServices();
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFE", policy =>
