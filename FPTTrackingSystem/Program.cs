@@ -12,12 +12,17 @@ builder.Services.AddSwaggerDocumentation();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFE", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://192.168.116.1:8082", "https://localhost:5000") 
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials(); 
     });
+});
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Configure(builder.Configuration.GetSection("Kestrel"));
 });
 
 var app = builder.Build();
@@ -27,8 +32,8 @@ app.UseGlobalErrorHandler();
 app.UseSwagger();
 app.UseSwaggerUI();
 //cors
-app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-//app.UseHttpsRedirection();
+app.UseCors("AllowFE");
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers().RequireAuthorization();

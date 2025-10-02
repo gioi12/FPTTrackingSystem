@@ -4,6 +4,7 @@ using FPTTrackingSystem.Services.Login;
 using FPTTrackingSystem.Services.Token;
 using FPTTrackingSystem.Wrappers;
 using Repositories.Authentication;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -24,7 +25,7 @@ namespace FPTTrackingSystem.Services.Authentication
             Account? acc = await _accountRepository.LoginAsync(req);
             if (acc == null)
             {
-                throw new KeyNotFoundException("Not Found");
+                throw new ValidationException("Not Found");
             }
 
             return 
