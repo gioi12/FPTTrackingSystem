@@ -33,7 +33,17 @@ namespace DataTranferObjects.Group
     public class ApiResponse<T> {
         public int Status { get; set; } 
         public string Message { get; set; } = string.Empty; 
-        public T? Data { get; set; } 
+        public T? Data { get; set; }
+
+
+        public ApiResponse() { }
+
+        public ApiResponse(int status, string message, T? data = default)
+        {
+            Status = status;
+            Message = message;
+            Data = data;
+        }
     }
 
     public class GroupDetailDto { 
@@ -49,6 +59,11 @@ namespace DataTranferObjects.Group
         public string Id { get; set; } = string.Empty; 
         public string? Name { get; set; } 
         public string? Role { get; set; } 
+    }
+
+    public class DashBoardGroupDto {
+        public string name { get; set; } = string.Empty;
+        public int Total { get; set; }
     }
 
 }

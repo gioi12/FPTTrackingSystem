@@ -32,5 +32,12 @@ namespace FPTTrackingSystem.Controllers
             return StatusCode(result.Status, result);
         }
 
+        [HttpGet("dashboard-majors-groups")]
+        public async Task<IActionResult> GetMajorGroupTotals()
+        {
+            var response = await _groupService.GetMajorGroupTotalsAsync();
+            return Ok(response);
+        }
+
     }
 }

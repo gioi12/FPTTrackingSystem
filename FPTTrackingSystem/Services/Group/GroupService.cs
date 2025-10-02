@@ -96,6 +96,13 @@ namespace FPTTrackingSystem.Services.Group
             };
         }
 
+        public async Task<ApiResponse<List<DashBoardGroupDto>>> GetMajorGroupTotalsAsync()
+        {
+            var data = await _groupRepository.GetMajorGroupTotalsAsync();
+            return new ApiResponse<List<DashBoardGroupDto>>(200, "Lấy thành công", data);
+        }
+
+
     }
 
 }

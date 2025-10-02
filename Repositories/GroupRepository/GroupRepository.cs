@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Group;
+using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using Repositories.GroupRepository;
 using System;
@@ -47,5 +48,18 @@ namespace Repositories.Group
                    .ThenInclude(a => a.Role)
                .AsQueryable();
         }
+
+        public async Task<List<DashBoardGroupDto>> GetMajorGroupTotalsAsync()
+        {
+            return await _context.Majors
+            .Select(m => new DashBoardGroupDto
+            {
+                name = m.Name ?? string.Empty,
+                Total = m.Groups.Count()
+            })
+            .ToListAsync();
+        }
+
+
     }
 }
