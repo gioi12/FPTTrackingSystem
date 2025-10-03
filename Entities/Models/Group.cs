@@ -21,21 +21,17 @@ public partial class Group
 
     public string? VietnameseTitle { get; set; }
 
-    public int? CourseId { get; set; }
-
     public int? StatusId { get; set; }
 
-    public virtual Couse? Course { get; set; }
+    public virtual ICollection<Deliverable> Deliverables { get; set; } = new List<Deliverable>();
+
+    public virtual ICollection<GroupUser> GroupUsers { get; set; } = new List<GroupUser>();
 
     public virtual Major? Major { get; set; }
-
-    public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
 
     public virtual Semester? Semester { get; set; }
 
     public virtual Status? Status { get; set; }
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
-    public virtual ICollection<GroupUser> GroupUsers { get; set; } = new List<GroupUser>();
-
 }

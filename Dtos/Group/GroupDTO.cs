@@ -8,12 +8,12 @@ namespace DataTranferObjects.Group
 {
     public class GroupDto
     {
-        public string Id { get; set; } = string.Empty;
-        public string CourseCode { get; set; } = string.Empty;
-        public string Term { get; set; } = string.Empty;
-        public string Major { get; set; } = string.Empty;
+        public string? Id { get; set; } = string.Empty;
+        public string? CourseCode { get; set; } = string.Empty;
+        public string? Term { get; set; } = string.Empty;
+        public string? Major { get; set; } = string.Empty;
         public int StudentCount { get; set; }
-        public List<string> Supervisor { get; set; }
+        public List<string>? Supervisor { get; set; }
         public bool SubmittedDocs { get; set; }
     }
 

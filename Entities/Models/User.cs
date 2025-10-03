@@ -33,6 +33,8 @@ public partial class User
 
     public virtual ICollection<GroupAttachment> GroupAttachments { get; set; } = new List<GroupAttachment>();
 
+    public virtual ICollection<GroupUser> GroupUsers { get; set; } = new List<GroupUser>();
+
     public virtual Major? Major { get; set; }
 
     public virtual ICollection<MilestoneAttachment> MilestoneAttachments { get; set; } = new List<MilestoneAttachment>();
@@ -46,6 +48,4 @@ public partial class User
     public virtual Status? Status { get; set; }
 
     public virtual ICollection<TaskAttachment> TaskAttachments { get; set; } = new List<TaskAttachment>();
-    public virtual ICollection<GroupUser> GroupUsers { get; set; } = new List<GroupUser>();
-
 }

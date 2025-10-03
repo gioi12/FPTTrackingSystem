@@ -37,9 +37,8 @@ namespace FPTTrackingSystem.Services.Group
                         .Where(gu => gu.User.Account.RoleId == 2 || gu.User.Account.RoleId == 3)
                         .Select(gu => gu.User.Fullname)
                         .ToList(),
-                     // SubmittedDocs = g.Milestones.Any(m => m.Attachments.Any()) 
-                     SubmittedDocs = false
-                 })
+                     SubmittedDocs = g.Deliverables.Any(m => m.MilestoneAttachments.Any()) ? false : false
+                    })
                   .ToListAsync();
 
             return new PagedResponse<GroupDto>

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Repositories.GroupRepository;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,10 +31,10 @@ namespace Repositories.Group
                     .ThenInclude(gu => gu.User)
                     .ThenInclude(u => u.Account)
                     .ThenInclude(a => a.Role)
-                .Include(g => g.Milestones)
+                .Include(g => g.Deliverables)
+                    .ThenInclude(g => g.Milestone)
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
-
 
         public IQueryable<Entities.Models.Group> GetGroupsQuery()
         {
@@ -41,7 +42,8 @@ namespace Repositories.Group
                .Include(g => g.Major)
                .Include(g => g.Semester)
                .Include(g => g.Tasks)
-               .Include(g => g.Milestones)
+               .Include(g => g.Deliverables)
+                    .ThenInclude(g => g.Milestone)
                .Include(g => g.GroupUsers)
                    .ThenInclude(gu => gu.User)
                    .ThenInclude(u => u.Account)
@@ -60,6 +62,12 @@ namespace Repositories.Group
             .ToListAsync();
         }
 
-
+        public async Task<List<Entities.Models.Group>> GetGroupsActiveSesmester()
+        {
+          var semester =  await _context.Semesters.FirstOrDefaultAsync(x => x.IsActive == true);
+          if (semester == null) throw new ValidationException("Not found sesmester currently active");
+          return await _context.Groups.Include(x=>x.Status)
+                .Where(x=>x.SemesterId == semester.Id).ToListAsync();
+        }
     }
 }

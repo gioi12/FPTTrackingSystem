@@ -11,11 +11,11 @@ public partial class MilestoneAttachment
 
     public DateTime? CreateAt { get; set; }
 
-    public int? MilestoneId { get; set; }
+    public int? DeliverableId { get; set; }
 
     public int? CreateBy { get; set; }
 
     public virtual User? CreateByNavigation { get; set; }
 
-    public virtual Milestone? Milestone { get; set; }
+    public virtual Deliverable? Deliverable { get; set; }
 }

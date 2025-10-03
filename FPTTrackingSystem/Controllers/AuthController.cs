@@ -1,5 +1,6 @@
 ﻿using DataTranferObjects.Login;
 using FPTTrackingSystem.Services.Login;
+using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,17 +13,20 @@ namespace FPTTrackingSystem.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAccountService _accountService; 
+        private readonly IAccountService _accountService;
+        private readonly AuthUtils _authUtils;
 
-        public AuthController(IAccountService accountService) 
+        public AuthController(IAccountService accountService, AuthUtils authUtils) 
         {
             _accountService = accountService;
+            _authUtils = authUtils;
         }
         [AllowAnonymous]
         [HttpPost("v1/auth/login")]
         public async Task<object> Login([FromBody] LoginDTO req)
         {
             string token = await _accountService.LoginAsync(req);
+
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,           
@@ -59,7 +63,7 @@ namespace FPTTrackingSystem.Controllers
         [HttpGet("v1/auth/user-info")]
         public async Task<object> Info()
         {
-            var info =  await _accountService.UserInfo(HttpContext.User);
+            var info = await _authUtils.GetUserInfoFromCookie();
             return ApiResponse<object>.Success(
              info, "User information", 200);
         }

@@ -8,6 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using FPTTrackingSystem.Services.Token;
 using FPTTrackingSystem.Services.Login;
 using FPTTrackingSystem.Services.Authentication;
+using FPTTrackingSystem.Services.Group;
+using Repositories.Group;
+using Repositories.GroupRepository;
+using FPTTrackingSystem.Services.Staff;
+using Repositories.Staff;
+using FPTTrackingSystem.Utilities;
+using Mapster;
+using FPTTrackingSystem.Mappers;
 namespace FPTTrackingSystem.Extensions
 {
     public static class ServiceExtensions
@@ -15,13 +23,24 @@ namespace FPTTrackingSystem.Extensions
         // add repo , service 
         public  static IServiceCollection AddRepositories(this IServiceCollection services)
         {
+            services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IMilestoneRepository,MilestoneRepository>();
+            services.AddScoped<ISemesterRepository, SemesterRepository>();
+            services.AddScoped<IMajorRepository, MajorRepository>();
+
             return services;
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+            services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IMilestoneService, MilestoneService>();
+            services.AddScoped<ISemesterService, SemesterService>();
+
+            services.AddScoped<AuthUtils>();
+
             return services;
         }
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)
@@ -105,10 +124,11 @@ namespace FPTTrackingSystem.Extensions
             return services;
         }
 
-        //public static IServiceCollection AddMappings(this IServiceCollection services)
-        //{
-        //    services.AddAutoMapper(typeof(Program)); 
-        //    return services;
-        //}
+        public static IServiceCollection AddMappings(this IServiceCollection services)
+        {
+            TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceExtensions).Assembly);
+            MilestoneMapping.ToMilestoneResponse();
+            return services;
+        }
     }
 }

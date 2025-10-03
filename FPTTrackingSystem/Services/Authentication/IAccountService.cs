@@ -6,6 +6,6 @@ namespace FPTTrackingSystem.Services.Login
     public interface IAccountService
     {
         Task<string> LoginAsync(LoginDTO req);
-        Task<UserInfo> UserInfo(ClaimsPrincipal userClaims);
+        Task<UserInfo?> GetUserInfo(int id);
     }
 }

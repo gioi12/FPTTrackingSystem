@@ -71,10 +71,11 @@ namespace FPTTrackingSystem.Services.Token
             }
         }
 
+
         public string? GetUserIdFromToken(string token)
         {
             var principal = ValidateToken(token);
-            return principal?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            return principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
         public bool IsTokenExpired(string token)

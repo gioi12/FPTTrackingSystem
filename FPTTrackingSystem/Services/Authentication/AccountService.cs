@@ -25,19 +25,16 @@ namespace FPTTrackingSystem.Services.Authentication
             Account? acc = await _accountRepository.LoginAsync(req);
             if (acc == null)
             {
-                throw new ValidationException("Not Found");
+                throw new ValidationException("Invalid username or password");
             }
-
+            // id cua account
             return 
                 _jwtService.GenerateToken(acc.Id.ToString(), acc.Role.Name);
         }
 
-        public Task<UserInfo?> UserInfo(ClaimsPrincipal userClaims)
+        public Task<UserInfo?> GetUserInfo(int id)
         {
-            var userIdClaim = userClaims.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) throw new UnauthorizedAccessException();
-
-            return _accountRepository.UserInfo(int.Parse(userIdClaim.Value));
+            return _accountRepository.UserInfo(id);
         }
     }
 }

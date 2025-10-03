@@ -11,6 +11,8 @@ public partial class GroupUser
 
     public bool IsActive { get; set; }
 
+    public int Id { get; set; }
+
     public virtual Group Group { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

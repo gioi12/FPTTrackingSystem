@@ -13,25 +13,23 @@ public partial class Milestone
 
     public int? CreateBy { get; set; }
 
-    public int? SemesterId { get; set; }
+    public int SemesterId { get; set; }
 
     public int MajorId { get; set; }
 
-    public int GroupId { get; set; }
+    public DateTime? StartAt { get; set; }
 
-    public DateTime StartAt { get; set; }
-
-    public DateTime EndAt { get; set; }
+    public DateTime? EndAt { get; set; }
 
     public string? Description { get; set; }
 
+    public string? Deadline { get; set; }
+
     public virtual User? CreateByNavigation { get; set; }
 
-    public virtual Group Group { get; set; } = null!;
+    public virtual ICollection<Deliverable> Deliverables { get; set; } = new List<Deliverable>();
 
     public virtual Major Major { get; set; } = null!;
 
-    public virtual ICollection<MilestoneAttachment> MilestoneAttachments { get; set; } = new List<MilestoneAttachment>();
-
-    public virtual Semester? Semester { get; set; }
+    public virtual Semester Semester { get; set; } = null!;
 }

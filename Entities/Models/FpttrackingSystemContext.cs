@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Entities.Models;
 
 public partial class FpttrackingSystemContext : DbContext
 {
-    public FpttrackingSystemContext()
-    {
-    }
     public FpttrackingSystemContext(DbContextOptions<FpttrackingSystemContext> options)
         : base(options)
     {
@@ -17,7 +13,7 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<Account> Accounts { get; set; }
 
-    public virtual DbSet<Couse> Couses { get; set; }
+    public virtual DbSet<Deliverable> Deliverables { get; set; }
 
     public virtual DbSet<Group> Groups { get; set; }
 
@@ -49,7 +45,6 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -70,17 +65,25 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasConstraintName("FK_Account_Role");
         });
 
-        modelBuilder.Entity<Couse>(entity =>
+        modelBuilder.Entity<Deliverable>(entity =>
         {
-            entity.ToTable("Couse");
+            entity.ToTable("Deliverable");
+
+            entity.HasIndex(e => new { e.GroupId, e.MilestoneId }, "UQ_Deliverable").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Code)
-                .HasMaxLength(50)
-                .HasColumnName("code");
-            entity.Property(e => e.Description)
-                .HasMaxLength(200)
-                .HasColumnName("description");
+            entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.MilestoneId).HasColumnName("milestone_id");
+
+            entity.HasOne(d => d.Group).WithMany(p => p.Deliverables)
+                .HasForeignKey(d => d.GroupId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Deliverable_Group");
+
+            entity.HasOne(d => d.Milestone).WithMany(p => p.Deliverables)
+                .HasForeignKey(d => d.MilestoneId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Deliverable_Milestone");
         });
 
         modelBuilder.Entity<Group>(entity =>
@@ -88,7 +91,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.ToTable("Group");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CourseId).HasColumnName("course_id");
             entity.Property(e => e.CreateAt)
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
@@ -105,10 +107,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.VietnameseTitle)
                 .HasMaxLength(200)
                 .HasColumnName("vietnamese_title");
-
-            entity.HasOne(d => d.Course).WithMany(p => p.Groups)
-                .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK_Group_Couse");
 
             entity.HasOne(d => d.Major).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.MajorId)
@@ -144,20 +142,18 @@ public partial class FpttrackingSystemContext : DbContext
         modelBuilder.Entity<GroupUser>(entity =>
         {
             entity.ToTable("Group_User");
-            entity.HasKey(e => new { e.GroupId, e.UserId });
 
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
-            entity.HasOne(d => d.Group)
-                   .WithMany(p => p.GroupUsers) 
-                   .HasForeignKey(d => d.GroupId)
-                   .OnDelete(DeleteBehavior.ClientSetNull)
-                   .HasConstraintName("FK_Group_User_Group");
+            entity.HasOne(d => d.Group).WithMany(p => p.GroupUsers)
+                .HasForeignKey(d => d.GroupId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Group_User_Group");
 
-            entity.HasOne(d => d.User)
-                .WithMany(p => p.GroupUsers) 
+            entity.HasOne(d => d.User).WithMany(p => p.GroupUsers)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Group_User_User");
@@ -185,11 +181,13 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
             entity.Property(e => e.CreateBy).HasColumnName("create_by");
+            entity.Property(e => e.Deadline)
+                .HasMaxLength(50)
+                .HasColumnName("deadline");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.EndAt)
                 .HasColumnType("datetime")
                 .HasColumnName("end_at");
-            entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.MajorId).HasColumnName("major_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
@@ -203,11 +201,6 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasForeignKey(d => d.CreateBy)
                 .HasConstraintName("FK_Milestone_User");
 
-            entity.HasOne(d => d.Group).WithMany(p => p.Milestones)
-                .HasForeignKey(d => d.GroupId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Milestone_Group");
-
             entity.HasOne(d => d.Major).WithMany(p => p.Milestones)
                 .HasForeignKey(d => d.MajorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -215,6 +208,7 @@ public partial class FpttrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Semester).WithMany(p => p.Milestones)
                 .HasForeignKey(d => d.SemesterId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Milestone_Semester");
         });
 
@@ -228,15 +222,15 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
             entity.Property(e => e.CreateBy).HasColumnName("create_by");
-            entity.Property(e => e.MilestoneId).HasColumnName("milestone_id");
+            entity.Property(e => e.DeliverableId).HasColumnName("deliverable_id");
 
             entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.MilestoneAttachments)
                 .HasForeignKey(d => d.CreateBy)
                 .HasConstraintName("FK_Milestone_Attachment_User");
 
-            entity.HasOne(d => d.Milestone).WithMany(p => p.MilestoneAttachments)
-                .HasForeignKey(d => d.MilestoneId)
-                .HasConstraintName("FK_Milestone_Attachment_Milestone");
+            entity.HasOne(d => d.Deliverable).WithMany(p => p.MilestoneAttachments)
+                .HasForeignKey(d => d.DeliverableId)
+                .HasConstraintName("FK_Milestone_Attachment_Deliverable");
         });
 
         modelBuilder.Entity<Report>(entity =>
@@ -276,6 +270,10 @@ public partial class FpttrackingSystemContext : DbContext
         {
             entity.ToTable("Semester");
 
+            entity.HasIndex(e => e.IsActive, "UX_Semester_IsActive_OnlyOneTrue")
+                .IsUnique()
+                .HasFilter("([is_active]=(1))");
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Description)
                 .HasMaxLength(50)
@@ -284,6 +282,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
+            entity.Property(e => e.StartAt).HasColumnName("start_at");
         });
 
         modelBuilder.Entity<Status>(entity =>
@@ -292,8 +291,7 @@ public partial class FpttrackingSystemContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Name)
-                .HasMaxLength(10)
-                .IsFixedLength()
+                .HasMaxLength(50)
                 .HasColumnName("name");
         });
 
