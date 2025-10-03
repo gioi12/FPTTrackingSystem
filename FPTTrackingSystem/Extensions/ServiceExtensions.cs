@@ -25,6 +25,9 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IMilestoneRepository,MilestoneRepository>();
             services.AddScoped<ISemesterRepository, SemesterRepository>();
             services.AddScoped<IMajorRepository, MajorRepository>();
+            services.AddScoped<IMajorRepository, MajorRepository>();
+            services.AddScoped<IMajorService, MajorService>();
+
 
             return services;
         }
