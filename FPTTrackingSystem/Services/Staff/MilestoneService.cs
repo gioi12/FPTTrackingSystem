@@ -36,6 +36,7 @@ namespace FPTTrackingSystem.Services.Staff
                 SemesterId = x.SemesterId,
                 CreateAt = DateTime.Now,
                 CreateBy = user.Id,
+                Deadline = x.Deadline
             }).ToList();
 
             var list = await _milestoneRepository.NewMilestontes(milestones);
@@ -69,6 +70,7 @@ namespace FPTTrackingSystem.Services.Staff
                 {
                     milestone.Name = requestItem.Name;
                     milestone.Description = requestItem.Description;
+                    milestone.Deadline = requestItem.Deadline;
                 }
             }
             var listUpadated = await _milestoneRepository.updateMilestontes(list);

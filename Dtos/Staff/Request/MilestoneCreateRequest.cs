@@ -13,6 +13,7 @@ namespace DataTranferObjects.Staff.Request
         [NotNull]
         public string? Name { get; set; }
         public string? Description { get; set; }
+        public string? Deadline { get; set; }
         [NotNull]
         public int MajorId { get; set; }
         [NotNull]

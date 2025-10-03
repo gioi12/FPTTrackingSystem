@@ -12,6 +12,7 @@ namespace FPTTrackingSystem.Mappers
                 .Map(dest => dest.Id, src => src.Id)
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.Deadline, src => src.Deadline)
                 .Map(dest => dest.CreateAt, src => DateTime.Now)
                 .Map(dest => dest.StartAt, src => src.StartAt)
                 .Map(dest => dest.EndAt, src => src.EndAt)
