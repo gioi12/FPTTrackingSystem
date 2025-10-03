@@ -35,7 +35,7 @@ namespace FPTTrackingSystem.Controllers.Admin
             return Ok(await _milestoneService.UpdateInfoMilestone(request));
         }
         [Authorize(Roles = "Staff")]
-        [HttpDelete("v1/Staff/milestones/{id}")]
+        [HttpDelete("v1/Staff/milestone/{id}")]
         public async Task<object> deleteMilestone([FromRoute]int id)
         {
             return Ok(await _milestoneService.DeleteMilestone(id));
