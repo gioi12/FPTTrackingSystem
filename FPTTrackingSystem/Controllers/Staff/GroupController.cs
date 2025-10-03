@@ -1,18 +1,16 @@
 ﻿using FPTTrackingSystem.Services.Staff;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FPTTrackingSystem.Controllers
+namespace FPTTrackingSystem.Controllers.Staff
 {
-    [Route("api/v1/[controller]")]
-    [Authorize]
+    [Route("api/Staff")]
     [ApiController]
-    public class StaffController : ControllerBase
+    public class GroupController : ControllerBase
     {
         private readonly IGroupService _groupService;
 
-        public StaffController(IGroupService groupService)
+        public GroupController(IGroupService groupService)
         {
             _groupService = groupService;
         }
@@ -27,7 +25,7 @@ namespace FPTTrackingSystem.Controllers
         [HttpGet("capstone-groups/{id}")]
         public async Task<IActionResult> GetGroupById(string id)
         {
-            var groupId = int.Parse(id);    
+            var groupId = int.Parse(id);
             var result = await _groupService.GetGroupByIdAsync(groupId);
             return StatusCode(result.Status, result);
         }
@@ -38,6 +36,5 @@ namespace FPTTrackingSystem.Controllers
             var response = await _groupService.GetMajorGroupTotalsAsync();
             return Ok(response);
         }
-
     }
 }

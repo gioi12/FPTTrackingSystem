@@ -1,9 +1,5 @@
 ﻿using FPTTrackingSystem.Extensions;
 using FPTTrackingSystem.Middlewares;
-using FPTTrackingSystem.Services.Group;
-using Repositories.Authentication;
-using Repositories.Group;
-using Repositories.GroupRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 

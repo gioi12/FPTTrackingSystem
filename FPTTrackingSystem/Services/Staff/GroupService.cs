@@ -1,9 +1,11 @@
 ﻿using Azure;
 using DataTranferObjects.Group;
 using Microsoft.EntityFrameworkCore;
-using Repositories.GroupRepository;
+using FPTTrackingSystem.Wrappers;
+using Repositories.Staff;
+using DataTranferObjects.Enum;
 
-namespace FPTTrackingSystem.Services.Group
+namespace FPTTrackingSystem.Services.Staff
 {
     public class GroupService : IGroupService
     {
@@ -23,7 +25,7 @@ namespace FPTTrackingSystem.Services.Group
             var total = await _groupRepository.CountAsync(query);
 
             var groups = await query
-                .OrderBy(g => g.Id) 
+                .OrderBy(g => g.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                  .Select(g => new GroupDto
@@ -32,13 +34,13 @@ namespace FPTTrackingSystem.Services.Group
                      CourseCode = g.Name,
                      Term = g.Semester != null ? g.Semester.Name : "",
                      Major = g.Major != null ? g.Major.Name : "",
-                     StudentCount = g.GroupUsers.Count(gu => gu.User.Account.RoleId == 1),
+                     StudentCount = g.GroupUsers.Count(gu => gu.User.Account.RoleId == (int)RoleEnum.Student),
                      Supervisor = g.GroupUsers
-                        .Where(gu => gu.User.Account.RoleId == 2 || gu.User.Account.RoleId == 3)
+                        .Where(gu => gu.User.Account.RoleId == (int)RoleEnum.Supervior || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead)
                         .Select(gu => gu.User.Fullname)
                         .ToList(),
                      SubmittedDocs = g.Deliverables.Any(m => m.MilestoneAttachments.Any()) ? false : false
-                    })
+                 })
                   .ToListAsync();
 
             return new PagedResponse<GroupDto>
@@ -65,27 +67,36 @@ namespace FPTTrackingSystem.Services.Group
                     Data = null
                 };
             }
-             
             var dto = new GroupDetailDto
             {
                 Id = group.Id.ToString(),
                 ProjectName = group.Name,
+
                 Supervisors = group.GroupUsers
-                    .Where(gu => gu.User.Account.RoleId == 2 || gu.User.Account.RoleId == 3)
+                    .Where(gu => gu.User != null
+                              && gu.User.Account != null
+                              && (gu.User.Account.RoleId == (int)RoleEnum.Supervior
+                               || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead))
                     .Select(gu => gu.User.Fullname)
                     .ToList(),
-                Status = group.Status.Name, 
-                Risk = "Low",           
+
+                Status = group.Status?.Name,
+                Risk = "Low",
+
                 Students = group.GroupUsers
-                    .Where(gu => gu.User.Account.RoleId == 1)
+                    .Where(gu => gu.User != null
+                              && gu.User.Account != null
+                              && gu.User.Account.RoleId == (int)RoleEnum.Student)
                     .Select(gu => new StudentDto
                     {
                         Id = gu.User.RollNumber,
                         Name = gu.User.Fullname,
-                        Role = gu.User.Account.Role.Name
+                        Role = gu.User.Account.Role?.Name
                     }).ToList(),
+
                 ActivityLog = null,
             };
+
 
             return new ApiResponse<GroupDetailDto>
             {

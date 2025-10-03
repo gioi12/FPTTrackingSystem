@@ -1,7 +1,6 @@
 ﻿using DataTranferObjects.Group;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
-using Repositories.GroupRepository;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Group
+namespace Repositories.Staff
 {
     public class GroupRepository : IGroupRepository
     {
@@ -18,12 +17,12 @@ namespace Repositories.Group
         {
             _context = context;
         }
-        public async Task<int> CountAsync(IQueryable<Entities.Models.Group> query)
+        public async Task<int> CountAsync(IQueryable<Group> query)
         {
             return await query.CountAsync();
         }
 
-        public async Task<Entities.Models.Group?> GetByIdAsync(int id)
+        public async Task<Group?> GetByIdAsync(int id)
         {
             return await _context.Groups
                 .Include(g => g.Status)
@@ -36,7 +35,7 @@ namespace Repositories.Group
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
-        public IQueryable<Entities.Models.Group> GetGroupsQuery()
+        public IQueryable<Group> GetGroupsQuery()
         {
             return _context.Groups
                .Include(g => g.Major)
@@ -62,12 +61,12 @@ namespace Repositories.Group
             .ToListAsync();
         }
 
-        public async Task<List<Entities.Models.Group>> GetGroupsActiveSesmester()
+        public async Task<List<Group>> GetGroupsActiveSesmester()
         {
-          var semester =  await _context.Semesters.FirstOrDefaultAsync(x => x.IsActive == true);
-          if (semester == null) throw new ValidationException("Not found sesmester currently active");
-          return await _context.Groups.Include(x=>x.Status)
-                .Where(x=>x.SemesterId == semester.Id).ToListAsync();
+            var semester = await _context.Semesters.FirstOrDefaultAsync(x => x.IsActive == true);
+            if (semester == null) throw new ValidationException("Not found sesmester currently active");
+            return await _context.Groups.Include(x => x.Status)
+                  .Where(x => x.SemesterId == semester.Id).ToListAsync();
         }
     }
 }

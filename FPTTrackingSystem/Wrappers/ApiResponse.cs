@@ -6,6 +6,8 @@
         public string Message { get; set; }
         public T? Data { get; set; }
 
+        public ApiResponse() { }
+
         public ApiResponse(int status, string message, T? data = default)
         {
             Status = status;

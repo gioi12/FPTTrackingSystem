@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 using DataTranferObjects.Group;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
-namespace Repositories.GroupRepository
+namespace Repositories.Staff
 {
     public interface IGroupRepository
     {
-        public IQueryable<Entities.Models.Group> GetGroupsQuery();
-        public Task<int> CountAsync(IQueryable<Entities.Models.Group> query);
-        public Task<Entities.Models.Group> GetByIdAsync(int id);
+        public IQueryable<Group> GetGroupsQuery();
+        public Task<int> CountAsync(IQueryable<Group> query);
+        public Task<Group> GetByIdAsync(int id);
         public Task<List<DashBoardGroupDto>> GetMajorGroupTotalsAsync();
 
-        public Task<List<Entities.Models.Group>> GetGroupsActiveSesmester();
+        public Task<List<Group>> GetGroupsActiveSesmester();
     }
 }
