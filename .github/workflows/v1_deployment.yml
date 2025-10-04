@@ -34,6 +34,8 @@ jobs:
       # 6. Deploy to IIS
       - name: Deploy to IIS via WinRM
         shell: pwsh
+        env:
+          APPSETTINGS_JSON: ${{ secrets.APPSETTINGS_PRODUCTION }}
         run: |
           # Tạo credential
           $user = "${{ secrets.VPS_USER }}"
@@ -72,9 +74,7 @@ jobs:
             # Deploy trên server
             Write-Host "Deploying to C:\Users\Administrator\Desktop\Publish-BE..."
             
-            $productionSettings = @"
-            ${{ secrets.APPSETTINGS_PRODUCTION }}
-            "@
+            $productionSettings = $env:APPSETTINGS_JSON
             
             Invoke-Command -Session $session -ArgumentList $productionSettings -ScriptBlock {
               param($prodSettings)
