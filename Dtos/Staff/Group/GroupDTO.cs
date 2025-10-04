@@ -1,0 +1,95 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DataTranferObjects.Staff.Group
+{
+    public class GroupDto
+    {
+        public string? Id { get; set; } = string.Empty;
+        public string? CourseCode { get; set; } = string.Empty;
+        public string? Term { get; set; } = string.Empty;
+        public string? Major { get; set; } = string.Empty;
+        public int StudentCount { get; set; }
+        public List<string>? Supervisor { get; set; }
+        public bool SubmittedDocs { get; set; }
+    }
+
+    public class PagedResponse<T>
+    {
+        public int Status { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public PagedData<T> Data { get; set; } = new PagedData<T>();
+    }
+
+    public class PagedData<T>
+    {
+        public IEnumerable<T> Items { get; set; } = new List<T>();
+        public int Total { get; set; }
+    }
+
+    public class GroupDetailDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string? ProjectName { get; set; }
+        public List<string> Supervisors { get; set; } = new();
+        public string? Status { get; set; }
+        public string? Risk { get; set; }
+        public List<StudentDto> Students { get; set; } = new();
+        public List<string>? ActivityLog { get; set; } = null;
+    }
+
+    public class StudentDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public string? Role { get; set; }
+    }
+
+    public class DashBoardGroupDto
+    {
+        public string name { get; set; } = string.Empty;
+        public int Total { get; set; }
+    }
+
+
+    public class GroupTrackingResponseDto
+    {
+        public string CurrentWeek { get; set; } = string.Empty;
+        public List<WeekDto> Weeks { get; set; } = new();
+        public List<string> TimeSlots { get; set; } = new();
+        public List<DayDto> Days { get; set; } = new();
+        public List<GroupMemberDto> GroupMembers { get; set; } = new();
+        public List<MilestoneDto> Milestones { get; set; } = new();
+    }
+
+    public class WeekDto
+    {
+        public string Value { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+    }
+
+    public class DayDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Date { get; set; } = string.Empty;
+    }
+
+    public class GroupMemberDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public bool IsLeader { get; set; }
+    }
+
+    public class MilestoneDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public DateTime? Deadline { get; set; }
+        public string Status { get; set; } = string.Empty;
+    }
+
+
+}

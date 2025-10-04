@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Controllers.Staff
 {
-    [Route("api/Staff")]
+    [Route("api/v1/Staff")]
     [ApiController]
     public class GroupController : ControllerBase
     {
@@ -36,5 +36,52 @@ namespace FPTTrackingSystem.Controllers.Staff
             var response = await _groupService.GetMajorGroupTotalsAsync();
             return Ok(response);
         }
+        [HttpGet("group-tracking")]
+        public async Task<IActionResult> GetGroupTracking(
+    [FromQuery] string groupId,
+    [FromQuery] string startDate,
+    [FromQuery] string endDate)
+        {
+            if (!int.TryParse(groupId, out int gId))
+            {
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "GroupId không hợp lệ. Phải là số nguyên.",
+                    data = (object?)null
+                });
+            }
+
+            if (!DateTime.TryParseExact(startDate, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out DateTime sDate))
+            {
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "StartDate không hợp lệ. Định dạng phải là dd/MM/yyyy.",
+                    data = (object?)null
+                });
+            }
+
+            if (!DateTime.TryParseExact(endDate, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out DateTime eDate))
+            {
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "EndDate không hợp lệ. Định dạng phải là dd/MM/yyyy.",
+                    data = (object?)null
+                });
+            }
+
+            var result = await _groupService.GetGroupTrackingAsync(gId, sDate, eDate);
+            return StatusCode(result.Status, result);
+        }
+
+
     }
 }

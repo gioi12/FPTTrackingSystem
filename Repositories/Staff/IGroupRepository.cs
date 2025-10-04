@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DataTranferObjects.Group;
+using DataTranferObjects.Staff.Group;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Repositories.Staff
@@ -16,5 +16,7 @@ namespace Repositories.Staff
         public Task<List<DashBoardGroupDto>> GetMajorGroupTotalsAsync();
 
         public Task<List<Group>> GetGroupsActiveSesmester();
+        public Task<Group?> GetGroupWithMembersAsync(int groupId);
+        public Task<List<Milestone>> GetMilestonesByMajorAsync(int majorId);
     }
 }

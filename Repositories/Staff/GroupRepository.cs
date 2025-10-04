@@ -1,4 +1,4 @@
-﻿using DataTranferObjects.Group;
+﻿using DataTranferObjects.Staff.Group;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -67,6 +67,23 @@ namespace Repositories.Staff
             if (semester == null) throw new ValidationException("Not found sesmester currently active");
             return await _context.Groups.Include(x => x.Status)
                   .Where(x => x.SemesterId == semester.Id).ToListAsync();
+        }
+
+        public async Task<Group?> GetGroupWithMembersAsync(int groupId)
+        {
+            return await _context.Groups
+                .Include(g => g.GroupUsers)
+                    .ThenInclude(gu => gu.User)
+                    .ThenInclude(u => u.Account)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+        }
+
+        public async Task<List<Milestone>> GetMilestonesByMajorAsync(int majorId)
+        {
+            return await _context.Milestones
+                .Where(m => m.MajorId == majorId)
+                .OrderBy(m => m.EndAt)
+                .ToListAsync();
         }
     }
 }

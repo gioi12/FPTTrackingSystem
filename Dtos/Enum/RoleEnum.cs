@@ -11,6 +11,7 @@ namespace DataTranferObjects.Enum
         Student = 1,
         Supervior = 2,
         SuperviorHead = 3,
-        Staff = 4
+        Staff = 4,
+        StudentLead = 5,
     }
 }
