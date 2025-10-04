@@ -150,6 +150,14 @@ jobs:
               Write-Host "Moving new directory to production..."
               Rename-Item $tempDeploy $target -Force
               
+              Write-Host "Setting permissions..."
+              icacls $target /grant "IIS_IUSRS:(OI)(CI)F" /T /Q | Out-Null
+              if ($site) {
+                icacls $target /grant "IIS AppPool\$($appPoolName):(OI)(CI)F" /T /Q | Out-Null
+              }
+              icacls $target /grant "NETWORK SERVICE:(OI)(CI)F" /T /Q | Out-Null
+              Write-Host "✓ Permissions set"
+              
               # Cập nhật lại physical path về đúng tên
               if ($site) {
                 Set-ItemProperty "IIS:\Sites\$siteName" -Name physicalPath -Value $target
