@@ -71,7 +71,14 @@ jobs:
             
             # Deploy trên server
             Write-Host "Deploying to C:\Users\Administrator\Desktop\Publish-BE..."
-            Invoke-Command -Session $session -ScriptBlock {
+            
+            $productionSettings = @'
+                  ${{ secrets.APPSETTINGS_PRODUCTION }}
+                  '@
+            
+            Invoke-Command -Session $session -ArgumentList $productionSettings -ScriptBlock {
+              param($prodSettings)
+              
               $target = "C:\Users\Administrator\Desktop\Publish-BE"
               $tempDeploy = "C:\Users\Administrator\Desktop\Publish-BE-New"
               $oldDeploy = "C:\Users\Administrator\Desktop\Publish-BE-Old"
@@ -116,6 +123,10 @@ jobs:
               Write-Host "Extracting files to temporary directory..."
               Expand-Archive -Path $tempZip -DestinationPath $tempDeploy -Force
               Write-Host "✓ Files extracted"
+
+              Write-Host "Creating appsettings.Production.json..."
+              Set-Content -Path "$tempDeploy\appsettings.Production.json" -Value $prodSettings -Encoding UTF8
+              Write-Host "✓ appsettings.Production.json created"
               
               # Swap thư mục (atomic operation)
               Write-Host "Swapping directories..."
