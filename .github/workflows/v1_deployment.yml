@@ -73,102 +73,98 @@ jobs:
             Write-Host "Deploying to C:\Users\Administrator\Desktop\Publish-BE..."
             Invoke-Command -Session $session -ScriptBlock {
               $target = "C:\Users\Administrator\Desktop\Publish-BE"
+              $tempDeploy = "C:\Users\Administrator\Desktop\Publish-BE-New"
+              $oldDeploy = "C:\Users\Administrator\Desktop\Publish-BE-Old"
               $tempZip = "C:\Temp\deploy.zip"
               
               Import-Module WebAdministration -ErrorAction SilentlyContinue
               
-              # Tìm app pool
+              # Tìm app pool và site
               $site = Get-ChildItem IIS:\Sites | Where-Object { 
                 $_.PhysicalPath -eq $target 
               } | Select-Object -First 1
               
               if ($site) {
                 $appPoolName = $site.applicationPool
-                Write-Host "Found app pool: $appPoolName"
+                $siteName = $site.Name
+                Write-Host "Found site: $siteName, app pool: $appPoolName"
                 
                 # Dừng app pool
                 Write-Host "Stopping app pool..."
                 Stop-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
                 
-                # Chờ app pool thực sự dừng
+                # Chờ app pool dừng
                 $timeout = 30
                 $elapsed = 0
                 do {
                   Start-Sleep -Seconds 1
                   $elapsed++
                   $state = (Get-WebAppPoolState -Name $appPoolName).Value
-                  Write-Host "App pool state: $state (waited $elapsed seconds)"
                 } while ($state -ne "Stopped" -and $elapsed -lt $timeout)
                 
-                # Nếu vẫn chưa dừng, kill process
-                if ($state -ne "Stopped") {
-                  Write-Host "Force killing worker processes..."
-                  Get-Process -Name "w3wp" -ErrorAction SilentlyContinue | Where-Object {
-                    $_.Modules | Where-Object { $_.FileName -like "*$target*" }
-                  } | Stop-Process -Force
-                  Start-Sleep -Seconds 2
-                }
-              }
-              
-              # Backup thư mục cũ
-              if (Test-Path $target) {
-                $backupPath = "C:\Temp\Publish-BE-Backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                Write-Host "Creating backup at $backupPath..."
-                Copy-Item -Path $target -Destination $backupPath -Recurse -Force
-                
-                # Xoá file cũ với retry
-                Write-Host "Removing old files..."
-                $retryCount = 0
-                $maxRetries = 3
-                $success = $false
-                
-                while (-not $success -and $retryCount -lt $maxRetries) {
-                  try {
-                    # Xóa từng file thay vì xóa toàn bộ
-                    Get-ChildItem -Path $target -Recurse | ForEach-Object {
-                      if ($_.PSIsContainer) {
-                        Remove-Item $_.FullName -Recurse -Force -ErrorAction Stop
-                      } else {
-                        Remove-Item $_.FullName -Force -ErrorAction Stop
-                      }
-                    }
-                    $success = $true
-                    Write-Host "✓ Old files removed successfully"
-                  } catch {
-                    $retryCount++
-                    Write-Host "Retry $retryCount/$maxRetries - Waiting for files to unlock..."
-                    Start-Sleep -Seconds 3
-                    
-                    # Kill tất cả w3wp processes
-                    Get-Process -Name "w3wp" -ErrorAction SilentlyContinue | Stop-Process -Force
-                    Start-Sleep -Seconds 2
-                  }
-                }
-                
-                if (-not $success) {
-                  throw "Failed to remove old files after $maxRetries attempts"
-                }
+                Write-Host "✓ App pool stopped"
               } else {
-                Write-Host "Creating target directory..."
-                New-Item -ItemType Directory -Path $target -Force
+                Write-Host "Warning: No IIS site found for this path"
               }
               
-              # Giải nén file mới
-              Write-Host "Extracting new files..."
-              Expand-Archive -Path $tempZip -DestinationPath $target -Force
+              # Xóa thư mục tạm nếu tồn tại
+              if (Test-Path $tempDeploy) {
+                Remove-Item $tempDeploy -Recurse -Force
+              }
               
-              # Xoá file zip tạm
-              Remove-Item $tempZip -Force
+              # Giải nén vào thư mục tạm
+              Write-Host "Extracting files to temporary directory..."
+              Expand-Archive -Path $tempZip -DestinationPath $tempDeploy -Force
+              Write-Host "✓ Files extracted"
               
-              # Start lại app pool
-              if ($site -and $appPoolName) {
+              # Swap thư mục (atomic operation)
+              Write-Host "Swapping directories..."
+              
+              if ($site) {
+                # Đổi physical path của site sang thư mục mới
+                Set-ItemProperty "IIS:\Sites\$siteName" -Name physicalPath -Value $tempDeploy
+                Write-Host "✓ Site physical path updated to new directory"
+                
+                # Start lại app pool
                 Write-Host "Starting app pool..."
                 Start-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
-                Start-Sleep -Seconds 2
+                Start-Sleep -Seconds 3
                 
                 $state = (Get-WebAppPoolState -Name $appPoolName).Value
-                Write-Host "App pool state after start: $state"
+                Write-Host "✓ App pool started (state: $state)"
               }
+              
+              # Xóa thư mục cũ (nếu có) - giờ đã không còn bị lock
+              if (Test-Path $oldDeploy) {
+                Write-Host "Removing old backup directory..."
+                Remove-Item $oldDeploy -Recurse -Force -ErrorAction SilentlyContinue
+              }
+              
+              # Đổi tên thư mục cũ thành backup
+              if (Test-Path $target) {
+                Write-Host "Moving old directory to backup..."
+                Rename-Item $target $oldDeploy -Force
+              }
+              
+              # Đổi tên thư mục mới thành tên chính thức
+              Write-Host "Moving new directory to production..."
+              Rename-Item $tempDeploy $target -Force
+              
+              # Cập nhật lại physical path về đúng tên
+              if ($site) {
+                Set-ItemProperty "IIS:\Sites\$siteName" -Name physicalPath -Value $target
+                Write-Host "✓ Site physical path updated to production directory"
+              }
+              
+              # Xóa file zip tạm
+              Remove-Item $tempZip -Force
+              
+              # Dọn dẹp backup cũ (giữ lại 3 backup gần nhất)
+              Write-Host "Cleaning up old backups..."
+              Get-ChildItem "C:\Temp\Publish-BE-Backup-*" -Directory | 
+                Sort-Object CreationTime -Descending | 
+                Select-Object -Skip 3 | 
+                Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
               
               Write-Host "✓ Deployment completed successfully!"
             }
@@ -176,6 +172,29 @@ jobs:
           } catch {
             Write-Error "❌ Deployment failed: $_"
             Write-Error $_.ScriptStackTrace
+            
+            # Rollback nếu có lỗi
+            Invoke-Command -Session $session -ScriptBlock {
+              $target = "C:\Users\Administrator\Desktop\Publish-BE"
+              $oldDeploy = "C:\Users\Administrator\Desktop\Publish-BE-Old"
+              
+              Import-Module WebAdministration -ErrorAction SilentlyContinue
+              
+              $site = Get-ChildItem IIS:\Sites | Where-Object { 
+                $_.PhysicalPath -like "*Publish-BE*" 
+              } | Select-Object -First 1
+              
+              if ($site -and (Test-Path $oldDeploy)) {
+                Write-Host "Rolling back to previous version..."
+                $siteName = $site.Name
+                $appPoolName = $site.applicationPool
+                
+                Set-ItemProperty "IIS:\Sites\$siteName" -Name physicalPath -Value $oldDeploy
+                Restart-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
+                Write-Host "✓ Rollback completed"
+              }
+            } -ErrorAction SilentlyContinue
+            
             exit 1
           } finally {
             if ($session) {
