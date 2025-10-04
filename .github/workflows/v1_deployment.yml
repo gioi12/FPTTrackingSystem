@@ -75,10 +75,9 @@ jobs:
               $target = "C:\Users\Administrator\Desktop\Publish-BE"
               $tempZip = "C:\Temp\deploy.zip"
               
-              # Tìm tên app pool từ site (nếu có)
               Import-Module WebAdministration -ErrorAction SilentlyContinue
               
-              # Tìm app pool đang chạy site này
+              # Tìm app pool
               $site = Get-ChildItem IIS:\Sites | Where-Object { 
                 $_.PhysicalPath -eq $target 
               } | Select-Object -First 1
@@ -90,20 +89,65 @@ jobs:
                 # Dừng app pool
                 Write-Host "Stopping app pool..."
                 Stop-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
-                Start-Sleep -Seconds 3
-              } else {
-                Write-Host "No IIS site found for this path, continuing anyway..."
+                
+                # Chờ app pool thực sự dừng
+                $timeout = 30
+                $elapsed = 0
+                do {
+                  Start-Sleep -Seconds 1
+                  $elapsed++
+                  $state = (Get-WebAppPoolState -Name $appPoolName).Value
+                  Write-Host "App pool state: $state (waited $elapsed seconds)"
+                } while ($state -ne "Stopped" -and $elapsed -lt $timeout)
+                
+                # Nếu vẫn chưa dừng, kill process
+                if ($state -ne "Stopped") {
+                  Write-Host "Force killing worker processes..."
+                  Get-Process -Name "w3wp" -ErrorAction SilentlyContinue | Where-Object {
+                    $_.Modules | Where-Object { $_.FileName -like "*$target*" }
+                  } | Stop-Process -Force
+                  Start-Sleep -Seconds 2
+                }
               }
               
-              # Backup thư mục cũ (optional nhưng an toàn)
+              # Backup thư mục cũ
               if (Test-Path $target) {
                 $backupPath = "C:\Temp\Publish-BE-Backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
                 Write-Host "Creating backup at $backupPath..."
                 Copy-Item -Path $target -Destination $backupPath -Recurse -Force
                 
-                # Xoá file cũ
+                # Xoá file cũ với retry
                 Write-Host "Removing old files..."
-                Remove-Item "$target\*" -Recurse -Force
+                $retryCount = 0
+                $maxRetries = 3
+                $success = $false
+                
+                while (-not $success -and $retryCount -lt $maxRetries) {
+                  try {
+                    # Xóa từng file thay vì xóa toàn bộ
+                    Get-ChildItem -Path $target -Recurse | ForEach-Object {
+                      if ($_.PSIsContainer) {
+                        Remove-Item $_.FullName -Recurse -Force -ErrorAction Stop
+                      } else {
+                        Remove-Item $_.FullName -Force -ErrorAction Stop
+                      }
+                    }
+                    $success = $true
+                    Write-Host "✓ Old files removed successfully"
+                  } catch {
+                    $retryCount++
+                    Write-Host "Retry $retryCount/$maxRetries - Waiting for files to unlock..."
+                    Start-Sleep -Seconds 3
+                    
+                    # Kill tất cả w3wp processes
+                    Get-Process -Name "w3wp" -ErrorAction SilentlyContinue | Stop-Process -Force
+                    Start-Sleep -Seconds 2
+                  }
+                }
+                
+                if (-not $success) {
+                  throw "Failed to remove old files after $maxRetries attempts"
+                }
               } else {
                 Write-Host "Creating target directory..."
                 New-Item -ItemType Directory -Path $target -Force
@@ -121,6 +165,9 @@ jobs:
                 Write-Host "Starting app pool..."
                 Start-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
                 Start-Sleep -Seconds 2
+                
+                $state = (Get-WebAppPoolState -Name $appPoolName).Value
+                Write-Host "App pool state after start: $state"
               }
               
               Write-Host "✓ Deployment completed successfully!"
