@@ -72,9 +72,7 @@ jobs:
             # Deploy trên server
             Write-Host "Deploying to C:\Users\Administrator\Desktop\Publish-BE..."
             
-            $productionSettings = @'
-                  ${{ secrets.APPSETTINGS_PRODUCTION }}
-                  '@
+            $productionSettings = "${{ secrets.APPSETTINGS_PRODUCTION }}"
             
             Invoke-Command -Session $session -ArgumentList $productionSettings -ScriptBlock {
               param($prodSettings)
