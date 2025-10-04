@@ -1,61 +1,138 @@
 name: Build & Deploy to IIS
-
 on:
   push:
     branches: [ "main" ]  
-
 jobs:
   build-and-deploy:
     runs-on: windows-latest
-
     steps:
       # 1. Lấy code
       - name: Checkout source
         uses: actions/checkout@v4
-
+      
       # 2. Cài .NET SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0  
-
+      
       # 3. Restore NuGet packages
       - name: Restore dependencies
         run: dotnet restore
-
-      # 6. Publish ra thư mục ./publish
-      #- name: Publish
-       # run: dotnet publish ./FPTTrackingSystem/FPTTrackingSystem.csproj -c Release -r win-x64 --self-contained true -o ./publish
+      
+      # 4. Build & Publish
       - name: Build & Publish self-contained
         run: dotnet publish ./FPTTrackingSystem/FPTTrackingSystem.csproj `
           -c Release -r win-x64 --self-contained true `
           -p:TreatWarningsAsErrors=false `
           -o ./publish
-            
-      - name: Deploy to IIS via PowerShell
+      
+      # 5. Zip file để transfer
+      - name: Compress published files
+        run: Compress-Archive -Path ./publish/* -DestinationPath ./deploy.zip
+      
+      # 6. Deploy to IIS
+      - name: Deploy to IIS via WinRM
         shell: pwsh
         run: |
-          # Tạo credential từ secrets
+          # Tạo credential
           $user = "${{ secrets.VPS_USER }}"
           $pass = ConvertTo-SecureString "${{ secrets.VPS_PASS }}" -AsPlainText -Force
-          $cred = New-Object System.Management.Automation.PSCredential ($user, $pass)
-      
-          # Kết nối WinRM tới server IIS
-          $session = New-PSSession -ComputerName ${{ secrets.VPS_HOST }} -Credential $cred
-      
-          # Thực thi deploy trên server
-          Invoke-Command -Session $session -ScriptBlock {
+          $cred = New-Object System.Management.Automation.PSCredential($user, $pass)
+          
+          # Session options
+          $sessionOption = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
+          
+          try {
+            Write-Host "Connecting to server ${{ secrets.VPS_HOST }}..."
+            
+            # Kết nối WinRM qua HTTPS
+            $session = New-PSSession -ComputerName "${{ secrets.VPS_HOST }}" `
+                                      -Port 5986 `
+                                      -UseSSL `
+                                      -Credential $cred `
+                                      -SessionOption $sessionOption
+            
+            Write-Host "✓ Connected successfully"
+            
+            # Tạo thư mục Temp nếu chưa có
+            Invoke-Command -Session $session -ScriptBlock {
+              if (-not (Test-Path "C:\Temp")) {
+                New-Item -ItemType Directory -Path "C:\Temp" -Force
+              }
+            }
+            
+            # Copy file zip lên server
+            Write-Host "Uploading deployment package..."
+            $localZip = ".\deploy.zip"
+            $remoteZip = "C:\Temp\deploy.zip"
+            Copy-Item -Path $localZip -Destination $remoteZip -ToSession $session -Force
+            Write-Host "✓ Upload completed"
+            
+            # Deploy trên server
+            Write-Host "Deploying to C:\Users\Administrator\Desktop\Publish-BE..."
+            Invoke-Command -Session $session -ScriptBlock {
               $target = "C:\Users\Administrator\Desktop\Publish-BE"
-      
-              # Xoá file cũ
-              Remove-Item "$target\*" -Recurse -Force
-      
-              # Copy file mới từ thư mục publish
-              Copy-Item "\\runner\_work\myapp\publish\*" $target -Recurse -Force
-      
-              # Restart IIS
-              iisreset
+              $tempZip = "C:\Temp\deploy.zip"
+              
+              # Tìm tên app pool từ site (nếu có)
+              Import-Module WebAdministration -ErrorAction SilentlyContinue
+              
+              # Tìm app pool đang chạy site này
+              $site = Get-ChildItem IIS:\Sites | Where-Object { 
+                $_.PhysicalPath -eq $target 
+              } | Select-Object -First 1
+              
+              if ($site) {
+                $appPoolName = $site.applicationPool
+                Write-Host "Found app pool: $appPoolName"
+                
+                # Dừng app pool
+                Write-Host "Stopping app pool..."
+                Stop-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 3
+              } else {
+                Write-Host "No IIS site found for this path, continuing anyway..."
+              }
+              
+              # Backup thư mục cũ (optional nhưng an toàn)
+              if (Test-Path $target) {
+                $backupPath = "C:\Temp\Publish-BE-Backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                Write-Host "Creating backup at $backupPath..."
+                Copy-Item -Path $target -Destination $backupPath -Recurse -Force
+                
+                # Xoá file cũ
+                Write-Host "Removing old files..."
+                Remove-Item "$target\*" -Recurse -Force
+              } else {
+                Write-Host "Creating target directory..."
+                New-Item -ItemType Directory -Path $target -Force
+              }
+              
+              # Giải nén file mới
+              Write-Host "Extracting new files..."
+              Expand-Archive -Path $tempZip -DestinationPath $target -Force
+              
+              # Xoá file zip tạm
+              Remove-Item $tempZip -Force
+              
+              # Start lại app pool
+              if ($site -and $appPoolName) {
+                Write-Host "Starting app pool..."
+                Start-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 2
+              }
+              
+              Write-Host "✓ Deployment completed successfully!"
+            }
+            
+          } catch {
+            Write-Error "❌ Deployment failed: $_"
+            Write-Error $_.ScriptStackTrace
+            exit 1
+          } finally {
+            if ($session) {
+              Remove-PSSession $session
+              Write-Host "Session closed"
+            }
           }
-      
-          # Đóng session
-          Remove-PSSession $session
