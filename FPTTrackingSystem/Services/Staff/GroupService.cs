@@ -39,7 +39,7 @@ namespace FPTTrackingSystem.Services.Staff
                         .Where(gu => gu.User.Account.RoleId == (int)RoleEnum.Supervior || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead)
                         .Select(gu => gu.User.Fullname)
                         .ToList(),
-                     SubmittedDocs = g.Deliverables.Any(m => m.MilestoneAttachments.Any()) ? false : false
+                     SubmittedDocs = false,
                  })
                   .ToListAsync();
 
@@ -184,7 +184,7 @@ namespace FPTTrackingSystem.Services.Staff
             var milestoneDtos = milestones.Select(m => new MilestoneDto
             {
                 Name = m.Name ?? "",
-                Deadline = m.EndAt,
+                Deadline = DateTime.TryParse(m.Deadline, out var d) ? d : (DateTime?)null,
                 Status = "not-submitted" 
             }).ToList();
 

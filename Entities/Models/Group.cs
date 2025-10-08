@@ -23,7 +23,11 @@ public partial class Group
 
     public int? StatusId { get; set; }
 
-    public virtual ICollection<Deliverable> Deliverables { get; set; } = new List<Deliverable>();
+    public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+    public virtual ICollection<Evaluation> Evaluations { get; set; } = new List<Evaluation>();
 
     public virtual ICollection<GroupUser> GroupUsers { get; set; } = new List<GroupUser>();
 

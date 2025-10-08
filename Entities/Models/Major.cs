@@ -11,6 +11,8 @@ public partial class Major
 
     public string? Name { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
     public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();

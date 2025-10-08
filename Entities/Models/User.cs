@@ -31,21 +31,21 @@ public partial class User
 
     public virtual Account? Account { get; set; }
 
-    public virtual ICollection<GroupAttachment> GroupAttachments { get; set; } = new List<GroupAttachment>();
+    public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+    public virtual ICollection<Evaluation> EvaluationEvaluators { get; set; } = new List<Evaluation>();
+
+    public virtual ICollection<Evaluation> EvaluationReceivers { get; set; } = new List<Evaluation>();
 
     public virtual ICollection<GroupUser> GroupUsers { get; set; } = new List<GroupUser>();
 
-    public virtual Major? Major { get; set; }
+    public virtual ICollection<Log> Logs { get; set; } = new List<Log>();
 
-    public virtual ICollection<MilestoneAttachment> MilestoneAttachments { get; set; } = new List<MilestoneAttachment>();
+    public virtual Major? Major { get; set; }
 
     public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
 
-    public virtual ICollection<Report> ReportCreateByNavigations { get; set; } = new List<Report>();
-
-    public virtual ICollection<Report> ReportStudents { get; set; } = new List<Report>();
-
     public virtual Status? Status { get; set; }
-
-    public virtual ICollection<TaskAttachment> TaskAttachments { get; set; } = new List<TaskAttachment>();
 }

@@ -13,17 +13,15 @@ public partial class Milestone
 
     public int? CreateBy { get; set; }
 
-    public int SemesterId { get; set; }
-
     public int MajorId { get; set; }
-
-    public DateTime? StartAt { get; set; }
-
-    public DateTime? EndAt { get; set; }
 
     public string? Description { get; set; }
 
+    public DateTime? UpdateAt { get; set; }
+
     public string? Deadline { get; set; }
+
+    public int? UpdateBy { get; set; }
 
     public virtual User? CreateByNavigation { get; set; }
 
@@ -31,5 +29,5 @@ public partial class Milestone
 
     public virtual Major Major { get; set; } = null!;
 
-    public virtual Semester Semester { get; set; } = null!;
+    public virtual ICollection<MilestoneItem> MilestoneItems { get; set; } = new List<MilestoneItem>();
 }

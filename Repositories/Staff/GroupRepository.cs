@@ -30,8 +30,6 @@ namespace Repositories.Staff
                     .ThenInclude(gu => gu.User)
                     .ThenInclude(u => u.Account)
                     .ThenInclude(a => a.Role)
-                .Include(g => g.Deliverables)
-                    .ThenInclude(g => g.Milestone)
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
@@ -41,8 +39,6 @@ namespace Repositories.Staff
                .Include(g => g.Major)
                .Include(g => g.Semester)
                .Include(g => g.Tasks)
-               .Include(g => g.Deliverables)
-                    .ThenInclude(g => g.Milestone)
                .Include(g => g.GroupUsers)
                    .ThenInclude(gu => gu.User)
                    .ThenInclude(u => u.Account)
@@ -82,7 +78,7 @@ namespace Repositories.Staff
         {
             return await _context.Milestones
                 .Where(m => m.MajorId == majorId)
-                .OrderBy(m => m.EndAt)
+                .OrderBy(m => m.Deadline)
                 .ToListAsync();
         }
     }

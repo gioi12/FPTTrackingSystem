@@ -9,11 +9,23 @@ public partial class Deliverable
 
     public int MilestoneId { get; set; }
 
-    public int GroupId { get; set; }
+    public DateTime StartAt { get; set; }
 
-    public virtual Group Group { get; set; } = null!;
+    public DateTime EndAt { get; set; }
+
+    public int SemesterId { get; set; }
+
+    public int StatusId { get; set; }
+
+    public string? Description { get; set; }
+
+    public string Name { get; set; } = null!;
+
+    public virtual ICollection<DeliveryItem> DeliveryItems { get; set; } = new List<DeliveryItem>();
 
     public virtual Milestone Milestone { get; set; } = null!;
 
-    public virtual ICollection<MilestoneAttachment> MilestoneAttachments { get; set; } = new List<MilestoneAttachment>();
+    public virtual Semester Semester { get; set; } = null!;
+
+    public virtual Status Status { get; set; } = null!;
 }

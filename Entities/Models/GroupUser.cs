@@ -13,6 +13,10 @@ public partial class GroupUser
 
     public int Id { get; set; }
 
+    public string? Role { get; set; }
+
+    public string? FreeTime { get; set; }
+
     public virtual Group Group { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

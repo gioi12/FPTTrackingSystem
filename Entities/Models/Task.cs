@@ -19,9 +19,9 @@ public partial class Task
 
     public DateTime EndAt { get; set; }
 
+    public int StatusId { get; set; }
+
     public virtual Group Group { get; set; } = null!;
 
-    public virtual ICollection<TaskAttachment> TaskAttachments { get; set; } = new List<TaskAttachment>();
-
-    public virtual ICollection<TaskFeedback> TaskFeedbacks { get; set; } = new List<TaskFeedback>();
+    public virtual Status Status { get; set; } = null!;
 }
