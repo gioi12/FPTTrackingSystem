@@ -95,7 +95,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             return Ok(ApiResponse<SemesterDTO>.Success(semester, "Lấy học kỳ thành công"));
         }
 
-        [HttpPut("v1/Staff/semester/{id}")]
+        [HttpPost("v1/Staff/semester/{id}")]
         public async Task<IActionResult> UpdateSemester(int id, [FromBody] SemesterUpdateRequest semesterData)
         {
             try
@@ -109,7 +109,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             }
         }
 
-        [HttpPut("v1/Staff/vacation")]
+        [HttpPost("v1/Staff/vacation")]
         public async Task<IActionResult> UpdateVacationWeeks([FromBody] UpdateVacationWeeksRequest request)
         {
             try
