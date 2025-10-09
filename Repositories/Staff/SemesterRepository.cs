@@ -19,5 +19,10 @@ namespace Repositories.Staff
         {
           return await  _context.Semesters.FirstOrDefaultAsync(x => x.IsActive == true);
         }
+
+        public Task<List<Semester>> getAllSemesters()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -19,6 +19,8 @@ public partial class Semester
 
     public string? SemesterBreak { get; set; }
 
+    public bool? IsVacation { get; set; }
+
     public virtual ICollection<Deliverable> Deliverables { get; set; } = new List<Deliverable>();
 
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();

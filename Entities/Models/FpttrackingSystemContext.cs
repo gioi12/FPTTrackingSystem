@@ -411,6 +411,7 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("end_at");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
+            entity.Property(e => e.IsVacation).HasColumnName("is_vacation");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");

@@ -10,5 +10,6 @@ namespace Repositories.Staff
     public interface ISemesterRepository
     {
         Task<Semester?> findActive();
+        Task<List<Semester>> getAllSemesters();
     }
 }
