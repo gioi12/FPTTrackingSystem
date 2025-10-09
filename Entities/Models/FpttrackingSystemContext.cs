@@ -43,6 +43,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<Semester> Semesters { get; set; }
 
+    public virtual DbSet<SemesterWeek> SemesterWeeks { get; set; }
+
     public virtual DbSet<Status> Statuses { get; set; }
 
     public virtual DbSet<Task> Tasks { get; set; }
@@ -411,7 +413,6 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("end_at");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
-            entity.Property(e => e.IsVacation).HasColumnName("is_vacation");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
@@ -421,6 +422,26 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.StartAt)
                 .HasColumnType("datetime")
                 .HasColumnName("start_at");
+        });
+
+        modelBuilder.Entity<SemesterWeek>(entity =>
+        {
+            entity.ToTable("Semester_Week");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.EndAt)
+                .HasColumnType("datetime")
+                .HasColumnName("end_at");
+            entity.Property(e => e.IsVacation).HasColumnName("is_vacation");
+            entity.Property(e => e.SemesterId).HasColumnName("semester_id");
+            entity.Property(e => e.StartAt)
+                .HasColumnType("datetime")
+                .HasColumnName("start_at");
+            entity.Property(e => e.WeekNumber).HasColumnName("week_number");
+
+            entity.HasOne(d => d.Semester).WithMany(p => p.SemesterWeeks)
+                .HasForeignKey(d => d.SemesterId)
+                .HasConstraintName("FK_Semester_Week_Semester");
         });
 
         modelBuilder.Entity<Status>(entity =>

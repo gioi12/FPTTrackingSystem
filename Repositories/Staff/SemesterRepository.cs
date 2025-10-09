@@ -20,9 +20,11 @@ namespace Repositories.Staff
           return await  _context.Semesters.FirstOrDefaultAsync(x => x.IsActive == true);
         }
 
-        public Task<List<Semester>> getAllSemesters()
+        public async Task<List<Semester>> getAllSemesters()
         {
-            throw new NotImplementedException();
+            return await _context.Semesters
+                 .OrderByDescending(x => x.StartAt)
+                 .ToListAsync();
         }
     }
 }

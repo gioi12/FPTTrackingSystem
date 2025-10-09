@@ -88,7 +88,8 @@ namespace FPTTrackingSystem.Services.Staff
                 Name = semester.Name ?? string.Empty,
                 StartAt = semester.StartAt ?? default,
                 EndAt = semester.EndAt ?? default,
-                Weeks = weeks
+                Weeks = weeks,
+                IsActive = true,
             };
         }
 
@@ -100,6 +101,23 @@ namespace FPTTrackingSystem.Services.Staff
             return await _context.Semesters.AnyAsync(s =>
       s.StartAt.HasValue && s.EndAt.HasValue &&
       startDateTime <= s.EndAt.Value && endDateTime >= s.StartAt.Value);
+        }
+
+        public async Task<List<SemesterDTO>> GetAllSemestersAsync()
+        {
+            var semesters = await _semesterRepository.getAllSemesters();
+
+            return semesters.Select(s => new SemesterDTO
+            {
+                Id = s.Id,
+                Name = s.Name ?? "",
+                StartAt = s.StartAt ?? default,
+                EndAt = s.EndAt ?? default,
+                Description = s.Description ?? "",
+                IsVacation = s.IsVacation,
+                IsActive = s.IsActive,
+                Weeks = SemesterHelper.GetWeeks(DateOnly.FromDateTime(s.StartAt ?? default), DateOnly.FromDateTime(s.EndAt ?? default))
+            }).ToList();
         }
 
     }
