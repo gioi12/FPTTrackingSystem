@@ -5,9 +5,9 @@ namespace FPTTrackingSystem.Hepler
 {
     public class SemesterHelper
     {
-        public static List<WeekInfo> GetWeeks(DateOnly startAt, DateOnly endAt, string? semesterBreak = null)
+        public static List<SemesterWeekDTO> GetWeeks(DateOnly startAt, DateOnly endAt, string? semesterBreak = null)
         {
-            var weeks = new List<WeekInfo>();
+            var weeks = new List<SemesterWeekDTO>();
             var breakWeeks = new HashSet<int>();
 
             // Parse chuỗi "2,5,10" => tuần nghỉ
@@ -29,11 +29,11 @@ namespace FPTTrackingSystem.Hepler
                 if (currentEnd > endAt)
                     currentEnd = endAt;
 
-                weeks.Add(new WeekInfo
+                weeks.Add(new SemesterWeekDTO
                 {
                     WeekNumber = weekNumber,
-                    StartOfWeek = currentStart.ToString("yyyy-MM-dd"),
-                    EndOfWeek = currentEnd.ToString("yyyy-MM-dd"),
+                    StartAt = currentStart.ToDateTime(TimeOnly.MinValue),
+                    EndAt = currentEnd.ToDateTime(TimeOnly.MinValue),
                     IsVacation = !breakWeeks.Contains(weekNumber)
                 });
 
@@ -41,11 +41,6 @@ namespace FPTTrackingSystem.Hepler
                 weekNumber++;
             }
             return weeks;
-        }
-
-        public static List<WeekInfo> GetSemesterBreakWeeks(List<WeekInfo> allWeeks)
-        {
-            return allWeeks.FindAll(w => !w.IsVacation);
         }
     }
 }

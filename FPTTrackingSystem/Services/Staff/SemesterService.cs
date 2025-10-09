@@ -56,6 +56,7 @@ namespace FPTTrackingSystem.Services.Staff
                 throw new Exception("Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
             }
 
+            // Chỉ có 1 kỳ active
             var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
             if (activeSemester != null)
             {
@@ -82,16 +83,29 @@ namespace FPTTrackingSystem.Services.Staff
             }
 
             var weeks = SemesterHelper.GetWeeks(startAt, endAt);
+
+            var semesterWeeks = weeks.Select(w => new SemesterWeek
+            {
+                WeekNumber = w.WeekNumber,
+                StartAt = w.StartAt,
+                EndAt = w.EndAt,
+                IsVacation = w.IsVacation
+            }).ToList();
+
+            _context.SemesterWeeks.AddRange(semesterWeeks);
+            await _context.SaveChangesAsync();
+
             return new SemesterDTO
             {
-                Id = semester.Id,
                 Name = semester.Name ?? string.Empty,
                 StartAt = semester.StartAt ?? default,
                 EndAt = semester.EndAt ?? default,
                 Weeks = weeks,
+                Description = semester.Description,
                 IsActive = true,
             };
         }
+
 
 
         public async Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end)
@@ -114,11 +128,57 @@ namespace FPTTrackingSystem.Services.Staff
                 StartAt = s.StartAt ?? default,
                 EndAt = s.EndAt ?? default,
                 Description = s.Description ?? "",
-                IsVacation = s.IsVacation,
                 IsActive = s.IsActive,
-                Weeks = SemesterHelper.GetWeeks(DateOnly.FromDateTime(s.StartAt ?? default), DateOnly.FromDateTime(s.EndAt ?? default))
+                Weeks = s.SemesterWeeks.Select(w => new SemesterWeekDTO
+                {
+                    WeekNumber = w.WeekNumber,
+                    StartAt = w.StartAt,
+                    EndAt = w.EndAt,
+                    IsVacation = w.IsVacation
+                }).ToList(),
+                SemesterBreak = s.SemesterWeeks.Where(w => w.IsVacation == false).Select(w => new SemesterWeekDTO
+                {
+                    WeekNumber = w.WeekNumber,
+                    StartAt = w.StartAt,
+                    EndAt = w.EndAt,
+                    IsVacation = w.IsVacation
+                }).ToList(),
+
             }).ToList();
         }
+
+        public async Task<SemesterDTO?> GetSemesterByIdAsync(int id)
+        {
+            var semester = await _semesterRepository.GetSemesterByIdAsync(id);
+            if (semester == null) return null;
+
+            return new SemesterDTO
+            {
+                Id = semester.Id,
+                Name = semester.Name ?? "",
+                StartAt = semester.StartAt ?? default,
+                EndAt = semester.EndAt ?? default,
+                Description = semester.Description ?? "",
+                IsActive = semester.IsActive,
+                Weeks = semester.SemesterWeeks?.Select(w => new SemesterWeekDTO
+                {
+                    WeekNumber = w.WeekNumber,
+                    StartAt = w.StartAt,
+                    EndAt = w.EndAt,
+                    IsVacation = w.IsVacation
+                }).ToList(),
+                SemesterBreak = semester.SemesterWeeks?
+                    .Where(w => w.IsVacation == false)
+                    .Select(w => new SemesterWeekDTO
+                    {
+                        WeekNumber = w.WeekNumber,
+                        StartAt = w.StartAt,
+                        EndAt = w.EndAt,
+                        IsVacation = w.IsVacation
+                    }).ToList()
+            };
+        }
+
 
     }
 }

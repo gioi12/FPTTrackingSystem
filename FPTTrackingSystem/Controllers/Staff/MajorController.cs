@@ -15,7 +15,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             _majorService = majorService;
         }
 
-        [HttpGet("GetMajors")]
+        [HttpGet("GetMajors")]  
         public async Task<IActionResult> GetAll()
         {
             var response = await _majorService.GetAllMajors();

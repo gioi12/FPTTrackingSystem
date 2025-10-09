@@ -14,17 +14,17 @@ namespace DataTranferObjects.Staff.Semester
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
         public string? Description { get; set; }
-        public List<WeekInfo> Weeks { get; set; } = new(); 
-        public bool? IsVacation { get; set; }
+        public List<SemesterWeekDTO> Weeks { get; set; } = new(); 
         public bool? IsActive { get; set; }
-        public List<WeekInfo> SemesterBreak { get; set; } = new();
+        public List<SemesterWeekDTO> SemesterBreak { get; set; } = new();
     }
 
-    public class WeekInfo
+    public class SemesterWeekDTO
     {
-        public int WeekNumber { get; set; }
-        public bool IsVacation { get; set; } = true;
-        public string StartOfWeek { get; set; }
-        public string EndOfWeek { get; set; }
+        public int? WeekNumber { get; set; }
+        public DateTime? StartAt { get; set; }
+        public DateTime? EndAt { get; set; }
+        public bool? IsVacation { get; set; }
     }
+
 }

@@ -23,8 +23,17 @@ namespace Repositories.Staff
         public async Task<List<Semester>> getAllSemesters()
         {
             return await _context.Semesters
+                 .Include(s => s.SemesterWeeks)
                  .OrderByDescending(x => x.StartAt)
                  .ToListAsync();
         }
+
+        public async Task<Semester?> GetSemesterByIdAsync(int id)
+        {
+            return await _context.Semesters
+                .Include(s => s.SemesterWeeks)
+                .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
     }
 }

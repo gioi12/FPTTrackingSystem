@@ -11,5 +11,6 @@ namespace Repositories.Staff
     {
         Task<Semester?> findActive();
         Task<List<Semester>> getAllSemesters();
+        Task<Semester?> GetSemesterByIdAsync(int id);
     }
 }
