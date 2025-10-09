@@ -12,5 +12,6 @@ namespace FPTTrackingSystem.Services.Staff
         Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end);
         Task<List<SemesterDTO>> GetAllSemestersAsync();
         Task<SemesterDTO?> GetSemesterByIdAsync(int id);
+        Task<SemesterDTO> UpdateSemesterAsync(int id, SemesterUpdateRequest request);
     }
 }

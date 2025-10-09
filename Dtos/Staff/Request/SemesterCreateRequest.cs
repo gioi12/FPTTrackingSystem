@@ -13,4 +13,14 @@ namespace DataTranferObjects.Staff.Request
         public string EndAt { get; set; } = string.Empty;
         public string? Description { get; set; }
     }
+
+    public class SemesterUpdateRequest
+    {
+        public string? Name { get; set; }
+        public bool? IsActive { get; set; }
+        public string? Description { get; set; }
+        public DateTime? StartAt { get; set; }
+        public DateTime? EndAt { get; set; }
+    }
+
 }

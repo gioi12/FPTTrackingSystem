@@ -1,10 +1,12 @@
 ﻿using DataTranferObjects.Staff.Request;
 using DataTranferObjects.Staff.Semester;
+using Entities.Models;
 using FPTTrackingSystem.Services.Staff;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FPTTrackingSystem.Controllers.Staff
 {
@@ -13,10 +15,13 @@ namespace FPTTrackingSystem.Controllers.Staff
     public class SemesterController : ControllerBase
     {
         private readonly ISemesterService _semesterService;
-        
-        public SemesterController(ISemesterService semesterService)
+        private readonly FpttrackingSystemContext _context;
+
+
+        public SemesterController(ISemesterService semesterService, FpttrackingSystemContext context)
         {
             _semesterService = semesterService;
+            _context = context;
         }
 
         [Authorize(Roles = "Staff")]
@@ -89,5 +94,55 @@ namespace FPTTrackingSystem.Controllers.Staff
 
             return Ok(ApiResponse<SemesterDTO>.Success(semester, "Lấy học kỳ thành công"));
         }
+
+        [HttpPut("v1/Staff/semester/{id}")]
+        public async Task<IActionResult> UpdateSemester(int id, [FromBody] SemesterUpdateRequest semesterData)
+        {
+            try
+            {
+                var result = await _semesterService.UpdateSemesterAsync(id, semesterData);
+                return Ok(ApiResponse<SemesterDTO>.Success(result, "Cập nhật học kỳ thành công"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+            }
+        }
+
+        [HttpPut("v1/Staff/vacation")]
+        public async Task<IActionResult> UpdateVacationWeeks([FromBody] UpdateVacationWeeksRequest request)
+        {
+            try
+            {
+                if (request == null || request.Weeks == null || request.Weeks.Count == 0)
+                    return BadRequest(ApiResponse<string>.Fail("Dữ liệu cập nhật không hợp lệ"));
+
+                var semester = await _context.Semesters
+                    .Include(s => s.SemesterWeeks)
+                    .FirstOrDefaultAsync(s => s.Id == request.SemesterId);
+
+                if (semester == null)
+                    return Ok(ApiResponse<string>.Fail("Không tìm thấy kỳ học"));
+
+                foreach (var week in semester.SemesterWeeks)
+                {
+                    var updateWeek = request.Weeks.FirstOrDefault(x => x.WeekNumber == week.WeekNumber);
+                    if (updateWeek != null)
+                    {
+                        week.IsVacation = updateWeek.IsVacation;
+                        _context.Entry(week).State = EntityState.Modified;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(ApiResponse<string>.Success(null, "Cập nhật tuần nghỉ thành công"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.InternalError(ex.Message));
+            }
+        }
+
     }
 }

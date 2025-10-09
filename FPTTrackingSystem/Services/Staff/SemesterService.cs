@@ -102,7 +102,7 @@ namespace FPTTrackingSystem.Services.Staff
                 EndAt = semester.EndAt ?? default,
                 Weeks = weeks,
                 Description = semester.Description,
-                IsActive = true,
+                IsActive = false,
             };
         }
 
@@ -136,7 +136,7 @@ namespace FPTTrackingSystem.Services.Staff
                     EndAt = w.EndAt,
                     IsVacation = w.IsVacation
                 }).ToList(),
-                SemesterBreak = s.SemesterWeeks.Where(w => w.IsVacation == false).Select(w => new SemesterWeekDTO
+                SemesterBreak = s.SemesterWeeks.Where(w => w.IsVacation == true).Select(w => new SemesterWeekDTO
                 {
                     WeekNumber = w.WeekNumber,
                     StartAt = w.StartAt,
@@ -168,7 +168,121 @@ namespace FPTTrackingSystem.Services.Staff
                     IsVacation = w.IsVacation
                 }).ToList(),
                 SemesterBreak = semester.SemesterWeeks?
-                    .Where(w => w.IsVacation == false)
+                    .Where(w => w.IsVacation == true)
+                    .Select(w => new SemesterWeekDTO
+                    {
+                        WeekNumber = w.WeekNumber,
+                        StartAt = w.StartAt,
+                        EndAt = w.EndAt,
+                        IsVacation = w.IsVacation
+                    }).ToList()
+            };
+        }
+
+
+        public async Task<SemesterDTO> UpdateSemesterAsync(int id, SemesterUpdateRequest request)
+        {
+            // 1️⃣ Lấy học kỳ hiện tại
+            var semester = await _context.Semesters
+                .Include(s => s.SemesterWeeks)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (semester == null)
+                throw new Exception("Không tìm thấy học kỳ.");
+
+            bool timeChanged = (request.StartAt != semester.StartAt) || (request.EndAt != semester.EndAt);
+            if (request.IsActive == true)
+            {
+                var allSemesters = await _context.Semesters
+                    .Where(s => s.Id != id && s.IsActive == true)
+                    .ToListAsync();
+
+                foreach (var s in allSemesters)
+                    s.IsActive = false;
+
+                await _context.SaveChangesAsync();
+
+                semester.IsActive = true;
+            }
+            // 2️⃣ Kiểm tra thời gian
+            if (timeChanged && request.StartAt.HasValue && request.EndAt.HasValue)
+            {
+                if (request.StartAt >= request.EndAt)
+                    throw new Exception("Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
+
+                bool overlap = await _context.Semesters
+                    .AnyAsync(s =>
+                        s.Id != id &&
+                        (
+                            (request.StartAt >= s.StartAt && request.StartAt <= s.EndAt)
+                            || (request.EndAt >= s.StartAt && request.EndAt <= s.EndAt)
+                            || (request.StartAt <= s.StartAt && request.EndAt >= s.EndAt)
+                        )
+                    );
+
+                if (overlap)
+                    throw new Exception("Khoảng thời gian bị trùng với kỳ học khác trong hệ thống.");
+            }
+
+            // 3️⃣ Cập nhật thông tin chung
+            semester.Name = request.Name ?? semester.Name;
+            semester.Description = request.Description ?? semester.Description;
+            semester.IsActive = request.IsActive ?? semester.IsActive;
+            semester.StartAt = request.StartAt ?? semester.StartAt;
+            semester.EndAt = request.EndAt ?? semester.EndAt;
+
+            // 4️⃣ Nếu thời gian thay đổi → cập nhật lại danh sách tuần
+            if (timeChanged)
+            {
+                _context.SemesterWeeks.RemoveRange(semester.SemesterWeeks);
+
+                var start = DateOnly.FromDateTime(semester.StartAt ?? DateTime.Now);
+                var end = DateOnly.FromDateTime(semester.EndAt ?? DateTime.Now);
+                var newWeeks = SemesterHelper.GetWeeks(start, end);
+
+                var semesterWeeks = newWeeks.Select(w => new SemesterWeek
+                {
+                    SemesterId = semester.Id,
+                    WeekNumber = w.WeekNumber,
+                    StartAt = w.StartAt,
+                    EndAt = w.EndAt,
+                    IsVacation = w.IsVacation
+                }).ToList();
+
+                await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine("❌ SaveChanges error: " + ex.InnerException?.Message);
+                throw new Exception("Lỗi khi lưu thay đổi: " + ex.InnerException?.Message);
+            }
+
+            var weeks = await _context.SemesterWeeks
+                .Where(w => w.SemesterId == semester.Id)
+                .Select(w => new SemesterWeekDTO
+                {
+                    WeekNumber = w.WeekNumber,
+                    StartAt = w.StartAt,
+                    EndAt = w.EndAt,
+                    IsVacation = w.IsVacation
+                }).ToListAsync();
+
+            return new SemesterDTO
+            {
+                Id = semester.Id,
+                Name = semester.Name ?? "",
+                StartAt = semester.StartAt ?? default,
+                EndAt = semester.EndAt ?? default,
+                Description = semester.Description ?? "",
+                IsActive = semester.IsActive,
+                Weeks = weeks,
+                SemesterBreak = semester.SemesterWeeks?
+                    .Where(w => w.IsVacation == true)
                     .Select(w => new SemesterWeekDTO
                     {
                         WeekNumber = w.WeekNumber,

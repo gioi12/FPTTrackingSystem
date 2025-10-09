@@ -27,4 +27,30 @@ namespace DataTranferObjects.Staff.Semester
         public bool? IsVacation { get; set; }
     }
 
+    public class SemesterWeekUpdateDTO
+    {
+        public int? SemesterId { get; set; }
+
+        public int? WeekNumber { get; set; }
+
+        public DateTime? StartAt { get; set; }
+
+        public DateTime? EndAt { get; set; }
+
+        public bool? IsVacation { get; set; }
+    }
+
+    public class UpdateVacationWeeksRequest
+    {
+        public int SemesterId { get; set; }
+        public List<WeekUpdateDto> Weeks { get; set; } = new();
+    }
+
+    public class WeekUpdateDto
+    {
+        public int WeekNumber { get; set; }
+        public bool IsVacation { get; set; }
+    }
+
+
 }
