@@ -109,7 +109,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             }
         }
 
-        [HttpPost("v1/Staff/vacation")]
+        [HttpPost("v1/Staff/semester/vacation")]
         public async Task<IActionResult> UpdateVacationWeeks([FromBody] UpdateVacationWeeksRequest request)
         {
             try
