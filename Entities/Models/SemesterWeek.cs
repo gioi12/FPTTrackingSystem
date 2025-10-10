@@ -17,5 +17,7 @@ public partial class SemesterWeek
 
     public bool? IsVacation { get; set; }
 
+    public int? WeekLearn { get; set; }
+
     public virtual Semester? Semester { get; set; }
 }

@@ -33,7 +33,7 @@ namespace FPTTrackingSystem.Services.Staff
                 Description = x.Description,
                 MajorId = x.MajorId,
 /*                SemesterId = x.SemesterId,*/
-                CreateAt = DateTime.Now,
+                CreateAt = DateTime.Now,    
                 CreateBy = user.Id,
                 Deadline = x.Deadline
             }).ToList();

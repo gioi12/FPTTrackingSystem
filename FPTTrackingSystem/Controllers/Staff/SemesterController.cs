@@ -130,13 +130,30 @@ namespace FPTTrackingSystem.Controllers.Staff
                     if (updateWeek != null)
                     {
                         week.IsVacation = updateWeek.IsVacation;
-                        _context.Entry(week).State = EntityState.Modified;
                     }
+                }
+
+                int learnWeekCounter = 0;
+                var orderedWeeks = semester.SemesterWeeks.OrderBy(w => w.WeekNumber).ToList();
+
+                foreach (var week in orderedWeeks)
+                {
+                    if (week.IsVacation == true)
+                    {
+                        week.WeekLearn = null;
+                    }
+                    else
+                    {
+                        learnWeekCounter++;
+                        week.WeekLearn = learnWeekCounter;
+                    }
+
+                    _context.Entry(week).State = EntityState.Modified;
                 }
 
                 await _context.SaveChangesAsync();
 
-                return Ok(ApiResponse<string>.Success(null, "Cập nhật tuần nghỉ thành công"));
+                return Ok(ApiResponse<string>.Success(null, "Cập nhật tuần nghỉ và tuần học thành công"));
             }
             catch (Exception ex)
             {

@@ -82,14 +82,29 @@ namespace FPTTrackingSystem.Services.Staff
                 throw new Exception($"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}");
             }
 
-            var weeks = SemesterHelper.GetWeeks(startAt, endAt);
+            var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
 
+            int learnWeekCount = 0;
+            foreach (var w in weeks)
+            {
+                if (w.IsVacation == false)
+                {
+                    learnWeekCount++;
+                    w.WeekLearn = learnWeekCount;
+                }
+                else
+                {
+                    w.WeekLearn = null;
+                }
+            }
             var semesterWeeks = weeks.Select(w => new SemesterWeek
             {
+                SemesterId = semester.Id,
                 WeekNumber = w.WeekNumber,
                 StartAt = w.StartAt,
                 EndAt = w.EndAt,
-                IsVacation = w.IsVacation
+                IsVacation = w.IsVacation,
+                WeekLearn = w.WeekLearn
             }).ToList();
 
             _context.SemesterWeeks.AddRange(semesterWeeks);
@@ -105,8 +120,6 @@ namespace FPTTrackingSystem.Services.Staff
                 IsActive = false,
             };
         }
-
-
 
         public async Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end)
         {
@@ -238,7 +251,7 @@ namespace FPTTrackingSystem.Services.Staff
 
                 var start = DateOnly.FromDateTime(semester.StartAt ?? DateTime.Now);
                 var end = DateOnly.FromDateTime(semester.EndAt ?? DateTime.Now);
-                var newWeeks = SemesterHelper.GetWeeks(start, end);
+                var newWeeks = SemesterHelper.GetWeeks(start, end, semester.Id);
 
                 var semesterWeeks = newWeeks.Select(w => new SemesterWeek
                 {

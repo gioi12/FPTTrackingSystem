@@ -13,5 +13,9 @@ public partial class DeliveryItem
 
     public int DeliverableId { get; set; }
 
+    public int? MilestoneItemId { get; set; }
+
     public virtual Deliverable Deliverable { get; set; } = null!;
+
+    public virtual MilestoneItem? MilestoneItem { get; set; }
 }

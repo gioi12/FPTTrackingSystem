@@ -21,10 +21,12 @@ namespace DataTranferObjects.Staff.Semester
 
     public class SemesterWeekDTO
     {
+        public int? SemesterId { get; set; }
         public int? WeekNumber { get; set; }
         public DateTime? StartAt { get; set; }
         public DateTime? EndAt { get; set; }
         public bool? IsVacation { get; set; }
+        public int? WeekLearn { get; set; }
     }
 
     public class SemesterWeekUpdateDTO
