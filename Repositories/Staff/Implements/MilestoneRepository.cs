@@ -31,8 +31,6 @@ namespace Repositories.Staff.Implements
                 .ToListAsync();
         }
 
-
-
         public async Task<List<Milestone>> DeleteMilestone(int id)
         {
             var milestone = await _context.Milestones
