@@ -15,7 +15,17 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFE", policy =>
     {
-        policy.WithOrigins("http://192.168.116.1:8082", "https://localhost:5000", "http://192.168.131.7:8082", "http://192.168.1.163:8082", "http://192.168.1.167:8082", "http://160.30.21.113:8082", "http://192.168.2.3:8082", "http://10.0.62.121:8082", "http://192.168.2.4:8082", "http://192.168.131.8:8082") 
+        policy.WithOrigins("http://192.168.116.1:8082"
+            , "https://localhost:5000"
+            , "http://192.168.131.7:8082"
+            , "http://192.168.1.163:8082"
+            , "http://192.168.1.167:8082"
+            , "http://160.30.21.113:8082"
+            , "http://192.168.2.3:8082"
+            , "http://172.17.6.230:8082"
+            , "http://10.0.62.121:8082"
+            , "http://192.168.2.4:8082"
+            , "http://192.168.131.8:8082") 
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); 
@@ -28,12 +38,14 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
-app.UseGlobalErrorHandler();
+
 // xoa sau
 app.UseSwagger();
 app.UseSwaggerUI();
 //cors
 app.UseCors("AllowFE");
+app.UseRouting();
+app.UseGlobalErrorHandler();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

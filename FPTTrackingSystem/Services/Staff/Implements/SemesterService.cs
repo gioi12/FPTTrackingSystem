@@ -3,11 +3,12 @@ using DataTranferObjects.Staff.Response;
 using DataTranferObjects.Staff.Semester;
 using Entities.Models;
 using FPTTrackingSystem.Hepler;
+using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Staff;
 
-namespace FPTTrackingSystem.Services.Staff
+namespace FPTTrackingSystem.Services.Staff.Implementations
 {
     public class SemesterService : ISemesterService
     {
@@ -23,7 +24,7 @@ namespace FPTTrackingSystem.Services.Staff
 
         public async Task<ApiResponse<SemesterActiveRes>> GetSemesterActiveAndMajors()
         {
-            var semester =await _semesterRepository.findActive();
+            var semester = await _semesterRepository.findActive();
             var majors = await _majorRepository.findAll();
             SemesterActiveRes se = new SemesterActiveRes()
             {
@@ -190,7 +191,7 @@ namespace FPTTrackingSystem.Services.Staff
             if (semester == null)
                 throw new Exception("Không tìm thấy học kỳ.");
 
-            bool timeChanged = (request.StartAt != semester.StartAt) || (request.EndAt != semester.EndAt);
+            bool timeChanged = request.StartAt != semester.StartAt || request.EndAt != semester.EndAt;
             if (request.IsActive == true)
             {
                 var allSemesters = await _context.Semesters
@@ -214,9 +215,9 @@ namespace FPTTrackingSystem.Services.Staff
                     .AnyAsync(s =>
                         s.Id != id &&
                         (
-                            (request.StartAt >= s.StartAt && request.StartAt <= s.EndAt)
-                            || (request.EndAt >= s.StartAt && request.EndAt <= s.EndAt)
-                            || (request.StartAt <= s.StartAt && request.EndAt >= s.EndAt)
+                            request.StartAt >= s.StartAt && request.StartAt <= s.EndAt
+                            || request.EndAt >= s.StartAt && request.EndAt <= s.EndAt
+                            || request.StartAt <= s.StartAt && request.EndAt >= s.EndAt
                         )
                     );
 

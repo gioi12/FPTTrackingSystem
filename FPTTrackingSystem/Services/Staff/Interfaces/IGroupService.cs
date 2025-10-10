@@ -1,7 +1,7 @@
 ﻿using DataTranferObjects.Staff.Group;
 using FPTTrackingSystem.Wrappers;
 
-namespace FPTTrackingSystem.Services.Staff
+namespace FPTTrackingSystem.Services.Staff.Interfaces
 {
     public interface IGroupService
     {

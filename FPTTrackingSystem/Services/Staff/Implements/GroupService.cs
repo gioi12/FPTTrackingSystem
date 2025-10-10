@@ -4,8 +4,9 @@ using FPTTrackingSystem.Wrappers;
 using Repositories.Staff;
 using DataTranferObjects.Enum;
 using DataTranferObjects.Staff.Group;
+using FPTTrackingSystem.Services.Staff.Interfaces;
 
-namespace FPTTrackingSystem.Services.Staff
+namespace FPTTrackingSystem.Services.Staff.Implementations
 {
     public class GroupService : IGroupService
     {
@@ -184,8 +185,8 @@ namespace FPTTrackingSystem.Services.Staff
             var milestoneDtos = milestones.Select(m => new MilestoneDto
             {
                 Name = m.Name ?? "",
-                Deadline = DateTime.TryParse(m.Deadline, out var d) ? d : (DateTime?)null,
-                Status = "not-submitted" 
+                Deadline = DateTime.TryParse(m.Deadline, out var d) ? d : null,
+                Status = "not-submitted"
             }).ToList();
 
             var dto = new GroupTrackingResponseDto

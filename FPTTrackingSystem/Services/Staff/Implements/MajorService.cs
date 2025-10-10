@@ -1,9 +1,10 @@
 ﻿using DataTranferObjects.Staff.Response;
 using Entities.Models;
+using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Wrappers;
 using Repositories.Staff;
 
-namespace FPTTrackingSystem.Services.Staff
+namespace FPTTrackingSystem.Services.Staff.Implementations
 {
     public class MajorService : IMajorService
     {
@@ -29,7 +30,7 @@ namespace FPTTrackingSystem.Services.Staff
                 Name = m.Name
             }).ToList();
 
-            return ApiResponse<List<MajorResponse>>.Success(majorResponses, "Lấy danh sách ngành thành công",200);
+            return ApiResponse<List<MajorResponse>>.Success(majorResponses, "Lấy danh sách ngành thành công", 200);
         }
 
     }

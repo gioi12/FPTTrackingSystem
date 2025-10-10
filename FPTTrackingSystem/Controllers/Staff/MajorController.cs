@@ -1,4 +1,4 @@
-﻿using FPTTrackingSystem.Services.Staff;
+﻿using FPTTrackingSystem.Services.Staff.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

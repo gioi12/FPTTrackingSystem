@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataTranferObjects.Staff.Request;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,18 +15,12 @@ namespace DataTranferObjects.Staff.Response
 
         public DateTime? CreateAt { get; set; }
 
-
-        public DateTime? StartAt { get; set; }
-
-        public DateTime? EndAt { get; set; }
-
         public string? Description { get; set; }
 
         public string? Deadline { get; set; }
 
         public string? MajorName { get; set; }
-        public string? SemesterName { get; set; }
         public string? UserCreatedName { get; set; }
-
+        public List<MilestoneItemRequest>? Items { get; set; }
     }
 }

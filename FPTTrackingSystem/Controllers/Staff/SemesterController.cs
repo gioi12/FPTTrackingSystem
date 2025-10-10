@@ -1,7 +1,7 @@
 ﻿using DataTranferObjects.Staff.Request;
 using DataTranferObjects.Staff.Semester;
 using Entities.Models;
-using FPTTrackingSystem.Services.Staff;
+using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

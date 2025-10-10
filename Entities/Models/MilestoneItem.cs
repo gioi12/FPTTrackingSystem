@@ -21,5 +21,7 @@ public partial class MilestoneItem
 
     public int? CreateBy { get; set; }
 
+    public virtual ICollection<DeliveryItem> DeliveryItems { get; set; } = new List<DeliveryItem>();
+
     public virtual Milestone? Milestone { get; set; }
 }

@@ -23,6 +23,8 @@ public partial class Milestone
 
     public int? UpdateBy { get; set; }
 
+    public bool? IsActive { get; set; }
+
     public virtual User? CreateByNavigation { get; set; }
 
     public virtual ICollection<Deliverable> Deliverables { get; set; } = new List<Deliverable>();

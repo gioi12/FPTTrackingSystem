@@ -1,5 +1,5 @@
 ﻿using DataTranferObjects.Staff.Request;
-using FPTTrackingSystem.Services.Staff;
+using FPTTrackingSystem.Services.Staff.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,9 +17,9 @@ namespace FPTTrackingSystem.Controllers.Admin
 
         [Authorize(Roles = "Staff")]
         [HttpGet("v1/Staff/milestones")]
-        public async Task<object> GetMilestoneByMarjorAndSemester(int majorId,int semesterId)
+        public async Task<object> GetMilestoneByMarjorAndSemester(int majorId)
         {
-            return Ok(await _milestoneService.GetMilestoneByMajorAndSemester(majorId, semesterId));
+            return Ok(await _milestoneService.GetMilestonesByMajor(majorId));
         }
 
         [Authorize(Roles = "Staff")]
@@ -30,7 +30,7 @@ namespace FPTTrackingSystem.Controllers.Admin
         }
         [Authorize(Roles = "Staff")]
         [HttpPut("v1/Staff/milestones")]
-        public async Task<object> updateMilestones(List<MilestoneCreateRequest> request)
+        public async Task<object> updateMilestones(MilestoneUpdateRequest request)
         {
             return Ok(await _milestoneService.UpdateInfoMilestone(request));
         }

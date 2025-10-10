@@ -9,8 +9,6 @@ public partial class Status
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<Deliverable> Deliverables { get; set; } = new List<Deliverable>();
-
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();

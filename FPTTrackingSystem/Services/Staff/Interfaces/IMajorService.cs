@@ -3,7 +3,7 @@ using DataTranferObjects.Staff.Response;
 using Entities.Models;
 using FPTTrackingSystem.Wrappers;
 
-namespace FPTTrackingSystem.Services.Staff
+namespace FPTTrackingSystem.Services.Staff.Interfaces
 {
     public interface IMajorService
     {

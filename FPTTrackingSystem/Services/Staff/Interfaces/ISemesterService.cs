@@ -3,7 +3,7 @@ using DataTranferObjects.Staff.Response;
 using DataTranferObjects.Staff.Semester;
 using FPTTrackingSystem.Wrappers;
 
-namespace FPTTrackingSystem.Services.Staff
+namespace FPTTrackingSystem.Services.Staff.Interfaces
 {
     public interface ISemesterService
     {

@@ -22,4 +22,6 @@ public partial class Log
     public DateTime CreateAt { get; set; }
 
     public virtual User User { get; set; } = null!;
+
+
 }

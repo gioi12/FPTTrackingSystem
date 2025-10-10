@@ -8,11 +8,18 @@ using Microsoft.EntityFrameworkCore;
 using FPTTrackingSystem.Services.Token;
 using FPTTrackingSystem.Services.Login;
 using FPTTrackingSystem.Services.Authentication;
-using FPTTrackingSystem.Services.Staff;
 using Repositories.Staff;
 using FPTTrackingSystem.Utilities;
 using Mapster;
 using FPTTrackingSystem.Mappers;
+using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Services.Staff.Implementations;
+using Repositories.Staff.Interfaces;
+using Repositories.Staff.Implements;
+using FPTTrackingSystem.Services.Common.Interfaces;
+using FPTTrackingSystem.Services.Common.Implements;
+using Repositories.Common.Interfaces;
+using Repositories.Common.Implements;
 namespace FPTTrackingSystem.Extensions
 {
     public static class ServiceExtensions
@@ -25,8 +32,8 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IMilestoneRepository,MilestoneRepository>();
             services.AddScoped<ISemesterRepository, SemesterRepository>();
             services.AddScoped<IMajorRepository, MajorRepository>();
-            services.AddScoped<IMajorRepository, MajorRepository>();
-            services.AddScoped<IMajorService, MajorService>();
+            services.AddScoped<ILogRepository, LogRepository>();
+            services.AddScoped<IDeliverableRepository, DeliverableRepository>();
 
 
             return services;
@@ -38,6 +45,8 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IMilestoneService, MilestoneService>();
             services.AddScoped<ISemesterService, SemesterService>();
+            services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IMajorService, MajorService>();
 
             services.AddScoped<AuthUtils>();
 
@@ -128,6 +137,7 @@ namespace FPTTrackingSystem.Extensions
         {
             TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceExtensions).Assembly);
             MilestoneMapping.ToMilestoneResponse();
+
             return services;
         }
     }
