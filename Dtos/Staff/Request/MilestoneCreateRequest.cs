@@ -14,8 +14,6 @@ namespace DataTranferObjects.Staff.Request
         public string? Description { get; set; }
         [NotNull]
         public int MajorId { get; set; }
-        [NotNull]
-        public int SemesterId { get; set; }
        
     }
 }

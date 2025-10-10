@@ -21,23 +21,23 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
     {
         private readonly IMilestoneRepository _milestoneRepository;
         private readonly IDeliverableRepository _deliverableRepository;
-
+        private readonly ISemesterRepository _semesterRepository;
         private readonly ILogService _logService;
-
         private readonly AuthUtils _authUtils;
-
-        public MilestoneService(IGroupRepository groupRepository, IMilestoneRepository milestoneRepository, AuthUtils authUtils,ILogService logService, IDeliverableRepository deliverableRepository)
+        public MilestoneService(IGroupRepository groupRepository, IMilestoneRepository milestoneRepository, AuthUtils authUtils,ILogService logService, IDeliverableRepository deliverableRepository,ISemesterRepository semesterRepository)
         {
             _authUtils = authUtils;
             _milestoneRepository = milestoneRepository;
             _logService = logService;
             _deliverableRepository = deliverableRepository;
+            _semesterRepository = semesterRepository;
         }
 
         public async Task<ApiResponse<List<MilestoneResponse>>> CreateMilestoneInSemester(List<MilestoneCreateRequest> request)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
             int majorId = request.FirstOrDefault().MajorId;
+            var semester = await _semesterRepository.findActive();
             var milestones = request.Select(x => new Milestone
             {
                 Name = x.Name,
@@ -54,7 +54,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     {
                         Name = x.Name,
                         Description = x.Description,
-                        SemesterId = x.SemesterId,
+                        SemesterId = semester.Id,
                     }
                 }
             }).ToList();
