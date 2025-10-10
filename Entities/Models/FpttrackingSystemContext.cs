@@ -428,6 +428,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.StartAt)
                 .HasColumnType("datetime")
                 .HasColumnName("start_at");
+            entity.Property(e => e.WeekLearn).HasColumnName("week_learn");
             entity.Property(e => e.WeekNumber).HasColumnName("week_number");
 
             entity.HasOne(d => d.Semester).WithMany(p => p.SemesterWeeks)
