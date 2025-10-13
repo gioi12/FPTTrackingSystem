@@ -1,6 +1,7 @@
 ﻿using DataTranferObjects.Staff.Request;
 using DataTranferObjects.Staff.Semester;
 using Entities.Models;
+using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
@@ -16,12 +17,13 @@ namespace FPTTrackingSystem.Controllers.Staff
     {
         private readonly ISemesterService _semesterService;
         private readonly FpttrackingSystemContext _context;
+        private readonly ILogService _logService;
 
-
-        public SemesterController(ISemesterService semesterService, FpttrackingSystemContext context)
+        public SemesterController(ISemesterService semesterService, FpttrackingSystemContext context, ILogService logService)
         {
             _semesterService = semesterService;
             _context = context;
+            _logService = logService;
         }
 
         [Authorize(Roles = "Staff")]
@@ -152,6 +154,16 @@ namespace FPTTrackingSystem.Controllers.Staff
                 }
 
                 await _context.SaveChangesAsync();
+                _logService.AddLog(new Log
+                {
+                    Name = "Cập nhật tuần nghỉ",
+                    EntityName = "Semester",
+                    EntityId = semester.Id,
+                    Action = "UPDATE",
+                    Description = $"Cập nhật tuần nghỉ/học cho kỳ '{semester.Name}' (ID: {semester.Id}) - Tuần nghỉ: {orderedWeeks.Count - learnWeekCounter}",
+                    UserId = 1, 
+                    CreateAt = DateTime.Now
+                });
 
                 return Ok(ApiResponse<string>.Success(null, "Cập nhật tuần nghỉ và tuần học thành công"));
             }

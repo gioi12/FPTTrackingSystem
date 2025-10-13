@@ -3,7 +3,9 @@ using DataTranferObjects.Staff.Response;
 using DataTranferObjects.Staff.Semester;
 using Entities.Models;
 using FPTTrackingSystem.Hepler;
+using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Staff;
@@ -15,11 +17,15 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         private readonly FpttrackingSystemContext _context;
         private readonly ISemesterRepository _semesterRepository;
         private readonly IMajorRepository _majorRepository;
-        public SemesterService(ISemesterRepository semesterRepository, IMajorRepository majorRepositoy, FpttrackingSystemContext context)
+        private readonly ILogService _logService;
+        private readonly AuthUtils _authUtils;  
+        public SemesterService(ISemesterRepository semesterRepository, IMajorRepository majorRepositoy, FpttrackingSystemContext context, ILogService logService, AuthUtils authUtils)
         {
             _semesterRepository = semesterRepository;
             _majorRepository = majorRepositoy;
             _context = context;
+            _logService = logService;
+            _authUtils = authUtils;
         }
 
         public async Task<ApiResponse<SemesterActiveRes>> GetSemesterActiveAndMajors()
@@ -41,7 +47,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return ApiResponse<SemesterActiveRes>.Success(se);
         }
 
-        public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
+        /*public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
         {
             if (!DateTime.TryParse(request.StartAt, out var startAtDateTime) ||
                 !DateTime.TryParse(request.EndAt, out var endAtDateTime))
@@ -77,6 +83,17 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 _context.Semesters.Add(semester);
                 await _context.SaveChangesAsync();
+
+                _logService.AddLog(new Log
+                {
+                    Name = "Tạo kỳ học mới",
+                    EntityName = "Semester",
+                    EntityId = semester.Id,
+                    Action = "CREATE",
+                    Description = $"Tạo kỳ học {semester.Name} từ {semester.StartAt:yyyy-MM-dd} đến {semester.EndAt:yyyy-MM-dd}",
+                    UserId = 1,
+                    CreateAt = DateTime.Now
+                });
             }
             catch (Exception ex)
             {
@@ -120,7 +137,142 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Description = semester.Description,
                 IsActive = false,
             };
+        }*/
+
+        public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            // 1️⃣ Validate ngày
+            if (!DateTime.TryParse(request.StartAt, out var startAtDateTime) ||
+                !DateTime.TryParse(request.EndAt, out var endAtDateTime))
+                throw new Exception("Ngày không hợp lệ. Định dạng phải là yyyy-MM-dd.");
+
+            var startAt = DateOnly.FromDateTime(startAtDateTime);
+            var endAt = DateOnly.FromDateTime(endAtDateTime);
+            if (startAt >= endAt)
+                throw new Exception("Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
+
+            // 2️⃣ Vô hiệu hóa kỳ đang active
+            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
+            if (activeSemester != null)
+            {
+                activeSemester.IsActive = false;
+                _context.Semesters.Update(activeSemester);
+            }
+
+            // 3️⃣ Tạo kỳ mới
+            var semester = new Semester
+            {
+                Name = request.Name,
+                StartAt = startAtDateTime,
+                EndAt = endAtDateTime,
+                Description = request.Description,
+                IsActive = true
+            };
+
+            await _context.Semesters.AddAsync(semester);
+            await _context.SaveChangesAsync();
+
+            // 4️⃣ Log tạo kỳ mới
+            _logService.AddLog(new Log
+            {
+                Name = "Tạo kỳ học mới",
+                EntityName = "Semester",
+                EntityId = semester.Id,
+                Action = "CREATE",
+                Description = $"Tạo kỳ học {semester.Name} từ {semester.StartAt:yyyy-MM-dd} đến {semester.EndAt:yyyy-MM-dd}",
+                UserId = user.Id ?? 0, 
+                CreateAt = DateTime.Now
+            });
+
+            // 5️⃣ Sinh tuần học
+            var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
+            int learnWeekCount = 0;
+            foreach (var w in weeks)
+            {
+                if(w.IsVacation != null)
+                {
+                    learnWeekCount++;
+                    w.WeekLearn = learnWeekCount;
+                }
+            }
+
+            var semesterWeeks = weeks.Select(w => new SemesterWeek
+            {
+                SemesterId = semester.Id,
+                WeekNumber = w.WeekNumber,
+                StartAt = w.StartAt,
+                EndAt = w.EndAt,
+                IsVacation = w.IsVacation,
+                WeekLearn = w.WeekLearn
+            }).ToList();
+
+            await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
+            await _context.SaveChangesAsync();
+
+            // 6️⃣ Lấy toàn bộ Milestone đang active
+            var activeMilestones = await _context.Milestones
+                .Include(m => m.MilestoneItems)
+                .Where(m => m.IsActive == true)
+                .ToListAsync();
+
+            // 7️⃣ Tạo Deliverable & DeliveryItem tương ứng
+            var deliverables = new List<Deliverable>();
+            var deliveryItems = new List<DeliveryItem>();
+
+            foreach (var milestone in activeMilestones)
+            {
+                var deliverable = new Deliverable
+                {
+                    MilestoneId = milestone.Id,
+                    SemesterId = semester.Id,
+                    Name = milestone.Name,
+                    Description = milestone.Description,
+                    Deadline = milestone.Deadline
+                };
+                deliverables.Add(deliverable);
+
+                foreach (var item in milestone.MilestoneItems)
+                {
+                    var deliveryItem = new DeliveryItem
+                    {
+                        Name = item.Name,
+                        Description = item.Description,
+                        MilestoneItemId = item.Id,
+                        Deliverable = deliverable
+                    };
+                    deliveryItems.Add(deliveryItem);
+                }
+            }
+
+            await _context.Deliverables.AddRangeAsync(deliverables);
+            await _context.DeliveryItems.AddRangeAsync(deliveryItems);
+            await _context.SaveChangesAsync();
+
+            // 8️⃣ Log clone milestone active
+            _logService.AddLog(new Log
+            {
+                Name = "Khởi tạo Deliverable từ Milestone active",
+                EntityName = "Deliverable",
+                Action = "CREATE",
+                Description = $"Tự động sinh {deliverables.Count} Deliverable và {deliveryItems.Count} DeliveryItem từ Milestone active cho kỳ {semester.Name}",
+                UserId = user.Id ?? 0,
+                CreateAt = DateTime.Now
+            });
+
+            // ✅ Return DTO
+            return new SemesterDTO
+            {
+                Name = semester.Name ?? string.Empty,
+                StartAt = semester.StartAt ?? default,
+                EndAt = semester.EndAt ?? default,
+                Description = semester.Description,
+                Weeks = weeks,
+                IsActive = semester.IsActive ?? false
+            };
         }
+
+
 
         public async Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end)
         {
@@ -269,6 +421,16 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             try
             {
                 await _context.SaveChangesAsync();
+                _logService.AddLog(new Log
+                {
+                    Name = "Cập nhật kỳ học",
+                    EntityName = "Semester",
+                    EntityId = semester.Id,
+                    Action = "UPDATE",
+                    Description = $"Cập nhật kỳ học {semester.Name} (thời gian: {semester.StartAt:yyyy-MM-dd} - {semester.EndAt:yyyy-MM-dd})",
+                    UserId = _authUtils.GetUserInfoFromCookie().Id, 
+                    CreateAt = DateTime.Now
+                });
             }
             catch (DbUpdateException ex)
             {
