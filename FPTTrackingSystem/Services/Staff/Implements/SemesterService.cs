@@ -18,14 +18,16 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         private readonly ISemesterRepository _semesterRepository;
         private readonly IMajorRepository _majorRepository;
         private readonly ILogService _logService;
-        private readonly AuthUtils _authUtils;  
-        public SemesterService(ISemesterRepository semesterRepository, IMajorRepository majorRepositoy, FpttrackingSystemContext context, ILogService logService, AuthUtils authUtils)
+        private readonly AuthUtils _authUtils;
+        private readonly ILogger<SemesterService> _logger;
+        public SemesterService(ISemesterRepository semesterRepository, IMajorRepository majorRepositoy, FpttrackingSystemContext context, ILogService logService, AuthUtils authUtils, ILogger<SemesterService> logger)
         {
             _semesterRepository = semesterRepository;
             _majorRepository = majorRepositoy;
             _context = context;
             _logService = logService;
             _authUtils = authUtils;
+            _logger = logger;
         }
 
         public async Task<ApiResponse<SemesterActiveRes>> GetSemesterActiveAndMajors()
@@ -170,8 +172,27 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 IsActive = true
             };
 
-            await _context.Semesters.AddAsync(semester);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Semesters.AddAsync(semester);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                // Log lỗi chi tiết của EF Core
+                var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+
+                _logger.LogError(dbEx, "Lỗi khi lưu Semester: {Message}", innerMessage);
+
+                throw new Exception($"Lỗi khi lưu dữ liệu Semester: {innerMessage}");
+            }
+            catch (Exception ex)
+            {
+                // Log các lỗi khác
+                _logger.LogError(ex, "Lỗi không xác định khi lưu Semester");
+                throw new Exception($"Lỗi không xác định khi lưu Semester: {ex.Message}");
+            }
+
 
             // 4️⃣ Log tạo kỳ mới
             _logService.AddLog(new Log
