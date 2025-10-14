@@ -49,97 +49,97 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return ApiResponse<SemesterActiveRes>.Success(se);
         }
 
-        /*public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
-        {
-            if (!DateTime.TryParse(request.StartAt, out var startAtDateTime) ||
-                !DateTime.TryParse(request.EndAt, out var endAtDateTime))
-            {
-                throw new Exception("Ngày không hợp lệ. Định dạng phải là yyyy-MM-dd.");
-            }
+        /* public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
+         {
+             if (!DateTime.TryParse(request.StartAt, out var startAtDateTime) ||
+                 !DateTime.TryParse(request.EndAt, out var endAtDateTime))
+             {
+                 throw new Exception("Ngày không hợp lệ. Định dạng phải là yyyy-MM-dd.");
+             }
 
-            var startAt = DateOnly.FromDateTime(startAtDateTime);
-            var endAt = DateOnly.FromDateTime(endAtDateTime);
+             var startAt = DateOnly.FromDateTime(startAtDateTime);
+             var endAt = DateOnly.FromDateTime(endAtDateTime);
 
-            if (startAt >= endAt)
-            {
-                throw new Exception("Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
-            }
+             if (startAt >= endAt)
+             {
+                 throw new Exception("Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
+             }
 
-            // Chỉ có 1 kỳ active
-            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
-            if (activeSemester != null)
-            {
-                activeSemester.IsActive = false;
-            }
+             // Chỉ có 1 kỳ active
+             var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
+             if (activeSemester != null)
+             {
+                 activeSemester.IsActive = false;
+             }
 
-            var semester = new Semester
-            {
-                Name = request.Name,
-                StartAt = startAtDateTime,
-                EndAt = endAtDateTime,
-                Description = request.Description,
-                IsActive = true
-            };
+             var semester = new Semester
+             {
+                 Name = request.Name,
+                 StartAt = startAtDateTime,
+                 EndAt = endAtDateTime,
+                 Description = request.Description,
+                 IsActive = true
+             };
 
-            try
-            {
-                _context.Semesters.Add(semester);
-                await _context.SaveChangesAsync();
+             try
+             {
+                 _context.Semesters.Add(semester);
+                 await _context.SaveChangesAsync();
 
-                _logService.AddLog(new Log
-                {
-                    Name = "Tạo kỳ học mới",
-                    EntityName = "Semester",
-                    EntityId = semester.Id,
-                    Action = "CREATE",
-                    Description = $"Tạo kỳ học {semester.Name} từ {semester.StartAt:yyyy-MM-dd} đến {semester.EndAt:yyyy-MM-dd}",
-                    UserId = 1,
-                    CreateAt = DateTime.Now
-                });
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}");
-            }
+                 _logService.AddLog(new Log
+                 {
+                     Name = "Tạo kỳ học mới",
+                     EntityName = "Semester",
+                     EntityId = semester.Id,
+                     Action = "CREATE",
+                     Description = $"Tạo kỳ học {semester.Name} từ {semester.StartAt:yyyy-MM-dd} đến {semester.EndAt:yyyy-MM-dd}",
+                     UserId = 1,
+                     CreateAt = DateTime.Now
+                 });
+             }
+             catch (Exception ex)
+             {
+                 throw new Exception($"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}");
+             }
 
-            var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
+             var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
 
-            int learnWeekCount = 0;
-            foreach (var w in weeks)
-            {
-                if (w.IsVacation == false)
-                {
-                    learnWeekCount++;
-                    w.WeekLearn = learnWeekCount;
-                }
-                else
-                {
-                    w.WeekLearn = null;
-                }
-            }
-            var semesterWeeks = weeks.Select(w => new SemesterWeek
-            {
-                SemesterId = semester.Id,
-                WeekNumber = w.WeekNumber,
-                StartAt = w.StartAt,
-                EndAt = w.EndAt,
-                IsVacation = w.IsVacation,
-                WeekLearn = w.WeekLearn
-            }).ToList();
+             int learnWeekCount = 0;
+             foreach (var w in weeks)
+             {
+                 if (w.IsVacation == false)
+                 {
+                     learnWeekCount++;
+                     w.WeekLearn = learnWeekCount;
+                 }
+                 else
+                 {
+                     w.WeekLearn = null;
+                 }
+             }
+             var semesterWeeks = weeks.Select(w => new SemesterWeek
+             {
+                 SemesterId = semester.Id,
+                 WeekNumber = w.WeekNumber,
+                 StartAt = w.StartAt,
+                 EndAt = w.EndAt,
+                 IsVacation = w.IsVacation,
+                 WeekLearn = w.WeekLearn
+             }).ToList();
 
-            _context.SemesterWeeks.AddRange(semesterWeeks);
-            await _context.SaveChangesAsync();
+             _context.SemesterWeeks.AddRange(semesterWeeks);
+             await _context.SaveChangesAsync();
 
-            return new SemesterDTO
-            {
-                Name = semester.Name ?? string.Empty,
-                StartAt = semester.StartAt ?? default,
-                EndAt = semester.EndAt ?? default,
-                Weeks = weeks,
-                Description = semester.Description,
-                IsActive = false,
-            };
-        }*/
+             return new SemesterDTO
+             {
+                 Name = semester.Name ?? string.Empty,
+                 StartAt = semester.StartAt ?? default,
+                 EndAt = semester.EndAt ?? default,
+                 Weeks = weeks,
+                 Description = semester.Description,
+                 IsActive = false,
+             };
+         }*/
 
         public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
         {
@@ -195,23 +195,23 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
 
             // 4️⃣ Log tạo kỳ mới
-            _logService.AddLog(new Log
+/*            _logService.AddLog(new Log
             {
                 Name = "Tạo kỳ học mới",
                 EntityName = "Semester",
                 EntityId = semester.Id,
                 Action = "CREATE",
                 Description = $"Tạo kỳ học {semester.Name} từ {semester.StartAt:yyyy-MM-dd} đến {semester.EndAt:yyyy-MM-dd}",
-                UserId = user.Id ?? 0, 
+                UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
-            });
+            });*/
 
             // 5️⃣ Sinh tuần học
             var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
             int learnWeekCount = 0;
             foreach (var w in weeks)
             {
-                if(w.IsVacation != null)
+                if (w.IsVacation != null)
                 {
                     learnWeekCount++;
                     w.WeekLearn = learnWeekCount;
@@ -271,7 +271,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             await _context.SaveChangesAsync();
 
             // 8️⃣ Log clone milestone active
-            _logService.AddLog(new Log
+/*            _logService.AddLog(new Log
             {
                 Name = "Khởi tạo Deliverable từ Milestone active",
                 EntityName = "Deliverable",
@@ -279,7 +279,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Description = $"Tự động sinh {deliverables.Count} Deliverable và {deliveryItems.Count} DeliveryItem từ Milestone active cho kỳ {semester.Name}",
                 UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
-            });
+            });*/
 
             // ✅ Return DTO
             return new SemesterDTO

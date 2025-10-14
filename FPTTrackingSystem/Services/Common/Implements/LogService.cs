@@ -17,7 +17,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
         }
 
         public void AddRangeLog(List<Log> logList)
-        {
+        {   
             _logRepository.CreateRangeLog(logList);
         }
     }
