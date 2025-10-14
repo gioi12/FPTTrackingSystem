@@ -17,14 +17,14 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://160.30.21.113:8082"
             , "https://localhost:5000",
-            "10.0.0.2",
-            "10.0.0.3",
-            "10.0.0.4",
-            "10.0.0.5",
-            "10.0.0.6") 
+            "http://10.0.0.2:8082",
+            "http://10.0.0.3:8082",
+            "http://10.0.0.4:8082",
+            "http://10.0.0.5:8082",
+            "http://10.0.0.6:8082")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials(); 
+              .AllowCredentials();
     });
 });
 builder.WebHost.ConfigureKestrel(options =>
