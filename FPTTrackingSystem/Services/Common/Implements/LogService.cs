@@ -1,6 +1,7 @@
 ﻿using Entities.Models;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using Repositories.Common.Interfaces;
+using Task = System.Threading.Tasks.Task;
 
 namespace FPTTrackingSystem.Services.Common.Implements
 {
@@ -11,14 +12,15 @@ namespace FPTTrackingSystem.Services.Common.Implements
         {
             _logRepository = logRepository;
         }
-        public void AddLog(Log log)
+
+        public async Task AddLogAsync(Log log)
         {
-            _logRepository.CreateLog(log);
+            await _logRepository.CreateLog(log);
         }
 
-        public void AddRangeLog(List<Log> logList)
-        {   
-            _logRepository.CreateRangeLog(logList);
+        public async Task AddRangeLogAsync(List<Log> logList)
+        {
+            await _logRepository.CreateRangeLog(logList);
         }
     }
 }

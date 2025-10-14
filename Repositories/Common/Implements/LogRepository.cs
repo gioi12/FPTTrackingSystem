@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace Repositories.Common.Implements
 {
@@ -16,16 +17,18 @@ namespace Repositories.Common.Implements
         {
             _context = context;
         }
-        public void CreateLog(Log log)
+
+        public async Task CreateLog(Log log)
         {
-            _context.Logs.Add(log);
-            _context.SaveChangesAsync();
+            await _context.Logs.AddAsync(log);
+            await _context.SaveChangesAsync();
         }
 
-        public void CreateRangeLog(List<Log> log)
+        public async Task CreateRangeLog(List<Log> logs)
         {
-            _context.Logs.AddRangeAsync(log);
-            _context.SaveChangesAsync();
+            await _context.Logs.AddRangeAsync(logs);
+            await _context.SaveChangesAsync();
         }
+
     }
 }

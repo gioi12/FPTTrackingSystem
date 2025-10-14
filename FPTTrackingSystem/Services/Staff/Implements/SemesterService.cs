@@ -195,7 +195,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
 
             // 4️⃣ Log tạo kỳ mới
-/*            _logService.AddLog(new Log
+             await _logService.AddLogAsync(new Log
             {
                 Name = "Tạo kỳ học mới",
                 EntityName = "Semester",
@@ -204,7 +204,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Description = $"Tạo kỳ học {semester.Name} từ {semester.StartAt:yyyy-MM-dd} đến {semester.EndAt:yyyy-MM-dd}",
                 UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
-            });*/
+            });
 
             // 5️⃣ Sinh tuần học
             var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
@@ -369,7 +369,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<SemesterDTO> UpdateSemesterAsync(int id, SemesterUpdateRequest request)
         {
-            // 1️⃣ Lấy học kỳ hiện tại
+            // 1️ Lấy học kỳ hiện tại
             var semester = await _context.Semesters
                 .Include(s => s.SemesterWeeks)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -391,7 +391,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
                 semester.IsActive = true;
             }
-            // 2️⃣ Kiểm tra thời gian
+            // 2️ Kiểm tra thời gian
             if (timeChanged && request.StartAt.HasValue && request.EndAt.HasValue)
             {
                 if (request.StartAt >= request.EndAt)
@@ -411,14 +411,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     throw new Exception("Khoảng thời gian bị trùng với kỳ học khác trong hệ thống.");
             }
 
-            // 3️⃣ Cập nhật thông tin chung
+            // 3 Cập nhật thông tin chung
             semester.Name = request.Name ?? semester.Name;
             semester.Description = request.Description ?? semester.Description;
             semester.IsActive = request.IsActive ?? semester.IsActive;
             semester.StartAt = request.StartAt ?? semester.StartAt;
             semester.EndAt = request.EndAt ?? semester.EndAt;
 
-            // 4️⃣ Nếu thời gian thay đổi → cập nhật lại danh sách tuần
+            // 4️ Nếu thời gian thay đổi → cập nhật lại danh sách tuần
             if (timeChanged)
             {
                 _context.SemesterWeeks.RemoveRange(semester.SemesterWeeks);
@@ -438,20 +438,31 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
                 await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
             }
-
+                 var changedEntries = _context.ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Modified && e.Entity is Semester)
+                .Select(e =>
+                {
+                    var changes = e.Properties
+                        .Where(p => p.IsModified)
+                        .Select(p => $"{p.Metadata.Name}: '{p.OriginalValue}' → '{p.CurrentValue}'");
+                    return string.Join(", ", changes);
+                })
+                .FirstOrDefault();
             try
             {
-                await _context.SaveChangesAsync();
-                _logService.AddLog(new Log
+                var log = new Log
                 {
                     Name = "Cập nhật kỳ học",
                     EntityName = "Semester",
                     EntityId = semester.Id,
                     Action = "UPDATE",
-                    Description = $"Cập nhật kỳ học {semester.Name} (thời gian: {semester.StartAt:yyyy-MM-dd} - {semester.EndAt:yyyy-MM-dd})",
-                    UserId = _authUtils.GetUserInfoFromCookie().Id, 
+                    Description = $"Cập nhật kỳ học {semester.Name}. Thay đổi: {changedEntries ?? "Không có thay đổi"}",
+                    UserId = _authUtils.GetUserInfoFromCookie().Id,
                     CreateAt = DateTime.Now
-                });
+                };
+
+                _context.Logs.Add(log);
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateException ex)
             {

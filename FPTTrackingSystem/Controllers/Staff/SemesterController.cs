@@ -154,7 +154,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                 }
 
                 await _context.SaveChangesAsync();
-                _logService.AddLog(new Log
+                await _logService.AddLogAsync(new Log
                 {
                     Name = "Cập nhật tuần nghỉ",
                     EntityName = "Semester",

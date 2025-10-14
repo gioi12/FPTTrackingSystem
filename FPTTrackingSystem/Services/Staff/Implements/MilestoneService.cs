@@ -83,7 +83,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .ToList();
             // gop 2 list
             logs.AddRange(delilogs);
-            _logService.AddRangeLog(logs);
+            await _logService.AddRangeLogAsync(logs);
             var response = list.Adapt<List<MilestoneResponse>>();
 
             return ApiResponse<List<MilestoneResponse>>.Success(response);
@@ -115,7 +115,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 UserId = (int)user.Id,
                 CreateAt = DateTime.Now
             };
-            _logService.AddRangeLog(new List<Log>
+            await _logService.AddRangeLogAsync(new List<Log>
             {
                 log, deliLog
             });
@@ -221,7 +221,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 UserId = (int)user.Id,
                 CreateAt = DateTime.Now
             };
-            _logService.AddRangeLog(new List<Log>
+            await _logService.AddRangeLogAsync(new List<Log>
             {
                 log, deliLog
             });
