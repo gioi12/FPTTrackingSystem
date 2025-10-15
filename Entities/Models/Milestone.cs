@@ -17,11 +17,7 @@ public partial class Milestone
 
     public string? Description { get; set; }
 
-    public DateTime? UpdateAt { get; set; }
-
     public string? Deadline { get; set; }
-
-    public int? UpdateBy { get; set; }
 
     public bool? IsActive { get; set; }
 

@@ -6,10 +6,6 @@ namespace Entities.Models;
 
 public partial class FpttrackingSystemContext : DbContext
 {
-    public FpttrackingSystemContext()
-    {
-    }
-
     public FpttrackingSystemContext(DbContextOptions<FpttrackingSystemContext> options)
         : base(options)
     {
@@ -54,10 +50,6 @@ public partial class FpttrackingSystemContext : DbContext
     public virtual DbSet<TaskUser> TaskUsers { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=160.30.21.113,1433;Database=FPTTrackingSystem;User ID=sa;Password=ak47;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -147,11 +139,17 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Description)
                 .HasMaxLength(200)
                 .HasColumnName("description");
+            entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.MajorId).HasColumnName("major_id");
             entity.Property(e => e.MilestoneId).HasColumnName("milestone_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
             entity.Property(e => e.SemesterId).HasColumnName("semester_id");
+
+            entity.HasOne(d => d.Major).WithMany(p => p.Deliverables)
+                .HasForeignKey(d => d.MajorId)
+                .HasConstraintName("FK_Deliverable_Major_Category");
 
             entity.HasOne(d => d.Milestone).WithMany(p => p.Deliverables)
                 .HasForeignKey(d => d.MilestoneId)
@@ -358,10 +356,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
-            entity.Property(e => e.UpdateAt)
-                .HasColumnType("datetime")
-                .HasColumnName("update_at");
-            entity.Property(e => e.UpdateBy).HasColumnName("update_by");
 
             entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.Milestones)
                 .HasForeignKey(d => d.CreateBy)
@@ -389,10 +383,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
-            entity.Property(e => e.UpdateAt)
-                .HasColumnType("datetime")
-                .HasColumnName("update_at");
-            entity.Property(e => e.UpdateBy).HasColumnName("update_by");
 
             entity.HasOne(d => d.Milestone).WithMany(p => p.MilestoneItems)
                 .HasForeignKey(d => d.MilestoneId)
@@ -429,9 +419,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
-            entity.Property(e => e.SemesterBreak)
-                .HasMaxLength(100)
-                .HasColumnName("semester_break");
             entity.Property(e => e.StartAt)
                 .HasColumnType("datetime")
                 .HasColumnName("start_at");

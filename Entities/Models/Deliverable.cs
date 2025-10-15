@@ -17,7 +17,13 @@ public partial class Deliverable
 
     public string? Deadline { get; set; }
 
+    public bool? IsActive { get; set; }
+
+    public int? MajorId { get; set; }
+
     public virtual ICollection<DeliveryItem> DeliveryItems { get; set; } = new List<DeliveryItem>();
+
+    public virtual MajorCategory? Major { get; set; }
 
     public virtual Milestone Milestone { get; set; } = null!;
 

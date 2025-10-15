@@ -46,6 +46,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<ISemesterService, SemesterService>();
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<IMajorService, MajorService>();
+            services.AddScoped<IDeliverableSevice, DeliverableService>();
 
             services.AddScoped<AuthUtils>();
 
@@ -135,8 +136,8 @@ namespace FPTTrackingSystem.Extensions
         public static IServiceCollection AddMappings(this IServiceCollection services)
         {
             TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceExtensions).Assembly);
-            MilestoneMapping.ToMilestoneResponse();
-
+            MilestoneMapper.ToMilestoneResponse();
+            DeliverableMapper.ToDeliverableResponse();
             return services;
         }
     }

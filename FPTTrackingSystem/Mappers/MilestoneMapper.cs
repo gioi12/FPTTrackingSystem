@@ -5,7 +5,7 @@ using Mapster;
 
 namespace FPTTrackingSystem.Mappers
 {
-    public class MilestoneMapping
+    public class MilestoneMapper
     {
         public static void ToMilestoneResponse()
         {

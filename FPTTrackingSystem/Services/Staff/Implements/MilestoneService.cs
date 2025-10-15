@@ -35,29 +35,30 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         public async Task<ApiResponse<List<MilestoneResponse>>> CreateMilestoneInSemester(List<MilestoneCreateRequest> request)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
-            int majorId = request.FirstOrDefault().MajorId;
+            int majorCateId = request.FirstOrDefault().MajorCateId;
             var semester = await _semesterRepository.findActive();
             var milestones = request.Select(x => new Milestone
             {
                 Name = x.Name,
                 Description = x.Description,
-                MajorId = x.MajorId,
+                MajorId = x.MajorCateId,
                 CreateAt = DateTime.Now,
                 CreateBy = user.Id,
-                UpdateAt = DateTime.Now,
-                UpdateBy = user.Id,
                 IsActive = true,
-                Deliverables = new List<Deliverable>
+                Deliverables = semester != null ? new List<Deliverable>
                 {
                     new Deliverable
                     {
                         Name = x.Name,
                         Description = x.Description,
                         SemesterId = semester.Id,
+                        IsActive = true,
+                        MajorId = x.MajorCateId
                     }
-                }
+                } : new List<Deliverable>()
             }).ToList();
-            var list = await _milestoneRepository.NewMilestontes(milestones, majorId);
+    
+            var list = await _milestoneRepository.NewMilestontes(milestones, majorCateId);
             var logs = milestones.Select(x => new Log
             {
                 Name = "Thêm milestone " + x.Name,
@@ -132,7 +133,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         {
             var user = await _authUtils.GetUserInfoFromCookie();
             var mile = await _milestoneRepository.GetMilestone(request.Id);
-            int majorId = request.MajorId;
+            int majorId = request.MajorCateId;
 
             if (mile == null) throw new ValidationException("Not found milestone");
             //lay ra item them
@@ -141,9 +142,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Name = x.name,
                 Description = x.description,
                 CreateAt = DateTime.Now,
-                UpdateAt = DateTime.Now,
                 CreateBy = user.Id,
-                UpdateBy = user.Id,
                 MilestoneId = mile.Id, 
             }).ToList() ?? new List<MilestoneItem>();
             //lay ra item can update
@@ -153,8 +152,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             mile.Name = request.Name;
             mile.Description = request.Description;
             mile.Deadline = request.Deadline;
-            mile.UpdateAt = DateTime.Now;
-            mile.UpdateBy = user.Id;
             //them
             addItems.ForEach(x => mile.MilestoneItems.Add(x));
             //cap nhat
@@ -165,65 +162,67 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 {
                     existing.Name = updated.name;
                     existing.Description = updated.description;
-                    existing.UpdateAt = DateTime.Now;
-                    existing.UpdateBy = user.Id;
                 }
             }
             // xoa
             deleteItems.ForEach(x => mile.MilestoneItems.Remove(x));
             var list = await _milestoneRepository.UpdateMilestonte(mile, majorId);
-            // xu li delivery
-            var deli = await _deliverableRepository.GetByMileIdAndActiveSenmester(mile.Id);
-            deli.Name = request.Name;
-            deli.Description = request.Description;
-            deli.Deadline = request.Deadline;
-            // xu li cap nhat deli
-            foreach (var item in deli.DeliveryItems)
+            var semester = await _semesterRepository.findActive();
+            if(semester != null)
             {
-                var x = mile.MilestoneItems.FirstOrDefault(x => x.Id == item.MilestoneItemId);
-                if (x != null)
+                // xu li delivery
+                var deli = await _deliverableRepository.GetByMileIdAndActiveSenmester(mile.Id);
+                deli.Name = request.Name;
+                deli.Description = request.Description;
+                deli.Deadline = request.Deadline;
+                // xu li cap nhat deli
+                foreach (var item in deli.DeliveryItems)
                 {
-                    item.Name = x.Name;
-                    item.Description = x.Description;
+                    var x = mile.MilestoneItems.FirstOrDefault(x => x.Id == item.MilestoneItemId);
+                    if (x != null)
+                    {
+                        item.Name = x.Name;
+                        item.Description = x.Description;
+                    }
                 }
-            }
-            // xu li xoa
-            var deleteDelis = deli.DeliveryItems.Where(x=> deleteItems.Any(y=>y.Id == x.MilestoneItemId)).ToList();
-            deleteDelis.ForEach(x => deli.DeliveryItems.Remove(x));
-            // xu li them
-            var addDelis = addItems.Select(x => new DeliveryItem
-            {
-                Name = x.Name,
-                Description = x.Description,
-                DeliverableId = deli.Id,
-                MilestoneItemId = x.Id
-            }).ToList();
-            addDelis.ForEach(x => deli.DeliveryItems.Add(x));
-            _deliverableRepository.UpdateDeliverable(deli);
-            Log log = new Log()
-            {
-                Name = "Cập nhật milestone " + mile.Name,
-                EntityName = "Milestone",
-                EntityId = mile.Id,
-                Action = StringEnum.Update,
-                Description = mile.Description+mile.MilestoneItems.ToString(),
-                UserId = (int)user.Id,
-                CreateAt = DateTime.Now
-            };
-            Log deliLog = new Log
-            {
-                Name = "Cập nhật Deliverable " + deli.Name,
-                EntityName = "Deliverable",
-                EntityId = deli.Id,
-                Action = StringEnum.Update,
-                Description = deli.Description+deli.DeliveryItems.ToString(),
-                UserId = (int)user.Id,
-                CreateAt = DateTime.Now
-            };
-            await _logService.AddRangeLogAsync(new List<Log>
+                // xu li xoa
+                var deleteDelis = deli.DeliveryItems.Where(x => deleteItems.Any(y => y.Id == x.MilestoneItemId)).ToList();
+                deleteDelis.ForEach(x => deli.DeliveryItems.Remove(x));
+                // xu li them
+                var addDelis = addItems.Select(x => new DeliveryItem
+                {
+                    Name = x.Name,
+                    Description = x.Description,
+                    DeliverableId = deli.Id,
+                    MilestoneItemId = x.Id
+                }).ToList();
+                addDelis.ForEach(x => deli.DeliveryItems.Add(x));
+                await _deliverableRepository.UpdateDeliverable(deli);
+                Log log = new Log()
+                {
+                    Name = "Cập nhật milestone " + mile.Name,
+                    EntityName = "Milestone",
+                    EntityId = mile.Id,
+                    Action = StringEnum.Update,
+                    Description = mile.Description + mile.MilestoneItems.ToString(),
+                    UserId = (int)user.Id,
+                    CreateAt = DateTime.Now
+                };
+                Log deliLog = new Log
+                {
+                    Name = "Cập nhật Deliverable " + deli.Name,
+                    EntityName = "Deliverable",
+                    EntityId = deli.Id,
+                    Action = StringEnum.Update,
+                    Description = deli.Description + deli.DeliveryItems.ToString(),
+                    UserId = (int)user.Id,
+                    CreateAt = DateTime.Now
+                };
+                await _logService.AddRangeLogAsync(new List<Log>
             {
                 log, deliLog
             });
+            }
             var response = list.Adapt<List<MilestoneResponse>>();
             return ApiResponse<List<MilestoneResponse>>.Success(response);
         }

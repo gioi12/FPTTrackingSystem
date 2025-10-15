@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFE", policy =>
     {
         policy.WithOrigins("http://160.30.21.113:8082"
-            , "https://localhost:5000",
+            ,"https://localhost:5000",
             "http://10.0.0.2:8082",
             "http://10.0.0.3:8082",
             "http://10.0.0.4:8082",

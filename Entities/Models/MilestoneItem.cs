@@ -15,10 +15,6 @@ public partial class MilestoneItem
 
     public DateTime? CreateAt { get; set; }
 
-    public int? UpdateBy { get; set; }
-
-    public DateTime? UpdateAt { get; set; }
-
     public int? CreateBy { get; set; }
 
     public virtual ICollection<DeliveryItem> DeliveryItems { get; set; } = new List<DeliveryItem>();
