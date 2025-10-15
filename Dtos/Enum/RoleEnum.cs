@@ -14,4 +14,11 @@ namespace DataTranferObjects.Enum
         Staff = 4,
         StudentLead = 5,
     }
+
+    public enum StatusTask
+    {
+        ToDo = 1,
+        InProgress = 2,
+        Done = 3,
+    }
 }

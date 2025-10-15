@@ -30,8 +30,7 @@ namespace FPTTrackingSystem.Controllers.Student
                     createdTask.GroupId,
                     createdTask.Name,
                     createdTask.Description,
-                    createdTask.StartAt,
-                    createdTask.EndAt,
+                    createdTask.Deadline,
                     AssignedUserId = dto.AssignedUserId
                 }, "Tạo task thành công."));
             }

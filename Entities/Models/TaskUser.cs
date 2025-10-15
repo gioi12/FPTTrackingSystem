@@ -11,6 +11,8 @@ public partial class TaskUser
 
     public bool IsCreated { get; set; }
 
+    public int Id { get; set; }
+
     public virtual Task Task { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

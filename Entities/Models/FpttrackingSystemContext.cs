@@ -467,20 +467,14 @@ public partial class FpttrackingSystemContext : DbContext
             entity.ToTable("Task");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreateAt)
+            entity.Property(e => e.Deadline)
                 .HasColumnType("datetime")
-                .HasColumnName("create_at");
+                .HasColumnName("deadline");
             entity.Property(e => e.Description).HasColumnName("description");
-            entity.Property(e => e.EndAt)
-                .HasColumnType("datetime")
-                .HasColumnName("end_at");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
-            entity.Property(e => e.StartAt)
-                .HasColumnType("datetime")
-                .HasColumnName("start_at");
             entity.Property(e => e.StatusId).HasColumnName("status_id");
 
             entity.HasOne(d => d.Group).WithMany(p => p.Tasks)
@@ -496,20 +490,19 @@ public partial class FpttrackingSystemContext : DbContext
 
         modelBuilder.Entity<TaskUser>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("Task_User");
+            entity.ToTable("Task_User");
 
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.IsCreated).HasColumnName("is_created");
             entity.Property(e => e.TaskId).HasColumnName("task_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
-            entity.HasOne(d => d.Task).WithMany()
+            entity.HasOne(d => d.Task).WithMany(p => p.TaskUsers)
                 .HasForeignKey(d => d.TaskId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Task_User_Task");
 
-            entity.HasOne(d => d.User).WithMany()
+            entity.HasOne(d => d.User).WithMany(p => p.TaskUsers)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Task_User_User");
