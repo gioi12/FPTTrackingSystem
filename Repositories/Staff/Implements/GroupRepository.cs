@@ -1,6 +1,7 @@
 ﻿using DataTranferObjects.Staff.Group;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
+using Repositories.Staff.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Staff
+namespace Repositories.Staff.Implements
 {
     public class GroupRepository : IGroupRepository
     {
@@ -52,7 +53,7 @@ namespace Repositories.Staff
             .Select(m => new DashBoardGroupDto
             {
                 name = m.Name ?? string.Empty,
-                Total = m.Groups.Count()
+                Total = m.MajorCategories.Count()
             })
             .ToListAsync();
         }

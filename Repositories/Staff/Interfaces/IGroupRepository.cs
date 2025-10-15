@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DataTranferObjects.Staff.Group;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
-namespace Repositories.Staff
+namespace Repositories.Staff.Interfaces
 {
     public interface IGroupRepository
     {

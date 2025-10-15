@@ -3,6 +3,7 @@ using DataTranferObjects.Staff.Semester;
 using Entities.Models;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -18,12 +19,14 @@ namespace FPTTrackingSystem.Controllers.Staff
         private readonly ISemesterService _semesterService;
         private readonly FpttrackingSystemContext _context;
         private readonly ILogService _logService;
+        private readonly AuthUtils _authUtils;
 
-        public SemesterController(ISemesterService semesterService, FpttrackingSystemContext context, ILogService logService)
+        public SemesterController(ISemesterService semesterService, FpttrackingSystemContext context, ILogService logService, AuthUtils authUtils)
         {
             _semesterService = semesterService;
             _context = context;
             _logService = logService;
+            _authUtils = authUtils;
         }
 
         [Authorize(Roles = "Staff")]
@@ -114,6 +117,7 @@ namespace FPTTrackingSystem.Controllers.Staff
         [HttpPost("v1/Staff/semester/vacation")]
         public async Task<IActionResult> UpdateVacationWeeks([FromBody] UpdateVacationWeeksRequest request)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
             try
             {
                 if (request == null || request.Weeks == null || request.Weeks.Count == 0)
@@ -161,7 +165,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                     EntityId = semester.Id,
                     Action = "UPDATE",
                     Description = $"Cập nhật tuần nghỉ/học cho kỳ '{semester.Name}' (ID: {semester.Id}) - Tuần nghỉ: {orderedWeeks.Count - learnWeekCounter}",
-                    UserId = 1, 
+                    UserId = user.Id ?? 0, 
                     CreateAt = DateTime.Now
                 });
 
@@ -170,6 +174,66 @@ namespace FPTTrackingSystem.Controllers.Staff
             catch (Exception ex)
             {
                 return StatusCode(500, ApiResponse<string>.InternalError(ex.Message));
+            }
+        }
+
+        [HttpGet("v1/Staff/semester/getSemesterByNow")]
+        public async Task<IActionResult> GetCurrentSemester()
+        {
+            try
+            {
+                var semester = await _semesterService.GetSemesterByNow();
+
+                if (semester == null)
+                {
+                    return NotFound(ApiResponse<object>.Fail("Không có học kỳ nào đang hoạt động."));
+                }
+
+                return Ok(ApiResponse<Semester>.Success(semester, "Lấy học kỳ hiện tại thành công."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail($"Đã xảy ra lỗi: {ex.Message}"));
+            }
+        }
+
+        [HttpGet("v1/Staff/semester/getDeliveriesBySemester/{id}")]
+        public async Task<IActionResult> GetDeliveriesBySemester(int id)
+        {
+            try
+            {
+                var semester = await _semesterService.GetDeliveriesBySemester(id);
+
+                if (semester == null)
+                {
+                    return NotFound(ApiResponse<object>.Fail("Không có học kỳ nào đang hoạt động."));
+                }
+
+                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy học kỳ hiện tại thành công."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail($"Đã xảy ra lỗi: {ex.Message}"));
+            }
+        }
+
+        [HttpGet("v1/Staff/semester/getMilestonesBySemester/{id}")]
+        public async Task<IActionResult> GetMilestonesBySemester(int id)
+        {
+            try
+            {
+                var semester = await _semesterService.GetMilestonesBySemester(id);
+
+                if (semester == null)
+                {
+                    return NotFound(ApiResponse<object>.Fail("Không có học kỳ nào đang hoạt động."));
+                }
+
+                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy học kỳ hiện tại thành công."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail($"Đã xảy ra lỗi: {ex.Message}"));
             }
         }
 

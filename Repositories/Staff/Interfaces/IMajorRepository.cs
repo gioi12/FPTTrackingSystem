@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Staff
+namespace Repositories.Staff.Interfaces
 {
     public interface IMajorRepository
     {
         Task<List<Major>> findAll();
+        Task<List<Major>> getAllMajorAndCode();
     }
 }

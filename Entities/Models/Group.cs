@@ -31,7 +31,7 @@ public partial class Group
 
     public virtual ICollection<GroupUser> GroupUsers { get; set; } = new List<GroupUser>();
 
-    public virtual Major? Major { get; set; }
+    public virtual MajorCategory? Major { get; set; }
 
     public virtual Semester? Semester { get; set; }
 

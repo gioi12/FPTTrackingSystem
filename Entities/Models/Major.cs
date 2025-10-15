@@ -7,15 +7,9 @@ public partial class Major
 {
     public int Id { get; set; }
 
-    public string? Code { get; set; }
-
     public string? Name { get; set; }
 
     public string? Status { get; set; }
 
-    public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
-
-    public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
-
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<MajorCategory> MajorCategories { get; set; } = new List<MajorCategory>();
 }

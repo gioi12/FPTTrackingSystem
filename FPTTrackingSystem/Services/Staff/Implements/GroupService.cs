@@ -1,10 +1,10 @@
 ﻿using Azure;
 using Microsoft.EntityFrameworkCore;
 using FPTTrackingSystem.Wrappers;
-using Repositories.Staff;
 using DataTranferObjects.Enum;
 using DataTranferObjects.Staff.Group;
 using FPTTrackingSystem.Services.Staff.Interfaces;
+using Repositories.Staff.Interfaces;
 
 namespace FPTTrackingSystem.Services.Staff.Implementations
 {

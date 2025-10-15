@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using DataTranferObjects.Staff.Group;
 using DataTranferObjects.Staff.Request;
 using DataTranferObjects.Staff.Response;
 using DataTranferObjects.Staff.Semester;
@@ -9,7 +10,7 @@ using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Staff;
+using Repositories.Staff.Interfaces;
 
 namespace FPTTrackingSystem.Services.Staff.Implementations
 {
@@ -44,7 +45,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 {
                     x.Id,
                     x.Name,
-                    x.Code
                 }).Cast<object>().ToList()
             };
             return ApiResponse<SemesterActiveRes>.Success(se);
@@ -237,6 +237,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .Include(m => m.MilestoneItems)
                 .Where(m => m.IsActive == true)
                 .ToListAsync();
+
+            if(activeMilestones == null)
+            {
+                throw new Exception("Milestone không tồn tại vui lòng tạo milestone.");
+            }
 
             // 7️⃣ Tạo Deliverable & DeliveryItem tương ứng
             var deliverables = new List<Deliverable>();
@@ -492,6 +497,66 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             };
         }
 
+        public async Task<Semester?> GetSemesterByNow()
+        {
+            return await _semesterRepository.GetSemesterByNow();
+        }
 
+        public async Task<SemesterDeliveriesDTO?> GetMilestonesBySemester(int id)
+        {
+            var semester = await _semesterRepository.GetMilestonesBySemester(id);
+            if (semester == null) return null;
+
+            return new SemesterDeliveriesDTO
+            {
+                Id = semester.Id,
+                Name = semester.Name,
+                StartAt = semester.StartAt ?? default,
+                EndAt = semester.EndAt ?? default,
+                IsActive = semester.IsActive,
+                Deliverables = semester.Deliverables.Select(d => new DeliverableDTO
+                {
+                    Id = d.Id,
+                    MilestoneId = d.MilestoneId,
+                    Name = d.Name,
+                    Description = d.Description,
+                    Deadline = d.Deadline,
+                    Milestone = new MilestoneDTO
+                    {
+                        Id = d.Milestone.Id,
+                        Name = d.Milestone.Name,
+                        Description = d.Milestone.Description
+                    }
+                }).ToList()
+            };
+        }
+
+        public async Task<SemesterDeliveriesDTO?> GetDeliveriesBySemester(int id)
+        {
+            var semester = await _semesterRepository.GetDeliveriesBySemester(id);
+            if (semester == null) throw new Exception("Id của kì không tồn tại trong hệ thống");
+            return new SemesterDeliveriesDTO
+            {
+                Id = semester.Id,
+                Name = semester.Name,
+                StartAt = semester.StartAt ?? default,
+                EndAt = semester.EndAt ?? default,
+                IsActive = semester.IsActive,
+                Description = semester.Description,
+                Deliverables = semester.Deliverables.Select(d => new DeliverableDTO
+                {
+                    Id = d.Id,
+                    MilestoneId = d.MilestoneId,
+                    Name = d.Name,
+                    Description = d.Description,
+                    Deadline = d.Deadline
+                }).ToList()
+            };
+        }
+
+        public Task<Semester?> GetGroupsBySemester(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

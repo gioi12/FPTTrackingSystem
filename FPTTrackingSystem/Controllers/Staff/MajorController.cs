@@ -1,10 +1,13 @@
-﻿using FPTTrackingSystem.Services.Staff.Interfaces;
+﻿using DataTranferObjects.Staff.Major;
+using Entities.Models;
+using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Controllers.Staff
 {
-    [Route("api/Staff/")]
+    [Route("api/v1/Staff/")]
     [ApiController]
     public class MajorController : ControllerBase
     {
@@ -20,6 +23,24 @@ namespace FPTTrackingSystem.Controllers.Staff
         {
             var response = await _majorService.GetAllMajors();
             return StatusCode(response.Status, response);
-        } 
+        }
+
+        [HttpGet("getAllCodeCourseInMajor")]
+        public async Task<IActionResult> GetAllMajorsWithCategories()
+        {
+            try
+            {
+                var majors = await _majorService.GetAllMajorAndCategoriesAsync();
+
+                if (majors == null || majors.Count == 0)
+                    return NotFound(ApiResponse<object>.Fail("Không có dữ liệu chuyên ngành nào."));
+
+                return Ok(ApiResponse<List<MajorDTO>>.Success(majors, "Lấy danh sách chuyên ngành thành công."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
+            }
+        }
     }
 }

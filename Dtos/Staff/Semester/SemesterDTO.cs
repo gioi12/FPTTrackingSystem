@@ -54,5 +54,38 @@ namespace DataTranferObjects.Staff.Semester
         public bool IsVacation { get; set; }
     }
 
+    public class SemesterDeliveriesDTO
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public DateTime StartAt { get; set; }
+        public DateTime EndAt { get; set; }
+        public string? Description { get; set; }
+        public List<DeliverableDTO> Deliverables { get; set; } = new();
+        public bool? IsActive { get; set; }
+    }
+
+    public class DeliverableDTO
+    {
+        public int Id { get; set; }
+        public int MilestoneId { get; set; }
+
+        public string? Description { get; set; }
+
+        public string Name { get; set; } = null!;
+
+        public string? Deadline { get; set; }
+
+        public MilestoneDTO? Milestone { get; set; }
+
+    }
+
+    public class MilestoneDTO
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
+
 
 }

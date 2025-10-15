@@ -29,7 +29,7 @@ public partial class Milestone
 
     public virtual ICollection<Deliverable> Deliverables { get; set; } = new List<Deliverable>();
 
-    public virtual Major Major { get; set; } = null!;
+    public virtual MajorCategory Major { get; set; } = null!;
 
     public virtual ICollection<MilestoneItem> MilestoneItems { get; set; } = new List<MilestoneItem>();
 }

@@ -6,6 +6,10 @@ namespace Entities.Models;
 
 public partial class FpttrackingSystemContext : DbContext
 {
+    public FpttrackingSystemContext()
+    {
+    }
+
     public FpttrackingSystemContext(DbContextOptions<FpttrackingSystemContext> options)
         : base(options)
     {
@@ -31,6 +35,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<Major> Majors { get; set; }
 
+    public virtual DbSet<MajorCategory> MajorCategories { get; set; }
+
     public virtual DbSet<Milestone> Milestones { get; set; }
 
     public virtual DbSet<MilestoneItem> MilestoneItems { get; set; }
@@ -48,6 +54,10 @@ public partial class FpttrackingSystemContext : DbContext
     public virtual DbSet<TaskUser> TaskUsers { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=160.30.21.113,1433;Database=FPTTrackingSystem;User ID=sa;Password=ak47;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -237,7 +247,7 @@ public partial class FpttrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Major).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.MajorId)
-                .HasConstraintName("FK_Group_Major");
+                .HasConstraintName("FK_Group_Major_Category");
 
             entity.HasOne(d => d.Semester).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.SemesterId)
@@ -305,15 +315,29 @@ public partial class FpttrackingSystemContext : DbContext
             entity.ToTable("Major");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Code)
-                .HasMaxLength(100)
-                .HasColumnName("code");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasColumnName("status");
+        });
+
+        modelBuilder.Entity<MajorCategory>(entity =>
+        {
+            entity.ToTable("Major_Category");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Code).HasMaxLength(20);
+            entity.Property(e => e.IsActive)
+                .HasMaxLength(10)
+                .IsFixedLength();
+            entity.Property(e => e.MajorId).HasColumnName("Major_Id");
+            entity.Property(e => e.Name).HasMaxLength(100);
+
+            entity.HasOne(d => d.Major).WithMany(p => p.MajorCategories)
+                .HasForeignKey(d => d.MajorId)
+                .HasConstraintName("FK_Major_Category_Major");
         });
 
         modelBuilder.Entity<Milestone>(entity =>
@@ -346,7 +370,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.Major).WithMany(p => p.Milestones)
                 .HasForeignKey(d => d.MajorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Milestone_Major");
+                .HasConstraintName("FK_Milestone_Major_Category");
         });
 
         modelBuilder.Entity<MilestoneItem>(entity =>
@@ -534,7 +558,7 @@ public partial class FpttrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Major).WithMany(p => p.Users)
                 .HasForeignKey(d => d.MajorId)
-                .HasConstraintName("FK_User_Major");
+                .HasConstraintName("FK_User_Major_Category");
 
             entity.HasOne(d => d.Status).WithMany(p => p.Users)
                 .HasForeignKey(d => d.StatusId)

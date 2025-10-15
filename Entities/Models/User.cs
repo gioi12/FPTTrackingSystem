@@ -43,7 +43,7 @@ public partial class User
 
     public virtual ICollection<Log> Logs { get; set; } = new List<Log>();
 
-    public virtual Major? Major { get; set; }
+    public virtual MajorCategory? Major { get; set; }
 
     public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
 
