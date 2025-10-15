@@ -10,5 +10,9 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<ApiResponse<List<MajorResponse>>> GetAllMajors();
         Task<List<MajorDTO>> GetAllMajorAndCategoriesAsync();
         Task<List<MajorCategoryDTO>> GetAllCoursesAsync();
+        Task<MajorCategoryDTO?> GetByIdAsync(int id);
+        Task<bool> CreateAsync(MajorCategoryDTO dto);
+        Task<bool> UpdateAsync(MajorCategoryDTO dto);
+
     }
 }

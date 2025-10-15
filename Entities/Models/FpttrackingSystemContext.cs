@@ -147,11 +147,17 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Description)
                 .HasMaxLength(200)
                 .HasColumnName("description");
+            entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.MajorId).HasColumnName("major_id");
             entity.Property(e => e.MilestoneId).HasColumnName("milestone_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
             entity.Property(e => e.SemesterId).HasColumnName("semester_id");
+
+            entity.HasOne(d => d.Major).WithMany(p => p.Deliverables)
+                .HasForeignKey(d => d.MajorId)
+                .HasConstraintName("FK_Deliverable_Major_Category");
 
             entity.HasOne(d => d.Milestone).WithMany(p => p.Deliverables)
                 .HasForeignKey(d => d.MilestoneId)
@@ -329,9 +335,6 @@ public partial class FpttrackingSystemContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Code).HasMaxLength(20);
-            entity.Property(e => e.IsActive)
-                .HasMaxLength(10)
-                .IsFixedLength();
             entity.Property(e => e.MajorId).HasColumnName("Major_Id");
             entity.Property(e => e.Name).HasMaxLength(100);
 

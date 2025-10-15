@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Staff.Major;
+using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,8 @@ namespace Repositories.Staff.Interfaces
         Task<List<Major>> findAll();
         Task<List<Major>> getAllMajorAndCode();
         Task<List<MajorCategory>> getAllCourse();
+        Task<MajorCategory?> GetByIdAsync(int id);
+        Task<bool> CreateAsync(MajorCategory majorCategory);
+        Task<bool> UpdateAsync(MajorCategory majorCategory);
     }
 }
