@@ -17,8 +17,6 @@ public partial class Semester
 
     public DateTime? EndAt { get; set; }
 
-    public string? SemesterBreak { get; set; }
-
     public virtual ICollection<Deliverable> Deliverables { get; set; } = new List<Deliverable>();
 
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();

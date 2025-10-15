@@ -33,6 +33,7 @@ namespace Repositories.Staff.Implements
         {
             return await _context.Semesters
                 .Include(s => s.Deliverables)
+                .ThenInclude(d => d.Milestone)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 

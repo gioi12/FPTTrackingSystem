@@ -12,7 +12,7 @@ public partial class MajorCategory
     public string? Name { get; set; }
 
     public string? IsActive { get; set; }
-        
+
     public int? MajorId { get; set; }
 
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();

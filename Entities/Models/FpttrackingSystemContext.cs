@@ -358,10 +358,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
-            entity.Property(e => e.UpdateAt)
-                .HasColumnType("datetime")
-                .HasColumnName("update_at");
-            entity.Property(e => e.UpdateBy).HasColumnName("update_by");
 
             entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.Milestones)
                 .HasForeignKey(d => d.CreateBy)
@@ -389,10 +385,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
-            entity.Property(e => e.UpdateAt)
-                .HasColumnType("datetime")
-                .HasColumnName("update_at");
-            entity.Property(e => e.UpdateBy).HasColumnName("update_by");
 
             entity.HasOne(d => d.Milestone).WithMany(p => p.MilestoneItems)
                 .HasForeignKey(d => d.MilestoneId)
@@ -429,9 +421,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
-            entity.Property(e => e.SemesterBreak)
-                .HasMaxLength(100)
-                .HasColumnName("semester_break");
             entity.Property(e => e.StartAt)
                 .HasColumnType("datetime")
                 .HasColumnName("start_at");

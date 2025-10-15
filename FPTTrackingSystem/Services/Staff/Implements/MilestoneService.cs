@@ -44,8 +44,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 MajorId = x.MajorId,
                 CreateAt = DateTime.Now,
                 CreateBy = user.Id,
-                UpdateAt = DateTime.Now,
-                UpdateBy = user.Id,
                 IsActive = true,
                 Deliverables = new List<Deliverable>
                 {
@@ -141,9 +139,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Name = x.name,
                 Description = x.description,
                 CreateAt = DateTime.Now,
-                UpdateAt = DateTime.Now,
                 CreateBy = user.Id,
-                UpdateBy = user.Id,
                 MilestoneId = mile.Id, 
             }).ToList() ?? new List<MilestoneItem>();
             //lay ra item can update
@@ -153,8 +149,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             mile.Name = request.Name;
             mile.Description = request.Description;
             mile.Deadline = request.Deadline;
-            mile.UpdateAt = DateTime.Now;
-            mile.UpdateBy = user.Id;
             //them
             addItems.ForEach(x => mile.MilestoneItems.Add(x));
             //cap nhat
@@ -165,8 +159,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 {
                     existing.Name = updated.name;
                     existing.Description = updated.description;
-                    existing.UpdateAt = DateTime.Now;
-                    existing.UpdateBy = user.Id;
                 }
             }
             // xoa

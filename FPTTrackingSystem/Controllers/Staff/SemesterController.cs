@@ -209,7 +209,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                     return NotFound(ApiResponse<object>.Fail("Không có học kỳ nào đang hoạt động."));
                 }
 
-                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy học kỳ hiện tại thành công."));
+                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy deliveries từ học kỳ thành công."));
             }
             catch (Exception ex)
             {
@@ -229,7 +229,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                     return NotFound(ApiResponse<object>.Fail("Không có học kỳ nào đang hoạt động."));
                 }
 
-                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy học kỳ hiện tại thành công."));
+                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy Milestones từ học kỳ thành công."));
             }
             catch (Exception ex)
             {
