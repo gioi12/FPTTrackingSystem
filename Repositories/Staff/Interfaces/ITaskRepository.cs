@@ -8,6 +8,6 @@ namespace Repositories.Staff.Interfaces
 {
     public interface ITaskRepository
     {
-
+        Task<Entities.Models.Task> CreateTaskAsync(Entities.Models.Task task, int assignedUserId);
     }
 }
