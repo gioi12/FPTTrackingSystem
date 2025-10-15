@@ -299,8 +299,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             };
         }
 
-
-
         public async Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end)
         {
             var startDateTime = start.ToDateTime(TimeOnly.MinValue);
@@ -371,7 +369,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     }).ToList()
             };
         }
-
 
         public async Task<SemesterDTO> UpdateSemesterAsync(int id, SemesterUpdateRequest semesterData)
         {

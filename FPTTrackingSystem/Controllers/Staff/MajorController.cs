@@ -42,5 +42,23 @@ namespace FPTTrackingSystem.Controllers.Staff
                 return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
             }
         }
+
+        [HttpGet("getAllCodeCourse")]
+        public async Task<IActionResult> GetAllMajorsCategories()
+        {
+            try
+            {
+                var majors = await _majorService.GetAllCoursesAsync();
+
+                if (majors == null || majors.Count == 0)
+                    return NotFound(ApiResponse<object>.Fail("Không có dữ liệu chuyên ngành nào."));
+
+                return Ok(ApiResponse<List<MajorCategoryDTO>>.Success(majors, "Lấy danh sách môn học thành công."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
+            }
+        }
     }
 }

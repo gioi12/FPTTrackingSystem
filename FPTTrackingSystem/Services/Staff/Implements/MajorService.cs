@@ -53,5 +53,17 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return result;
         }
 
+        public async Task<List<MajorCategoryDTO>> GetAllCoursesAsync()
+        {
+            var entities = await _majorRepository.getAllCourse();
+
+            return entities.Select(c => new MajorCategoryDTO
+            {
+                Id = c.Id,
+                Code = c.Code,
+                Name = c.Name
+            }).ToList();
+        }
+
     }
 }

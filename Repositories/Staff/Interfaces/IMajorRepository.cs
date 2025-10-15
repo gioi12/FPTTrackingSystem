@@ -11,5 +11,6 @@ namespace Repositories.Staff.Interfaces
     {
         Task<List<Major>> findAll();
         Task<List<Major>> getAllMajorAndCode();
+        Task<List<MajorCategory>> getAllCourse();
     }
 }

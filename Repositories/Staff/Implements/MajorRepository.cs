@@ -21,6 +21,11 @@ namespace Repositories.Staff.Implements
             return await _context.Majors.ToListAsync();
         }
 
+        public async Task<List<MajorCategory>> getAllCourse()
+        {
+            return await _context.MajorCategories.ToListAsync();
+        }
+
         public async Task<List<Major>> getAllMajorAndCode()
         {
             return await _context.Majors
