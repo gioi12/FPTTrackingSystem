@@ -21,11 +21,40 @@ namespace Repositories.Staff.Implements
             return await _context.Majors.ToListAsync();
         }
 
+        public async Task<List<MajorCategory>> getAllCourse()
+        {
+            return await _context.MajorCategories.ToListAsync();
+        }
+
         public async Task<List<Major>> getAllMajorAndCode()
         {
             return await _context.Majors
                 .Include(m => m.MajorCategories) 
                 .ToListAsync();
+        }
+
+        public async Task<MajorCategory?> GetByIdAsync(int id)
+        {
+            return await _context.MajorCategories.FindAsync(id);
+        }
+
+        public async Task<bool> CreateAsync(MajorCategory majorCategory)
+        {
+            await _context.MajorCategories.AddAsync(majorCategory);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateAsync(MajorCategory majorCategory)
+        {
+            var existing = await _context.MajorCategories.FindAsync(majorCategory.Id);
+            if (existing == null) return false;
+
+            existing.Name = majorCategory.Name;
+            existing.Code = majorCategory.Code;
+            existing.IsActive = majorCategory.IsActive;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

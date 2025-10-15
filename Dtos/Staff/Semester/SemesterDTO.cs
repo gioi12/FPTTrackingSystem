@@ -58,17 +58,12 @@ namespace DataTranferObjects.Staff.Semester
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public DateTime StartAt { get; set; }
-        public DateTime EndAt { get; set; }
-        public string? Description { get; set; }
         public List<DeliverableDTO> Deliverables { get; set; } = new();
-        public bool? IsActive { get; set; }
     }
 
     public class DeliverableDTO
     {
         public int Id { get; set; }
-        public int MilestoneId { get; set; }
 
         public string? Description { get; set; }
 

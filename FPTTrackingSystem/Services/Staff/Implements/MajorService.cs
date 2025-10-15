@@ -53,5 +53,54 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return result;
         }
 
+        public async Task<List<MajorCategoryDTO>> GetAllCoursesAsync()
+        {
+            var entities = await _majorRepository.getAllCourse();
+
+            return entities.Select(c => new MajorCategoryDTO
+            {
+                Id = c.Id,
+                Code = c.Code,
+                Name = c.Name,
+                IsActive = c.IsActive
+            }).ToList();
+        }
+
+        public async Task<MajorCategoryDTO?> GetByIdAsync(int id)
+        {
+            var entity = await _majorRepository.GetByIdAsync(id);
+            if (entity == null) return null;
+
+            return new MajorCategoryDTO
+            {
+                Name = entity.Name,
+                Code = entity.Code,
+                IsActive = entity.IsActive
+            };
+        }
+
+        public async Task<bool> CreateAsync(MajorCategoryDTO dto)
+        {
+            var entity = new MajorCategory
+            {
+                Name = dto.Name,
+                Code = dto.Code,
+                IsActive = dto.IsActive
+            };
+            return await _majorRepository.CreateAsync(entity);
+        }
+
+        public async Task<bool> UpdateAsync(MajorCategoryDTO dto)
+        {
+            var existing = await _majorRepository.GetByIdAsync(dto.Id);
+            if (existing == null) return false;
+
+            existing.Name = dto.Name;
+            existing.Code = dto.Code;
+            existing.IsActive = dto.IsActive;
+
+            return await _majorRepository.UpdateAsync(existing);
+        }
+
     }
 }

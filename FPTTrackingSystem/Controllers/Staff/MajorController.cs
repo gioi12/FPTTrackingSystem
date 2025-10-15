@@ -42,5 +42,68 @@ namespace FPTTrackingSystem.Controllers.Staff
                 return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
             }
         }
+
+        [HttpGet("getAllCodeCourse")]
+        public async Task<IActionResult> GetAllMajorsCategories()
+        {
+            try
+            {
+                var majors = await _majorService.GetAllCoursesAsync();
+
+                if (majors == null || majors.Count == 0)
+                    return NotFound(ApiResponse<object>.Fail("Không có dữ liệu chuyên ngành nào."));
+
+                return Ok(ApiResponse<List<MajorCategoryDTO>>.Success(majors, "Lấy danh sách môn học thành công."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
+            }
+        }
+
+        [HttpGet("GetCourseBy/{id}")]
+        public async Task<IActionResult> GetCourseById(int id)
+        {
+            try
+            {
+                var result = await _majorService.GetByIdAsync(id);
+                if (result == null)
+                    return NotFound(ApiResponse<object>.Fail("Không tìm thấy môn học."));
+
+                return Ok(ApiResponse<MajorCategoryDTO>.Success(result, "Lấy môn học thành công."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
+            }
+        }
+
+        [HttpGet("getById/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _majorService.GetByIdAsync(id);
+            if (result == null)
+                return NotFound(ApiResponse<object>.Fail("Không tìm thấy bản ghi."));
+            return Ok(ApiResponse<object>.Success(result, "Lấy dữ liệu thành công."));
+        }
+
+        [HttpPost("createCourse")]
+        public async Task<IActionResult> Create([FromBody] MajorCategoryDTO dto)
+        {
+            var success = await _majorService.CreateAsync(dto);
+            if (!success)
+                return BadRequest(ApiResponse<object>.Fail("Tạo thất bại."));
+            return Ok(ApiResponse<object>.Success(null, "Tạo thành công."));
+        }
+
+        [HttpPost("updateCourse/{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] MajorCategoryDTO dto)
+        {
+            dto.Id = id;
+            var success = await _majorService.UpdateAsync(dto);
+            if (!success)
+                return NotFound(ApiResponse<object>.Fail("Không tìm thấy bản ghi để cập nhật."));
+            return Ok(ApiResponse<object>.Success(null, "Cập nhật thành công."));
+        }
     }
 }

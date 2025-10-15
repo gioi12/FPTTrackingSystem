@@ -16,7 +16,7 @@ namespace FPTTrackingSystem.Controllers.Staff
     [ApiController]
     public class SemesterController : ControllerBase
     {
-        private readonly ISemesterService _semesterService;
+        private readonly ISemesterService _semesterService; 
         private readonly FpttrackingSystemContext _context;
         private readonly ILogService _logService;
         private readonly AuthUtils _authUtils;
@@ -209,7 +209,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                     return NotFound(ApiResponse<object>.Fail("Không có học kỳ nào đang hoạt động."));
                 }
 
-                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy học kỳ hiện tại thành công."));
+                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy deliveries từ học kỳ thành công."));
             }
             catch (Exception ex)
             {
@@ -229,7 +229,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                     return NotFound(ApiResponse<object>.Fail("Không có học kỳ nào đang hoạt động."));
                 }
 
-                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy học kỳ hiện tại thành công."));
+                return Ok(ApiResponse<SemesterDeliveriesDTO>.Success(semester, "Lấy Milestones từ học kỳ thành công."));
             }
             catch (Exception ex)
             {

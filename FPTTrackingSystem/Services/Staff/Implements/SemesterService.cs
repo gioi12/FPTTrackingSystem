@@ -299,8 +299,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             };
         }
 
-
-
         public async Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end)
         {
             var startDateTime = start.ToDateTime(TimeOnly.MinValue);
@@ -371,7 +369,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     }).ToList()
             };
         }
-
 
         public async Task<SemesterDTO> UpdateSemesterAsync(int id, SemesterUpdateRequest semesterData)
         {
@@ -462,7 +459,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             }
             catch (DbUpdateException ex)
             {
-                Console.WriteLine("❌ SaveChanges error: " + ex.InnerException?.Message);
                 throw new Exception("Lỗi khi lưu thay đổi: " + ex.InnerException?.Message);
             }
 
@@ -511,13 +507,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 Id = semester.Id,
                 Name = semester.Name,
-                StartAt = semester.StartAt ?? default,
-                EndAt = semester.EndAt ?? default,
-                IsActive = semester.IsActive,
                 Deliverables = semester.Deliverables.Select(d => new DeliverableDTO
                 {
                     Id = d.Id,
-                    MilestoneId = d.MilestoneId,
                     Name = d.Name,
                     Description = d.Description,
                     Deadline = d.Deadline,
@@ -539,17 +531,18 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 Id = semester.Id,
                 Name = semester.Name,
-                StartAt = semester.StartAt ?? default,
-                EndAt = semester.EndAt ?? default,
-                IsActive = semester.IsActive,
-                Description = semester.Description,
                 Deliverables = semester.Deliverables.Select(d => new DeliverableDTO
                 {
                     Id = d.Id,
-                    MilestoneId = d.MilestoneId,
                     Name = d.Name,
                     Description = d.Description,
-                    Deadline = d.Deadline
+                    Deadline = d.Deadline,
+                    Milestone = d.Milestone == null ? null : new MilestoneDTO
+                    {
+                        Id = d.Milestone.Id,
+                        Name = d.Milestone.Name,
+                        Description = d.Milestone.Description
+                    }
                 }).ToList()
             };
         }
