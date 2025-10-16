@@ -28,15 +28,28 @@ namespace Repositories.Authentication
 
         public async Task<UserInfo?> UserInfo(int id)
         {
-            var user =  await _context.Accounts.Include(x => x.Users)
-                .Where(x => x.Id == id)
-                .Select(x => new UserInfo
-                {
-                    Id = x.Users.FirstOrDefault().Id,
-                    Name = x.Users.FirstOrDefault().Fullname,
-                    Role = x.Role.Name,
-                }).FirstOrDefaultAsync();
-            return user;
+            var account = await _context.Accounts
+                .Include(a => a.Role)
+                .Include(a => a.Users)
+                    .ThenInclude(u => u.GroupUsers)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (account == null)
+                return null;
+
+            var user = account.Users.FirstOrDefault();
+            if (user == null)
+                return null;
+
+            var groupId = user.GroupUsers.FirstOrDefault()?.GroupId;
+
+            return new UserInfo
+            {
+                Id = user.Id,
+                Name = user.Fullname,
+                Role = account.Role.Name,
+                GroupId = groupId
+            };
         }
     }
 }
