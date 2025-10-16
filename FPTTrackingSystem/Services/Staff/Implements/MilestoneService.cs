@@ -226,5 +226,20 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var response = list.Adapt<List<MilestoneResponse>>();
             return ApiResponse<List<MilestoneResponse>>.Success(response);
         }
+        public async Task<List<MilestonesDTO>> GetMilestonesByGroupIdAsync(int groupId)
+        {
+            var milestones = await _milestoneRepository.GetMilestonesByGroupIdAsync(groupId);
+
+            return milestones.Select(m => new MilestonesDTO
+            {
+                Id = m.Id,
+                Name = m.Name,
+                Description = m.Description,
+                Deadline = m.Deadline,
+                CreateAt = m.CreateAt,
+                CreateBy = m.CreateBy,
+                MajorId = m.MajorId
+            }).ToList();
+        }
     }
 }

@@ -78,5 +78,20 @@ namespace Repositories.Staff.Implements
                 .Where(x => x.IsActive == true && x.MajorId == id)
                 .ToListAsync();
         }
+
+        public async Task<List<Milestone>> GetMilestonesByGroupIdAsync(int groupId)
+        {
+            var group = await _context.Groups
+                .Include(g => g.Major)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+
+            if (group == null || group.MajorId == null)
+                return new List<Milestone>();
+
+            return await _context.Milestones
+                .Where(m => m.MajorId == group.MajorId && (m.IsActive ?? true))
+                .OrderBy(m => m.CreateAt)
+                .ToListAsync();
+        }
     }
 }

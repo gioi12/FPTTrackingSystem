@@ -1,5 +1,6 @@
 ﻿using DataTranferObjects.Staff.Task;
-using FPTTrackingSystem.Services.Staff.Interfaces;
+using Entities.Models;
+using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,8 +31,7 @@ namespace FPTTrackingSystem.Controllers.Student
                     createdTask.GroupId,
                     createdTask.Name,
                     createdTask.Description,
-                    createdTask.StartAt,
-                    createdTask.EndAt,
+                    createdTask.Deadline,
                     AssignedUserId = dto.AssignedUserId
                 }, "Tạo task thành công."));
             }
@@ -40,5 +40,47 @@ namespace FPTTrackingSystem.Controllers.Student
                 return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
             }
         }
+
+        [HttpGet("get-by-group/{groupId}")]
+        public async Task<IActionResult> GetTasksByGroup(int groupId)
+        {
+            try
+            {
+                var response = await _taskService.GetTasksByGroupIdAsync(groupId);
+                return StatusCode(response.Status, response);
+            }
+            catch (Exception ex)
+
+            { 
+                return StatusCode(500, new ApiResponse<string>
+                {
+                    Status = 500,
+                    Message = "Đã xảy ra lỗi trong quá trình xử lý.",
+                    Data = null
+                });
+            }
+        }
+
+        [HttpGet("get-by-id/{taskId}")]
+        public async Task<IActionResult> GetTaskById(int taskId)
+        {
+            try
+            {
+                var response = await _taskService.GetTaskByIdAsync(taskId);
+                return StatusCode(response.Status, response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.Fail("Đã xảy ra lỗi khi xử lý yêu cầu."));
+            }
+        }
+
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskDTO dto)
+        {
+            var response = await _taskService.UpdateTaskAsync(dto);
+            return StatusCode(response.Status, response);
+        }
+
     }
 }
