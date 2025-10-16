@@ -41,7 +41,10 @@ namespace Repositories.Staff.Implements
 
             if (milestone != null)
             {
-                _context.Deliverables.RemoveRange(milestone.Deliverables.Where(x => x.SemesterId == semester.Id));
+                foreach (var deli in milestone.Deliverables.Where(x => x.SemesterId == semester.Id))
+                {
+                    deli.IsActive = false;
+                }
                 milestone.IsActive = false;
                 _context.Milestones.Update(milestone);
                 await _context.SaveChangesAsync();

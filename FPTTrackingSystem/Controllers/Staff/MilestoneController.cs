@@ -18,9 +18,9 @@ namespace FPTTrackingSystem.Controllers.Admin
 
         [Authorize(Roles = "Staff")]
         [HttpGet("v1/Staff/milestones")]
-        public async Task<object> GetMilestoneByMarjorAndSemester(int majorId)
+        public async Task<object> GetMilestoneByMarjorAndSemester(int majorCateId)
         {
-            return Ok(await _milestoneService.GetMilestonesByMajor(majorId));
+            return Ok(await _milestoneService.GetMilestonesByMajor(majorCateId));
         }
 
         [Authorize(Roles = "Staff")]

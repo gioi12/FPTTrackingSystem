@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace Repositories.Staff.Implements
 {
     public class DeliverableRepository : IDeliverableRepository
@@ -16,16 +15,23 @@ namespace Repositories.Staff.Implements
         {
             _context = context;
         }
+
+        public async Task<List<Deliverable>> GetByCodeAndSemester(int code, int semesterId)
+        {
+           var list = await _context.Deliverables.Include(x=>x.DeliveryItems).Where(x=>x.MajorId == code && x.SemesterId == semesterId).ToListAsync();
+            return list;
+        }
+
         public async Task<Deliverable?> GetByMileIdAndActiveSenmester(int mileId)
         {
             var semester = await _context.Semesters.FirstOrDefaultAsync(x => x.IsActive == true);
             return await _context.Deliverables.Include(x => x.DeliveryItems).FirstOrDefaultAsync(x => x.MilestoneId == mileId && semester.Id == x.SemesterId);
         }
 
-        public void UpdateDeliverable(Deliverable delivery)
+        public async System.Threading.Tasks.Task UpdateDeliverable(Deliverable delivery)
         {
             _context.Deliverables.Update(delivery);
-            _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
     }
 }

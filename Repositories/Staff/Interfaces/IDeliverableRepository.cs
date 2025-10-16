@@ -10,6 +10,9 @@ namespace Repositories.Staff.Interfaces
     public interface IDeliverableRepository
     {
         Task<Deliverable?> GetByMileIdAndActiveSenmester(int mileId);
-        void UpdateDeliverable(Deliverable delivery);
+        System.Threading.Tasks.Task UpdateDeliverable(Deliverable delivery);
+
+        Task<List<Deliverable>> GetByCodeAndSemester(int code,int semesterId);
+
     }
 }
