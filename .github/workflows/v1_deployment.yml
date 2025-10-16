@@ -4,7 +4,7 @@ on:
     branches: [ "main" ]  
 jobs:
   build-and-deploy:
-    runs-on: self-hosted
+    runs-on: windows-latest
     steps:
       # 1. Lấy code
       - name: Checkout source
