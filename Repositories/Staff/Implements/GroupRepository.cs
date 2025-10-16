@@ -82,5 +82,13 @@ namespace Repositories.Staff.Implements
                 .OrderBy(m => m.Deadline)
                 .ToListAsync();
         }
+
+        public async Task<List<Group>> GetGroupsByUserIdAsync(int userId)
+        {
+            return await _context.GroupUsers
+                .Where(gu => gu.UserId == userId && gu.IsActive)
+                .Select(gu => gu.Group)
+                .ToListAsync();
+        }
     }
 }

@@ -72,7 +72,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 Id = group.Id.ToString(),
                 ProjectName = group.Name,
-
+                SemesterId = group.SemesterId,
                 Supervisors = group.GroupUsers
                     .Where(gu => gu.User != null
                               && gu.User.Account != null
@@ -205,6 +205,17 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Message = "Lấy dữ liệu tracking thành công",
                 Data = dto
             };
+        }
+
+        public async Task<List<GroupMentorDto>> GetGroupsByUserIdAsync(int userId)
+        {
+            var groups = await _groupRepository.GetGroupsByUserIdAsync(userId);
+
+            return groups.Select(g => new GroupMentorDto
+            {
+                Id = g.Id,
+                Name = g.Name
+            }).ToList();
         }
     }
 

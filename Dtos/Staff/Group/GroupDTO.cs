@@ -30,10 +30,18 @@ namespace DataTranferObjects.Staff.Group
         public int Total { get; set; }
     }
 
+    public class GroupMentorDto
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+    }
+
+
     public class GroupDetailDto
     {
         public string Id { get; set; } = string.Empty;
         public string? ProjectName { get; set; }
+        public int? SemesterId { get; set; }
         public List<string> Supervisors { get; set; } = new();
         public string? Status { get; set; }
         public string? Risk { get; set; }

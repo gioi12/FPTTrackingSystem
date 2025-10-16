@@ -11,6 +11,6 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<ApiResponse<List<MilestoneResponse>>> GetMilestonesByMajor(int majorCateId);
         Task<ApiResponse<List<MilestoneResponse>>> UpdateInfoMilestone(MilestoneUpdateRequest request);
         Task<ApiResponse<List<MilestoneResponse>>> DeleteMilestone(int id);
-        Task<List<MilestonesDTO>> GetMilestonesByGroupIdAsync(int groupId);
+        Task<List<MilestonesDTO>> GetMilestonesByGroupIdAsync(int groupId, int semesterId);
     }
 }
