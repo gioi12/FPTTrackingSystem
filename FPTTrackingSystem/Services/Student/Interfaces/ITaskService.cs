@@ -1,12 +1,13 @@
 ﻿using DataTranferObjects.Staff.Task;
 using FPTTrackingSystem.Wrappers;
 
-namespace FPTTrackingSystem.Services.Staff.Interfaces
+namespace FPTTrackingSystem.Services.Student.Interfaces
 {
     public interface ITaskService
     {
         Task<Entities.Models.Task> CreateTaskAsync(CreateTaskDTO dto);
-        Task<ApiResponse<List<TaskResponseDto>>> GetTasksByGroupIdAsync(int groupId);
+        Task<ApiResponse<List<TaskDto>>> GetTasksByGroupIdAsync(int groupId);
         Task<ApiResponse<TaskDto>> GetTaskByIdAsync(int taskId);
+        Task<ApiResponse<TaskResponseUpdateDto>> UpdateTaskAsync(UpdateTaskDTO dto);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using DataTranferObjects.Staff.Task;
 using Entities.Models;
-using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 
@@ -75,6 +75,12 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskDTO dto)
+        {
+            var response = await _taskService.UpdateTaskAsync(dto);
+            return StatusCode(response.Status, response);
+        }
 
     }
 }

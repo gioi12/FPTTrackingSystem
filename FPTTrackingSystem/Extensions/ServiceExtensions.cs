@@ -19,7 +19,10 @@ using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Services.Common.Implements;
 using Repositories.Common.Interfaces;
 using Repositories.Common.Implements;
-using FPTTrackingSystem.Services.Staff.Implements;
+using Repositories.Student.Implements;
+using Repositories.Student.Interfaces;
+using FPTTrackingSystem.Services.Student.Implements;
+using FPTTrackingSystem.Services.Student.Interfaces;
 namespace FPTTrackingSystem.Extensions
 {
     public static class ServiceExtensions
@@ -35,7 +38,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<ILogRepository, LogRepository>();
             services.AddScoped<IDeliverableRepository, DeliverableRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
-
+            services.AddScoped<ICommentRepository, CommentRepository>();
 
             return services;
         }
@@ -50,7 +53,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IMajorService, MajorService>();
             services.AddScoped<IDeliverableSevice, DeliverableService>();
             services.AddScoped<ITaskService, TaskService>();
-
+            services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<AuthUtils>();
 
             return services;
