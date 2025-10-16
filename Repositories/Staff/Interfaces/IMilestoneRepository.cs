@@ -15,5 +15,6 @@ namespace Repositories.Staff.Interfaces
         Task<List<Milestone>> DeleteMilestone(int id);
         Task<List<Milestone>> GetByMajor(int id);
         Task<Milestone?> GetMilestone(int id);
+        Task<List<Milestone>> GetMilestonesByGroupIdAsync(int groupId);
     }
 }

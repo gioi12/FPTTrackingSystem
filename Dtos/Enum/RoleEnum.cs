@@ -19,6 +19,13 @@ namespace DataTranferObjects.Enum
     {
         ToDo = 1,
         InProgress = 2,
-        Done = 3,
+        Done = 3
+    }
+
+    public enum TaskPriority
+    {
+        Normal = 1,
+        Medium = 2,
+        High = 3
     }
 }

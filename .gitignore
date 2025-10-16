@@ -7,7 +7,7 @@
 bin/
 obj/
 publish/
-publish.rar/
+publish.rar
 
 # VS Code
 .vscode/

@@ -17,7 +17,19 @@ public partial class Task
 
     public int StatusId { get; set; }
 
+    public DateTime? CreatedAt { get; set; }
+
+    public int? PriorityId { get; set; }
+
+    public string? Process { get; set; }
+
+    public int? MilestoneId { get; set; }
+
     public virtual Group Group { get; set; } = null!;
+
+    public virtual Milestone? Milestone { get; set; }
+
+    public virtual Priority? Priority { get; set; }
 
     public virtual Status Status { get; set; } = null!;
 

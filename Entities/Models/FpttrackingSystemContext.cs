@@ -41,6 +41,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<MilestoneItem> MilestoneItems { get; set; }
 
+    public virtual DbSet<Priority> Priorities { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Semester> Semesters { get; set; }
@@ -394,6 +396,16 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasConstraintName("FK_Milestone_Item_Milestone");
         });
 
+        modelBuilder.Entity<Priority>(entity =>
+        {
+            entity.ToTable("Priority");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .HasColumnName("name");
+        });
+
         modelBuilder.Entity<Role>(entity =>
         {
             entity.ToTable("Role");
@@ -467,14 +479,22 @@ public partial class FpttrackingSystemContext : DbContext
             entity.ToTable("Task");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_At");
             entity.Property(e => e.Deadline)
                 .HasColumnType("datetime")
                 .HasColumnName("deadline");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.MilestoneId).HasColumnName("milestone_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
+            entity.Property(e => e.PriorityId).HasColumnName("priority_id");
+            entity.Property(e => e.Process)
+                .HasMaxLength(50)
+                .HasColumnName("process");
             entity.Property(e => e.StatusId).HasColumnName("status_id");
 
             entity.HasOne(d => d.Group).WithMany(p => p.Tasks)
@@ -482,10 +502,18 @@ public partial class FpttrackingSystemContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Task_Group");
 
+            entity.HasOne(d => d.Milestone).WithMany(p => p.Tasks)
+                .HasForeignKey(d => d.MilestoneId)
+                .HasConstraintName("FK_Task_Milestone");
+
+            entity.HasOne(d => d.Priority).WithMany(p => p.Tasks)
+                .HasForeignKey(d => d.PriorityId)
+                .HasConstraintName("FK_Task_Priority");
+
             entity.HasOne(d => d.Status).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.StatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Task_Status");
+                .HasConstraintName("FK_Task_Status2");
         });
 
         modelBuilder.Entity<TaskUser>(entity =>
