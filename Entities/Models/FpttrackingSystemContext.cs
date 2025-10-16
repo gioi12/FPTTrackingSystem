@@ -37,6 +37,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<MilestoneItem> MilestoneItems { get; set; }
 
+    public virtual DbSet<Priority> Priorities { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Semester> Semesters { get; set; }
@@ -178,7 +180,6 @@ public partial class FpttrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Deliverable).WithMany(p => p.DeliveryItems)
                 .HasForeignKey(d => d.DeliverableId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Delivery_item_Deliverable");
 
             entity.HasOne(d => d.MilestoneItem).WithMany(p => p.DeliveryItems)
@@ -386,6 +387,16 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasConstraintName("FK_Milestone_Item_Milestone");
         });
 
+        modelBuilder.Entity<Priority>(entity =>
+        {
+            entity.ToTable("Priority");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .HasColumnName("name");
+        });
+
         modelBuilder.Entity<Role>(entity =>
         {
             entity.ToTable("Role");
@@ -459,20 +470,22 @@ public partial class FpttrackingSystemContext : DbContext
             entity.ToTable("Task");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreateAt)
+            entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
-                .HasColumnName("create_at");
+                .HasColumnName("created_At");
+            entity.Property(e => e.Deadline)
+                .HasColumnType("datetime")
+                .HasColumnName("deadline");
             entity.Property(e => e.Description).HasColumnName("description");
-            entity.Property(e => e.EndAt)
-                .HasColumnType("datetime")
-                .HasColumnName("end_at");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.MilestoneId).HasColumnName("milestone_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
-            entity.Property(e => e.StartAt)
-                .HasColumnType("datetime")
-                .HasColumnName("start_at");
+            entity.Property(e => e.PriorityId).HasColumnName("priority_id");
+            entity.Property(e => e.Process)
+                .HasMaxLength(50)
+                .HasColumnName("process");
             entity.Property(e => e.StatusId).HasColumnName("status_id");
 
             entity.HasOne(d => d.Group).WithMany(p => p.Tasks)
@@ -480,28 +493,35 @@ public partial class FpttrackingSystemContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Task_Group");
 
+            entity.HasOne(d => d.Milestone).WithMany(p => p.Tasks)
+                .HasForeignKey(d => d.MilestoneId)
+                .HasConstraintName("FK_Task_Milestone");
+
+            entity.HasOne(d => d.Priority).WithMany(p => p.Tasks)
+                .HasForeignKey(d => d.PriorityId)
+                .HasConstraintName("FK_Task_Priority");
+
             entity.HasOne(d => d.Status).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.StatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Task_Status");
+                .HasConstraintName("FK_Task_Status2");
         });
 
         modelBuilder.Entity<TaskUser>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("Task_User");
+            entity.ToTable("Task_User");
 
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.IsCreated).HasColumnName("is_created");
             entity.Property(e => e.TaskId).HasColumnName("task_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
-            entity.HasOne(d => d.Task).WithMany()
+            entity.HasOne(d => d.Task).WithMany(p => p.TaskUsers)
                 .HasForeignKey(d => d.TaskId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Task_User_Task");
 
-            entity.HasOne(d => d.User).WithMany()
+            entity.HasOne(d => d.User).WithMany(p => p.TaskUsers)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Task_User_User");
