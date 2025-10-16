@@ -34,7 +34,7 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
-// tesst 6 ci cd
+// tesst 7 ci cd
 
 // xoa sau
 app.UseSwagger();
