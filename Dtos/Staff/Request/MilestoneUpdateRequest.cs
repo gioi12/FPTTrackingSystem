@@ -16,7 +16,7 @@ namespace DataTranferObjects.Staff.Request
         public string? Description { get; set; }
         public string? Deadline { get; set; }
         [NotNull]
-        public int MajorId { get; set; }
+        public int MajorCateId { get; set; }
         public List<MilestoneItemRequest?>? items { get; set; }
     }
 }
