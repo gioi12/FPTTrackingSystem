@@ -9,5 +9,6 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         public Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int id);
         public Task<ApiResponse<List<DashBoardGroupDto>>> GetMajorGroupTotalsAsync();
         public Task<ApiResponse<GroupTrackingResponseDto>> GetGroupTrackingAsync(int groupId, DateTime startDate, DateTime endDate);
+        Task<List<GroupMentorDto>> GetGroupsByUserIdAsync(int userId);
     }
 }

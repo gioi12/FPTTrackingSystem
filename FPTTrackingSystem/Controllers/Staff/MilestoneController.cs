@@ -11,9 +11,11 @@ namespace FPTTrackingSystem.Controllers.Admin
     public class MilestoneController : ControllerBase
     {
         private readonly IMilestoneService _milestoneService;
-        public MilestoneController(IMilestoneService milestoneService)
+        private readonly IGroupService _groupService;
+        public MilestoneController(IMilestoneService milestoneService, IGroupService groupService)
         {
             _milestoneService = milestoneService;
+            _groupService = groupService;
         }
 
         [Authorize(Roles = "Staff")]
@@ -47,7 +49,18 @@ namespace FPTTrackingSystem.Controllers.Admin
         {
             try
             {
-                var milestones = await _milestoneService.GetMilestonesByGroupIdAsync(groupId);
+                var groupResponse = await _groupService.GetGroupByIdAsync(groupId);
+
+                if (groupResponse == null || groupResponse.Data == null)
+                    return NotFound(ApiResponse<object>.Fail("Không tìm thấy group."));
+
+                int semesterId = groupResponse.Data.SemesterId ?? 0;
+
+                if (semesterId == 0)
+                    return BadRequest(ApiResponse<object>.Fail("Group chưa được gán với học kỳ nào."));
+
+                // Lấy danh sách milestones
+                var milestones = await _milestoneService.GetMilestonesByGroupIdAsync(groupId, semesterId);
 
                 if (milestones == null || milestones.Count == 0)
                     return Ok(ApiResponse<object>.Fail("Không tìm thấy milestone nào cho group này."));
@@ -56,8 +69,9 @@ namespace FPTTrackingSystem.Controllers.Admin
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
+                return StatusCode(500, ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
             }
         }
+
     }
 }

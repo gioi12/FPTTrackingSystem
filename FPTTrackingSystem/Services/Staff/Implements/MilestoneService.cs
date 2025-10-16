@@ -226,16 +226,17 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var response = list.Adapt<List<MilestoneResponse>>();
             return ApiResponse<List<MilestoneResponse>>.Success(response);
         }
-        public async Task<List<MilestonesDTO>> GetMilestonesByGroupIdAsync(int groupId)
+        public async Task<List<MilestonesDTO>> GetMilestonesByGroupIdAsync(int groupId, int semesterId)
         {
             var milestones = await _milestoneRepository.GetMilestonesByGroupIdAsync(groupId);
-
+            var semester = await _semesterRepository.GetSemesterByIdAsync(semesterId);
+            var weeks = semester.SemesterWeeks?.ToList() ?? new List<SemesterWeek>();
             return milestones.Select(m => new MilestonesDTO
             {
                 Id = m.Id,
                 Name = m.Name,
                 Description = m.Description,
-                Deadline = m.Deadline,
+                Deadline = DateTimeUtils.GetDeadlineDate(m.Deadline, weeks),
                 CreateAt = m.CreateAt,
                 CreateBy = m.CreateBy,
                 MajorId = m.MajorId
