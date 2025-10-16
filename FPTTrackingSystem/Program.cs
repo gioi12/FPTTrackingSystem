@@ -35,7 +35,7 @@ builder.WebHost.ConfigureKestrel(options =>
 var app = builder.Build();
 
 
-// xoa sau
+// xoa sau khi deploy
 app.UseSwagger();
 app.UseSwaggerUI();
 //cors
