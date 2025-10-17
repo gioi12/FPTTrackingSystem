@@ -170,8 +170,6 @@ namespace Repositories.Student.Implements
             {
                 var task = await _context.Tasks
                     .Include(t => t.Group)
-                    .Include(t => t.Status)
-                    .Include(t => t.Priority)
                     .Include(t => t.Milestone)
                     .Include(t => t.TaskUsers)
                         .ThenInclude(tu => tu.User)
@@ -201,12 +199,12 @@ namespace Repositories.Student.Implements
                     Description = task.Description,
                     Deadline = task.Deadline,
                     CreatedAt = task.CreatedAt,
-                    CreatedBy = createdByUser?.Id,
+                    CreatedBy = createdByUser?.User.Id,
                     CreatedByName = createdByUser?.User.Fullname,
                     Priority = task.Priority,
                     Status = task.Status,
                     Process = task.Process,
-                    AssigneeId = assignee?.Id,
+                    AssigneeId = assignee?.User.Id,
                     AssigneeName = assignee?.User.Fullname,
                     Group = task.Group != null
                         ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
