@@ -90,7 +90,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                               && gu.User.Account.RoleId == (int)RoleEnum.Student)
                     .Select(gu => new StudentDto
                     {
-                        Id = gu.User.RollNumber,
+                        Id = gu.User.Id,
+                        RollNumber = gu.User.RollNumber,
                         Name = gu.User.Fullname,
                         Role = gu.User.Account.Role?.Name
                     }).ToList(),

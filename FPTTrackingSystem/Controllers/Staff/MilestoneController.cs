@@ -59,7 +59,6 @@ namespace FPTTrackingSystem.Controllers.Admin
                 if (semesterId == 0)
                     return Ok(ApiResponse<object>.Success(null, "Group chưa được gán với học kỳ nào."));
 
-                // Lấy danh sách milestones
                 var milestones = await _milestoneService.GetMilestonesByGroupIdAsync(groupId, semesterId);
 
                 if (milestones == null || milestones.Count == 0)
