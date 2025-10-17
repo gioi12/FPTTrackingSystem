@@ -41,6 +41,11 @@ namespace FPTTrackingSystem.Controllers.Staff
         {
             return Ok(await _deliverableSevice.GetDeliverableByIdAndGroupId(groupdId, deliverableId));
         }
-      
+        [Authorize]
+        [HttpGet("v1/deliverables/confirmed")]
+        public async Task<object> ConfirmDelivery(int groupdId, int deliverableId)
+        {
+            return Ok(await _deliverableSevice.ConfirmDeliverable(groupdId, deliverableId));
+        }
     }
 }
