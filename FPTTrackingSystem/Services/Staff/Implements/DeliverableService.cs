@@ -143,6 +143,44 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return res;
         }
 
+        public async Task<string> ConfirmDeliverable(int groupId, int deliverableId)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
 
+            var group = await _groupRepository.GetByIdAsync(groupId);
+            if (group == null)
+                throw new ValidationException("Not found group");
+
+            if (group.GroupUsers == null || !group.GroupUsers.Any(x => x.UserId == user.Id))
+                throw new ValidationException("Not permission");
+
+            var deliverable = await _deliverableRepository.GetById(deliverableId);
+            if (deliverable == null)
+                throw new ValidationException("Not found deliverable");
+            
+            var semester = await _semesterRepository.GetSemesterByIdAsync((int)group.SemesterId);
+            var item = deliverable.DeliverableGroups.Where(x => x.GroupId == groupId && x.DeliverableId == deliverableId).FirstOrDefault();
+            if(item.Status == ProgressEnum.Unsubmitted)
+            {
+                throw new ValidationException("Not submitted");
+            }
+
+            var deadlineAt = deliverable.Deadline != null
+                ? DateTimeUtils.GetDeadlineDate(deliverable.Deadline, (List<Entities.Models.SemesterWeek>)semester.SemesterWeeks)
+                : null;
+            string statusUpdate = null;
+            if(DateTime.Now > deadlineAt)
+            {
+                statusUpdate = ProgressEnum.Late;
+            }
+            else
+            {
+                statusUpdate = ProgressEnum.Confirmed;
+            }
+            item.Status = statusUpdate;
+            await _deliverableRepository.UpdateDeliverable(deliverable);
+
+            return statusUpdate;
+        }
     }
 }
