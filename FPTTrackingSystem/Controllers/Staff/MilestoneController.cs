@@ -52,7 +52,7 @@ namespace FPTTrackingSystem.Controllers.Admin
                 var groupResponse = await _groupService.GetGroupByIdAsync(groupId);
 
                 if (groupResponse == null || groupResponse.Data == null)
-                    return NotFound(ApiResponse<object>.Fail("Không tìm thấy group."));
+                    return BadRequest(ApiResponse<object>.Fail("Không tìm thấy group."));
 
                 int semesterId = groupResponse.Data.SemesterId ?? 0;
 

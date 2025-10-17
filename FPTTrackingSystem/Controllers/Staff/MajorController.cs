@@ -68,7 +68,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             {
                 var result = await _majorService.GetByIdAsync(id);
                 if (result == null)
-                    return NotFound(ApiResponse<object>.Fail("Không tìm thấy môn học."));
+                    return BadRequest(ApiResponse<object>.Fail("Không tìm thấy môn học."));
 
                 return Ok(ApiResponse<MajorCategoryDTO>.Success(result, "Lấy môn học thành công."));
             }
@@ -83,7 +83,7 @@ namespace FPTTrackingSystem.Controllers.Staff
         {
             var result = await _majorService.GetByIdAsync(id);
             if (result == null)
-                return NotFound(ApiResponse<object>.Fail("Không tìm thấy bản ghi."));
+                return BadRequest(ApiResponse<object>.Fail("Không tìm thấy bản ghi."));
             return Ok(ApiResponse<object>.Success(result, "Lấy dữ liệu thành công."));
         }
 
@@ -102,7 +102,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             dto.Id = id;
             var success = await _majorService.UpdateAsync(dto);
             if (!success)
-                return NotFound(ApiResponse<object>.Fail("Không tìm thấy bản ghi để cập nhật."));
+                return BadRequest(ApiResponse<object>.Fail("Không tìm thấy bản ghi để cập nhật."));
             return Ok(ApiResponse<object>.Success(null, "Cập nhật thành công."));
         }
     }
