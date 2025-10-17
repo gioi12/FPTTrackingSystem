@@ -20,7 +20,7 @@ namespace Repositories.Staff.Implements
         {
            var list = await _context.Deliverables.Include(x=>x.DeliveryItems)
                 .Include(x=>x.DeliverableGroups)
-                .Where(x=>x.MajorId == code && x.SemesterId == semesterId)
+                .Where(x=>x.MajorId == code && x.SemesterId == semesterId && x.IsActive == true)
                 .ToListAsync();
             return list;
         }
