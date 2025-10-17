@@ -52,7 +52,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 {
                     Status = 200,
                     Message = "Không tìm thấy task nào trong nhóm này.",
-                    Data = null
+                    Data = new List<TaskDto>() 
                 };
             }
 
@@ -74,7 +74,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 {
                     Status = 200,
                     Message = "Không tìm thấy task với ID này.",
-                    Data = null
+                    Data = new TaskDto() 
                 };
             }
 
