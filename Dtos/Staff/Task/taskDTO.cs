@@ -17,8 +17,8 @@ namespace DataTranferObjects.Staff.Task
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
         public DateTime EndAt { get; set; }
-        public int StatusId { get; set; }
-        public int PriorityId { get; set; }
+        public string Status { get; set; }
+        public string Priority { get; set; }
         public string? Process { get; set; }
         public int? MilestoneId { get; set; }
         public int AssignedUserId { get; set; }
@@ -30,8 +30,8 @@ namespace DataTranferObjects.Staff.Task
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
         public DateTime EndAt { get; set; }
-        public int StatusId { get; set; }
-        public int PriorityId { get; set; }
+        public string StatusId { get; set; }
+        public string PriorityId { get; set; }
         public string? Process { get; set; }
         public int? MilestoneId { get; set; }
         public int AssignedUserId { get; set; }
@@ -58,8 +58,8 @@ namespace DataTranferObjects.Staff.Task
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
         public DateTime? Deadline { get; set; }
-        public int? StatusId { get; set; }
-        public int? PriorityId { get; set; }
+        public string? StatusId { get; set; }
+        public string? PriorityId { get; set; }
         public string? Process { get; set; }
         public int? MilestoneId { get; set; }
         public int? GroupId { get; set; }

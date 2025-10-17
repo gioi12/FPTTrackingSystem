@@ -77,8 +77,6 @@ namespace Repositories.Student.Implements
             {
                 var tasks = await _context.Tasks
                     .Include(t => t.Group)
-                    .Include(t => t.Status)
-                    .Include(t => t.Priority)
                     .Include(t => t.Milestone)
                     .Include(t => t.TaskUsers)
                         .ThenInclude(tu => tu.User)
@@ -105,12 +103,12 @@ namespace Repositories.Student.Implements
                         Description = task.Description,
                         Deadline = task.Deadline,
                         CreatedAt = task.CreatedAt,
-                        CreatedBy = createdByUser?.Id,
+                        CreatedBy = createdByUser?.User.Id,
                         CreatedByName = createdByUser?.User.Fullname,
-                        Priority = task.Priority?.Name ?? "",
-                        Status = task.Status?.Name ?? "",
+                        Priority = task.Priority,
+                        Status = task.Status,
                         Process = task.Process,
-                        AssigneeId = assignee?.Id,
+                        AssigneeId = assignee?.User.Id,
                         AssigneeName = assignee?.User.Fullname,
                         Group = task.Group != null
                             ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
@@ -205,8 +203,8 @@ namespace Repositories.Student.Implements
                     CreatedAt = task.CreatedAt,
                     CreatedBy = createdByUser?.Id,
                     CreatedByName = createdByUser?.User.Fullname,
-                    Priority = task.Priority.Name,
-                    Status = task.Status.Name,
+                    Priority = task.Priority,
+                    Status = task.Status,
                     Process = task.Process,
                     AssigneeId = assignee?.Id,
                     AssigneeName = assignee?.User.Fullname,
@@ -275,8 +273,8 @@ namespace Repositories.Student.Implements
             task.Name = dto.Name;
             task.Description = dto.Description;
             task.Deadline = dto.EndAt;
-            task.StatusId = dto.StatusId;
-            task.PriorityId = dto.PriorityId;
+            task.Status = dto.StatusId;
+            task.Priority = dto.PriorityId;
             task.Process = dto.Process;
             task.MilestoneId = dto.MilestoneId;
 

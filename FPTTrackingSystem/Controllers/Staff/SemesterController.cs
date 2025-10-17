@@ -94,7 +94,7 @@ namespace FPTTrackingSystem.Controllers.Staff
 
             if (semester == null)
             {
-                return NotFound(ApiResponse<object>.Fail("Không tìm thấy học kỳ", 404));
+                return Ok(ApiResponse<object>.Success(null,"Không tìm thấy học kỳ"));
             }
 
             return Ok(ApiResponse<SemesterDTO>.Success(semester, "Lấy học kỳ thành công"));

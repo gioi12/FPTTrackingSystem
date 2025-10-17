@@ -52,18 +52,17 @@ namespace FPTTrackingSystem.Controllers.Admin
                 var groupResponse = await _groupService.GetGroupByIdAsync(groupId);
 
                 if (groupResponse == null || groupResponse.Data == null)
-                    return NotFound(ApiResponse<object>.Fail("Không tìm thấy group."));
+                    return Ok(ApiResponse<object>.Success(null,"Không tìm thấy group."));
 
                 int semesterId = groupResponse.Data.SemesterId ?? 0;
 
                 if (semesterId == 0)
-                    return BadRequest(ApiResponse<object>.Fail("Group chưa được gán với học kỳ nào."));
+                    return Ok(ApiResponse<object>.Success(null, "Group chưa được gán với học kỳ nào."));
 
-                // Lấy danh sách milestones
                 var milestones = await _milestoneService.GetMilestonesByGroupIdAsync(groupId, semesterId);
 
                 if (milestones == null || milestones.Count == 0)
-                    return Ok(ApiResponse<object>.Fail("Không tìm thấy milestone nào cho group này."));
+                    return Ok(ApiResponse<object>.Success(null,"Không tìm thấy milestone nào cho group này."));
 
                 return Ok(ApiResponse<List<MilestonesDTO>>.Success(milestones, "Lấy danh sách milestone thành công."));
             }

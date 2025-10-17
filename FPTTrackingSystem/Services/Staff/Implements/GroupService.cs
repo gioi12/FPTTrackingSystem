@@ -63,7 +63,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 return new ApiResponse<GroupDetailDto>
                 {
-                    Status = 404,
+                    Status = 200,
                     Message = "Không tìm thấy nhóm",
                     Data = null
                 };
@@ -90,7 +90,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                               && gu.User.Account.RoleId == (int)RoleEnum.Student)
                     .Select(gu => new StudentDto
                     {
-                        Id = gu.User.RollNumber,
+                        Id = gu.User.Id,
+                        RollNumber = gu.User.RollNumber,
                         Name = gu.User.Fullname,
                         Role = gu.User.Account.Role?.Name
                     }).ToList(),
@@ -120,7 +121,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 return new ApiResponse<GroupTrackingResponseDto>
                 {
-                    Status = 404,
+                    Status = 200,
                     Message = "Không tìm thấy nhóm",
                     Data = null
                 };
