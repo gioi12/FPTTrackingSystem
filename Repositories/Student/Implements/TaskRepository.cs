@@ -77,8 +77,6 @@ namespace Repositories.Student.Implements
             {
                 var tasks = await _context.Tasks
                     .Include(t => t.Group)
-                    .Include(t => t.Status)
-                    .Include(t => t.Priority)
                     .Include(t => t.Milestone)
                     .Include(t => t.TaskUsers)
                         .ThenInclude(tu => tu.User)
