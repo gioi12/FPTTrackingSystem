@@ -63,7 +63,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 return new ApiResponse<GroupDetailDto>
                 {
-                    Status = 404,
+                    Status = 400,
                     Message = "Không tìm thấy nhóm",
                     Data = null
                 };
@@ -120,7 +120,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 return new ApiResponse<GroupTrackingResponseDto>
                 {
-                    Status = 404,
+                    Status = 400,
                     Message = "Không tìm thấy nhóm",
                     Data = null
                 };

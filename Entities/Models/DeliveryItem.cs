@@ -11,11 +11,11 @@ public partial class DeliveryItem
 
     public string? Description { get; set; }
 
-    public int DeliverableId { get; set; }
+    public int? DeliverableId { get; set; }
 
     public int? MilestoneItemId { get; set; }
 
-    public virtual Deliverable Deliverable { get; set; } = null!;
+    public virtual Deliverable? Deliverable { get; set; }
 
     public virtual MilestoneItem? MilestoneItem { get; set; }
 }

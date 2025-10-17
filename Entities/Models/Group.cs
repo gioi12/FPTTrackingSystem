@@ -21,7 +21,7 @@ public partial class Group
 
     public string? VietnameseTitle { get; set; }
 
-    public int? StatusId { get; set; }
+    public string? StatusId { get; set; }
 
     public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 

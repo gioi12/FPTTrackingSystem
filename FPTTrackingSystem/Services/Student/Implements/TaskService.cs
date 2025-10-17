@@ -24,15 +24,18 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async Task<Entities.Models.Task> CreateTaskAsync(CreateTaskDTO dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+            var Priority = string.IsNullOrWhiteSpace(dto.Priority)
+                            ? string.Empty
+                            : char.ToUpper(dto.Priority[0]) + dto.Priority.Substring(1).ToLower();
             var newTask = new Entities.Models.Task
             {
                 GroupId = dto.GroupId,
                 Name = dto.Name,
-                PriorityId = dto.PriorityId,
+                Priority = Priority,
                 Process = dto.Process,
                 Description = dto.Description,
                 Deadline = dto.EndAt,
-                StatusId = dto.StatusId,
+                Status = dto.Status,
                 MilestoneId = dto.MilestoneId
             };
 
@@ -47,7 +50,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             {
                 return new ApiResponse<List<TaskDto>>
                 {
-                    Status = 404,
+                    Status = 400,
                     Message = "Không tìm thấy task nào trong nhóm này.",
                     Data = null
                 };
@@ -69,7 +72,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             {
                 return new ApiResponse<TaskDto>
                 {
-                    Status = 404,
+                    Status = 400,
                     Message = "Không tìm thấy task với ID này.",
                     Data = null
                 };
@@ -94,7 +97,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 var updatedTask = await _taskRepository.UpdateTaskAsync(dto, user.Id ?? 0);
 
                 if (updatedTask == null)
-                    return new ApiResponse<TaskResponseUpdateDto>(404, "Không tìm thấy task");
+                    return new ApiResponse<TaskResponseUpdateDto>(400, "Không tìm thấy task");
 
                 var assignedUser = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);
@@ -105,8 +108,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     Name = updatedTask.Name,
                     Description = updatedTask.Description,
                     Deadline = updatedTask.Deadline,
-                    StatusId = updatedTask.StatusId,
-                    PriorityId = updatedTask.PriorityId,
+                    StatusId = updatedTask.Status,
+                    PriorityId = updatedTask.Priority,
                     Process = updatedTask.Process,
                     MilestoneId = updatedTask.MilestoneId,
                     GroupId = updatedTask.GroupId,

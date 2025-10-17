@@ -6,6 +6,10 @@ namespace Entities.Models;
 
 public partial class FpttrackingSystemContext : DbContext
 {
+    public FpttrackingSystemContext()
+    {
+    }
+
     public FpttrackingSystemContext(DbContextOptions<FpttrackingSystemContext> options)
         : base(options)
     {
@@ -37,8 +41,6 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<MilestoneItem> MilestoneItems { get; set; }
 
-    public virtual DbSet<Priority> Priorities { get; set; }
-
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Semester> Semesters { get; set; }
@@ -52,6 +54,10 @@ public partial class FpttrackingSystemContext : DbContext
     public virtual DbSet<TaskUser> TaskUsers { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=160.30.21.113,1433;Database=FPTTrackingSystem;User ID=sa;Password=ak47;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -180,7 +186,6 @@ public partial class FpttrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Deliverable).WithMany(p => p.DeliveryItems)
                 .HasForeignKey(d => d.DeliverableId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Delivery_item_Deliverable");
 
             entity.HasOne(d => d.MilestoneItem).WithMany(p => p.DeliveryItems)
@@ -240,7 +245,9 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("profession");
             entity.Property(e => e.SemesterId).HasColumnName("semester_id");
-            entity.Property(e => e.StatusId).HasColumnName("status_id");
+            entity.Property(e => e.StatusId)
+                .HasMaxLength(50)
+                .HasColumnName("status_id");
             entity.Property(e => e.VietnameseTitle)
                 .HasMaxLength(200)
                 .HasColumnName("vietnamese_title");
@@ -388,16 +395,6 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasConstraintName("FK_Milestone_Item_Milestone");
         });
 
-        modelBuilder.Entity<Priority>(entity =>
-        {
-            entity.ToTable("Priority");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasColumnName("name");
-        });
-
         modelBuilder.Entity<Role>(entity =>
         {
             entity.ToTable("Role");
@@ -460,7 +457,9 @@ public partial class FpttrackingSystemContext : DbContext
         {
             entity.ToTable("Status");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasMaxLength(50)
+                .HasColumnName("id");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
@@ -483,11 +482,15 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
-            entity.Property(e => e.PriorityId).HasColumnName("priority_id");
+            entity.Property(e => e.Priority)
+                .HasMaxLength(50)
+                .HasColumnName("priority");
             entity.Property(e => e.Process)
                 .HasMaxLength(50)
                 .HasColumnName("process");
-            entity.Property(e => e.StatusId).HasColumnName("status_id");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasColumnName("status");
 
             entity.HasOne(d => d.Group).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.GroupId)
@@ -497,15 +500,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.Milestone).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.MilestoneId)
                 .HasConstraintName("FK_Task_Milestone");
-
-            entity.HasOne(d => d.Priority).WithMany(p => p.Tasks)
-                .HasForeignKey(d => d.PriorityId)
-                .HasConstraintName("FK_Task_Priority");
-
-            entity.HasOne(d => d.Status).WithMany(p => p.Tasks)
-                .HasForeignKey(d => d.StatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Task_Status2");
         });
 
         modelBuilder.Entity<TaskUser>(entity =>
@@ -555,7 +549,9 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.RollNumber)
                 .HasMaxLength(50)
                 .HasColumnName("roll_number");
-            entity.Property(e => e.StatusId).HasColumnName("status_id");
+            entity.Property(e => e.StatusId)
+                .HasMaxLength(50)
+                .HasColumnName("status_id");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Users)
                 .HasForeignKey(d => d.AccountId)

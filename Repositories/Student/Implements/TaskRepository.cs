@@ -107,8 +107,8 @@ namespace Repositories.Student.Implements
                         CreatedAt = task.CreatedAt,
                         CreatedBy = createdByUser?.Id,
                         CreatedByName = createdByUser?.User.Fullname,
-                        Priority = task.Priority?.Name ?? "",
-                        Status = task.Status?.Name ?? "",
+                        Priority = task.Priority,
+                        Status = task.Status,
                         Process = task.Process,
                         AssigneeId = assignee?.Id,
                         AssigneeName = assignee?.User.Fullname,
@@ -205,8 +205,8 @@ namespace Repositories.Student.Implements
                     CreatedAt = task.CreatedAt,
                     CreatedBy = createdByUser?.Id,
                     CreatedByName = createdByUser?.User.Fullname,
-                    Priority = task.Priority.Name,
-                    Status = task.Status.Name,
+                    Priority = task.Priority,
+                    Status = task.Status,
                     Process = task.Process,
                     AssigneeId = assignee?.Id,
                     AssigneeName = assignee?.User.Fullname,
@@ -275,8 +275,8 @@ namespace Repositories.Student.Implements
             task.Name = dto.Name;
             task.Description = dto.Description;
             task.Deadline = dto.EndAt;
-            task.StatusId = dto.StatusId;
-            task.PriorityId = dto.PriorityId;
+            task.Status = dto.StatusId;
+            task.Priority = dto.PriorityId;
             task.Process = dto.Process;
             task.MilestoneId = dto.MilestoneId;
 
