@@ -50,7 +50,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             {
                 return new ApiResponse<List<TaskDto>>
                 {
-                    Status = 400,
+                    Status = 200,
                     Message = "Không tìm thấy task nào trong nhóm này.",
                     Data = null
                 };
@@ -72,7 +72,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             {
                 return new ApiResponse<TaskDto>
                 {
-                    Status = 400,
+                    Status = 200,
                     Message = "Không tìm thấy task với ID này.",
                     Data = null
                 };
@@ -97,7 +97,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 var updatedTask = await _taskRepository.UpdateTaskAsync(dto, user.Id ?? 0);
 
                 if (updatedTask == null)
-                    return new ApiResponse<TaskResponseUpdateDto>(400, "Không tìm thấy task");
+                    return new ApiResponse<TaskResponseUpdateDto>(200, "Không tìm thấy task", null);
 
                 var assignedUser = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);

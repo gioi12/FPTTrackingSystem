@@ -29,7 +29,7 @@ namespace FPTTrackingSystem.Controllers.Mentor
                 var groups = await _groupService.GetGroupsByUserIdAsync(user.Id ?? 0);
 
                 if (groups == null || groups.Count == 0)
-                    return Ok(ApiResponse<object>.Fail("Không tìm thấy nhóm nào cho user này."));
+                    return Ok(ApiResponse<object>.Success(null,"Không tìm thấy nhóm nào cho user này."));
 
                 return Ok(ApiResponse<List<GroupMentorDto>>.Success(groups, "Lấy danh sách nhóm thành công."));
             }
