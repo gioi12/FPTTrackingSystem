@@ -49,7 +49,7 @@ namespace Repositories.Staff.Implements
                 _context.Milestones.Update(milestone);
                 await _context.SaveChangesAsync();
             }
-            return await _context.Milestones.Include(x => x.Major).Include(x => x.CreateByNavigation).ToListAsync();
+            return await _context.Milestones.Include(x => x.Major).Include(x => x.CreateByNavigation).Where(x=>x.IsActive==true).ToListAsync();
         }
 
         public async Task<Milestone?> GetMilestone(int id)
