@@ -19,7 +19,7 @@
             {
                 1 => "milestones",
                 2 => "tasks",
-                3 => "documents",
+                3 => "groups",
                 _ => "others"
             };
 
@@ -43,6 +43,20 @@
             // Trả về đường dẫn public (để lưu DB hoặc hiển thị)
             string fileUrl = $"/uploads/{currentYear}/{folderName}/{uniqueFileName}";
             return fileUrl;
+        }
+
+        /// <summary>
+        /// Lấy tên thực thể (entity) dựa trên type code.
+        /// </summary>
+        public static string GetEntityName(int type)
+        {
+            return type switch
+            {
+                1 => "Deliverable",
+                2 => "Task",
+                3 => "Group",
+                _ => "Unknown"
+            };
         }
     }
 }

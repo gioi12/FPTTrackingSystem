@@ -1,4 +1,5 @@
-﻿using DataTranferObjects.Staff.Request;
+﻿using DataTranferObjects.Enum;
+using DataTranferObjects.Staff.Request;
 using DataTranferObjects.Staff.Response;
 using Entities.Models;
 using Mapster;
@@ -19,6 +20,7 @@ namespace FPTTrackingSystem.Mappers
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(dest => dest.Description, src => src.Description)
                 .Map(dest => dest.Deadline, src => src.Deadline)
+                .Map(dest => dest.Status, src => src.DeliverableGroups.FirstOrDefault() != null ? src.DeliverableGroups.FirstOrDefault().Status : ProgressEnum.Unsubmitted)
                 .Map(dest => dest.DeliveryItems, src => src.DeliveryItems.Adapt<List<DeliverableItemRes>>());
         }
     }

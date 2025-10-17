@@ -28,4 +28,8 @@
     <ProjectReference Include="..\Repositories\Repositories.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\Common\" />
+  </ItemGroup>
+
 </Project>

@@ -23,5 +23,11 @@ namespace FPTTrackingSystem.Controllers.Staff
         {
             return Ok(await _deliverableSevice.GetDeliverableByCodeAndSemester(semesterId, majorCateId));
         }
+        [Authorize]
+        [HttpPost("v1/upload/milestone")]
+        public async Task<object> UploadMilestone(IFormFile file,int groupId,int deliverableId)
+        {
+            return Ok(await _deliverableSevice.UploadFileMilestone(file, groupId, deliverableId));
+        }
     }
 }

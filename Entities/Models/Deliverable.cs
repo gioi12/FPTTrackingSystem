@@ -21,6 +21,8 @@ public partial class Deliverable
 
     public int? MajorId { get; set; }
 
+    public virtual ICollection<DeliverableGroup> DeliverableGroups { get; set; } = new List<DeliverableGroup>();
+
     public virtual ICollection<DeliveryItem> DeliveryItems { get; set; } = new List<DeliveryItem>();
 
     public virtual MajorCategory? Major { get; set; }

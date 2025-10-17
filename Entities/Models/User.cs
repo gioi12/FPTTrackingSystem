@@ -27,7 +27,7 @@ public partial class User
 
     public string? Address { get; set; }
 
-    public int? StatusId { get; set; }
+    public string? StatusId { get; set; }
 
     public virtual Account? Account { get; set; }
 

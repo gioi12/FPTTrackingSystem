@@ -18,8 +18,16 @@ namespace Repositories.Staff.Implements
 
         public async Task<List<Deliverable>> GetByCodeAndSemester(int code, int semesterId)
         {
-           var list = await _context.Deliverables.Include(x=>x.DeliveryItems).Where(x=>x.MajorId == code && x.SemesterId == semesterId).ToListAsync();
+           var list = await _context.Deliverables.Include(x=>x.DeliveryItems)
+                .Include(x=>x.DeliverableGroups)
+                .Where(x=>x.MajorId == code && x.SemesterId == semesterId)
+                .ToListAsync();
             return list;
+        }
+
+        public async Task<Deliverable?> GetById(int id)
+        {
+            return await _context.Deliverables.Include(x=>x.DeliverableGroups).FirstOrDefaultAsync(x=>x.Id == id);
         }
 
         public async Task<Deliverable?> GetByMileIdAndActiveSenmester(int mileId)

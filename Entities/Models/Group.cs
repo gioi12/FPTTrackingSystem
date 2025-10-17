@@ -21,11 +21,13 @@ public partial class Group
 
     public string? VietnameseTitle { get; set; }
 
-    public int? StatusId { get; set; }
+    public string? StatusId { get; set; }
 
     public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+    public virtual ICollection<DeliverableGroup> DeliverableGroups { get; set; } = new List<DeliverableGroup>();
 
     public virtual ICollection<Evaluation> Evaluations { get; set; } = new List<Evaluation>();
 
