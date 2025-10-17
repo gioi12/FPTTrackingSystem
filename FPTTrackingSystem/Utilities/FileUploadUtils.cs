@@ -17,7 +17,7 @@
             // Xác định thư mục theo số
             string folderName = type switch
             {
-                1 => "milestones",
+                1 => "milestone items",
                 2 => "tasks",
                 3 => "groups",
                 _ => "others"
@@ -52,7 +52,7 @@
         {
             return type switch
             {
-                1 => "Deliverable",
+                1 => "Delivery_item",
                 2 => "Task",
                 3 => "Group",
                 _ => "Unknown"

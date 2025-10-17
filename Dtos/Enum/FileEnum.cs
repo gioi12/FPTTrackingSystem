@@ -8,8 +8,7 @@ namespace DataTranferObjects.Enum
 {
     public enum FileEnum
     {
-
-           Deliverable = 1,
+            DeliverableItem = 1,
             Task = 2,
             Group = 3,      
     }

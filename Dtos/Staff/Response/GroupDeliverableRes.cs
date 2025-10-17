@@ -1,15 +1,13 @@
 ﻿using DataTranferObjects.Enum;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DataTranferObjects.Staff.Response
 {
-    public class DeliverableRes
+    public class GroupDeliverableRes
     {
         public int Id { get; set; }
         public string? Description { get; set; }
@@ -18,7 +16,7 @@ namespace DataTranferObjects.Staff.Response
         public string? Deadline { get; set; }
         public DateTime? StartAt { get; set; }
         public DateTime? EndAt { get; set; }
+        public string Status { get; set; } = ProgressEnum.Unsubmitted;
         public virtual ICollection<DeliverableItemRes> DeliveryItems { get; set; } = new List<DeliverableItemRes>();
-
     }
 }

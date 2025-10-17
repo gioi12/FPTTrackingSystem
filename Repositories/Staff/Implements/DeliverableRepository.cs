@@ -27,13 +27,21 @@ namespace Repositories.Staff.Implements
 
         public async Task<Deliverable?> GetById(int id)
         {
-            return await _context.Deliverables.Include(x=>x.DeliverableGroups).FirstOrDefaultAsync(x=>x.Id == id);
+            return await _context.Deliverables.Include(x=>x.DeliveryItems).Include(x=>x.DeliverableGroups).FirstOrDefaultAsync(x=>x.Id == id);
         }
 
         public async Task<Deliverable?> GetByMileIdAndActiveSenmester(int mileId)
         {
             var semester = await _context.Semesters.FirstOrDefaultAsync(x => x.IsActive == true);
             return await _context.Deliverables.Include(x => x.DeliveryItems).FirstOrDefaultAsync(x => x.MilestoneId == mileId && semester.Id == x.SemesterId);
+        }
+
+        public async Task<DeliveryItem?> GetItemByItemId(int id)
+        {
+            return await _context.DeliveryItems
+                .Include(x => x.Deliverable)
+                    .ThenInclude(d => d.DeliverableGroups)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async System.Threading.Tasks.Task UpdateDeliverable(Deliverable delivery)

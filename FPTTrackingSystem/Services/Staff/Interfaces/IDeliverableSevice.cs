@@ -8,7 +8,9 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
     {
         Task<List<DeliverableRes>> GetDeliverableByCodeAndSemester(int semesterId,int code);
 
-        Task<string> UploadFileMilestone(IFormFile file, int groupId, int deliverableId);
+        Task<string> UploadFileMilestoneItem(IFormFile file, int groupId, int deliveryItemId);
+        Task<List<GroupDeliverableRes>> GetDeliverableByGroupId(int groupId);
+        Task<DeliverableDetailRes> GetDeliverableByIdAndGroupId(int groupId, int deliverableId);
 
     }
 }

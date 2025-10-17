@@ -10,5 +10,9 @@ namespace Repositories.Common.Interfaces
     public interface IAttachmentRepository
     {
         System.Threading.Tasks.Task  AddAttachment(Attachment attachment);
+        Task<List<Attachment>> GetAttachments(string entityName,int entityId,int groupId);
+
+        Task<List<Attachment>> GetAttachmentsByIds(string entityName, List<int> entityIds, int groupId);
+
     }
 }

@@ -2,7 +2,7 @@
 using FPTTrackingSystem.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.WebHost.UseWebRoot("wwwroot");
 builder.Services.AddControllers();
 builder.Services.AddRepositories();
 builder.Services.AddServices();
@@ -33,8 +33,7 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 var app = builder.Build();
-
-
+app.UseStaticFiles();
 // xoa sau khi deploy
 app.UseSwagger();
 app.UseSwaggerUI();
