@@ -103,12 +103,12 @@ namespace Repositories.Student.Implements
                         Description = task.Description,
                         Deadline = task.Deadline,
                         CreatedAt = task.CreatedAt,
-                        CreatedBy = createdByUser?.Id,
+                        CreatedBy = createdByUser?.User.Id,
                         CreatedByName = createdByUser?.User.Fullname,
                         Priority = task.Priority,
                         Status = task.Status,
                         Process = task.Process,
-                        AssigneeId = assignee?.Id,
+                        AssigneeId = assignee?.User.Id,
                         AssigneeName = assignee?.User.Fullname,
                         Group = task.Group != null
                             ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
