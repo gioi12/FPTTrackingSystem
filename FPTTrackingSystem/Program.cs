@@ -33,12 +33,19 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 var app = builder.Build();
-app.UseStaticFiles();
+app.UseCors("AllowFE");
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+    }
+});
 // xoa sau khi deploy
 app.UseSwagger();
 app.UseSwaggerUI();
 //cors
-app.UseCors("AllowFE");
 app.UseRouting();
 app.UseGlobalErrorHandler();
 app.UseHttpsRedirection();
