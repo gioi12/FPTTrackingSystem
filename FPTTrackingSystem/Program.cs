@@ -34,7 +34,7 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 app.UseCors("AllowFE");
-
+// cho phep tat ca ip tai ve
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
