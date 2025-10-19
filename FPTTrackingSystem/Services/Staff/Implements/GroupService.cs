@@ -218,6 +218,16 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Name = g.Name
             }).ToList();
         }
+
+        public async Task<ApiResponse<string>> UpdateRoleInGroupAsync(int groupId, int userId, string newRole)
+        {
+            var success = await _groupRepository.UpdateRoleInGroupAsync(groupId, userId, newRole);
+
+            if (!success)
+                return ApiResponse<string>.Fail("Không tìm thấy nhóm hoặc sinh viên.");
+
+            return ApiResponse<string>.Success(null, "Cập nhật role trong group thành công.");
+        }
     }
 
 }

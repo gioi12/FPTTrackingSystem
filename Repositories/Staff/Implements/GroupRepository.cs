@@ -83,12 +83,30 @@ namespace Repositories.Staff.Implements
                 .ToListAsync();
         }
 
+        public async Task<GroupUser?> GetGroupUserAsync(int groupId, int userId)
+        {
+            return await _context.GroupUsers
+                .FirstOrDefaultAsync(gu => gu.GroupId == groupId && gu.UserId == userId);
+        }
+
         public async Task<List<Group>> GetGroupsByUserIdAsync(int userId)
         {
             return await _context.GroupUsers
                 .Where(gu => gu.UserId == userId && gu.IsActive)
                 .Select(gu => gu.Group)
                 .ToListAsync();
+        }
+
+        public async Task<bool> UpdateRoleInGroupAsync(int groupId, int userId, string newRole)
+        {
+            var groupUser = await GetGroupUserAsync(groupId, userId);
+            if (groupUser == null)
+                return false;
+
+            groupUser.Role = newRole;
+            _context.GroupUsers.Update(groupUser);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

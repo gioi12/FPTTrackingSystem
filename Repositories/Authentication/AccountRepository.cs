@@ -43,11 +43,15 @@ namespace Repositories.Authentication
 
             var groupId = user.GroupUsers.FirstOrDefault()?.GroupId;
 
+            var groupUser = user.GroupUsers.FirstOrDefault();
+            var roleInGroup = groupUser?.Role;
+
             return new UserInfo
             {
                 Id = user.Id,
                 Name = user.Fullname,
                 Role = account.Role.Name,
+                RoleInGroup = roleInGroup,
                 GroupId = groupId
             };
         }

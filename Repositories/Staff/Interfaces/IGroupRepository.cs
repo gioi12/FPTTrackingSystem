@@ -19,5 +19,6 @@ namespace Repositories.Staff.Interfaces
         public Task<Group?> GetGroupWithMembersAsync(int groupId);
         public Task<List<Milestone>> GetMilestonesByMajorAsync(int majorId);
         Task<List<Group>> GetGroupsByUserIdAsync(int userId);
+        Task<bool> UpdateRoleInGroupAsync(int groupId, int userId, string newRole);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -80,6 +81,14 @@ namespace FPTTrackingSystem.Controllers.Staff
 
             var result = await _groupService.GetGroupTrackingAsync(gId, sDate, eDate);
             return StatusCode(result.Status, result);
+        }
+
+
+        [HttpPut("update-role")]
+        public async Task<ActionResult<ApiResponse<string>>> UpdateRoleInGroup([FromQuery] int groupId, [FromQuery] int studentId, [FromBody] string newRole)
+        {
+            var result = await _groupService.UpdateRoleInGroupAsync(groupId, studentId, newRole);
+            return StatusCode(200, result);
         }
 
 
