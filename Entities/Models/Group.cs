@@ -15,6 +15,8 @@ public partial class Group
 
     public string? Profession { get; set; }
 
+    public string? Role { get; set; }
+
     public int? MajorId { get; set; }
 
     public string? Description { get; set; }
@@ -26,6 +28,8 @@ public partial class Group
     public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+    public virtual ICollection<DeliverableGroup> DeliverableGroups { get; set; } = new List<DeliverableGroup>();
 
     public virtual ICollection<Evaluation> Evaluations { get; set; } = new List<Evaluation>();
 

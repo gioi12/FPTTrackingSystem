@@ -23,6 +23,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<Deliverable> Deliverables { get; set; }
 
+    public virtual DbSet<DeliverableGroup> DeliverableGroups { get; set; }
+
     public virtual DbSet<DeliveryItem> DeliveryItems { get; set; }
 
     public virtual DbSet<Evaluation> Evaluations { get; set; }
@@ -170,6 +172,28 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasConstraintName("FK_Deliverable_Semester");
         });
 
+        modelBuilder.Entity<DeliverableGroup>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Deliverable_Group_1");
+
+            entity.ToTable("Deliverable_Group");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.DeliverableId).HasColumnName("deliverable_id");
+            entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasColumnName("status");
+
+            entity.HasOne(d => d.Deliverable).WithMany(p => p.DeliverableGroups)
+                .HasForeignKey(d => d.DeliverableId)
+                .HasConstraintName("FK_Deliverable_Group_Deliverable");
+
+            entity.HasOne(d => d.Group).WithMany(p => p.DeliverableGroups)
+                .HasForeignKey(d => d.GroupId)
+                .HasConstraintName("FK_Deliverable_Group_Group");
+        });
+
         modelBuilder.Entity<DeliveryItem>(entity =>
         {
             entity.ToTable("Delivery_item");
@@ -244,6 +268,9 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Profession)
                 .HasMaxLength(50)
                 .HasColumnName("profession");
+            entity.Property(e => e.Role)
+                .HasMaxLength(50)
+                .HasColumnName("role");
             entity.Property(e => e.SemesterId).HasColumnName("semester_id");
             entity.Property(e => e.StatusId)
                 .HasMaxLength(50)
