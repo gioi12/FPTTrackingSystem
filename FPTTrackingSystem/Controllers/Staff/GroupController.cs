@@ -84,7 +84,7 @@ namespace FPTTrackingSystem.Controllers.Staff
         }
 
 
-        [HttpPost("update-role")]
+        [HttpPut("update-role")]
         public async Task<ActionResult<ApiResponse<string>>> UpdateRoleInGroup([FromQuery] int groupId, [FromQuery] int studentId, [FromBody] string newRole)
         {
             var result = await _groupService.UpdateRoleInGroupAsync(groupId, studentId, newRole);
