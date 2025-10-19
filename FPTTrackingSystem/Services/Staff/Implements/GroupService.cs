@@ -93,7 +93,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         Id = gu.User.Id,
                         RollNumber = gu.User.RollNumber,
                         Name = gu.User.Fullname,
-                        Role = group.Role
+                        Role = gu.Role
                     }).ToList(),
 
                 ActivityLog = null,

@@ -268,9 +268,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Profession)
                 .HasMaxLength(50)
                 .HasColumnName("profession");
-            entity.Property(e => e.Role)
-                .HasMaxLength(50)
-                .HasColumnName("role");
             entity.Property(e => e.SemesterId).HasColumnName("semester_id");
             entity.Property(e => e.StatusId)
                 .HasMaxLength(50)

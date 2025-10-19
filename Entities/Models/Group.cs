@@ -15,8 +15,6 @@ public partial class Group
 
     public string? Profession { get; set; }
 
-    public string? Role { get; set; }
-
     public int? MajorId { get; set; }
 
     public string? Description { get; set; }
