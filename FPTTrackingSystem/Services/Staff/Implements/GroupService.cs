@@ -229,18 +229,31 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 var success = await _groupRepository.UpdateRoleInGroupAsync(groupId, userId, newRole);
 
                 if (!success)
-                    return ApiResponse<string>.Fail("Không tìm thấy nhóm hoặc sinh viên.");
+                    return new ApiResponse<string>
+                    {
+                        Status = 200,
+                        Message = "Không tìm thấy nhóm hoặc sinh viên.",
+                        Data = null
+                    };
 
-                return ApiResponse<string>.Success(null, "Cập nhật role trong group thành công.");
+                return new ApiResponse<string>
+                {
+                    Status = 200,
+                    Message = "Cập nhật role trong group thành công.",
+                    Data = null
+                };
             }
             catch (InvalidOperationException ex)
             {
-                // Lỗi validate (VD: đã có Secretary)
-                return ApiResponse<string>.Fail(ex.Message);
+                return new ApiResponse<string>
+                {
+                    Status = 200,
+                    Message = ex.Message,
+                    Data = null
+                };
             }
             catch (Exception)
             {
-                // Các lỗi khác
                 return ApiResponse<string>.Fail("Đã xảy ra lỗi khi cập nhật role trong group.");
             }
         }
