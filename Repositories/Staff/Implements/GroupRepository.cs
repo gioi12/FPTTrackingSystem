@@ -103,10 +103,24 @@ namespace Repositories.Staff.Implements
             if (groupUser == null)
                 return false;
 
+            newRole = char.ToUpper(newRole[0]) + newRole.Substring(1).ToLower();
+
+            if (newRole == "Secretary")
+            {
+                bool alreadyHasSecretary = await _context.GroupUsers
+                    .AnyAsync(gu => gu.GroupId == groupId
+                                 && gu.Role == "Secretary"
+                                 && gu.UserId != userId);
+
+                if (alreadyHasSecretary)
+                    throw new InvalidOperationException("Nhóm này đã có một Secretary.");
+            }
+
             groupUser.Role = newRole;
             _context.GroupUsers.Update(groupUser);
             await _context.SaveChangesAsync();
             return true;
         }
+
     }
 }

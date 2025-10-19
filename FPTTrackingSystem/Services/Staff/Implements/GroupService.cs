@@ -33,6 +33,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                  {
                      Id = g.Id.ToString(),
                      CourseCode = g.Name,
+                     GroupCode = g.Code,
                      Term = g.Semester != null ? g.Semester.Name : "",
                      Major = g.Major != null ? g.Major.Name : "",
                      StudentCount = g.GroupUsers.Count(gu => gu.User.Account.RoleId == (int)RoleEnum.Student),
@@ -72,6 +73,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 Id = group.Id.ToString(),
                 ProjectName = group.Name,
+                GroupCode = group.Code,
                 SemesterId = group.SemesterId,
                 Supervisors = group.GroupUsers
                     .Where(gu => gu.User != null
@@ -215,19 +217,34 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return groups.Select(g => new GroupMentorDto
             {
                 Id = g.Id,
-                Name = g.Name
+                Name = g.Name,
+                GroupCode = g.Code
             }).ToList();
         }
 
         public async Task<ApiResponse<string>> UpdateRoleInGroupAsync(int groupId, int userId, string newRole)
         {
-            var success = await _groupRepository.UpdateRoleInGroupAsync(groupId, userId, newRole);
+            try
+            {
+                var success = await _groupRepository.UpdateRoleInGroupAsync(groupId, userId, newRole);
 
-            if (!success)
-                return ApiResponse<string>.Fail("Không tìm thấy nhóm hoặc sinh viên.");
+                if (!success)
+                    return ApiResponse<string>.Fail("Không tìm thấy nhóm hoặc sinh viên.");
 
-            return ApiResponse<string>.Success(null, "Cập nhật role trong group thành công.");
+                return ApiResponse<string>.Success(null, "Cập nhật role trong group thành công.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Lỗi validate (VD: đã có Secretary)
+                return ApiResponse<string>.Fail(ex.Message);
+            }
+            catch (Exception)
+            {
+                // Các lỗi khác
+                return ApiResponse<string>.Fail("Đã xảy ra lỗi khi cập nhật role trong group.");
+            }
         }
+
     }
 
 }

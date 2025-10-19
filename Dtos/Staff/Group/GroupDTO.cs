@@ -9,6 +9,7 @@ namespace DataTranferObjects.Staff.Group
     public class GroupDto
     {
         public string? Id { get; set; } = string.Empty;
+        public string? GroupCode { get; set; } = string.Empty;
         public string? CourseCode { get; set; } = string.Empty;
         public string? Term { get; set; } = string.Empty;
         public string? Major { get; set; } = string.Empty;
@@ -33,6 +34,7 @@ namespace DataTranferObjects.Staff.Group
     public class GroupMentorDto
     {
         public int Id { get; set; }
+        public string? GroupCode { get; set; }
         public string? Name { get; set; }
     }
 
@@ -40,6 +42,7 @@ namespace DataTranferObjects.Staff.Group
     public class GroupDetailDto
     {
         public string Id { get; set; } = string.Empty;
+        public string? GroupCode { get; set; }
         public string? ProjectName { get; set; }
         public int? SemesterId { get; set; }
         public List<string> Supervisors { get; set; } = new();
