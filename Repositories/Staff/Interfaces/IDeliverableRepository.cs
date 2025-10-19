@@ -14,5 +14,9 @@ namespace Repositories.Staff.Interfaces
 
         Task<List<Deliverable>> GetByCodeAndSemester(int code,int semesterId);
 
+        Task<Deliverable?> GetById(int id);
+
+        Task<DeliveryItem?> GetItemByItemId(int id);
+
     }
 }

@@ -2,7 +2,7 @@
 using FPTTrackingSystem.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.WebHost.UseWebRoot("wwwroot");
 builder.Services.AddControllers();
 builder.Services.AddRepositories();
 builder.Services.AddServices();
@@ -33,13 +33,19 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 var app = builder.Build();
-
-
+app.UseCors("AllowFE");
+// cho phep tat ca ip tai ve
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+    }
+});
 // xoa sau khi deploy
 app.UseSwagger();
 app.UseSwaggerUI();
 //cors
-app.UseCors("AllowFE");
 app.UseRouting();
 app.UseGlobalErrorHandler();
 app.UseHttpsRedirection();
