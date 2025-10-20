@@ -29,7 +29,7 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
     .ForJob(jobKey)
     .WithIdentity("DailyMailJob-trigger")
-    .WithCronSchedule("0 51 22 * * ?", x => x
+    .WithCronSchedule("0 15 23 * * ?", x => x
         .InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")))
 );
 });
