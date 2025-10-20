@@ -10,9 +10,9 @@ using FPTTrackingSystem.Services.Staff.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using Repositories.Staff.Interfaces;
 using FPTTrackingSystem.Services.Common.Interfaces;
-using FPTTrackingSystem.Services.Common.Implements;
 using DataTranferObjects.Enum;
 using Repositories.Staff.Implements;
+using FPTTrackingSystem.Services.Common.MQ;
 
 namespace FPTTrackingSystem.Services.Staff.Implementations
 {
@@ -23,13 +23,15 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         private readonly ISemesterRepository _semesterRepository;
         private readonly ILogService _logService;
         private readonly AuthUtils _authUtils;
-        public MilestoneService(IGroupRepository groupRepository, IMilestoneRepository milestoneRepository, AuthUtils authUtils,ILogService logService, IDeliverableRepository deliverableRepository,ISemesterRepository semesterRepository)
+        private readonly RabbitMQProducer _rabbitmqProducer;
+        public MilestoneService(IGroupRepository groupRepository, IMilestoneRepository milestoneRepository, AuthUtils authUtils,ILogService logService, IDeliverableRepository deliverableRepository, ISemesterRepository semesterRepository,RabbitMQProducer rabbitMQProducer)
         {
             _authUtils = authUtils;
             _milestoneRepository = milestoneRepository;
             _logService = logService;
             _deliverableRepository = deliverableRepository;
             _semesterRepository = semesterRepository;
+            _rabbitmqProducer = rabbitMQProducer;
         }
 
         public async Task<ApiResponse<List<MilestoneResponse>>> CreateMilestoneInSemester(List<MilestoneCreateRequest> request)
@@ -69,23 +71,32 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 UserId = (int)user.Id,
                 CreateAt = DateTime.Now
             }).ToList();
-            var delilogs = milestones
-                .SelectMany(m => m.Deliverables.Select(d => new Log
-                {
-                    Name = "Thêm Deliverable " + d.Name,
-                    EntityName = "Deliverable",
-                    EntityId = d.Id,
-                    Action = StringEnum.Create,
-                    Description = d.Description,
-                    UserId = (int)user.Id,
-                    CreateAt = DateTime.Now
-                }))
-                .ToList();
+            if(semester != null)
+            {
+                var delilogs = milestones
+              .SelectMany(m => m.Deliverables.Select(d => new Log
+              {
+                  Name = "Thêm Deliverable " + d.Name,
+                  EntityName = "Deliverable",
+                  EntityId = d.Id,
+                  Action = StringEnum.Create,
+                  Description = d.Description,
+                  UserId = (int)user.Id,
+                  CreateAt = DateTime.Now
+              }))
+              .ToList();
+                logs.AddRange(delilogs);
+            }
             // gop 2 list
-            logs.AddRange(delilogs);
             await _logService.AddRangeLogAsync(logs);
             var response = list.Adapt<List<MilestoneResponse>>();
-
+            // test gui mail
+            await _rabbitmqProducer.SendMessage(new DataTranferObjects.Common.Request.MailRequest
+            {
+                To = "doangioi0403@gmail.com",
+                Subject = "FPTTrackingSystem test gui mail",
+                Body = "Chao mung ban den voi FPTTrackingSystem"
+            });
             return ApiResponse<List<MilestoneResponse>>.Success(response);
         }
 

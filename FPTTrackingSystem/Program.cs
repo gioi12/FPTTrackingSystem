@@ -1,5 +1,9 @@
-﻿using FPTTrackingSystem.Extensions;
+﻿using DataTranferObjects.Common.Request;
+using FPTTrackingSystem.Extensions;
 using FPTTrackingSystem.Middlewares;
+using FPTTrackingSystem.Services.Common.MQ;
+using FPTTrackingSystem.Services.Common.Schedules;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseWebRoot("wwwroot");
@@ -11,6 +15,24 @@ builder.Services.AddSwaggerDocumentation();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMappings();
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
+builder.Services.AddSingleton<RabbitMQProducer>();
+builder.Services.AddHostedService<RabbitMQConsumer>();
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("DailyMailJob");
+
+    q.AddJob<SendMailJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+    .ForJob(jobKey)
+    .WithIdentity("DailyMailJob-trigger")
+    .WithCronSchedule("0 30 22 * * ?", x => x
+        .InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")))
+);
+});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFE", policy =>
