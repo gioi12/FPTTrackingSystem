@@ -231,7 +231,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 if (!success)
                     return new ApiResponse<string>
                     {
-                        Status = 200,
+                        Status = 400,
                         Message = "Không tìm thấy nhóm hoặc sinh viên.",
                         Data = null
                     };
@@ -247,7 +247,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 return new ApiResponse<string>
                 {
-                    Status = 200,
+                    Status = 400,
                     Message = ex.Message,
                     Data = null
                 };
