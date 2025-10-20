@@ -238,7 +238,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
                 return new ApiResponse<string>
                 {
-                    Status = 201,
+                    Status = 200,
                     Message = "Cập nhật role trong group thành công.",
                     Data = null
                 };
