@@ -657,7 +657,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var vacations = await _semesterRepository.GetBySemesterIdAsync(semesterId);
 
             if (vacations == null || !vacations.Any())
-                return ApiResponse<List<SemesterVacationDto>>.Fail("Không có tuần nghỉ nào trong kỳ này.");
+                return ApiResponse<List<SemesterVacationDto>>.Success(new List<SemesterVacationDto>(),"Không có tuần nghỉ nào trong kỳ này.");
 
             return ApiResponse<List<SemesterVacationDto>>.Success(vacations, "Lấy danh sách tuần nghỉ theo kỳ thành công.");
         }

@@ -47,6 +47,8 @@ public partial class User
 
     public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
 
+    public virtual ICollection<PenatyCard> PenatyCards { get; set; } = new List<PenatyCard>();
+
     public virtual Status? Status { get; set; }
 
     public virtual ICollection<TaskUser> TaskUsers { get; set; } = new List<TaskUser>();

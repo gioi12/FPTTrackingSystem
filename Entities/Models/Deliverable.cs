@@ -25,11 +25,11 @@ public partial class Deliverable
 
     public virtual ICollection<DeliveryItem> DeliveryItems { get; set; } = new List<DeliveryItem>();
 
+    public virtual ICollection<Evaluation> Evaluations { get; set; } = new List<Evaluation>();
+
     public virtual MajorCategory? Major { get; set; }
 
     public virtual Milestone Milestone { get; set; } = null!;
 
     public virtual Semester Semester { get; set; } = null!;
-
-    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }

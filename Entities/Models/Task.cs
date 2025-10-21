@@ -13,9 +13,9 @@ public partial class Task
 
     public string? Description { get; set; }
 
-    public bool? IsActive { get; set; }
-
     public DateTime Deadline { get; set; }
+
+    public string? Type { get; set; }
 
     public string Status { get; set; } = null!;
 
@@ -25,21 +25,11 @@ public partial class Task
 
     public string? Process { get; set; }
 
-    public int? DeliverableId { get; set; }
-
-    public int? MeetingId { get; set; }
-
-    public string? Type { get; set; }
-
-    public virtual Deliverable? Deliverable { get; set; }
+    public int? MilestoneId { get; set; }
 
     public virtual Group Group { get; set; } = null!;
 
-    public virtual Meeting? Meeting { get; set; }
+    public virtual Milestone? Milestone { get; set; }
 
     public virtual ICollection<TaskUser> TaskUsers { get; set; } = new List<TaskUser>();
-
-    public virtual ICollection<Task> TaskReferences { get; set; } = new List<Task>();
-
-    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }

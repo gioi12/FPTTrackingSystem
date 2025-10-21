@@ -21,9 +21,15 @@ public partial class Evaluation
 
     public int GroupId { get; set; }
 
+    public int? DeliverableId { get; set; }
+
+    public virtual Deliverable? Deliverable { get; set; }
+
     public virtual User Evaluator { get; set; } = null!;
 
     public virtual Group Group { get; set; } = null!;
+
+    public virtual ICollection<PenatyCard> PenatyCards { get; set; } = new List<PenatyCard>();
 
     public virtual User Receiver { get; set; } = null!;
 }
