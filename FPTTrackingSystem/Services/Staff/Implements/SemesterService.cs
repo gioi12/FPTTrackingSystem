@@ -297,7 +297,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 EndAt = semester.EndAt ?? default,
                 Description = semester.Description,
                 Weeks = weeks,
-                IsActive = semester.IsActive ?? false
             };
         }
 
@@ -316,12 +315,10 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return semesters.Select(s => new SemesterDTO
             {
-                Id = s.Id,
                 Name = s.Name ?? "",
                 StartAt = s.StartAt ?? default,
                 EndAt = s.EndAt ?? default,
                 Description = s.Description ?? "",
-                IsActive = s.IsActive,
                 Weeks = s.SemesterWeeks.Select(w => new SemesterWeekDTO
                 {
                     WeekNumber = w.WeekNumber,
@@ -329,7 +326,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     EndAt = w.EndAt,
                     StartAtLunar = w.StartAtLunar,
                     EndAtLunar = w.EndAtLunar,
-                    IsVacation = w.IsVacation
                 }).ToList(),
                 SemesterBreak = s.SemesterVacations?
                     .Select(w => new SemesterVacationDto
@@ -350,12 +346,10 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return new SemesterDTO
             {
-                Id = semester.Id,
                 Name = semester.Name ?? "",
                 StartAt = semester.StartAt ?? default,
                 EndAt = semester.EndAt ?? default,
                 Description = semester.Description ?? "",
-                IsActive = semester.IsActive,
                 Weeks = semester.SemesterWeeks?.Select(w => new SemesterWeekDTO
                 {
                     WeekNumber = w.WeekNumber,
@@ -363,7 +357,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     EndAt = w.EndAt,
                     StartAtLunar = w.StartAtLunar,
                     EndAtLunar = w.EndAtLunar,
-                    IsVacation = w.IsVacation
                 }).ToList(),
                 SemesterBreak = semester.SemesterVacations?
                     .Select(w => new SemesterVacationDto
@@ -445,7 +438,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     EndAt = w.EndAt,
                     StartAtLunar = SemesterHelper.ConvertSolarToLunar(w.StartAt ?? DateTime.Now),
                     EndAtLunar = SemesterHelper.ConvertSolarToLunar(w.EndAt ?? DateTime.Now),
-                    IsVacation = w.IsVacation
                 }).ToList();
 
                 await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
@@ -482,12 +474,10 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return new SemesterDTO
             {
-                Id = semester.Id,
                 Name = semester.Name ?? "",
                 StartAt = semester.StartAt ?? default,
                 EndAt = semester.EndAt ?? default,
                 Description = semester.Description ?? "",
-                IsActive = semester.IsActive,
                 Weeks = weeks,
                 SemesterBreak = semester.SemesterVacations?
                     .Select(w => new SemesterVacationDto

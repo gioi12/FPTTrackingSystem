@@ -89,7 +89,9 @@ namespace DataTranferObjects.Staff.Task
 
         public int? AssigneeId { get; set; }
         public string? AssigneeName { get; set; }
-
+        public int? ReviewerId { get; set; }
+        public string? ReviewerName { get; set; }
+        public string? TaskType { get; set; }
         public string? Priority { get; set; }
         public string? Status { get; set; }
         public string? Process { get; set; }

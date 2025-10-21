@@ -20,7 +20,6 @@ namespace FPTTrackingSystem.Hepler
 
                 weeks.Add(new SemesterWeekDTO
                 {
-                    SemesterId = semesterId,
                     WeekNumber = weekNumber,
                     StartAt = currentStart.ToDateTime(TimeOnly.MinValue),
                     EndAt = currentEnd.ToDateTime(TimeOnly.MinValue),

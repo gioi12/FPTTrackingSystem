@@ -82,8 +82,6 @@ namespace Repositories.Student.Implements
             }
         }
 
-
-
         public async Task<List<TaskDto>> GetTasksByGroupIdAsync(int groupId)
         {
             try
@@ -106,8 +104,9 @@ namespace Repositories.Student.Implements
 
                 var result = tasks.Select(task =>
                 {
-                    var createdByUser = task.TaskUsers.FirstOrDefault(tu => tu.IsCreated ?? false);
-                    var assignee = task.TaskUsers.FirstOrDefault(tu => !(tu.IsCreated ?? false));
+                    var createdByUser = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Creator");
+                    var assignee = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Assignee");
+                    var reviewer = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
 
                     bool isMeetingTask = task.MeetingId.HasValue;
                     int meetingId = isMeetingTask ? task.MeetingId.Value : 0;
@@ -126,6 +125,9 @@ namespace Repositories.Student.Implements
                         Process = task.Process,
                         AssigneeId = assignee?.User.Id,
                         AssigneeName = assignee?.User.Fullname,
+                        ReviewerId = reviewer?.User?.Id,
+                        ReviewerName = reviewer?.User?.Fullname,
+                        TaskType = task.Type,
                         isMeetingTask = isMeetingTask,
                         meetingId = isMeetingTask ? meetingId : 0,
                         isActive = task.IsActive ?? false,
@@ -208,8 +210,9 @@ namespace Repositories.Student.Implements
                     return null;
                 }
 
-                var createdByUser = task.TaskUsers.FirstOrDefault(tu => tu.IsCreated ?? false);
-                var assignee = task.TaskUsers.FirstOrDefault(tu => !(tu.IsCreated ?? false));
+                var createdByUser = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Creator");
+                var assignee = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Assignee");
+                var reviewer = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
 
                 // Xác định isMeetingTask & meetingId
                 bool isMeetingTask = task.MeetingId.HasValue;
@@ -229,6 +232,8 @@ namespace Repositories.Student.Implements
                     Process = task.Process,
                     AssigneeId = assignee?.User.Id,
                     AssigneeName = assignee?.User.Fullname,
+                    ReviewerId = reviewer?.User?.Id,
+                    ReviewerName = reviewer?.User?.Fullname,
                     isMeetingTask = isMeetingTask,
                     meetingId = isMeetingTask ? meetingId : 0,
                     isActive = task.IsActive ?? false,
