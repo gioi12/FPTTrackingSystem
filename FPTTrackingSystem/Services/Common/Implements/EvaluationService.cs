@@ -28,7 +28,6 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 ReceiverId = dto.ReceiverId,
                 EvaluatorId = user.Id.Value,
                 Feedback = dto.Feedback,
-                Type = dto.Type,
                 GroupId = dto.GroupId,
                 DeliverableId = dto.DeliverableId,
                 CreateAt = DateTime.UtcNow,
@@ -44,7 +43,6 @@ namespace FPTTrackingSystem.Services.Common.Implements
                     {
                         Name = card.Name,
                         Description = card.Description,
-                        Type = card.Type,
                         UserId = card.UserId
                     });
                 }

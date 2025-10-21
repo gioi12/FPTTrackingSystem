@@ -9,6 +9,6 @@ namespace Repositories.Common.Interfaces
 {
     public interface IEvaluationRepository
     {
-        Task<Evaluation> CreateEvaluationAsync(Evaluation evaluation)
+        Task<Evaluation> CreateEvaluationAsync(Evaluation evaluation);
     }
 }

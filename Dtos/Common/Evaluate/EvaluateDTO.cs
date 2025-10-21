@@ -14,7 +14,6 @@ namespace DataTranferObjects.Common.Evaluate
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
-        public string? Type { get; set; }
         public int? UserId { get; set; }
     }
 
@@ -22,7 +21,6 @@ namespace DataTranferObjects.Common.Evaluate
     {
         public int ReceiverId { get; set; }
         public string? Feedback { get; set; }
-        public string? Type { get; set; }
         public int GroupId { get; set; }
         public int? DeliverableId { get; set; }
 

@@ -348,8 +348,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return new SemesterDTO
             {
-                Id = s.Id,
-                IsActive = s.IsActive,
+                Id = semester.Id,
+                IsActive = semester.IsActive,
                 Name = semester.Name ?? "",
                 StartAt = semester.StartAt ?? default,
                 EndAt = semester.EndAt ?? default,
