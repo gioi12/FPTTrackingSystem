@@ -23,6 +23,8 @@ public partial class Group
 
     public string? VietnameseTitle { get; set; }
 
+    public int? MeetingId { get; set; }
+
     public string? StatusId { get; set; }
 
     public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
@@ -36,6 +38,8 @@ public partial class Group
     public virtual ICollection<GroupUser> GroupUsers { get; set; } = new List<GroupUser>();
 
     public virtual MajorCategory? Major { get; set; }
+
+    public virtual Meeting? Meeting { get; set; }
 
     public virtual Semester? Semester { get; set; }
 

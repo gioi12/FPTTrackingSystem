@@ -9,9 +9,11 @@ public partial class TaskUser
 
     public int TaskId { get; set; }
 
-    public bool IsCreated { get; set; }
+    public string Type { get; set; } = null!;
 
     public int Id { get; set; }
+
+    public bool? IsCreated { get; set; }
 
     public virtual Task Task { get; set; } = null!;
 

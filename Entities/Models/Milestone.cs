@@ -28,6 +28,4 @@ public partial class Milestone
     public virtual MajorCategory Major { get; set; } = null!;
 
     public virtual ICollection<MilestoneItem> MilestoneItems { get; set; } = new List<MilestoneItem>();
-
-    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }

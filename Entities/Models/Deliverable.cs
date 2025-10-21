@@ -30,4 +30,6 @@ public partial class Deliverable
     public virtual Milestone Milestone { get; set; } = null!;
 
     public virtual Semester Semester { get; set; } = null!;
+
+    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }

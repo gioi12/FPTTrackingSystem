@@ -34,5 +34,16 @@ namespace FPTTrackingSystem.Hepler
             return weeks;
         }
 
+        public static DateTime ConvertSolarToLunar(DateTime solarDate)
+        {
+            var calendar = new System.Globalization.ChineseLunisolarCalendar();
+
+            int lunarYear = calendar.GetYear(solarDate);
+            int lunarMonth = calendar.GetMonth(solarDate);
+            int lunarDay = calendar.GetDayOfMonth(solarDate);
+
+            return new DateTime(lunarYear, lunarMonth, lunarDay);
+        }
+
     }
 }

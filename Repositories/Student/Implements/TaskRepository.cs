@@ -77,7 +77,7 @@ namespace Repositories.Student.Implements
             {
                 var tasks = await _context.Tasks
                     .Include(t => t.Group)
-                    .Include(t => t.Milestone)
+                    .Include(t => t.Deliverable)
                     .Include(t => t.TaskUsers)
                         .ThenInclude(tu => tu.User)
                             .ThenInclude(u => u.Attachments)
@@ -93,8 +93,11 @@ namespace Repositories.Student.Implements
 
                 var result = tasks.Select(task =>
                 {
-                    var createdByUser = task.TaskUsers.FirstOrDefault(tu => tu.IsCreated);
-                    var assignee = task.TaskUsers.FirstOrDefault(tu => !tu.IsCreated);
+                    var createdByUser = task.TaskUsers.FirstOrDefault(tu => tu.IsCreated ?? false);
+                    var assignee = task.TaskUsers.FirstOrDefault(tu => !(tu.IsCreated ?? false));
+
+                    bool isMeetingTask = task.MeetingId.HasValue;
+                    int meetingId = isMeetingTask ? task.MeetingId.Value : 0;
 
                     return new TaskDto
                     {
@@ -110,16 +113,19 @@ namespace Repositories.Student.Implements
                         Process = task.Process,
                         AssigneeId = assignee?.User.Id,
                         AssigneeName = assignee?.User.Fullname,
+                        isMeetingTask = isMeetingTask,
+                        meetingId = isMeetingTask ? meetingId : 0,
+                        isActive = task.IsActive ?? false,
                         Group = task.Group != null
                             ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
                             : null,
-                        Milestone = task.Milestone != null
+                        Milestone = task.Deliverable != null
                             ? new MilestonesDto
                             {
-                                Id = task.Milestone.Id,
-                                Name = task.Milestone.Name,
-                                StartAt = task.Milestone.CreateAt,
-                                Description = task.Milestone.Description
+                                Id = task.Deliverable.Id,
+                                Name = task.Deliverable.Name,
+                                isActive = task.Deliverable.IsActive,
+                                Description = task.Deliverable.Description
                             }
                             : null,
                         Attachments = _context.Attachments?
@@ -164,13 +170,14 @@ namespace Repositories.Student.Implements
         }
 
 
+
         public async Task<TaskDto?> GetTaskByIdAsync(int taskId)
         {
             try
             {
                 var task = await _context.Tasks
                     .Include(t => t.Group)
-                    .Include(t => t.Milestone)
+                    .Include(t => t.Deliverable)
                     .Include(t => t.TaskUsers)
                         .ThenInclude(tu => tu.User)
                             .ThenInclude(u => u.Attachments)
@@ -188,9 +195,12 @@ namespace Repositories.Student.Implements
                     return null;
                 }
 
-                var createdByUser = task.TaskUsers.FirstOrDefault(tu => tu.IsCreated);
-                var assignee = task.TaskUsers.FirstOrDefault(tu => !tu.IsCreated);
+                var createdByUser = task.TaskUsers.FirstOrDefault(tu => tu.IsCreated ?? false);
+                var assignee = task.TaskUsers.FirstOrDefault(tu => !(tu.IsCreated ?? false));
 
+                // Xác định isMeetingTask & meetingId
+                bool isMeetingTask = task.MeetingId.HasValue;
+                int meetingId = isMeetingTask ? task.MeetingId.Value : 0;
 
                 var dto = new TaskDto
                 {
@@ -206,55 +216,57 @@ namespace Repositories.Student.Implements
                     Process = task.Process,
                     AssigneeId = assignee?.User.Id,
                     AssigneeName = assignee?.User.Fullname,
+                    isMeetingTask = isMeetingTask,
+                    meetingId = isMeetingTask ? meetingId : 0,
+                    isActive = task.IsActive ?? false,
                     Group = task.Group != null
                         ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
                         : null,
-                    Milestone = task.Milestone != null
+                    Milestone = task.Deliverable != null
                             ? new MilestonesDto
                             {
-                                Id = task.Milestone.Id,
-                                Name = task.Milestone.Name,
-                                StartAt = task.Milestone.CreateAt,
-                                Description = task.Milestone.Description
+                                Id = task.Deliverable.Id,
+                                Name = task.Deliverable.Name,
+                                isActive = task.Deliverable.IsActive,
+                                Description = task.Deliverable.Description
                             }
                             : null,
-                    Attachments = _context.Attachments?.Where(m => m.EntityName.Equals("task") && m.EntityId == taskId).Select(a => new AttachmentDto
-                    {
-                        Id = a.Id,
-                        FileName = a.FileName,
-                        FileUrl = a.FilePath
-                    }).ToList() ?? new List<AttachmentDto>(),
-                    Comments = _context.Comments?.Where(m => m.EntityName.Equals("task") && m.EntityId == taskId).Select(c => new CommentDto
-                    {
-                        Id = c.Id,
-                        Author = c.User.RollNumber ?? "",
-                        AuthorName = c.User.Fullname,
-                        Content = c.Feedback ?? "",
-                        Timestamp = c.CreateAt
-                    }).ToList() ?? new List<CommentDto>(),
-
-                    History = _context.Logs.Where(m => m.EntityName.Equals("task") && m.EntityId == taskId).Select(h => new HistoryDto
-                    {
-                        Id = h.Id,
-                        Detail = h.Description,
-                        At = h.CreateAt,
-                        User = h.User.RollNumber,
-                        Action = h.Action
-                    }).ToList()
+                    Attachments = _context.Attachments?
+                        .Where(a => a.EntityName.Equals("task") && a.EntityId == taskId)
+                        .Select(a => new AttachmentDto
+                        {
+                            Id = a.Id,
+                            FileName = a.FileName,
+                            FileUrl = a.FilePath
+                        }).ToList() ?? new List<AttachmentDto>(),
+                    Comments = _context.Comments?
+                        .Where(c => c.EntityName.Equals("task") && c.EntityId == taskId)
+                        .Select(c => new CommentDto
+                        {
+                            Id = c.Id,
+                            Author = c.User.RollNumber ?? "",
+                            AuthorName = c.User.Fullname,
+                            Content = c.Feedback ?? "",
+                            Timestamp = c.CreateAt
+                        }).ToList() ?? new List<CommentDto>(),
+                    History = _context.Logs
+                        .Where(h => h.EntityName.Equals("task") && h.EntityId == taskId)
+                        .Select(h => new HistoryDto
+                        {
+                            Id = h.Id,
+                            Detail = h.Description,
+                            At = h.CreateAt,
+                            User = h.User.RollNumber,
+                            Action = h.Action
+                        }).ToList()
                 };
 
                 return dto;
             }
             catch (Exception ex)
             {
-                // Ghi log chi tiết
                 Console.WriteLine($"[GetTaskByIdAsync] Error while processing TaskId={taskId}: {ex.Message}");
                 Console.WriteLine(ex.StackTrace);
-
-                // Nếu bạn có LogRepository, dùng như này:
-                // _logRepository.CreateLog(new Log { Type = "Error", Detail = ex.ToString(), CreateAt = DateTime.Now });
-
-                // Tránh throw ra ngoài, trả null để API bắt lỗi
                 return null;
             }
         }
@@ -263,6 +275,7 @@ namespace Repositories.Student.Implements
         {
             var task = await _context.Tasks
                 .Include(t => t.TaskUsers)
+                .Include(t => t.Deliverable).ThenInclude(d => d.Milestone)
                 .FirstOrDefaultAsync(t => t.Id == dto.Id);
 
             if (task == null)
@@ -274,9 +287,9 @@ namespace Repositories.Student.Implements
             task.Status = dto.StatusId;
             task.Priority = dto.PriorityId;
             task.Process = dto.Process;
-            task.MilestoneId = dto.MilestoneId;
+            task.Deliverable.MilestoneId = dto.MilestoneId ?? 0;
 
-            var assignedUser = task.TaskUsers.FirstOrDefault(tu => !tu.IsCreated);
+            var assignedUser = task.TaskUsers.FirstOrDefault(tu => !tu.IsCreated ?? false);
 
             if (assignedUser != null)
             {
@@ -294,7 +307,7 @@ namespace Repositories.Student.Implements
                 _context.TaskUsers.Add(newTaskUser);
             }
 
-            var createdUser = task.TaskUsers.FirstOrDefault(tu => tu.IsCreated);
+            var createdUser = task.TaskUsers.FirstOrDefault(tu => tu.IsCreated ?? false);
             if (createdUser == null)
             {
                 var newCreator = new TaskUser
@@ -324,9 +337,6 @@ namespace Repositories.Student.Implements
 
             return task;
         }
-
-
-
 
     }
 }

@@ -73,6 +73,9 @@ namespace DataTranferObjects.Staff.Task
         public int Id { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
+        public bool isMeetingTask { get; set; }
+        public bool isActive { get; set; }
+        public int meetingId { get; set; }
         public DateTime? Deadline { get; set; }
         public DateTime? CreatedAt { get; set; }
         public int? CreatedBy { get; set; }
@@ -109,6 +112,7 @@ namespace DataTranferObjects.Staff.Task
         public string? Name { get; set; }
         public DateTime? StartAt { get; set; }
         public DateTime? EndAt { get; set; }
+        public bool? isActive { get; set; }
         public string? Description { get; set; }
     }
 

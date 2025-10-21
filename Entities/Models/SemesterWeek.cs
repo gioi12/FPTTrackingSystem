@@ -15,6 +15,10 @@ public partial class SemesterWeek
 
     public DateTime? EndAt { get; set; }
 
+    public DateTime? StartAtLunar { get; set; }
+
+    public DateTime? EndAtLunar { get; set; }
+
     public bool? IsVacation { get; set; }
 
     public int? WeekLearn { get; set; }

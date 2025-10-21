@@ -225,6 +225,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 WeekNumber = w.WeekNumber,
                 StartAt = w.StartAt,
                 EndAt = w.EndAt,
+                StartAtLunar = SemesterHelper.ConvertSolarToLunar(w.StartAt ?? DateTime.Now),
+                EndAtLunar = SemesterHelper.ConvertSolarToLunar(w.EndAt ?? DateTime.Now),
                 IsVacation = w.IsVacation,
                 WeekLearn = w.WeekLearn
             }).ToList();
@@ -325,6 +327,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     WeekNumber = w.WeekNumber,
                     StartAt = w.StartAt,
                     EndAt = w.EndAt,
+                    StartAtLunar = w.StartAtLunar,
+                    EndAtLunar = w.EndAtLunar,
                     IsVacation = w.IsVacation
                 }).ToList(),
                 SemesterBreak = s.SemesterWeeks.Where(w => w.IsVacation == true).Select(w => new SemesterWeekDTO
@@ -356,6 +360,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     WeekNumber = w.WeekNumber,
                     StartAt = w.StartAt,
                     EndAt = w.EndAt,
+                    StartAtLunar = w.StartAtLunar,
+                    EndAtLunar = w.EndAtLunar,
                     IsVacation = w.IsVacation
                 }).ToList(),
                 SemesterBreak = semester.SemesterWeeks?
@@ -365,6 +371,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         WeekNumber = w.WeekNumber,
                         StartAt = w.StartAt,
                         EndAt = w.EndAt,
+                        StartAtLunar = w.StartAtLunar,
+                        EndAtLunar = w.EndAtLunar,
                         IsVacation = w.IsVacation
                     }).ToList()
             };

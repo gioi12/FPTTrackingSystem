@@ -36,7 +36,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 Description = dto.Description,
                 Deadline = dto.EndAt,
                 Status = dto.Status,
-                MilestoneId = dto.MilestoneId
+                DeliverableId = dto.MilestoneId
             };
 
             return await _taskRepository.CreateTaskAsync(newTask, dto.AssignedUserId, user.Id ?? 0);
@@ -111,7 +111,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     StatusId = updatedTask.Status,
                     PriorityId = updatedTask.Priority,
                     Process = updatedTask.Process,
-                    MilestoneId = updatedTask.MilestoneId,
+                    MilestoneId = updatedTask.DeliverableId,
                     GroupId = updatedTask.GroupId,
                     AssignedUserId = dto.AssignedUserId,
                     AssignedUserName = assignedUser?.Fullname

@@ -24,12 +24,9 @@ namespace FPTTrackingSystem.Services.Common.Implements
             if (user == null)
                 return new ApiResponse<CommentDTO>(401, "Người dùng chưa đăng nhập");
 
-            var entityName = string.IsNullOrWhiteSpace(dto.EntityName)
-                            ? string.Empty
-                            : char.ToUpper(dto.EntityName[0]) + dto.EntityName.Substring(1).ToLower();
             var comment = new Comment
             {
-                EntityName = entityName,
+                EntityName = "Task",
                 EntityId = dto.EntityId,
                 Feedback = dto.Feedback,
                 GroupId = dto.GroupId,
