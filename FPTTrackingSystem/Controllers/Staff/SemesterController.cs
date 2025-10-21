@@ -257,7 +257,7 @@ namespace FPTTrackingSystem.Controllers.Staff
         [HttpGet("v1/Staff/semester/getVacationBySemesterId/{semesterId}")]
         public async Task<IActionResult> GetVacationsBySemester(int semesterId)
         {
-            var response = await _semesterService.GetBySemesterIdAsync(semesterId);
+            var response = await _semesterService.GetVacationsBySemesterAsync(semesterId);
             return StatusCode(response.Status, response);
         }
     }

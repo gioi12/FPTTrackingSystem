@@ -20,5 +20,6 @@ namespace Repositories.Staff.Interfaces
         Task<bool> AddVacationsAsync(List<SemesterVacationRequestDto> vacations);
         Task<bool> UpdateVacationAsync(int id, SemesterUpdateVacationRequestDto dto);
         Task<List<SemesterVacationDto>> GetBySemesterIdAsync(int semesterId);
+        Task<List<SemesterVacation>> GetVacationsBySemesterAsync(int semesterId);
     }
 }

@@ -667,5 +667,25 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         {
             throw new NotImplementedException();
         }
+
+        public async Task<ApiResponse<List<SemesterVacationDto>>> GetVacationsBySemesterAsync(int semesterId)
+        {
+            var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == semesterId);
+            if (semester == null)
+                return new ApiResponse<List<SemesterVacationDto>>(400, $"Không tìm thấy học kỳ ID {semesterId}.");
+
+            var vacations = await _semesterRepository.GetVacationsBySemesterAsync(semesterId);
+
+            var data = vacations.Select(v => new SemesterVacationDto
+            {
+                id = v.Id,
+                StartDate = v.StartAt ?? DateTime.MinValue,
+                EndDate = v.EndAt ?? DateTime.MinValue,
+                Description = v.Description
+            }).ToList();
+
+            return new ApiResponse<List<SemesterVacationDto>>(200, "Lấy danh sách kỳ nghỉ thành công.", data);
+        }
+
     }
 }

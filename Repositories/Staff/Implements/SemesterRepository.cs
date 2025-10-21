@@ -112,5 +112,14 @@ namespace Repositories.Staff.Implements
 
             return vacations;
         }
+
+        public async Task<List<SemesterVacation>> GetVacationsBySemesterAsync(int semesterId)
+        {
+            return await _context.SemesterVacations
+                .Where(v => v.SemesterId == semesterId)
+                .OrderBy(v => v.StartAt)
+                .ToListAsync();
+        }
+
     }
 }

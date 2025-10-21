@@ -21,5 +21,7 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<ApiResponse<string>> AddVacationsAsync(List<SemesterVacationRequestDto> vacations);
         Task<ApiResponse<string>> UpdateSemesterVacationsAsync(int semesterId, List<SemesterUpdateVacationRequestDto> vacationDtos);
         Task<ApiResponse<List<SemesterVacationDto>>> GetBySemesterIdAsync(int semesterId);
+
+        Task<ApiResponse<List<SemesterVacationDto>>> GetVacationsBySemesterAsync(int semesterId);
     }
 }
