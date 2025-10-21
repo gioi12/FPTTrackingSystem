@@ -96,5 +96,21 @@ namespace Repositories.Staff.Implements
             return true;
         }
 
+        public async Task<List<SemesterVacationDto>> GetBySemesterIdAsync(int semesterId)
+        {
+            var vacations = await _context.SemesterVacations
+                .Where(v => v.SemesterId == semesterId)
+                .OrderBy(v => v.StartAt)
+                .Select(v => new SemesterVacationDto
+                {
+                    id = v.Id,
+                    StartDate = v.StartAt ?? DateTime.MinValue,
+                    EndDate = v.EndAt ?? DateTime.MinValue,
+                    Description = v.Description
+                })
+                .ToListAsync();
+
+            return vacations;
+        }
     }
 }

@@ -250,5 +250,12 @@ namespace FPTTrackingSystem.Controllers.Staff
             var result = await _semesterService.UpdateVacationAsync(id, dto);
             return StatusCode(result.Status, result);
         }
+
+        [HttpGet("v1/Staff/semester/{semesterId}")]
+        public async Task<IActionResult> GetVacationsBySemester(int semesterId)
+        {
+            var response = await _semesterService.GetBySemesterIdAsync(semesterId);
+            return StatusCode(response.Status, response);
+        }
     }
 }
