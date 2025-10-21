@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Staff.Semester;
+using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Staff.Interfaces;
 using System;
@@ -25,6 +26,7 @@ namespace Repositories.Staff.Implements
         {
             return await _context.Semesters
                  .Include(s => s.SemesterWeeks)
+                 .Include(s => s.SemesterVacations)
                  .OrderByDescending(x => x.StartAt)
                  .ToListAsync();
         }
@@ -54,6 +56,7 @@ namespace Repositories.Staff.Implements
         {
             return await _context.Semesters
                 .Include(s => s.SemesterWeeks)
+                .Include(s => s.SemesterVacations)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
@@ -61,5 +64,37 @@ namespace Repositories.Staff.Implements
         {
             return await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
         }
+
+        public async Task<bool> AddVacationsAsync(List<SemesterVacationRequestDto> vacations)
+        {
+            var entities = vacations.Select(v => new SemesterVacation
+            {
+                SemesterId = v.SemesterId,
+                StartAt = v.StartDate,
+                EndAt = v.EndDate,
+                Description = v.Description
+            }).ToList();
+
+            await _context.SemesterVacations.AddRangeAsync(entities);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> UpdateVacationAsync(int id, SemesterVacationRequestDto dto)
+        {
+            var vacation = await _context.SemesterVacations.FirstOrDefaultAsync(v => v.Id == id);
+            if (vacation == null)
+                return false;
+
+            vacation.SemesterId = dto.SemesterId;
+            vacation.StartAt = dto.StartDate;
+            vacation.EndAt = dto.EndDate;
+            vacation.Description = dto.Description;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

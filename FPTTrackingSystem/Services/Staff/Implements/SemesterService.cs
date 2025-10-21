@@ -331,13 +331,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     EndAtLunar = w.EndAtLunar,
                     IsVacation = w.IsVacation
                 }).ToList(),
-                SemesterBreak = s.SemesterWeeks.Where(w => w.IsVacation == true).Select(w => new SemesterWeekDTO
-                {
-                    WeekNumber = w.WeekNumber,
-                    StartAt = w.StartAt,
-                    EndAt = w.EndAt,
-                    IsVacation = w.IsVacation
-                }).ToList(),
+                SemesterBreak = s.SemesterVacations?
+                    .Select(w => new SemesterVacationDto
+                    {
+                        id = w.Id,
+                        StartDate = w.StartAt ?? DateTime.MinValue,
+                        EndDate = w.EndAt ?? DateTime.MinValue,
+                        Description = w.Description
+                    }).ToList()
 
             }).ToList();
         }
@@ -364,16 +365,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     EndAtLunar = w.EndAtLunar,
                     IsVacation = w.IsVacation
                 }).ToList(),
-                SemesterBreak = semester.SemesterWeeks?
-                    .Where(w => w.IsVacation == true)
-                    .Select(w => new SemesterWeekDTO
+                SemesterBreak = semester.SemesterVacations?
+                    .Select(w => new SemesterVacationDto
                     {
-                        WeekNumber = w.WeekNumber,
-                        StartAt = w.StartAt,
-                        EndAt = w.EndAt,
-                        StartAtLunar = w.StartAtLunar,
-                        EndAtLunar = w.EndAtLunar,
-                        IsVacation = w.IsVacation
+                        id = w.Id,
+                        StartDate = w.StartAt ?? DateTime.MinValue,
+                        EndDate = w.EndAt ?? DateTime.MinValue,  
+                        Description = w.Description
                     }).ToList()
             };
         }
@@ -445,6 +443,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     WeekNumber = w.WeekNumber,
                     StartAt = w.StartAt,
                     EndAt = w.EndAt,
+                    StartAtLunar = SemesterHelper.ConvertSolarToLunar(w.StartAt ?? DateTime.Now),
+                    EndAtLunar = SemesterHelper.ConvertSolarToLunar(w.EndAt ?? DateTime.Now),
                     IsVacation = w.IsVacation
                 }).ToList();
 
@@ -489,14 +489,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Description = semester.Description ?? "",
                 IsActive = semester.IsActive,
                 Weeks = weeks,
-                SemesterBreak = semester.SemesterWeeks?
-                    .Where(w => w.IsVacation == true)
-                    .Select(w => new SemesterWeekDTO
+                SemesterBreak = semester.SemesterVacations?
+                    .Select(w => new SemesterVacationDto
                     {
-                        WeekNumber = w.WeekNumber,
-                        StartAt = w.StartAt,
-                        EndAt = w.EndAt,
-                        IsVacation = w.IsVacation
+                        id = w.Id,
+                        StartDate = w.StartAt ?? DateTime.MinValue,
+                        EndDate = w.EndAt ?? DateTime.MinValue,
+                        Description = w.Description
                     }).ToList()
             };
         }
@@ -559,5 +558,110 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         {
             throw new NotImplementedException();
         }
+
+        public async Task<ApiResponse<string>> AddVacationsAsync(List<SemesterVacationRequestDto> vacations)
+        {
+            if (vacations == null || vacations.Count == 0)
+                return new ApiResponse<string>(400, "Danh sách nghỉ không được để trống.");
+
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            foreach (var v in vacations)
+            {
+                if (v.StartDate >= v.EndDate)
+                    return new ApiResponse<string>(400, $"Ngày bắt đầu phải nhỏ hơn ngày kết thúc ({v.Description}).");
+
+                var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == v.SemesterId);
+                if (semester == null)
+                    return new ApiResponse<string>(400, $"Không tìm thấy học kỳ ID {v.SemesterId}.");
+
+                if (v.StartDate < semester.StartAt || v.EndDate > semester.EndAt)
+                    return new ApiResponse<string>(400, $"Thời gian nghỉ '{v.Description}' phải nằm trong khoảng {semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}.");
+
+                bool isOverlapping = await _context.SemesterVacations
+                    .AnyAsync(sv => sv.SemesterId == v.SemesterId &&
+                                    ((v.StartDate >= sv.StartAt && v.StartDate <= sv.EndAt) ||
+                                     (v.EndDate >= sv.StartAt && v.EndDate <= sv.EndAt) ||
+                                     (v.StartDate <= sv.StartAt && v.EndDate >= sv.EndAt)));
+                if (isOverlapping)
+                    return new ApiResponse<string>(400, $"Khoảng thời gian '{v.Description}' ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd}) bị trùng với kỳ nghỉ khác.");
+            }
+
+            var success = await _semesterRepository.AddVacationsAsync(vacations);
+            if (!success)
+                return new ApiResponse<string>(500, "Thêm thời gian nghỉ thất bại.");
+
+            var description = string.Join("; ", vacations.Select(v =>
+                $"{v.Description} ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd})"));
+
+            await _logService.AddLogAsync(new Log
+            {
+                Name = "Thêm thời gian nghỉ học kỳ",
+                EntityName = "SemesterVacation",
+                Action = "CREATE",
+                Description = $"Người dùng ID {user.Id} đã thêm các kỳ nghỉ: {description}",
+                UserId = user.Id ?? 0,
+                CreateAt = DateTime.Now
+            });
+
+            return new ApiResponse<string>(200, "Thêm thời gian nghỉ thành công.");
+        }
+
+
+        public async Task<ApiResponse<string>> UpdateVacationAsync(int id, SemesterVacationRequestDto dto)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            var existingVacation = await _context.SemesterVacations
+                .FirstOrDefaultAsync(sv => sv.Id == id);
+
+            if (existingVacation == null)
+                return new ApiResponse<string>(400, "Không tìm thấy kỳ nghỉ để cập nhật.");
+
+            if (dto.StartDate >= dto.EndDate)
+                return new ApiResponse<string>(400, "Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
+
+            var semester = await _context.Semesters
+                .FirstOrDefaultAsync(s => s.Id == dto.SemesterId);
+
+            if (semester == null)
+                return new ApiResponse<string>(400, $"Không tìm thấy học kỳ ID {dto.SemesterId}.");
+
+            if (dto.StartDate < semester.StartAt || dto.EndDate > semester.EndAt)
+                return new ApiResponse<string>(400, $"Thời gian nghỉ phải nằm trong khoảng {semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}.");
+
+            bool isOverlapping = await _context.SemesterVacations
+                .AnyAsync(sv => sv.SemesterId == dto.SemesterId &&
+                                sv.Id != id &&
+                                ((dto.StartDate >= sv.StartAt && dto.StartDate <= sv.EndAt) ||
+                                 (dto.EndDate >= sv.StartAt && dto.EndDate <= sv.EndAt) ||
+                                 (dto.StartDate <= sv.StartAt && dto.EndDate >= sv.EndAt)));
+
+            if (isOverlapping)
+                return new ApiResponse<string>(400, "Khoảng thời gian này bị trùng với kỳ nghỉ khác.");
+
+            existingVacation.SemesterId = dto.SemesterId;
+            existingVacation.StartAt = dto.StartDate;
+            existingVacation.EndAt = dto.EndDate;
+            existingVacation.Description = dto.Description;
+
+            _context.SemesterVacations.Update(existingVacation);
+            await _context.SaveChangesAsync();
+
+            await _logService.AddLogAsync(new Log
+            {
+                Name = "Cập nhật thời gian nghỉ học kỳ",
+                EntityName = "SemesterVacation",
+                EntityId = id,
+                Action = "UPDATE",
+                Description = $"Người dùng ID {user.Id} đã cập nhật kỳ nghỉ: {dto.Description} ({dto.StartDate:yyyy-MM-dd} → {dto.EndDate:yyyy-MM-dd})",
+                UserId = user.Id ?? 0,
+                CreateAt = DateTime.Now
+            });
+
+            return new ApiResponse<string>(200, "Cập nhật thời gian nghỉ thành công.");
+        }
+
+
     }
 }

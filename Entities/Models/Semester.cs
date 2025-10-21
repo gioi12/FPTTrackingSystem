@@ -21,5 +21,7 @@ public partial class Semester
 
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
+    public virtual ICollection<SemesterVacation> SemesterVacations { get; set; } = new List<SemesterVacation>();
+
     public virtual ICollection<SemesterWeek> SemesterWeeks { get; set; } = new List<SemesterWeek>();
 }

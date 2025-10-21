@@ -114,7 +114,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             }
         }
 
-        [HttpPost("v1/Staff/semester/vacation")]
+/*        [HttpPost("v1/Staff/semester/vacation")]
         public async Task<IActionResult> UpdateVacationWeeks([FromBody] UpdateVacationWeeksRequest request)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
@@ -165,7 +165,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                     EntityId = semester.Id,
                     Action = "UPDATE",
                     Description = $"Cập nhật tuần nghỉ/học cho kỳ '{semester.Name}' (ID: {semester.Id}) - Tuần nghỉ: {orderedWeeks.Count - learnWeekCounter}",
-                    UserId = user.Id ?? 0, 
+                    UserId = user.Id ?? 0,
                     CreateAt = DateTime.Now
                 });
 
@@ -175,7 +175,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             {
                 return StatusCode(500, ApiResponse<string>.InternalError(ex.Message));
             }
-        }
+        }*/
 
         [HttpGet("v1/Staff/semester/getSemesterByNow")]
         public async Task<IActionResult> GetCurrentSemester()
@@ -237,5 +237,18 @@ namespace FPTTrackingSystem.Controllers.Staff
             }
         }
 
+        [HttpPost("v1/Staff/semester/vacations")]
+        public async Task<IActionResult> AddVacations([FromBody] List<SemesterVacationRequestDto> vacations)
+        {
+            var result = await _semesterService.AddVacationsAsync(vacations);
+            return StatusCode(result.Status, result);
+        }
+
+        [HttpPut("v1/Staff/semester/vacations/{id}")]
+        public async Task<IActionResult> UpdateVacation(int id, [FromBody] SemesterVacationRequestDto dto)
+        {
+            var result = await _semesterService.UpdateVacationAsync(id, dto);
+            return StatusCode(result.Status, result);
+        }
     }
 }

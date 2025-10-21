@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Staff.Semester;
+using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,7 @@ namespace Repositories.Staff.Interfaces
         Task<Semester?> GetMilestonesBySemester(int id);
         Task<Semester?> GetDeliveriesBySemester(int id);
         Task<Semester?> GetGroupsBySemester(int id);
+        Task<bool> AddVacationsAsync(List<SemesterVacationRequestDto> vacations);
+        Task<bool> UpdateVacationAsync(int id, SemesterVacationRequestDto dto);
     }
 }
