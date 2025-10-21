@@ -251,11 +251,11 @@ namespace FPTTrackingSystem.Controllers.Staff
             return StatusCode(result.Status, result);
         }
 
-        [HttpGet("v1/Staff/semester/{semesterId}")]
-        public async Task<IActionResult> GetVacationsBySemester(int semesterId)
-        {
-            var response = await _semesterService.GetBySemesterIdAsync(semesterId);
-            return StatusCode(response.Status, response);
-        }
+        [HttpGet("v1/Staff/semester/getVacationBySemesterId/{semesterId}")]
+    public async Task<IActionResult> GetVacationsBySemester(int semesterId)
+    {
+        var response = await _semesterService.GetBySemesterIdAsync(semesterId);
+        return StatusCode(response.Status, response);
+    }
     }
 }
