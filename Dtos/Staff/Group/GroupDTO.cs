@@ -46,10 +46,17 @@ namespace DataTranferObjects.Staff.Group
         public string? ProjectName { get; set; }
         public int? SemesterId { get; set; }
         public List<string> Supervisors { get; set; } = new();
+        public List<SuperviorDto> SupervisorsInfor { get; set; } = new();
         public string? Status { get; set; }
         public string? Risk { get; set; }
         public List<StudentDto> Students { get; set; } = new();
         public List<string>? ActivityLog { get; set; } = null;
+    }
+
+    public class SuperviorDto
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
     }
 
     public class StudentDto

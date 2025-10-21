@@ -82,10 +82,19 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                                || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead))
                     .Select(gu => gu.User.Fullname)
                     .ToList(),
-
+                SupervisorsInfor = group.GroupUsers
+                    .Where(gu => gu.User != null
+                              && gu.User.Account != null
+                              && (gu.User.Account.RoleId == (int)RoleEnum.Supervior
+                               || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead))
+                    .Select(gu => new SuperviorDto
+                    {
+                        Id = gu.User.Id,
+                        Name = gu.User.Fullname
+                    })
+                    .ToList(),
                 Status = group.Status?.Name,
                 Risk = "Low",
-
                 Students = group.GroupUsers
                     .Where(gu => gu.User != null
                               && gu.User.Account != null
