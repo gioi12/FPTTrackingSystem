@@ -609,9 +609,11 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Deadline)
                 .HasColumnType("datetime")
                 .HasColumnName("deadline");
+            entity.Property(e => e.DeliverableId).HasColumnName("deliverable_id");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
-            entity.Property(e => e.MilestoneId).HasColumnName("milestone_id");
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
+            entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
@@ -628,14 +630,18 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("type");
 
+            entity.HasOne(d => d.Deliverable).WithMany(p => p.Tasks)
+                .HasForeignKey(d => d.DeliverableId)
+                .HasConstraintName("FK_Task_Deliverable");
+
             entity.HasOne(d => d.Group).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Task_Group");
 
-            entity.HasOne(d => d.Milestone).WithMany(p => p.Tasks)
-                .HasForeignKey(d => d.MilestoneId)
-                .HasConstraintName("FK_Task_Milestone");
+            entity.HasOne(d => d.Meeting).WithMany(p => p.Tasks)
+                .HasForeignKey(d => d.MeetingId)
+                .HasConstraintName("FK_Task_Meeting");
         });
 
         modelBuilder.Entity<TaskDependence>(entity =>
@@ -655,6 +661,9 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.IsCreated).HasColumnName("is_created");
             entity.Property(e => e.TaskId).HasColumnName("task_id");
+            entity.Property(e => e.Type)
+                .HasMaxLength(50)
+                .HasColumnName("type");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.Task).WithMany(p => p.TaskUsers)

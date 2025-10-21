@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Staff.Interfaces
+namespace Repositories.Common.Interfaces
 {
-    internal class IEvaluationRepository
+    public interface IEvaluationRepository
     {
     }
 }

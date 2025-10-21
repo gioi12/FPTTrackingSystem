@@ -25,11 +25,17 @@ public partial class Task
 
     public string? Process { get; set; }
 
-    public int? MilestoneId { get; set; }
+    public int? DeliverableId { get; set; }
+
+    public bool? IsActive { get; set; }
+
+    public int? MeetingId { get; set; }
+
+    public virtual Deliverable? Deliverable { get; set; }
 
     public virtual Group Group { get; set; } = null!;
 
-    public virtual Milestone? Milestone { get; set; }
+    public virtual Meeting? Meeting { get; set; }
 
     public virtual ICollection<TaskUser> TaskUsers { get; set; } = new List<TaskUser>();
 }
