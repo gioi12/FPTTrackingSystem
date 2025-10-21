@@ -63,6 +63,13 @@ namespace DataTranferObjects.Staff.Semester
         public string? Description { get; set; }
     }
 
+    public class SemesterUpdateVacationRequestDto
+    {
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string? Description { get; set; }
+    }
+
 
     public class UpdateVacationWeeksRequest
     {

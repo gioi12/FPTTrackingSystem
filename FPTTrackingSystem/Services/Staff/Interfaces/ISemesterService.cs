@@ -19,7 +19,7 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<SemesterDeliveriesDTO?> GetDeliveriesBySemester(int id);
         Task<Semester?> GetGroupsBySemester(int id);
         Task<ApiResponse<string>> AddVacationsAsync(List<SemesterVacationRequestDto> vacations);
-        Task<ApiResponse<string>> UpdateVacationAsync(int id, SemesterVacationRequestDto dto);
+        Task<ApiResponse<string>> UpdateSemesterVacationsAsync(int semesterId, List<SemesterUpdateVacationRequestDto> vacationDtos);
         Task<ApiResponse<List<SemesterVacationDto>>> GetBySemesterIdAsync(int semesterId);
     }
 }

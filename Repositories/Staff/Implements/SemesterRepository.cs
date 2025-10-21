@@ -81,13 +81,13 @@ namespace Repositories.Staff.Implements
             return true;
         }
 
-        public async Task<bool> UpdateVacationAsync(int id, SemesterVacationRequestDto dto)
+        public async Task<bool> UpdateVacationAsync(int id, SemesterUpdateVacationRequestDto dto)
         {
             var vacation = await _context.SemesterVacations.FirstOrDefaultAsync(v => v.Id == id);
             if (vacation == null)
                 return false;
 
-            vacation.SemesterId = dto.SemesterId;
+            vacation.SemesterId = id;
             vacation.StartAt = dto.StartDate;
             vacation.EndAt = dto.EndDate;
             vacation.Description = dto.Description;
