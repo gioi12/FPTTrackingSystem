@@ -20,12 +20,15 @@ namespace FPTTrackingSystem.Services.Common.Schedules
             using var scope = _serviceProvider.CreateScope();
             var mailService = scope.ServiceProvider.GetRequiredService<IMailService>();
 
-            await _rabbitMQProducer.SendMessage(new MailRequest
-            {
-                To = "doangioi0403@gmail.com",
-                Subject = "Báo cáo hàng ngày",
-                Body = "Đây là mail gửi tự động vào 7h sáng."
+            await _rabbitMQProducer.SendMessage<List<MailRequest>>(new List<MailRequest>
+            { 
+                new MailRequest
+                {
+                    To = "doangioi0403@gmail.com",
+                    Subject = "Báo cáo hàng ngày",
+                    Body = "Đây là mail gửi tự động vào 7h sáng."
+                }
             });
         }
-    }
 }
+    }

@@ -4,6 +4,8 @@ namespace FPTTrackingSystem.Services.Common.Interfaces
 {
     public interface IMailService
     {
-        Task SendEmailAsync(MailRequest request);
+        Task SendEmailAsync(List<MailRequest> request);
+
+        Task SendAnnounceMail(MailAnnounceRequest request);
     }
 }

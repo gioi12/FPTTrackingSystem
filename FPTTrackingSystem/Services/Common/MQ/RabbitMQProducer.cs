@@ -1,6 +1,6 @@
 ﻿using DataTranferObjects.Common.Request;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System.Text.Json;
 using RabbitMQ.Client;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +33,7 @@ namespace FPTTrackingSystem.Services.Common.MQ
                                  autoDelete: false,
                                  arguments: null);
 
-            var json = JsonConvert.SerializeObject(message);
+            var json = JsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(json);
 
             var properties = new BasicProperties();
