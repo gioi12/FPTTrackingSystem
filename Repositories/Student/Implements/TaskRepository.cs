@@ -22,11 +22,10 @@ namespace Repositories.Student.Implements
             _logger = logger;
         }
 
-        public async Task<Entities.Models.Task> CreateTaskAsync(Entities.Models.Task task, int assignedUserId, int createdBy)
+        public async Task<Entities.Models.Task> CreateTaskAsync(Entities.Models.Task task, int assignedUserId,int createdBy,int? reviewerId = null)
         {
             try
             {
-                // Thêm task mới
                 await _context.Tasks.AddAsync(task);
                 await _context.SaveChangesAsync();
 
@@ -34,17 +33,28 @@ namespace Repositories.Student.Implements
                 {
                     TaskId = task.Id,
                     UserId = createdBy,
-                    IsCreated = true
+                    Type = "Creator"
                 };
 
                 var assignee = new TaskUser
                 {
                     TaskId = task.Id,
                     UserId = assignedUserId,
-                    IsCreated = false
+                    Type = "Assignee"
                 };
 
-                await _context.TaskUsers.AddRangeAsync(creator, assignee);
+                var taskUsers = new List<TaskUser> { creator, assignee };
+                if (reviewerId.HasValue)
+                {
+                    taskUsers.Add(new TaskUser
+                    {
+                        TaskId = task.Id,
+                        UserId = reviewerId.Value,
+                        Type = "Reviewer"
+                    });
+                }
+
+                await _context.TaskUsers.AddRangeAsync(taskUsers);
                 await _context.SaveChangesAsync();
 
                 var log = new Log
@@ -53,7 +63,9 @@ namespace Repositories.Student.Implements
                     EntityName = "task",
                     EntityId = task.Id,
                     Action = "CREATE",
-                    Description = $"Người dùng ID {createdBy} đã tạo task \"{task.Name}\" và giao cho user ID {assignedUserId}.",
+                    Description = $"Người dùng ID {createdBy} đã tạo task \"{task.Name}\" " +
+                                  $"và giao cho user ID {assignedUserId}" +
+                                  $"{(reviewerId.HasValue ? $" (reviewer ID {reviewerId.Value})" : "")}.",
                     UserId = createdBy,
                     CreateAt = DateTime.Now
                 };
@@ -66,9 +78,10 @@ namespace Repositories.Student.Implements
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while creating task: {TaskName}", task?.Name);
-                throw; 
+                throw;
             }
         }
+
 
 
         public async Task<List<TaskDto>> GetTasksByGroupIdAsync(int groupId)
@@ -275,48 +288,76 @@ namespace Repositories.Student.Implements
         {
             var task = await _context.Tasks
                 .Include(t => t.TaskUsers)
-                .Include(t => t.Deliverable).ThenInclude(d => d.Milestone)
+                .Include(t => t.Deliverable)
                 .FirstOrDefaultAsync(t => t.Id == dto.Id);
 
             if (task == null)
                 return null;
 
+            // 📝 Cập nhật thông tin cơ bản của Task
             task.Name = dto.Name;
             task.Description = dto.Description;
             task.Deadline = dto.EndAt;
             task.Status = dto.StatusId;
             task.Priority = dto.PriorityId;
             task.Process = dto.Process;
-            task.Deliverable.MilestoneId = dto.MilestoneId ?? 0;
+            task.DeliverableId = dto.DeliverableId;
+            task.GroupId = dto.GroupId;
 
-            var assignedUser = task.TaskUsers.FirstOrDefault(tu => !tu.IsCreated ?? false);
-
-            if (assignedUser != null)
+            // --- Xử lý TaskUsers ---
+            // 1️⃣ Người tạo (Creator)
+            var creator = task.TaskUsers.FirstOrDefault(tu => tu.Type == "Creator");
+            if (creator == null)
             {
-                if (assignedUser.UserId != dto.AssignedUserId)
-                    assignedUser.UserId = dto.AssignedUserId;
-            }
-            else
-            {
-                var newTaskUser = new TaskUser
-                {
-                    TaskId = task.Id,
-                    UserId = dto.AssignedUserId,
-                    IsCreated = false
-                };
-                _context.TaskUsers.Add(newTaskUser);
-            }
-
-            var createdUser = task.TaskUsers.FirstOrDefault(tu => tu.IsCreated ?? false);
-            if (createdUser == null)
-            {
-                var newCreator = new TaskUser
+                _context.TaskUsers.Add(new TaskUser
                 {
                     TaskId = task.Id,
                     UserId = updatedBy,
-                    IsCreated = true
-                };
-                _context.TaskUsers.Add(newCreator);
+                    Type = "Creator"
+                });
+            }
+            else
+            {
+                creator.UserId = updatedBy;
+            }
+
+            // 2️⃣ Người được giao (Assignee)
+            var assignee = task.TaskUsers.FirstOrDefault(tu => tu.Type == "Assignee");
+            if (assignee == null)
+            {
+                _context.TaskUsers.Add(new TaskUser
+                {
+                    TaskId = task.Id,
+                    UserId = dto.AssignedUserId,
+                    Type = "Assignee"
+                });
+            }
+            else
+            {
+                assignee.UserId = dto.AssignedUserId;
+            }
+
+            // 3️⃣ Người review (Reviewer)
+            var reviewer = task.TaskUsers.FirstOrDefault(tu => tu.Type == "Reviewer");
+            if (dto.ReviewerId != null && dto.ReviewerId > 0)
+            {
+                if (reviewer == null)
+                {
+                    _context.TaskUsers.Add(new TaskUser
+                    {
+                        TaskId = task.Id,
+                        UserId = dto.ReviewerId.Value,
+                        Type = "Reviewer"
+                    });
+                }
+                else
+                {
+                    reviewer.UserId = dto.ReviewerId.Value;
+                }
+            }
+            else if (reviewer != null)
+            {
+                _context.TaskUsers.Remove(reviewer); 
             }
 
             await _context.SaveChangesAsync();
@@ -337,6 +378,7 @@ namespace Repositories.Student.Implements
 
             return task;
         }
+
 
     }
 }

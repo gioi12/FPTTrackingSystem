@@ -9,7 +9,7 @@ namespace Repositories.Student.Interfaces
 {
     public interface ITaskRepository
     {
-        Task<Entities.Models.Task> CreateTaskAsync(Entities.Models.Task task, int assignedUserId, int createdBy);
+        Task<Entities.Models.Task> CreateTaskAsync(Entities.Models.Task task, int assignedUserId, int createdBy, int? reviewerId = null);
         Task<List<TaskDto>> GetTasksByGroupIdAsync(int groupId);
         Task<TaskDto?> GetTaskByIdAsync(int taskId);
         Task<Entities.Models.Task?> UpdateTaskAsync(UpdateTaskDTO dto, int updatedBy);

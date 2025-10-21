@@ -571,6 +571,9 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasColumnName("status");
+            entity.Property(e => e.Type)
+                .HasMaxLength(50)
+                .HasColumnName("type");
 
             entity.HasOne(d => d.Deliverable).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.DeliverableId)

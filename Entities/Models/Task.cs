@@ -29,6 +29,8 @@ public partial class Task
 
     public int? MeetingId { get; set; }
 
+    public string? Type { get; set; }
+
     public virtual Deliverable? Deliverable { get; set; }
 
     public virtual Group Group { get; set; } = null!;

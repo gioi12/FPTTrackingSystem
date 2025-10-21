@@ -24,23 +24,35 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async Task<Entities.Models.Task> CreateTaskAsync(CreateTaskDTO dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
-            var Priority = string.IsNullOrWhiteSpace(dto.Priority)
-                            ? string.Empty
-                            : char.ToUpper(dto.Priority[0]) + dto.Priority.Substring(1).ToLower();
+
+            var priority = string.IsNullOrWhiteSpace(dto.Priority)
+                ? string.Empty
+                : char.ToUpper(dto.Priority[0]) + dto.Priority.Substring(1).ToLower();
+
+            // Khởi tạo task mới
             var newTask = new Entities.Models.Task
             {
                 GroupId = dto.GroupId,
                 Name = dto.Name,
-                Priority = Priority,
+                Priority = priority,
                 Process = dto.Process,
                 Description = dto.Description,
                 Deadline = dto.EndAt,
                 Status = dto.Status,
-                DeliverableId = dto.MilestoneId
+                DeliverableId = dto.DeliverableId,
+                Type = dto.TaskType, 
+                CreatedAt = DateTime.Now,
+                IsActive = true
             };
 
-            return await _taskRepository.CreateTaskAsync(newTask, dto.AssignedUserId, user.Id ?? 0);
+            return await _taskRepository.CreateTaskAsync(
+                newTask,
+                dto.AssignedUserId,
+                user.Id ?? 0,
+                dto.ReviewerId
+            );
         }
+
 
         public async Task<ApiResponse<List<TaskDto>>> GetTasksByGroupIdAsync(int groupId)
         {
@@ -90,17 +102,16 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             try
             {
-                // Lấy user hiện tại từ cookie
                 var user = await _authUtils.GetUserInfoFromCookie();
 
-                // Gọi repository để update task
                 var updatedTask = await _taskRepository.UpdateTaskAsync(dto, user.Id ?? 0);
 
                 if (updatedTask == null)
                     return new ApiResponse<TaskResponseUpdateDto>(200, "Không tìm thấy task", null);
-
-                var assignedUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);
+                var assignedUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);
+                var reviewerUser = dto.ReviewerId != null
+                    ? await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.ReviewerId)
+                    : null;
 
                 var responseDto = new TaskResponseUpdateDto
                 {
@@ -114,7 +125,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     MilestoneId = updatedTask.DeliverableId,
                     GroupId = updatedTask.GroupId,
                     AssignedUserId = dto.AssignedUserId,
-                    AssignedUserName = assignedUser?.Fullname
+                    AssignedUserName = assignedUser?.Fullname,
+                    ReviewerId = dto.ReviewerId,
+                    ReviewerName = reviewerUser?.Fullname
                 };
 
                 return new ApiResponse<TaskResponseUpdateDto>(200, "Cập nhật thành công", responseDto);
@@ -125,6 +138,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 return new ApiResponse<TaskResponseUpdateDto>(500, "Lỗi khi cập nhật task: " + ex.Message);
             }
         }
+
 
     }
 }
