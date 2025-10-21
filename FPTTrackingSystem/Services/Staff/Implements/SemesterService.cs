@@ -315,6 +315,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return semesters.Select(s => new SemesterDTO
             {
+                Id = s.Id,
+                IsActive = s.IsActive,
                 Name = s.Name ?? "",
                 StartAt = s.StartAt ?? default,
                 EndAt = s.EndAt ?? default,
@@ -346,6 +348,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return new SemesterDTO
             {
+                Id = s.Id,
+                IsActive = s.IsActive,
                 Name = semester.Name ?? "",
                 StartAt = semester.StartAt ?? default,
                 EndAt = semester.EndAt ?? default,

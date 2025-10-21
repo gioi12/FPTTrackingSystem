@@ -9,6 +9,8 @@ namespace DataTranferObjects.Staff.Semester
 {
     public class SemesterDTO
     {
+        public int Id { get; set; }
+        public bool? IsActive { get; set; }
         public string Name { get; set; } = string.Empty;
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
