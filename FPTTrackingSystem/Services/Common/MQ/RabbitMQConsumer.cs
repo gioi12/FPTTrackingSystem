@@ -2,7 +2,7 @@
 using DataTranferObjects.Common.Request;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -42,7 +42,7 @@ namespace FPTTrackingSystem.Services.Common.MQ
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var mailRequest = JsonConvert.DeserializeObject<MailRequest>(message);
+                var mailRequest = JsonSerializer.Deserialize<List<MailRequest>>(message);
 
                 using var scope = _serviceProvider.CreateScope();
                 var mailService = scope.ServiceProvider.GetRequiredService<IMailService>();

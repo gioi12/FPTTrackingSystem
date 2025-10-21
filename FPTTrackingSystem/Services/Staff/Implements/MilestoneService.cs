@@ -4,15 +4,12 @@ using DataTranferObjects.Staff.Response;
 using Entities.Models;
 using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
-using System.IO.Pipelines;
 using Mapster;
 using FPTTrackingSystem.Services.Staff.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using Repositories.Staff.Interfaces;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using DataTranferObjects.Enum;
-using Repositories.Staff.Implements;
-using FPTTrackingSystem.Services.Common.MQ;
 
 namespace FPTTrackingSystem.Services.Staff.Implementations
 {
@@ -23,15 +20,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         private readonly ISemesterRepository _semesterRepository;
         private readonly ILogService _logService;
         private readonly AuthUtils _authUtils;
-        private readonly RabbitMQProducer _rabbitmqProducer;
-        public MilestoneService(IGroupRepository groupRepository, IMilestoneRepository milestoneRepository, AuthUtils authUtils,ILogService logService, IDeliverableRepository deliverableRepository, ISemesterRepository semesterRepository,RabbitMQProducer rabbitMQProducer)
+        public MilestoneService(IGroupRepository groupRepository, IMilestoneRepository milestoneRepository, AuthUtils authUtils,ILogService logService, IDeliverableRepository deliverableRepository, ISemesterRepository semesterRepository)
         {
             _authUtils = authUtils;
             _milestoneRepository = milestoneRepository;
             _logService = logService;
             _deliverableRepository = deliverableRepository;
             _semesterRepository = semesterRepository;
-            _rabbitmqProducer = rabbitMQProducer;
         }
 
         public async Task<ApiResponse<List<MilestoneResponse>>> CreateMilestoneInSemester(List<MilestoneCreateRequest> request)
@@ -90,13 +85,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             // gop 2 list
             await _logService.AddRangeLogAsync(logs);
             var response = list.Adapt<List<MilestoneResponse>>();
-            // test gui mail
-            await _rabbitmqProducer.SendMessage(new DataTranferObjects.Common.Request.MailRequest
-            {
-                To = "doangioi0403@gmail.com",
-                Subject = "FPTTrackingSystem test gui mail",
-                Body = "Chao mung ban den voi FPTTrackingSystem"
-            });
+
             return ApiResponse<List<MilestoneResponse>>.Success(response);
         }
 
