@@ -10,5 +10,7 @@ namespace Repositories.Common.Interfaces
     public interface IEvaluationRepository
     {
         Task<Evaluation> CreateEvaluationAsync(Evaluation evaluation);
+        Task<List<PenatyCard>> GetAllPenaltyCardsAsync();
+        Task<PenatyCard> CreatePenaltyCardAsync(PenatyCard card);
     }
 }

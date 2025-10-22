@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Common.Interfaces;
 using Repositories.Staff.Interfaces;
 using System;
@@ -23,6 +24,19 @@ namespace Repositories.Common.Implements
             _context.Evaluations.Add(evaluation);
             await _context.SaveChangesAsync();
             return evaluation;
+        }
+
+        public async Task<List<PenatyCard>> GetAllPenaltyCardsAsync()
+        {
+            return await _context.PenatyCards.ToListAsync();
+        }
+
+        public async Task<PenatyCard> CreatePenaltyCardAsync(PenatyCard card)
+        {
+            card.CreateAt = DateTime.UtcNow;
+            _context.PenatyCards.Add(card);
+            await _context.SaveChangesAsync();
+            return card;
         }
     }
 }

@@ -5,6 +5,8 @@ namespace FPTTrackingSystem.Services.Common.Interfaces
 {
     public interface IEvaluationService
     {
-        Task<Evaluation> CreateEvaluationAsync(EvaluationCreateDTO dto);
+        Task<EvaluationResponseDTO> CreateEvaluationAsync(EvaluationCreateDTO dto);
+        Task<List<PenaltyCardResponseDTO>> GetAllMilestonePenaltyCardsAsync();
+        Task<PenaltyCardResponseDTO> CreatePenaltyCardAsync(PenaltyCardCreateDTO dto);
     }
 }
