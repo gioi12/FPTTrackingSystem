@@ -104,6 +104,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         Id = gu.User.Id,
                         RollNumber = gu.User.RollNumber,
                         Name = gu.User.Fullname,
+                        Email = gu.User.Mail,
                         Role = gu.Role
                     }).ToList(),
 
