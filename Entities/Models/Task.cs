@@ -29,13 +29,17 @@ public partial class Task
 
     public bool? IsActive { get; set; }
 
-    public int? MeetingId { get; set; }
+    public int? MeetingMinuteId { get; set; }
 
     public virtual Deliverable? Deliverable { get; set; }
 
     public virtual Group Group { get; set; } = null!;
 
-    public virtual Meeting? Meeting { get; set; }
+    public virtual MeetingMinute? MeetingMinute { get; set; }
 
     public virtual ICollection<TaskUser> TaskUsers { get; set; } = new List<TaskUser>();
+
+    public virtual ICollection<Task> TaskReferences { get; set; } = new List<Task>();
+
+    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }
