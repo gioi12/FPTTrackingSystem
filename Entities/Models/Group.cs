@@ -25,7 +25,7 @@ public partial class Group
 
     public string? StatusId { get; set; }
 
-    public string? MeetingDate { get; set; }
+    public int? MeetingId { get; set; }
 
     public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 
@@ -39,7 +39,7 @@ public partial class Group
 
     public virtual MajorCategory? Major { get; set; }
 
-    public virtual ICollection<MeetingMinute> MeetingMinutes { get; set; } = new List<MeetingMinute>();
+    public virtual Meeting? Meeting { get; set; }
 
     public virtual Semester? Semester { get; set; }
 

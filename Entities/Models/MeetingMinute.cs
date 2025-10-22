@@ -21,9 +21,9 @@ public partial class MeetingMinute
 
     public string? Other { get; set; }
 
-    public int? GroupId { get; set; }
+    public int? MeetingId { get; set; }
 
-    public virtual Group? Group { get; set; }
+    public virtual Meeting? Meeting { get; set; }
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }

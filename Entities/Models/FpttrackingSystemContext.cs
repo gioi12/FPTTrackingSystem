@@ -35,6 +35,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<MajorCategory> MajorCategories { get; set; }
 
+    public virtual DbSet<Meeting> Meetings { get; set; }
+
     public virtual DbSet<MeetingMinute> MeetingMinutes { get; set; }
 
     public virtual DbSet<Milestone> Milestones { get; set; }
@@ -268,9 +270,7 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnName("create_at");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.MajorId).HasColumnName("major_id");
-            entity.Property(e => e.MeetingDate)
-                .HasMaxLength(100)
-                .HasColumnName("meeting_date");
+            entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");
@@ -288,6 +288,10 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.Major).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.MajorId)
                 .HasConstraintName("FK_Group_Major_Category");
+
+            entity.HasOne(d => d.Meeting).WithMany(p => p.Groups)
+                .HasForeignKey(d => d.MeetingId)
+                .HasConstraintName("FK_Group_Meeting");
 
             entity.HasOne(d => d.Semester).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.SemesterId)
@@ -377,6 +381,27 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasConstraintName("FK_Major_Category_Major");
         });
 
+        modelBuilder.Entity<Meeting>(entity =>
+        {
+            entity.ToTable("Meeting");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("create_at");
+            entity.Property(e => e.CreateBy).HasColumnName("create_by");
+            entity.Property(e => e.Date)
+                .HasMaxLength(50)
+                .HasColumnName("date");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasColumnName("status");
+
+            entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.Meetings)
+                .HasForeignKey(d => d.CreateBy)
+                .HasConstraintName("FK_Meeting_User");
+        });
+
         modelBuilder.Entity<MeetingMinute>(entity =>
         {
             entity.ToTable("Meeting_Minute");
@@ -392,14 +417,14 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Date)
                 .HasColumnType("datetime")
                 .HasColumnName("date");
-            entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.Issue).HasColumnName("issue");
             entity.Property(e => e.MeetingContent).HasColumnName("meeting_content");
+            entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
             entity.Property(e => e.Other).HasColumnName("other");
 
-            entity.HasOne(d => d.Group).WithMany(p => p.MeetingMinutes)
-                .HasForeignKey(d => d.GroupId)
-                .HasConstraintName("FK_Meeting_Minute_Group");
+            entity.HasOne(d => d.Meeting).WithMany(p => p.MeetingMinutes)
+                .HasForeignKey(d => d.MeetingId)
+                .HasConstraintName("FK_Meeting_Minute_Meeting");
         });
 
         modelBuilder.Entity<Milestone>(entity =>
