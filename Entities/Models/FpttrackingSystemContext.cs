@@ -390,9 +390,10 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
             entity.Property(e => e.CreateBy).HasColumnName("create_by");
-            entity.Property(e => e.Date)
-                .HasMaxLength(50)
-                .HasColumnName("date");
+            entity.Property(e => e.MeetingDate)
+                .HasColumnType("datetime")
+                .HasColumnName("meeting_date");
+            entity.Property(e => e.MeetingMinuteId).HasColumnName("meeting_minute_id");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasColumnName("status");
@@ -400,6 +401,10 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.Meetings)
                 .HasForeignKey(d => d.CreateBy)
                 .HasConstraintName("FK_Meeting_User");
+
+            entity.HasOne(d => d.MeetingMinute).WithMany(p => p.Meetings)
+                .HasForeignKey(d => d.MeetingMinuteId)
+                .HasConstraintName("FK_Meeting_Meeting_Minute");
         });
 
         modelBuilder.Entity<MeetingMinute>(entity =>
@@ -414,17 +419,12 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
             entity.Property(e => e.CreateBy).HasColumnName("create_by");
-            entity.Property(e => e.Date)
-                .HasColumnType("datetime")
-                .HasColumnName("date");
             entity.Property(e => e.Issue).HasColumnName("issue");
             entity.Property(e => e.MeetingContent).HasColumnName("meeting_content");
-            entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
+            entity.Property(e => e.MeetingMinusDate)
+                .HasColumnType("datetime")
+                .HasColumnName("meeting_minus_date");
             entity.Property(e => e.Other).HasColumnName("other");
-
-            entity.HasOne(d => d.Meeting).WithMany(p => p.MeetingMinutes)
-                .HasForeignKey(d => d.MeetingId)
-                .HasConstraintName("FK_Meeting_Minute_Meeting");
         });
 
         modelBuilder.Entity<Milestone>(entity =>

@@ -90,7 +90,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     .Select(gu => new SuperviorDto
                     {
                         Id = gu.User.Id,
-                        Name = gu.User.Fullname
+                        Name = gu.User.Fullname,
+                        Email = gu.User.Mail
+
                     })
                     .ToList(),
                 Status = group.Status?.Name,
