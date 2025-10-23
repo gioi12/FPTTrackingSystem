@@ -1,6 +1,8 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Staff.Response;
+using Entities.Models;
 using FPTTrackingSystem.Services.Staff.Implementations;
 using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -47,5 +49,25 @@ namespace FPTTrackingSystem.Controllers.Staff
         {
             return Ok(await _deliverableSevice.ConfirmDeliverable(groupdId, deliverableId));
         }
+
+        [HttpGet("v1/deliverables/getByGroupId/{id}")]
+        public async Task<IActionResult> GetDeliverableGroupById(int id)
+        {
+            try
+            {
+                var result = await _deliverableSevice.GetDeliverableGroupsByGroupIdAsync(id);
+
+                if (result == null)
+                    return Ok(ApiResponse<object>.Success(null, "Không tìm thấy DeliverableGroup."));
+
+                return Ok(ApiResponse<List<DeliverableGroupDetailDTO>>.Success(result, "Lấy DeliverableGroup thành công."));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
+            }
+        }
+
+
     }
 }

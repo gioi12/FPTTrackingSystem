@@ -49,5 +49,14 @@ namespace Repositories.Staff.Implements
             _context.Deliverables.Update(delivery);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<DeliverableGroup>> GetDeliverableGroupsByGroupIdAsync(int groupId)
+        {
+            return await _context.DeliverableGroups
+                .Include(dg => dg.Deliverable)
+                .Where(dg => dg.GroupId == groupId)
+                .ToListAsync();
+        }
+
     }
 }
