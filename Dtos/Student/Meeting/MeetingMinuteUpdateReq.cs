@@ -13,8 +13,8 @@ namespace DataTranferObjects.Student.Meeting
         [Required]
         public int Id { get; set; }
         [Required]
-
-        public DateTime? MeetingMinusDate { get; set; }
+        public DateTime? startAt { get; set; }
+        public DateTime? endAt { get; set; }
         [Required]
         public string? Attendance { get; set; }
 
