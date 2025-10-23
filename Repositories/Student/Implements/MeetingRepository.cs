@@ -55,5 +55,51 @@ namespace Repositories.Student.Implements
                 })
                 .ToListAsync();
         }
+
+        public async Task<Meeting?> GetMeetingByGroupIdAsync(int groupId)
+        {
+            return await _context.Groups
+                .Where(g => g.Id == groupId)
+                .Select(g => g.Meeting)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Meeting> FinalizeScheduleAsync(int groupId, FinalMeetingDto dto, int userId)
+        {
+            var meeting = await GetMeetingByGroupIdAsync(groupId);
+
+            if (meeting == null)
+            {
+                meeting = new Meeting
+                {
+                    DayOfWeek = dto.Day,
+                    Time = dto.Time,
+                    MeetingLink = dto.MeetingLink,
+                    IsActive = true,
+                    CreateBy = userId,
+                    CreateAt = DateTime.UtcNow,
+                    UpdateAt = DateTime.UtcNow,
+                };
+
+                _context.Meetings.Add(meeting);
+
+                var group = await _context.Groups.FindAsync(groupId);
+                if (group != null)
+                {
+                    group.Meeting = meeting;
+                }
+            }
+            else
+            {
+                meeting.DayOfWeek = dto.Day;
+                meeting.Time = dto.Time;
+                meeting.MeetingLink = dto.MeetingLink;
+                meeting.IsActive = true;
+                meeting.UpdateAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+            return meeting;
+        }
     }
 }

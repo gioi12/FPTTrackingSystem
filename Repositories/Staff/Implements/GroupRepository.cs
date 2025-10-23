@@ -92,9 +92,12 @@ namespace Repositories.Staff.Implements
         public async Task<List<Group>> GetGroupsByUserIdAsync(int userId)
         {
             return await _context.GroupUsers
-                .Where(gu => gu.UserId == userId && gu.IsActive)
-                .Select(gu => gu.Group)
-                .ToListAsync();
+        .Include(gu => gu.Group)
+            .ThenInclude(g => g.GroupUsers)
+                .ThenInclude(gu2 => gu2.User)
+        .Where(gu => gu.UserId == userId && gu.Role == "Mentor" && gu.IsActive)
+        .Select(gu => gu.Group)
+        .ToListAsync();
         }
 
         public async Task<bool> UpdateRoleInGroupAsync(int groupId, int userId, string newRole)

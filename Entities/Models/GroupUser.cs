@@ -23,6 +23,8 @@ public partial class GroupUser
 
     public DateTime? UpdateAt { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual Group Group { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

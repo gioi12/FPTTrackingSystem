@@ -1,6 +1,8 @@
 ﻿using DataTranferObjects.Student.Meeting;
 using Entities.Models;
 using FPTTrackingSystem.Services.Student.Interfaces;
+using FPTTrackingSystem.Utilities;
+using Repositories.Student.Implements;
 using Repositories.Student.Interfaces;
 
 namespace FPTTrackingSystem.Services.Student.Implements
@@ -8,10 +10,12 @@ namespace FPTTrackingSystem.Services.Student.Implements
     public class MeetingService : IMeetingService
     {
         private readonly IMeetingRepository _repo;
+        private readonly AuthUtils _authUtils;
 
-        public MeetingService(IMeetingRepository repo)
+        public MeetingService(IMeetingRepository repo, AuthUtils authUtils)
         {
             _repo = repo;
+            _authUtils = authUtils;
         }
 
         public async Task<object> CreateOrUpdateFreeTimeSlotsAsync(int groupId, FreeTimeSlotsRequest request)
@@ -70,6 +74,24 @@ namespace FPTTrackingSystem.Services.Student.Implements
             return await _repo.GetFreeTimeSlotsByGroupIdAsync(groupId);
         }
 
+        public async Task<FinalizeScheduleResponseDto> FinalizeScheduleAsync(int groupId, FinalizeScheduleRequestDto dto)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            var meeting = await _repo.FinalizeScheduleAsync(groupId, dto.FinalMeeting, user.Id ?? 0);
 
+            return new FinalizeScheduleResponseDto
+            {
+                FinalMeeting = new FinalMeetingInfo
+                {
+                    Id = meeting.Id,
+                    IsFinalized = meeting.IsActive ?? false,
+                    Day = meeting.DayOfWeek ?? string.Empty,
+                    Time = meeting.Time ?? string.Empty,
+                    MeetingLink = meeting.MeetingLink ?? string.Empty,
+                    FinalizedAt = meeting.CreateAt ?? DateTime.UtcNow,
+                    UpdatedAt = meeting.UpdateAt ?? DateTime.UtcNow
+                }
+            };
+        }
     }
 }

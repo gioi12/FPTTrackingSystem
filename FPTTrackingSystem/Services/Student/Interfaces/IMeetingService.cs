@@ -6,5 +6,6 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
     {
         Task<object> CreateOrUpdateFreeTimeSlotsAsync(int groupId, FreeTimeSlotsRequest request);
         Task<List<FreeTimeSlotDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId);
+        Task<FinalizeScheduleResponseDto> FinalizeScheduleAsync(int groupId, FinalizeScheduleRequestDto dto);
     }
 }

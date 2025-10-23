@@ -9,11 +9,19 @@ public partial class Meeting
 
     public DateTime? MeetingDate { get; set; }
 
-    public string? Status { get; set; }
+    public bool? IsActive { get; set; }
 
     public DateTime? CreateAt { get; set; }
 
     public int? CreateBy { get; set; }
+
+    public DateTime? UpdateAt { get; set; }
+
+    public string? MeetingLink { get; set; }
+
+    public string? Time { get; set; }
+
+    public string? DayOfWeek { get; set; }
 
     public virtual User? CreateByNavigation { get; set; }
 

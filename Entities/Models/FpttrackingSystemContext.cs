@@ -321,6 +321,9 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Role)
                 .HasMaxLength(50)
                 .HasColumnName("role");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasColumnName("status");
             entity.Property(e => e.UpdateAt)
                 .HasColumnType("datetime")
                 .HasColumnName("update_at");
@@ -398,12 +401,22 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
             entity.Property(e => e.CreateBy).HasColumnName("create_by");
+            entity.Property(e => e.DayOfWeek)
+                .HasMaxLength(50)
+                .HasColumnName("day_of_week");
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.MeetingDate)
                 .HasColumnType("datetime")
                 .HasColumnName("meeting_date");
-            entity.Property(e => e.Status)
+            entity.Property(e => e.MeetingLink)
+                .HasMaxLength(200)
+                .HasColumnName("meeting_link");
+            entity.Property(e => e.Time)
                 .HasMaxLength(50)
-                .HasColumnName("status");
+                .HasColumnName("time");
+            entity.Property(e => e.UpdateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("update_at");
 
             entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.Meetings)
                 .HasForeignKey(d => d.CreateBy)

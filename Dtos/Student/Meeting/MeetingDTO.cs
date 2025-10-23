@@ -23,4 +23,35 @@ namespace DataTranferObjects.Student.Meeting
         public List<FreeTimeSlotDto> FreeTimeSlots { get; set; } = new();
     }
 
+    public class FinalizeScheduleRequestDto
+    {
+        public FinalMeetingDto FinalMeeting { get; set; } = new FinalMeetingDto();
+    }
+
+    public class FinalMeetingDto
+    {
+        public string Day { get; set; } = string.Empty;
+        public string Time { get; set; } = string.Empty;
+        public string MeetingLink { get; set; } = string.Empty;
+    }
+
+    public class FinalizeScheduleResponseDto
+    {
+        public bool IsFinalized { get; set; }
+        public FinalMeetingInfo FinalMeeting { get; set; } = new FinalMeetingInfo();
+    }
+
+    public class FinalMeetingInfo
+    {
+        public int Id { get; set; }
+        public bool IsFinalized { get; set; }
+        public string Day { get; set; } = string.Empty;
+        public string Time { get; set; } = string.Empty;
+        public string MeetingLink { get; set; } = string.Empty;
+        public DateTime FinalizedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+
+
 }
