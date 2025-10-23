@@ -83,7 +83,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async Task<FinalizeScheduleResponseDto> FinalizeScheduleAsync(int groupId, FinalizeScheduleRequestDto dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
-            var meeting = await _repo.FinalizeScheduleAsync(groupId, dto.FinalMeeting, user.Id ?? 0);
+            var meeting = await _repo.FinalizeOrUpdateScheduleAsync(groupId, dto.FinalMeeting, user.Id ?? 0);
 
             return new FinalizeScheduleResponseDto
             {
@@ -155,6 +155,24 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 throw new ValidationException("Meeting minute not found.");
             }
             await _repo.DeleteMeetingMinute(meetMinu);
+        }
+
+        public async Task<MeetingResponseDTO?> GetMeetingByIdAsync(int meetingId)
+        {
+            var meeting = await _repo.GetMeetingByIdAsync(meetingId);
+            if (meeting == null)
+                return null;
+
+            return new MeetingResponseDTO
+            {
+                Id = meeting.Id,
+                IsActive = meeting.IsActive,
+                CreateAt = meeting.CreateAt,
+                MeetingLink = meeting.MeetingLink,
+                Time = meeting.Time,
+                DayOfWeek = meeting.DayOfWeek,
+                CreatedByName = meeting.CreateByNavigation?.Fullname
+            };
         }
     }
 }

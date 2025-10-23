@@ -56,5 +56,15 @@ namespace FPTTrackingSystem.Controllers.Student
                 data = result
             });
         }
+
+        [HttpGet("schedule/finalize/getById/{id}")]
+        public async Task<IActionResult> GetMeetingById(int id)
+        {
+            var meeting = await _service.GetMeetingByIdAsync(id);
+            if (meeting == null)
+                return NotFound(new { message = "Không tìm thấy cuộc họp" });
+
+            return Ok(meeting);
+        }
     }
 }
