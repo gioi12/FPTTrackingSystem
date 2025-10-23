@@ -7,8 +7,6 @@ public partial class MeetingMinute
 {
     public int Id { get; set; }
 
-    public DateTime? MeetingMinusDate { get; set; }
-
     public int? CreateBy { get; set; }
 
     public DateTime? CreateAt { get; set; }
@@ -22,6 +20,10 @@ public partial class MeetingMinute
     public string? Other { get; set; }
 
     public int? MeetingId { get; set; }
+
+    public DateTime? StartAt { get; set; }
+
+    public DateTime? EndAt { get; set; }
 
     public virtual User? CreateByNavigation { get; set; }
 

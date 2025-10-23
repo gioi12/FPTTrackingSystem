@@ -183,6 +183,9 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.DeliverableId).HasColumnName("deliverable_id");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.Note)
+                .HasMaxLength(200)
+                .HasColumnName("note");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasColumnName("status");
@@ -436,13 +439,16 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
             entity.Property(e => e.CreateBy).HasColumnName("create_by");
+            entity.Property(e => e.EndAt)
+                .HasColumnType("datetime")
+                .HasColumnName("end_at");
             entity.Property(e => e.Issue).HasColumnName("issue");
             entity.Property(e => e.MeetingContent).HasColumnName("meeting_content");
             entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
-            entity.Property(e => e.MeetingMinusDate)
-                .HasColumnType("datetime")
-                .HasColumnName("meeting_minus_date");
             entity.Property(e => e.Other).HasColumnName("other");
+            entity.Property(e => e.StartAt)
+                .HasColumnType("datetime")
+                .HasColumnName("start_at");
 
             entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.MeetingMinutes)
                 .HasForeignKey(d => d.CreateBy)

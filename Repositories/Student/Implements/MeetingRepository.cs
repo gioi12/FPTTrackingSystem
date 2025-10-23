@@ -301,5 +301,16 @@ namespace Repositories.Student.Implements
                 .Include(m => m.CreateByNavigation)
                 .FirstOrDefaultAsync(m => m.Id == meetingId);
         }
+
+        public async Task<List<MeetingScheduleDate>> GetMeetingScheduleDatesByGroupIdAsync(int groupId)
+        {
+            return await _context.MeetingScheduleDates
+                    .Include(msd => msd.Meeting)
+                    .Where(msd => msd.Meeting != null &&
+                                  msd.Meeting.Groups.Any(g => g.Id == groupId) &&
+                                  msd.IsActive == true)
+                    .OrderBy(msd => msd.MeetingDate)
+                    .ToListAsync();
+        }
     }
 }

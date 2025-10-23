@@ -13,6 +13,8 @@ public partial class DeliverableGroup
 
     public string? Status { get; set; }
 
+    public string? Note { get; set; }
+
     public virtual Deliverable? Deliverable { get; set; }
 
     public virtual Group? Group { get; set; }

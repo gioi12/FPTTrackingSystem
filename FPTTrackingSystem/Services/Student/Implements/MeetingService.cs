@@ -2,6 +2,7 @@
 using Entities.Models;
 using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Utilities;
+using FPTTrackingSystem.Wrappers;
 using Mapster;
 using Repositories.Student.Implements;
 using Repositories.Student.Interfaces;
@@ -106,7 +107,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async Task<MeetingMinuteRes> CreateMeetingMinute(MeetingMinuteRequest request)
         {
             var meetingMinute = await _repo.GetMeetingMinuteByMeeting(request.MeetingId);
-            if(meetingMinute != null)
+            if (meetingMinute != null)
             {
                 throw new ValidationException("Meeting minute already exists for this meeting.");
             }
@@ -146,14 +147,14 @@ namespace FPTTrackingSystem.Services.Student.Implements
             meetingMinute.MeetingContent = req.MeetingContent;
             meetingMinute.Other = req.Other;
 
-            var res =  await _repo.UpdateMeetingMinute(meetingMinute);
+            var res = await _repo.UpdateMeetingMinute(meetingMinute);
             return res.Adapt<MeetingMinuteRes>();
         }
 
         public async System.Threading.Tasks.Task DeleteMeetingMinute(int id)
         {
             var meetMinu = await _repo.GetMeetingMinuteById(id);
-            if(meetMinu == null)
+            if (meetMinu == null)
             {
                 throw new ValidationException("Meeting minute not found.");
             }
@@ -176,6 +177,27 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 DayOfWeek = meeting.DayOfWeek,
                 CreatedByName = meeting.CreateByNavigation?.Fullname
             };
+        }
+
+        public async Task<ApiResponse<List<MeetingScheduleDateDetailDto>>> GetMeetingScheduleDatesByGroupIdAsync(int groupId)
+        {
+            var list = await _repo.GetMeetingScheduleDatesByGroupIdAsync(groupId);
+
+            if (list == null || list.Count == 0)
+                return ApiResponse<List<MeetingScheduleDateDetailDto>>.Fail("Không có ngày họp nào cho nhóm này.", 404);
+
+            var result = list.Select(msd => new MeetingScheduleDateDetailDto
+            {
+                Id = msd.Id,
+                MeetingDate = msd.MeetingDate,
+                Description = msd.Description,
+                CreateAt = msd.Meeting?.CreateAt,
+                MeetingLink = msd.Meeting?.MeetingLink,
+                Time = msd.Meeting?.Time,
+                DayOfWeek = msd.Meeting?.DayOfWeek
+            }).ToList();
+
+            return ApiResponse<List<MeetingScheduleDateDetailDto>>.Success(result, "Lấy danh sách ngày họp thành công.");
         }
     }
 }

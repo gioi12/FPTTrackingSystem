@@ -2,6 +2,7 @@
 
 using DataTranferObjects.Student.Meeting;
 using Entities.Models;
+using FPTTrackingSystem.Wrappers;
 
 namespace FPTTrackingSystem.Services.Student.Interfaces
 {
@@ -17,5 +18,6 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
 
         System.Threading.Tasks.Task DeleteMeetingMinute(int id);
         Task<MeetingResponseDTO?> GetMeetingByIdAsync(int meetingId);
+        Task<ApiResponse<List<MeetingScheduleDateDetailDto>>> GetMeetingScheduleDatesByGroupIdAsync(int groupId);
     }
 }

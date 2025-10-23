@@ -26,6 +26,7 @@ namespace Repositories.Student.Interfaces
         System.Threading.Tasks.Task DeleteMeetingMinute(MeetingMinute entity);
         Task<Meeting?> GetMeetingByIdAsync(int meetingId);
         Task<Meeting> FinalizeOrUpdateScheduleAsync(int groupId, FinalMeetingDto dto, int userId);
+        Task<List<MeetingScheduleDate>> GetMeetingScheduleDatesByGroupIdAsync(int groupId);
 
     }
 }
