@@ -18,7 +18,7 @@ namespace FPTTrackingSystem.Controllers.Common
         }
         [Authorize]
         [HttpPost("v1/Mail/send-mails")]
-        public async Task<object> SendMail([FromBody] MailAnnounceRequest request)
+        public async Task<object> SendMail([FromBody] MailRequest request)
         {
             await _mailService.SendAnnounceMail(request);
             return Ok(ApiResponse<object>.Success(null, "Send mail successfully."));

@@ -18,5 +18,7 @@ namespace DataTranferObjects.Common.Request
 
         [Required(ErrorMessage = "Nội dung email không được để trống")]
         public string Body { get; set; }
+        public List<string>? Cc { get; set; }
+
     }
 }

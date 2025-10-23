@@ -16,19 +16,9 @@ namespace FPTTrackingSystem.Services.Common.Implements
             _rabbitMQProducer = rabbitMQProducer;
         }
 
-        public async Task SendAnnounceMail(MailAnnounceRequest request)
+        public async Task SendAnnounceMail(MailRequest request)
         {
-            List<MailRequest> mailRequests = new List<MailRequest>();
-            foreach (var mail in request.To)
-            {
-                mailRequests.Add(new MailRequest
-                {
-                    To = mail,
-                    Subject = request.Subject,
-                    Body = request.Body
-                });
-            }
-            await _rabbitMQProducer.SendMessage(mailRequests);
+            await _rabbitMQProducer.SendMessage(request);
         }
 
         public async Task SendEmailAsync(List<MailRequest> request)
@@ -48,9 +38,20 @@ namespace FPTTrackingSystem.Services.Common.Implements
                     email = new MimeMessage();
                     email.Sender = new MailboxAddress(_settings.DisplayName, _settings.Mail);
                     email.From.Add(new MailboxAddress(_settings.DisplayName, _settings.Mail));
-                    email.To.Add(MailboxAddress.Parse(mail.To));
+                    foreach (var to in mail.To)
+                    {
+                        email.To.Add(MailboxAddress.Parse(to));
+                    }
                     email.Subject = mail.Subject;
                     email.Body = new BodyBuilder { HtmlBody = mail.Body }.ToMessageBody();
+
+                    if (mail.Cc != null && mail.Cc.Any())
+                    {
+                        foreach (var cc in mail.Cc)
+                        {
+                            email.Cc.Add(MailboxAddress.Parse(cc));
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
