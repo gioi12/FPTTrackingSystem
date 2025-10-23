@@ -6,6 +6,6 @@ namespace FPTTrackingSystem.Services.Common.Interfaces
     {
         Task SendEmailAsync(List<MailRequest> request);
 
-        Task SendAnnounceMail(MailAnnounceRequest request);
+        Task SendAnnounceMail(MailRequest request);
     }
 }

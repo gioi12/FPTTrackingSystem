@@ -24,9 +24,10 @@ namespace FPTTrackingSystem.Services.Common.Schedules
             { 
                 new MailRequest
                 {
-                    To = "doangioi0403@gmail.com",
+                    To = ["doangioi0403@gmail.com"],
                     Subject = "Báo cáo hàng ngày",
-                    Body = "Đây là mail gửi tự động vào 7h sáng."
+                    Body = "Đây là mail gửi tự động vào 7h sáng.",
+                    Cc = []
                 }
             });
         }
