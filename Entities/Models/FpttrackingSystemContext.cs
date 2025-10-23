@@ -6,10 +6,6 @@ namespace Entities.Models;
 
 public partial class FpttrackingSystemContext : DbContext
 {
-    public FpttrackingSystemContext()
-    {
-    }
-
     public FpttrackingSystemContext(DbContextOptions<FpttrackingSystemContext> options)
         : base(options)
     {
@@ -61,15 +57,9 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<Task> Tasks { get; set; }
 
-    public virtual DbSet<TaskDependence> TaskDependences { get; set; }
-
     public virtual DbSet<TaskUser> TaskUsers { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=160.30.21.113,1433;Database=FPTTrackingSystem;User ID=sa;Password=ak47;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -280,6 +270,7 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnName("create_at");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.MajorId).HasColumnName("major_id");
+            entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");
@@ -297,6 +288,10 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.Major).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.MajorId)
                 .HasConstraintName("FK_Group_Major_Category");
+
+            entity.HasOne(d => d.Meeting).WithMany(p => p.Groups)
+                .HasForeignKey(d => d.MeetingId)
+                .HasConstraintName("FK_Group_Meeting");
 
             entity.HasOne(d => d.Semester).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.SemesterId)
@@ -388,14 +383,23 @@ public partial class FpttrackingSystemContext : DbContext
 
         modelBuilder.Entity<Meeting>(entity =>
         {
-            entity.HasKey(e => e.Int).HasName("PK_Schedule");
-
             entity.ToTable("Meeting");
 
-            entity.Property(e => e.Int).HasColumnName("int");
-            entity.Property(e => e.Date)
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("create_at");
+            entity.Property(e => e.CreateBy).HasColumnName("create_by");
+            entity.Property(e => e.MeetingDate)
+                .HasColumnType("datetime")
+                .HasColumnName("meeting_date");
+            entity.Property(e => e.Status)
                 .HasMaxLength(50)
-                .HasColumnName("date");
+                .HasColumnName("status");
+
+            entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.Meetings)
+                .HasForeignKey(d => d.CreateBy)
+                .HasConstraintName("FK_Meeting_User");
         });
 
         modelBuilder.Entity<MeetingMinute>(entity =>
@@ -410,17 +414,17 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
             entity.Property(e => e.CreateBy).HasColumnName("create_by");
-            entity.Property(e => e.Date)
-                .HasColumnType("datetime")
-                .HasColumnName("date");
             entity.Property(e => e.Issue).HasColumnName("issue");
             entity.Property(e => e.MeetingContent).HasColumnName("meeting_content");
             entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
+            entity.Property(e => e.MeetingMinusDate)
+                .HasColumnType("datetime")
+                .HasColumnName("meeting_minus_date");
             entity.Property(e => e.Other).HasColumnName("other");
 
             entity.HasOne(d => d.Meeting).WithMany(p => p.MeetingMinutes)
                 .HasForeignKey(d => d.MeetingId)
-                .HasConstraintName("FK_Meeting_Minute_Schedule");
+                .HasConstraintName("FK_Meeting_Minute_Meeting");
         });
 
         modelBuilder.Entity<Milestone>(entity =>
@@ -479,6 +483,9 @@ public partial class FpttrackingSystemContext : DbContext
             entity.ToTable("Penaty_Card");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("create_at");
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
                 .HasColumnName("description");
@@ -613,7 +620,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
-            entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
+            entity.Property(e => e.MeetingMinuteId).HasColumnName("meeting_minute_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
@@ -639,19 +646,47 @@ public partial class FpttrackingSystemContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Task_Group");
 
-            entity.HasOne(d => d.Meeting).WithMany(p => p.Tasks)
-                .HasForeignKey(d => d.MeetingId)
-                .HasConstraintName("FK_Task_Meeting");
-        });
+            entity.HasOne(d => d.MeetingMinute).WithMany(p => p.Tasks)
+                .HasForeignKey(d => d.MeetingMinuteId)
+                .HasConstraintName("FK_Task_Meeting_Minute");
 
-        modelBuilder.Entity<TaskDependence>(entity =>
-        {
-            entity.HasKey(e => new { e.TaskId, e.TaskReferenceId });
+            entity.HasMany(d => d.TaskReferences).WithMany(p => p.Tasks)
+                .UsingEntity<Dictionary<string, object>>(
+                    "TaskDependence",
+                    r => r.HasOne<Task>().WithMany()
+                        .HasForeignKey("TaskReferenceId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_Task_Dependence_Task1"),
+                    l => l.HasOne<Task>().WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_Task_Dependence_Task"),
+                    j =>
+                    {
+                        j.HasKey("TaskId", "TaskReferenceId");
+                        j.ToTable("Task_Dependence");
+                        j.IndexerProperty<int>("TaskId").HasColumnName("task_id");
+                        j.IndexerProperty<int>("TaskReferenceId").HasColumnName("task_reference_id");
+                    });
 
-            entity.ToTable("Task_Dependence");
-
-            entity.Property(e => e.TaskId).HasColumnName("task_id");
-            entity.Property(e => e.TaskReferenceId).HasColumnName("task_reference_id");
+            entity.HasMany(d => d.Tasks).WithMany(p => p.TaskReferences)
+                .UsingEntity<Dictionary<string, object>>(
+                    "TaskDependence",
+                    r => r.HasOne<Task>().WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_Task_Dependence_Task"),
+                    l => l.HasOne<Task>().WithMany()
+                        .HasForeignKey("TaskReferenceId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_Task_Dependence_Task1"),
+                    j =>
+                    {
+                        j.HasKey("TaskId", "TaskReferenceId");
+                        j.ToTable("Task_Dependence");
+                        j.IndexerProperty<int>("TaskId").HasColumnName("task_id");
+                        j.IndexerProperty<int>("TaskReferenceId").HasColumnName("task_reference_id");
+                    });
         });
 
         modelBuilder.Entity<TaskUser>(entity =>

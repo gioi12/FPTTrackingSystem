@@ -31,8 +31,8 @@
             Directory.CreateDirectory(uploadPath); // Tạo thư mục nếu chưa có
 
             // Tạo tên file duy nhất
-            string uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            string filePath = Path.Combine(uploadPath, uniqueFileName);
+            string fileName = $"{Path.GetFileName(file.FileName)}";
+            string filePath = Path.Combine(uploadPath, fileName);
 
             // Lưu file
             using (var stream = new FileStream(filePath, FileMode.Create))
@@ -41,7 +41,7 @@
             }
 
             // Trả về đường dẫn public (để lưu DB hoặc hiển thị)
-            string fileUrl = $"/uploads/{currentYear}/{folderName}/{uniqueFileName}";
+            string fileUrl = $"/uploads/{currentYear}/{folderName}/{fileName}";
             return fileUrl;
         }
 

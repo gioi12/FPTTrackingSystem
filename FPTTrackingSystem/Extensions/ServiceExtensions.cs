@@ -57,6 +57,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IUploadService, UploadService>();
             services.AddScoped<AuthUtils>();
             services.AddScoped<IMailService, MailService>();
+            services.AddScoped<IMeetingService, MeetingService>();
             return services;
         }
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)

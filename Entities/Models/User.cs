@@ -45,6 +45,8 @@ public partial class User
 
     public virtual MajorCategory? Major { get; set; }
 
+    public virtual ICollection<Meeting> Meetings { get; set; } = new List<Meeting>();
+
     public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
 
     public virtual ICollection<PenatyCard> PenatyCards { get; set; } = new List<PenatyCard>();
