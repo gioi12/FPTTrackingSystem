@@ -226,13 +226,27 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         {
             var groups = await _groupRepository.GetGroupsByUserIdAsync(userId);
 
-            return groups.Select(g => new GroupMentorDto
+            var result = groups.Select(g => new GroupMentorDto
             {
                 Id = g.Id,
+                GroupCode = g.Code,
                 Name = g.Name,
-                GroupCode = g.Code
+                status = g.Status != null ? g.Status.Name : "active",
+                students = g.GroupUsers
+                    .Where(gu => gu.Role == "Student" || gu.Role == "Secretary" || gu.Role == "Leader" && gu.IsActive)
+                    .Select(s => new StudentGroupDTO
+                    {
+                        Id = s.User.Id,
+                        Name = s.User.Fullname,
+                        Email = s.User.Mail,
+                        RollNumber = s.User.RollNumber
+                    })
+                    .ToList()
             }).ToList();
+
+            return result;
         }
+
 
         public async Task<ApiResponse<string>> UpdateRoleInGroupAsync(int groupId, int userId, string newRole)
         {

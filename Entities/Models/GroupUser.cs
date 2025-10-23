@@ -17,6 +17,14 @@ public partial class GroupUser
 
     public string? FreeTime { get; set; }
 
+    public string? DayOfWeek { get; set; }
+
+    public DateTime? CreateAt { get; set; }
+
+    public DateTime? UpdateAt { get; set; }
+
+    public string? Status { get; set; }
+
     public virtual Group Group { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

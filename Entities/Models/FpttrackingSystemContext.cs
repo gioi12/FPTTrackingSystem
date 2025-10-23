@@ -39,6 +39,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<MeetingMinute> MeetingMinutes { get; set; }
 
+    public virtual DbSet<MeetingScheduleDate> MeetingScheduleDates { get; set; }
+
     public virtual DbSet<Milestone> Milestones { get; set; }
 
     public virtual DbSet<MilestoneItem> MilestoneItems { get; set; }
@@ -307,15 +309,26 @@ public partial class FpttrackingSystemContext : DbContext
             entity.ToTable("Group_User");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("create_at");
+            entity.Property(e => e.DayOfWeek)
+                .HasMaxLength(50)
+                .HasColumnName("day_of_week");
             entity.Property(e => e.FreeTime)
-                .HasMaxLength(10)
-                .IsFixedLength()
+                .HasMaxLength(300)
                 .HasColumnName("free_time");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.Role)
                 .HasMaxLength(50)
                 .HasColumnName("role");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasColumnName("status");
+            entity.Property(e => e.UpdateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("update_at");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.Group).WithMany(p => p.GroupUsers)
@@ -390,12 +403,19 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
             entity.Property(e => e.CreateBy).HasColumnName("create_by");
-            entity.Property(e => e.MeetingDate)
-                .HasColumnType("datetime")
-                .HasColumnName("meeting_date");
-            entity.Property(e => e.Status)
+            entity.Property(e => e.DayOfWeek)
                 .HasMaxLength(50)
-                .HasColumnName("status");
+                .HasColumnName("day_of_week");
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
+            entity.Property(e => e.MeetingLink)
+                .HasMaxLength(200)
+                .HasColumnName("meeting_link");
+            entity.Property(e => e.Time)
+                .HasMaxLength(50)
+                .HasColumnName("time");
+            entity.Property(e => e.UpdateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("update_at");
 
             entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.Meetings)
                 .HasForeignKey(d => d.CreateBy)
@@ -405,6 +425,8 @@ public partial class FpttrackingSystemContext : DbContext
         modelBuilder.Entity<MeetingMinute>(entity =>
         {
             entity.ToTable("Meeting_Minute");
+
+            entity.HasIndex(e => e.MeetingId, "UQ_Meeting_Minute").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Attendance)
@@ -422,9 +444,36 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnName("meeting_minus_date");
             entity.Property(e => e.Other).HasColumnName("other");
 
-            entity.HasOne(d => d.Meeting).WithMany(p => p.MeetingMinutes)
-                .HasForeignKey(d => d.MeetingId)
+            entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.MeetingMinutes)
+                .HasForeignKey(d => d.CreateBy)
+                .HasConstraintName("FK_Meeting_Minute_User1");
+
+            entity.HasOne(d => d.Meeting).WithOne(p => p.MeetingMinute)
+                .HasForeignKey<MeetingMinute>(d => d.MeetingId)
                 .HasConstraintName("FK_Meeting_Minute_Meeting");
+        });
+
+        modelBuilder.Entity<MeetingScheduleDate>(entity =>
+        {
+            entity.ToTable("Meeting_Schedule_Date");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
+            entity.Property(e => e.MeetingDate)
+                .HasColumnType("datetime")
+                .HasColumnName("meeting_date");
+            entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updated_at");
+
+            entity.HasOne(d => d.Meeting).WithMany(p => p.MeetingScheduleDates)
+                .HasForeignKey(d => d.MeetingId)
+                .HasConstraintName("FK_Meeting_Schedule_Date_Meeting");
         });
 
         modelBuilder.Entity<Milestone>(entity =>

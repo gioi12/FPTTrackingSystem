@@ -35,7 +35,9 @@ namespace DataTranferObjects.Staff.Group
     {
         public int Id { get; set; }
         public string? GroupCode { get; set; }
+        public string? status { get; set; }
         public string? Name { get; set; }
+        public List<StudentGroupDTO> students { get; set; } = new();
     }
 
 
@@ -58,6 +60,12 @@ namespace DataTranferObjects.Staff.Group
         public int Id { get; set; }
         public string? Name { get; set; }
         public string Email { get; set; } = string.Empty;
+    }
+    public class StudentGroupDTO { 
+        public int Id { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string RollNumber { get; set; } = string.Empty;
+        public string? Name { get; set; }
     }
 
     public class StudentDto

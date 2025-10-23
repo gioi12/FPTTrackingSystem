@@ -41,6 +41,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
             services.AddScoped<IEvaluationRepository, EvaluationRepository>();
+            services.AddScoped<IMeetingRepository, MeetingRepository>();
             return services;
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
@@ -148,6 +149,7 @@ namespace FPTTrackingSystem.Extensions
             TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceExtensions).Assembly);
             MilestoneMapper.ToMilestoneResponse();
             DeliverableMapper.ToDeliverableResponse();
+            MeetingMinuteMapper.ToMeetingMinuteResponse();
             return services;
         }
     }
