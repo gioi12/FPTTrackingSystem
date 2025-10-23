@@ -115,7 +115,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
             MeetingMinute newMinute = new MeetingMinute
             {
                 MeetingId = request.MeetingId,
-                MeetingMinusDate = request.MeetingMinusDate,
+                StartAt = request.startAt,
+                EndAt = request.endAt,
                 Attendance = request.Attendance,
                 Issue = request.Issue,
                 MeetingContent = request.MeetingContent,
@@ -141,7 +142,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 throw new ValidationException("Meeting not found.");
             }
             meetingMinute.Issue = req.Issue;
-            meetingMinute.MeetingMinusDate = req.MeetingMinusDate;
+            meetingMinute.StartAt = req.startAt;
+            meetingMinute.EndAt = req.endAt;
             meetingMinute.Attendance = req.Attendance;
             meetingMinute.MeetingContent = req.MeetingContent;
             meetingMinute.Other = req.Other;

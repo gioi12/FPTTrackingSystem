@@ -12,7 +12,8 @@ namespace FPTTrackingSystem.Mappers
         {
             TypeAdapterConfig<MeetingMinute, MeetingMinuteRes>.NewConfig()
                 .Map(dest => dest.Id, src => src.Id)
-                .Map(dest => dest.MeetingMinusDate, src => src.MeetingMinusDate)
+                .Map(dest => dest.startAt, src => src.StartAt)
+                .Map(dest => dest.endAt, src => src.EndAt)
                 .Map(dest => dest.CreateAt, src => src.CreateAt)
                 .Map(dest => dest.CreateBy, src => src.CreateByNavigation != null ? src.CreateByNavigation.Fullname : null)
                 .Map(dest => dest.Attendance, src => src.Attendance)
