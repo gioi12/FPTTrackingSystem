@@ -37,7 +37,6 @@ namespace DataTranferObjects.Student.Meeting
 
     public class FinalizeScheduleResponseDto
     {
-        public bool IsFinalized { get; set; }
         public FinalMeetingInfo FinalMeeting { get; set; } = new FinalMeetingInfo();
     }
 

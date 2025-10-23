@@ -69,5 +69,22 @@ namespace Repositories.Common.Implements
             await _context.SaveChangesAsync();
             return card;
         }
+
+        public async Task<List<PenaltyCardResponseDTO>> GetCardsByMentorIdAsync(int mentorId)
+        {
+            return await _context.PenatyCards
+                .Include(p => p.User)
+                .Where(p => p.UserId == mentorId && p.Type == "General")
+                .Select(p => new PenaltyCardResponseDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Type = p.Type,
+                    UserId = p.UserId,
+                    UserName = p.User != null ? p.User.Fullname : null
+                })
+                .ToListAsync();
+        }
     }
 }

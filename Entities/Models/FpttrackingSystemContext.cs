@@ -446,7 +446,7 @@ public partial class FpttrackingSystemContext : DbContext
 
             entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.MeetingMinutes)
                 .HasForeignKey(d => d.CreateBy)
-                .HasConstraintName("FK_Meeting_Minute_User");
+                .HasConstraintName("FK_Meeting_Minute_User1");
 
             entity.HasOne(d => d.Meeting).WithOne(p => p.MeetingMinute)
                 .HasForeignKey<MeetingMinute>(d => d.MeetingId)
@@ -539,6 +539,7 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasMaxLength(300)
                 .HasColumnName("description");
             entity.Property(e => e.EvaluationId).HasColumnName("evaluation_id");
+            entity.Property(e => e.EvaluatorId).HasColumnName("evaluator_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");

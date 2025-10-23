@@ -71,6 +71,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
         public async Task<PenaltyCardResponseDTO> CreatePenaltyCardAsync(PenaltyCardCreateDTO dto)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
             var formattedType = string.IsNullOrWhiteSpace(dto.Type)
           ? dto.Type
           : char.ToUpper(dto.Type[0]) + dto.Type.Substring(1).ToLower();
@@ -80,6 +81,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 Name = dto.Name,
                 Description = dto.Description,
                 Type = formattedType,
+                EvaluationId = user.Id ?? 0,
                 UserId = dto.UserId == 0 ? null : dto.UserId
         };
 
@@ -94,6 +96,11 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 UserId = created.UserId, 
                 CreatedAt = created.CreateAt ?? DateTime.UtcNow
             };
+        }
+
+        public async Task<List<PenaltyCardResponseDTO>> GetCardsByMentorIdAsync(int mentorId)
+        {
+            return await _evaluationRepository.GetCardsByMentorIdAsync(mentorId);
         }
 
     }

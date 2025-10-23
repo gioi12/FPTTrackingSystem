@@ -13,5 +13,6 @@ namespace Repositories.Common.Interfaces
         Task<Evaluation> CreateEvaluationAsync(EvaluationCreateDTO dto, int evaluatorId);
         Task<List<PenatyCard>> GetAllPenaltyCardsAsync();
         Task<PenatyCard> CreatePenaltyCardAsync(PenatyCard card);
+        Task<List<PenaltyCardResponseDTO>> GetCardsByMentorIdAsync(int mentorId);
     }
 }

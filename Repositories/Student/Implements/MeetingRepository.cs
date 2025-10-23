@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DataTranferObjects.Student.Meeting;
 using System.Text.Json;
+using Repositories.Helper;
 
 namespace Repositories.Student.Implements
 {
@@ -108,8 +109,22 @@ namespace Repositories.Student.Implements
 
         public async Task<Meeting> FinalizeScheduleAsync(int groupId, FinalMeetingDto dto, int userId)
         {
-            var meeting = await GetMeetingByGroupIdAsync(groupId);
+            var calculator = new CaculateDate();
+            // 1️ Lấy group + semester
+            var group = await _context.Groups
+                .Include(g => g.Semester)
+                .Include(g => g.Meeting)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
 
+            if (group == null)
+                throw new Exception("Không tìm thấy nhóm.");
+
+            var semester = group.Semester;
+            if (semester == null)
+                throw new Exception("Nhóm chưa thuộc kỳ học nào.");
+
+            // 2️ Lấy hoặc tạo mới meeting
+            var meeting = group.Meeting;
             if (meeting == null)
             {
                 meeting = new Meeting
@@ -122,14 +137,8 @@ namespace Repositories.Student.Implements
                     CreateAt = DateTime.UtcNow,
                     UpdateAt = DateTime.UtcNow,
                 };
-
                 _context.Meetings.Add(meeting);
-
-                var group = await _context.Groups.FindAsync(groupId);
-                if (group != null)
-                {
-                    group.Meeting = meeting;
-                }
+                group.Meeting = meeting;
             }
             else
             {
@@ -141,7 +150,33 @@ namespace Repositories.Student.Implements
             }
 
             await _context.SaveChangesAsync();
+
+            var oldDates = await _context.MeetingScheduleDates
+                .Where(m => m.MeetingId == meeting.Id)
+                .ToListAsync();
+            if (oldDates.Any())
+            {
+                _context.MeetingScheduleDates.RemoveRange(oldDates);
+            }
+
+            var allDates = calculator.GetAllDatesForDayOfWeek(semester.StartAt!.Value, semester.EndAt!.Value, dto.Day);
+
+            foreach (var date in allDates)
+            {
+                _context.MeetingScheduleDates.Add(new MeetingScheduleDate
+                {
+                    MeetingId = meeting.Id,
+                    MeetingDate = date,
+                    IsActive = true,
+                    Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+
+            await _context.SaveChangesAsync();
             return meeting;
         }
+
     }
 }
