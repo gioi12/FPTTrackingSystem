@@ -85,5 +85,29 @@ namespace FPTTrackingSystem.Controllers.Common
 
             return Ok(cards);
         }
+
+        [HttpGet("getByStudent")]
+        public async Task<IActionResult> GetByDeliverable()
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            var result = await _evaluationService.GetEvaluationsByDeliverableIdAsync(user.Id ?? 0);
+
+            if (result == null || !result.Any())
+                return NotFound(new { Message = "Không có đánh giá nào cho deliverable này." });
+
+            return Ok(result);
+        }
+
+        [HttpGet("getGeneralByStudent")]
+        public async Task<IActionResult> GetGeneralByStudent()
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            var result = await _evaluationService.GetGeneralPenaltyCardsByStudentIdAsync(user.Id ?? 0);
+
+            if (result == null || !result.Any())
+                return NotFound(new { Message = "Không có thẻ phạt General nào cho sinh viên này." });
+
+            return Ok(result);
+        }
     }
 }

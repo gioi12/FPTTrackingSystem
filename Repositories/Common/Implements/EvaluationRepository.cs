@@ -86,5 +86,22 @@ namespace Repositories.Common.Implements
                 })
                 .ToListAsync();
         }
+
+        public async Task<List<Evaluation>> GetByDeliverableIdAsync(int studentId)
+        {
+            return await _context.Evaluations
+                .Include(e => e.Evaluator)
+                .Include(e => e.Deliverable)
+                .Include(e => e.PenatyCards)
+                .Where(e => e.ReceiverId == studentId)
+                .ToListAsync();
+        }
+        public async Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)
+        {
+            return await _context.PenatyCards
+                .Where(p => p.UserId == studentId && p.Type != null && p.Type.ToLower() == "general")
+                .OrderByDescending(p => p.CreateAt)
+                .ToListAsync();
+        }
     }
 }

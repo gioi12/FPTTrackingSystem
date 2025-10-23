@@ -103,5 +103,30 @@ namespace FPTTrackingSystem.Services.Common.Implements
             return await _evaluationRepository.GetCardsByMentorIdAsync(mentorId);
         }
 
+        public async Task<List<EvaluationResponseDto>> GetEvaluationsByDeliverableIdAsync(int studentId)
+        {
+            var evaluations = await _evaluationRepository.GetByDeliverableIdAsync(studentId);
+
+            return evaluations.Select(e => new EvaluationResponseDto
+            {
+                Feedback = e.Feedback,
+                DeliverableName = e.Deliverable?.Name,
+                CreateAt = e.CreateAt,
+                EvaluatorName = e.Evaluator.Fullname,
+                PenaltyCards = e.PenatyCards.Select(p => p.Name).ToList()
+            }).ToList();
+        }
+
+        public async Task<List<PenaltyCardResponseDto>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)
+        {
+            var cards = await _evaluationRepository.GetGeneralPenaltyCardsByStudentIdAsync(studentId);
+
+            return cards.Select(c => new PenaltyCardResponseDto
+            {
+                Name = c.Name,
+                Description = c.Description,
+                CreateAt = c.CreateAt
+            }).ToList();
+        }
     }
 }

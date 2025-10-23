@@ -14,5 +14,7 @@ namespace Repositories.Common.Interfaces
         Task<List<PenatyCard>> GetAllPenaltyCardsAsync();
         Task<PenatyCard> CreatePenaltyCardAsync(PenatyCard card);
         Task<List<PenaltyCardResponseDTO>> GetCardsByMentorIdAsync(int mentorId);
+        Task<List<Evaluation>> GetByDeliverableIdAsync(int studentId);
+        Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId);
     }
 }

@@ -28,6 +28,13 @@ namespace DataTranferObjects.Common.Evaluate
         public List<int>? PenaltyCardIds { get; set; } 
     }
 
+    public class PenaltyCardResponseDto
+    {
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public DateTime? CreateAt { get; set; }
+    }
+
     public class PenaltyCardResponseDTO
     {
         public int Id { get; set; }
@@ -52,5 +59,13 @@ namespace DataTranferObjects.Common.Evaluate
         public List<PenaltyCardResponseDTO> PenaltyCards { get; set; } = new();
     }
 
+    public class EvaluationResponseDto
+    {
+        public string? Feedback { get; set; }
+        public string? DeliverableName { get; set; }
+        public DateTime? CreateAt { get; set; }
+        public string? EvaluatorName { get; set; }
+        public List<string> PenaltyCards { get; set; } = new();
+    }
 
 }
