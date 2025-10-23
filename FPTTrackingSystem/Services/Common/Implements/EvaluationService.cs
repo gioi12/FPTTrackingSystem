@@ -143,5 +143,20 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 PenaltyCards = e.PenatyCards.Select(p => p.Name).ToList()
             }).ToList();
         }
+
+        public async Task<PenatyCard?> UpdatePenaltyCardAsync(int id, PenaltyCardUpdateDTO dto)
+        {
+            return await _evaluationRepository.UpdatePenaltyCardAsync(id, dto.Name, dto.Description, dto.UserId);
+        }
+
+        public async Task<Evaluation?> UpdateEvaluationAsync(int id, EvaluationUpdateDTO dto)
+        {
+            return await _evaluationRepository.UpdateEvaluationAsync(
+                id,
+                dto.Feedback,
+                dto.DeliverableId,
+                dto.PenaltyCardIds ?? new List<int>()
+            );
+        }
     }
 }
