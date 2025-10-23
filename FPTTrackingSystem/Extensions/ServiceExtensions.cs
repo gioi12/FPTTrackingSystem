@@ -41,6 +41,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
             services.AddScoped<IEvaluationRepository, EvaluationRepository>();
+            services.AddScoped<IMeetingRepository, MeetingRepository>();
             return services;
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
