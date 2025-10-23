@@ -18,7 +18,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
         public async Task SendAnnounceMail(MailRequest request)
         {
-            await _rabbitMQProducer.SendMessage(request);
+            await _rabbitMQProducer.SendMessage(new List<MailRequest> { request});
         }
 
         public async Task SendEmailAsync(List<MailRequest> request)
