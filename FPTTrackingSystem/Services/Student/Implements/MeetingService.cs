@@ -38,12 +38,15 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     throw new Exception($"GroupUser not found for studentId={slot.StudentId}, groupId={groupId}");
                 }
 
+                // Gộp toàn bộ times cho từng ngày
                 var days = slot.TimeSlots.Select(d => CapitalizeFirstLetter(d.DayOfWeek));
-                var times = slot.TimeSlots.Select(d => System.Text.Json.JsonSerializer.Serialize(d.TimeSlots));
-
                 existing.DayOfWeek = string.Join(", ", days);
-                existing.FreeTime = "[" + string.Join(",", times) + "]";
+
+                // Tạo mảng 2 chiều cho time slots
+                var timesArray = slot.TimeSlots.Select(d => d.TimeSlots).ToList();
+                existing.FreeTime = System.Text.Json.JsonSerializer.Serialize(timesArray);
                 existing.UpdateAt = now;
+
 
                 await _repo.UpdateFreeTimeSlotAsync(existing);
 
