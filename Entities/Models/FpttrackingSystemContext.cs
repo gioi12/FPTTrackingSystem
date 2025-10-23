@@ -307,15 +307,23 @@ public partial class FpttrackingSystemContext : DbContext
             entity.ToTable("Group_User");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("create_at");
+            entity.Property(e => e.DayOfWeek)
+                .HasMaxLength(50)
+                .HasColumnName("day_of_week");
             entity.Property(e => e.FreeTime)
-                .HasMaxLength(10)
-                .IsFixedLength()
+                .HasMaxLength(300)
                 .HasColumnName("free_time");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.Role)
                 .HasMaxLength(50)
                 .HasColumnName("role");
+            entity.Property(e => e.UpdateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("update_at");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.Group).WithMany(p => p.GroupUsers)
@@ -406,6 +414,8 @@ public partial class FpttrackingSystemContext : DbContext
         {
             entity.ToTable("Meeting_Minute");
 
+            entity.HasIndex(e => e.MeetingId, "UQ_Meeting_Minute").IsUnique();
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Attendance)
                 .HasMaxLength(300)
@@ -422,8 +432,12 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnName("meeting_minus_date");
             entity.Property(e => e.Other).HasColumnName("other");
 
-            entity.HasOne(d => d.Meeting).WithMany(p => p.MeetingMinutes)
-                .HasForeignKey(d => d.MeetingId)
+            entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.MeetingMinutes)
+                .HasForeignKey(d => d.CreateBy)
+                .HasConstraintName("FK_Meeting_Minute_User");
+
+            entity.HasOne(d => d.Meeting).WithOne(p => p.MeetingMinute)
+                .HasForeignKey<MeetingMinute>(d => d.MeetingId)
                 .HasConstraintName("FK_Meeting_Minute_Meeting");
         });
 

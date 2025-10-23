@@ -19,5 +19,5 @@ public partial class Meeting
 
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
-    public virtual ICollection<MeetingMinute> MeetingMinutes { get; set; } = new List<MeetingMinute>();
+    public virtual MeetingMinute? MeetingMinute { get; set; }
 }
