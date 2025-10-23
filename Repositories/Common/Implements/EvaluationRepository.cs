@@ -74,7 +74,7 @@ namespace Repositories.Common.Implements
         {
             return await _context.PenatyCards
                 .Include(p => p.User)
-                .Where(p => p.UserId == mentorId && p.Type == "General")
+                .Where(p => p.EvaluatorId == mentorId && p.Type != null && p.Type.ToLower() == "general")
                 .Select(p => new PenaltyCardResponseDTO
                 {
                     Id = p.Id,
