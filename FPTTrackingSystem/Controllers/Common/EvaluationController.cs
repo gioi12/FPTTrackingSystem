@@ -74,7 +74,7 @@ namespace FPTTrackingSystem.Controllers.Common
             }
         }
 
-        [HttpGet("getCardFromMentorId")]
+        [HttpGet("getCardGeneralFromMentorId")]
         public async Task<IActionResult> GetCardsByMentorId()
         {
             var mentor = await _authUtils.GetUserInfoFromCookie();
@@ -86,7 +86,7 @@ namespace FPTTrackingSystem.Controllers.Common
             return Ok(cards);
         }
 
-        [HttpGet("getByStudent")]
+        [HttpGet("getEvaluationFromDeliverableByStudent")]
         public async Task<IActionResult> GetByDeliverable()
         {
             var user = await _authUtils.GetUserInfoFromCookie();
@@ -98,7 +98,19 @@ namespace FPTTrackingSystem.Controllers.Common
             return Ok(result);
         }
 
-        [HttpGet("getGeneralByStudent")]
+        [HttpGet("getEvaluationByMentorDeliverable")]
+        public async Task<IActionResult> GetByDeliverableMentor()
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            var result = await _evaluationService.GetEvaluationsByMentorDeliverableIdAsync(user.Id ?? 0);
+
+            if (result == null || !result.Any())
+                return NotFound(new { Message = "Không có đánh giá nào cho deliverable này." });
+
+            return Ok(result);
+        }
+
+        [HttpGet("getCardEvaluationGeneralByStudent")]
         public async Task<IActionResult> GetGeneralByStudent()
         {
             var user = await _authUtils.GetUserInfoFromCookie();

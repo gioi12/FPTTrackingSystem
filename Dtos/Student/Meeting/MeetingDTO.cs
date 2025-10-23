@@ -76,5 +76,15 @@ namespace DataTranferObjects.Student.Meeting
         public List<string> TimeSlots { get; set; }
     }
 
+    public class MeetingResponseDTO
+    {
+        public int Id { get; set; }
+        public bool? IsActive { get; set; }
+        public DateTime? CreateAt { get; set; }
+        public string? MeetingLink { get; set; }
+        public string? Time { get; set; }
+        public string? DayOfWeek { get; set; }
+        public string? CreatedByName { get; set; }
+    }
 
 }

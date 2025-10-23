@@ -16,5 +16,6 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
         Task<MeetingMinuteRes> UpdateMeetingMinute(MeetingMinuteUpdateReq req);
 
         System.Threading.Tasks.Task DeleteMeetingMinute(int id);
+        Task<MeetingResponseDTO?> GetMeetingByIdAsync(int meetingId);
     }
 }

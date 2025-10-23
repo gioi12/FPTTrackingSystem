@@ -107,10 +107,9 @@ namespace Repositories.Student.Implements
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Meeting> FinalizeScheduleAsync(int groupId, FinalMeetingDto dto, int userId)
+        /*public async Task<Meeting> FinalizeScheduleAsync(int groupId, FinalMeetingDto dto, int userId)
         {
             var calculator = new CaculateDate();
-            // 1️ Lấy group + semester
             var group = await _context.Groups
                 .Include(g => g.Semester)
                 .Include(g => g.Meeting)
@@ -123,7 +122,6 @@ namespace Repositories.Student.Implements
             if (semester == null)
                 throw new Exception("Nhóm chưa thuộc kỳ học nào.");
 
-            // 2️ Lấy hoặc tạo mới meeting
             var meeting = group.Meeting;
             if (meeting == null)
             {
@@ -176,7 +174,92 @@ namespace Repositories.Student.Implements
 
             await _context.SaveChangesAsync();
             return meeting;
+        }*/
+        public async Task<Meeting> FinalizeOrUpdateScheduleAsync(int groupId, FinalMeetingDto dto, int userId)
+        {
+            var calculator = new CaculateDate();
+
+            var group = await _context.Groups
+                .Include(g => g.Semester)
+                .Include(g => g.Meeting)
+                .ThenInclude(m => m.MeetingScheduleDates)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+
+            if (group == null)
+                throw new Exception("Không tìm thấy nhóm.");
+
+            var semester = group.Semester ?? throw new Exception("Nhóm chưa thuộc kỳ học nào.");
+
+            var meeting = group.Meeting;
+
+            bool isNewMeeting = meeting == null;
+
+            if (isNewMeeting)
+            {
+                meeting = new Meeting
+                {
+                    DayOfWeek = dto.Day,
+                    Time = dto.Time,
+                    MeetingLink = dto.MeetingLink,
+                    IsActive = true,
+                    CreateBy = userId,
+                    CreateAt = DateTime.UtcNow,
+                    UpdateAt = DateTime.UtcNow
+                };
+                _context.Meetings.Add(meeting);
+                group.Meeting = meeting;
+            }
+            else
+            {
+                bool dayChanged = !string.Equals(meeting.DayOfWeek, dto.Day, StringComparison.OrdinalIgnoreCase);
+                bool timeChanged = meeting.Time != dto.Time;
+                bool semesterChanged = meeting.MeetingScheduleDates.Any(d =>
+                    d.MeetingDate < semester.StartAt || d.MeetingDate > semester.EndAt);
+
+                meeting.DayOfWeek = dto.Day;
+                meeting.Time = dto.Time;
+                meeting.MeetingLink = dto.MeetingLink;
+                meeting.IsActive = true;
+                meeting.UpdateAt = DateTime.UtcNow;
+
+                if (dayChanged || semesterChanged)
+                {
+                    var oldDates = _context.MeetingScheduleDates.Where(m => m.MeetingId == meeting.Id);
+                    _context.MeetingScheduleDates.RemoveRange(oldDates);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            if (isNewMeeting ||
+                !string.Equals(meeting.DayOfWeek, dto.Day, StringComparison.OrdinalIgnoreCase) ||
+                meeting.MeetingScheduleDates == null ||
+                meeting.MeetingScheduleDates.Count == 0)
+            {
+                var allDates = calculator.GetAllDatesForDayOfWeek(
+                    semester.StartAt!.Value,
+                    semester.EndAt!.Value,
+                    dto.Day
+                );
+
+                foreach (var date in allDates)
+                {
+                    _context.MeetingScheduleDates.Add(new MeetingScheduleDate
+                    {
+                        MeetingId = meeting.Id,
+                        MeetingDate = date,
+                        IsActive = true,
+                        Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            return meeting;
         }
+
 
         public async Task<MeetingMinute> CreateMeetingMinute(MeetingMinute entity)
         {
@@ -210,6 +293,13 @@ namespace Repositories.Student.Implements
         {
             _context.MeetingMinutes.Remove(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Meeting?> GetMeetingByIdAsync(int meetingId)
+        {
+            return await _context.Meetings
+                .Include(m => m.CreateByNavigation)
+                .FirstOrDefaultAsync(m => m.Id == meetingId);
         }
     }
 }

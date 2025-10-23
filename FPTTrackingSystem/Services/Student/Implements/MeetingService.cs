@@ -38,12 +38,15 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     throw new Exception($"GroupUser not found for studentId={slot.StudentId}, groupId={groupId}");
                 }
 
+                // Gộp toàn bộ times cho từng ngày
                 var days = slot.TimeSlots.Select(d => CapitalizeFirstLetter(d.DayOfWeek));
-                var times = slot.TimeSlots.Select(d => System.Text.Json.JsonSerializer.Serialize(d.TimeSlots));
-
                 existing.DayOfWeek = string.Join(", ", days);
-                existing.FreeTime = "[" + string.Join(",", times) + "]";
+
+                // Tạo mảng 2 chiều cho time slots
+                var timesArray = slot.TimeSlots.Select(d => d.TimeSlots).ToList();
+                existing.FreeTime = System.Text.Json.JsonSerializer.Serialize(timesArray);
                 existing.UpdateAt = now;
+
 
                 await _repo.UpdateFreeTimeSlotAsync(existing);
 
@@ -83,7 +86,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async Task<FinalizeScheduleResponseDto> FinalizeScheduleAsync(int groupId, FinalizeScheduleRequestDto dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
-            var meeting = await _repo.FinalizeScheduleAsync(groupId, dto.FinalMeeting, user.Id ?? 0);
+            var meeting = await _repo.FinalizeOrUpdateScheduleAsync(groupId, dto.FinalMeeting, user.Id ?? 0);
 
             return new FinalizeScheduleResponseDto
             {
@@ -155,6 +158,24 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 throw new ValidationException("Meeting minute not found.");
             }
             await _repo.DeleteMeetingMinute(meetMinu);
+        }
+
+        public async Task<MeetingResponseDTO?> GetMeetingByIdAsync(int meetingId)
+        {
+            var meeting = await _repo.GetMeetingByIdAsync(meetingId);
+            if (meeting == null)
+                return null;
+
+            return new MeetingResponseDTO
+            {
+                Id = meeting.Id,
+                IsActive = meeting.IsActive,
+                CreateAt = meeting.CreateAt,
+                MeetingLink = meeting.MeetingLink,
+                Time = meeting.Time,
+                DayOfWeek = meeting.DayOfWeek,
+                CreatedByName = meeting.CreateByNavigation?.Fullname
+            };
         }
     }
 }

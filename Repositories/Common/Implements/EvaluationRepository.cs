@@ -103,5 +103,15 @@ namespace Repositories.Common.Implements
                 .OrderByDescending(p => p.CreateAt)
                 .ToListAsync();
         }
+
+        public async Task<List<Evaluation>> GetByDeliverableMentorIdAsync(int mentorId)
+        {
+            return await _context.Evaluations
+               .Include(e => e.Evaluator)
+               .Include(e => e.Deliverable)
+               .Include(e => e.PenatyCards)
+               .Where(e => e.EvaluatorId == mentorId)
+               .ToListAsync();
+        }
     }
 }
