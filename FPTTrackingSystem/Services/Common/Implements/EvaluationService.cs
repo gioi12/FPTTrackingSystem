@@ -81,7 +81,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 Name = dto.Name,
                 Description = dto.Description,
                 Type = formattedType,
-                EvaluationId = user.Id ?? 0,
+                EvaluatorId = user.Id ?? 0,
                 UserId = dto.UserId == 0 ? null : dto.UserId
         };
 
