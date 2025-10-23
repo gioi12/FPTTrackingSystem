@@ -139,6 +139,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 DeliverableName = e.Deliverable?.Name,
                 CreateAt = e.CreateAt,
                 EvaluatorName = e.Evaluator.Fullname,
+                ReceiverId = e.ReceiverId,
                 PenaltyCards = e.PenatyCards.Select(p => p.Name).ToList()
             }).ToList();
         }

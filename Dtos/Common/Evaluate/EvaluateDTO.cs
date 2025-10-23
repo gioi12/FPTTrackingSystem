@@ -64,6 +64,7 @@ namespace DataTranferObjects.Common.Evaluate
         public string? DeliverableName { get; set; }
         public DateTime? CreateAt { get; set; }
         public string? EvaluatorName { get; set; }
+        public int ReceiverId { get; set; }
         public List<string> PenaltyCards { get; set; } = new();
     }
 
