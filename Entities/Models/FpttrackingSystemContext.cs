@@ -539,6 +539,7 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasMaxLength(300)
                 .HasColumnName("description");
             entity.Property(e => e.EvaluationId).HasColumnName("evaluation_id");
+            entity.Property(e => e.EvaluatorId).HasColumnName("evaluator_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");

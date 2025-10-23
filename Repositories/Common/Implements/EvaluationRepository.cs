@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Common.Evaluate;
+using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Common.Interfaces;
 using Repositories.Staff.Interfaces;
@@ -19,10 +20,40 @@ namespace Repositories.Common.Implements
             _context = context;
         }
 
-        public async Task<Evaluation> CreateEvaluationAsync(Evaluation evaluation)
+        public async Task<Evaluation> CreateEvaluationAsync(EvaluationCreateDTO dto, int evaluatorId)
         {
+            var evaluation = new Evaluation
+            {
+                ReceiverId = dto.ReceiverId,
+                EvaluatorId = evaluatorId,
+                Feedback = dto.Feedback,
+                GroupId = dto.GroupId,
+                DeliverableId = dto.DeliverableId,
+                CreateAt = DateTime.UtcNow,
+                UpdateAt = DateTime.UtcNow
+            };
+
             _context.Evaluations.Add(evaluation);
             await _context.SaveChangesAsync();
+
+            if (dto.PenaltyCardIds != null && dto.PenaltyCardIds.Any())
+            {
+                var cards = await _context.PenatyCards
+                    .Where(p => dto.PenaltyCardIds.Contains(p.Id))
+                    .ToListAsync();
+
+                foreach (var card in cards)
+                {
+                    card.EvaluationId = evaluation.Id;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            evaluation.PenatyCards = await _context.PenatyCards
+                .Where(p => p.EvaluationId == evaluation.Id)
+                .ToListAsync();
+
             return evaluation;
         }
 
@@ -37,6 +68,40 @@ namespace Repositories.Common.Implements
             _context.PenatyCards.Add(card);
             await _context.SaveChangesAsync();
             return card;
+        }
+
+        public async Task<List<PenaltyCardResponseDTO>> GetCardsByMentorIdAsync(int mentorId)
+        {
+            return await _context.PenatyCards
+                .Include(p => p.User)
+                .Where(p => p.EvaluatorId == mentorId && p.Type != null && p.Type.ToLower() == "general")
+                .Select(p => new PenaltyCardResponseDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Type = p.Type,
+                    UserId = p.UserId,
+                    UserName = p.User != null ? p.User.Fullname : null
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<Evaluation>> GetByDeliverableIdAsync(int studentId)
+        {
+            return await _context.Evaluations
+                .Include(e => e.Evaluator)
+                .Include(e => e.Deliverable)
+                .Include(e => e.PenatyCards)
+                .Where(e => e.ReceiverId == studentId)
+                .ToListAsync();
+        }
+        public async Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)
+        {
+            return await _context.PenatyCards
+                .Where(p => p.UserId == studentId && p.Type != null && p.Type.ToLower() == "general")
+                .OrderByDescending(p => p.CreateAt)
+                .ToListAsync();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DataTranferObjects.Common.Evaluate;
 using FPTTrackingSystem.Services.Common.Implements;
 using FPTTrackingSystem.Services.Common.Interfaces;
+using FPTTrackingSystem.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,12 @@ namespace FPTTrackingSystem.Controllers.Common
     public class EvaluationController : ControllerBase
     {
         private readonly IEvaluationService _evaluationService;
+        private readonly AuthUtils _authUtils;
 
-        public EvaluationController(IEvaluationService evaluationService)
+        public EvaluationController(IEvaluationService evaluationService, AuthUtils authUtils)
         {
             _evaluationService = evaluationService;
+            _authUtils = authUtils;
         }
 
         [HttpPost("create")]
@@ -69,6 +72,42 @@ namespace FPTTrackingSystem.Controllers.Common
                     data = (object?)null
                 });
             }
+        }
+
+        [HttpGet("getCardFromMentorId")]
+        public async Task<IActionResult> GetCardsByMentorId()
+        {
+            var mentor = await _authUtils.GetUserInfoFromCookie();
+            var cards = await _evaluationService.GetCardsByMentorIdAsync(mentor.Id ?? 0);
+
+            if (cards == null || !cards.Any())
+                return NotFound(new { message = "Không tìm thấy thẻ phạt nào cho mentor này." });
+
+            return Ok(cards);
+        }
+
+        [HttpGet("getByStudent")]
+        public async Task<IActionResult> GetByDeliverable()
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            var result = await _evaluationService.GetEvaluationsByDeliverableIdAsync(user.Id ?? 0);
+
+            if (result == null || !result.Any())
+                return NotFound(new { Message = "Không có đánh giá nào cho deliverable này." });
+
+            return Ok(result);
+        }
+
+        [HttpGet("getGeneralByStudent")]
+        public async Task<IActionResult> GetGeneralByStudent()
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            var result = await _evaluationService.GetGeneralPenaltyCardsByStudentIdAsync(user.Id ?? 0);
+
+            if (result == null || !result.Any())
+                return NotFound(new { Message = "Không có thẻ phạt General nào cho sinh viên này." });
+
+            return Ok(result);
         }
     }
 }

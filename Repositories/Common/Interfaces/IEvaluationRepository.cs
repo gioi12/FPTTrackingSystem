@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Common.Evaluate;
+using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,11 @@ namespace Repositories.Common.Interfaces
 {
     public interface IEvaluationRepository
     {
-        Task<Evaluation> CreateEvaluationAsync(Evaluation evaluation);
+        Task<Evaluation> CreateEvaluationAsync(EvaluationCreateDTO dto, int evaluatorId);
         Task<List<PenatyCard>> GetAllPenaltyCardsAsync();
         Task<PenatyCard> CreatePenaltyCardAsync(PenatyCard card);
+        Task<List<PenaltyCardResponseDTO>> GetCardsByMentorIdAsync(int mentorId);
+        Task<List<Evaluation>> GetByDeliverableIdAsync(int studentId);
+        Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId);
     }
 }
