@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataTranferObjects.Student.Meeting;
+using System.Text.Json;
 
 namespace Repositories.Student.Implements
 {
@@ -62,11 +63,33 @@ namespace Repositories.Student.Implements
                     StudentId = g.Key.UserId,
                     GroupId = g.Key.GroupId,
                     FreeTimeSlots = g
-                        .GroupBy(x => x.DayOfWeek)
+                        .Where(x => !string.IsNullOrEmpty(x.DayOfWeek) && !string.IsNullOrEmpty(x.FreeTime))
+                        .SelectMany(x =>
+                        {
+                            var days = x.DayOfWeek.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                                   .Select(d => d.Trim()).ToList();
+
+                            List<List<string>>? parsed;
+                            try
+                            {
+                                parsed = JsonSerializer.Deserialize<List<List<string>>>(x.FreeTime);
+                            }
+                            catch
+                            {
+                                parsed = new List<List<string>>();
+                            }
+
+                            return days.Select((day, i) => new FreeTimeSlotByDayDto
+                            {
+                                DayOfWeek = day,
+                                TimeSlots = i < parsed?.Count ? parsed[i] : new List<string>()
+                            });
+                        })
+                        .GroupBy(d => d.DayOfWeek)
                         .Select(d => new FreeTimeSlotByDayDto
                         {
                             DayOfWeek = d.Key,
-                            TimeSlots = d.Select(t => t.FreeTime).ToList()
+                            TimeSlots = d.SelectMany(x => x.TimeSlots).Distinct().ToList()
                         })
                         .ToList()
                 })
@@ -74,7 +97,6 @@ namespace Repositories.Student.Implements
 
             return result;
         }
-
 
         public async Task<Meeting?> GetMeetingByGroupIdAsync(int groupId)
         {

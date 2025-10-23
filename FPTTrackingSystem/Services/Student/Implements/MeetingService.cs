@@ -4,6 +4,7 @@ using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Utilities;
 using Repositories.Student.Implements;
 using Repositories.Student.Interfaces;
+using System.Text.Json;
 
 namespace FPTTrackingSystem.Services.Student.Implements
 {
@@ -24,51 +25,54 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 throw new Exception("FreeTimeSlots cannot be empty");
 
             var resultList = new List<object>();
+            var now = DateTime.UtcNow;
 
             foreach (var slot in request.FreeTimeSlots)
             {
                 var existing = await _repo.GetFreeTimeSlotAsync(slot.StudentId, groupId);
 
-                var serializedFreeTime = System.Text.Json.JsonSerializer.Serialize(slot.TimeSlots);
-                var now = DateTime.UtcNow;
-
-                if (existing != null)
-                {
-                    existing.FreeTime = serializedFreeTime;
-                    existing.DayOfWeek = slot.DayOfWeek;
-                    existing.UpdateAt = now;
-
-                    await _repo.UpdateFreeTimeSlotAsync(existing);
-                }
-                else
+                if (existing == null)
                 {
                     throw new Exception($"GroupUser not found for studentId={slot.StudentId}, groupId={groupId}");
                 }
 
+                var days = slot.TimeSlots.Select(d => CapitalizeFirstLetter(d.DayOfWeek));
+                var times = slot.TimeSlots.Select(d => System.Text.Json.JsonSerializer.Serialize(d.TimeSlots));
+
+                existing.DayOfWeek = string.Join(", ", days);
+                existing.FreeTime = "[" + string.Join(",", times) + "]";
+                existing.UpdateAt = now;
+
+                await _repo.UpdateFreeTimeSlotAsync(existing);
+
                 resultList.Add(new
                 {
-                    dayOfWeek = slot.DayOfWeek,
-                    timeSlots = slot.TimeSlots,
+                    studentId = slot.StudentId,
+                    groupId = groupId,
+                    dayOfWeek = existing.DayOfWeek,
+                    freeTime = existing.FreeTime,
                     updatedAt = now
                 });
             }
 
             await _repo.SaveChangesAsync();
 
-            var response = new
+            return new
             {
                 success = true,
                 message = "Free time slots updated successfully",
-                data = new
-                {
-                    studentId = request.FreeTimeSlots.First().StudentId,
-                    groupId = groupId,
-                    savedSlots = resultList
-                }
+                data = resultList
             };
-
-            return response;
         }
+
+        private string CapitalizeFirstLetter(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return input;
+
+            return char.ToUpper(input[0]) + input.Substring(1).ToLower();
+        }
+
         public async Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId)
         {
             return await _repo.GetFreeTimeSlotsByGroupIdAsync(groupId);
