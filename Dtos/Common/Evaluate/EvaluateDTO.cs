@@ -22,11 +22,10 @@ namespace DataTranferObjects.Common.Evaluate
     public class EvaluationCreateDTO
     {
         public int ReceiverId { get; set; }
-        public string? Feedback { get; set; }
         public int GroupId { get; set; }
-        public int? DeliverableId { get; set; }
-
-        public List<PenaltyCardCreateDTO>? PenaltyCards { get; set; }
+        public int DeliverableId { get; set; }
+        public string Feedback { get; set; } = string.Empty;
+        public List<int>? PenaltyCardIds { get; set; } 
     }
 
     public class PenaltyCardResponseDTO
@@ -34,7 +33,7 @@ namespace DataTranferObjects.Common.Evaluate
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public string Type { get; set; } = "MILESTONE";
+        public string Type { get; set; } = "Milestonse";
         public int? UserId { get; set; }
         public DateTime CreatedAt { get; set; }
     }

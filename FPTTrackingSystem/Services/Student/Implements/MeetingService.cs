@@ -69,7 +69,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
             return response;
         }
-        public async Task<List<FreeTimeSlotDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId)
+        public async Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId)
         {
             return await _repo.GetFreeTimeSlotsByGroupIdAsync(groupId);
         }

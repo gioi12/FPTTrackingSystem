@@ -2,6 +2,7 @@
 using Entities.Models;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Utilities;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Common.Implements;
 using Repositories.Common.Interfaces;
 
@@ -24,32 +25,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
             if (user == null || user.Id == null)
                 throw new Exception("Không thể xác thực người dùng.");
 
-            var evaluation = new Evaluation
-            {
-                ReceiverId = dto.ReceiverId,
-                EvaluatorId = user.Id.Value,
-                Feedback = dto.Feedback,
-                GroupId = dto.GroupId,
-                DeliverableId = dto.DeliverableId,
-                CreateAt = DateTime.UtcNow,
-                UpdateAt = DateTime.UtcNow,
-                PenatyCards = new List<PenatyCard>()
-            };
-
-            if (dto.PenaltyCards != null && dto.PenaltyCards.Any())
-            {
-                foreach (var card in dto.PenaltyCards)
-                {
-                    evaluation.PenatyCards.Add(new PenatyCard
-                    {
-                        Name = card.Name,
-                        Description = card.Description,
-                        Type = card.Type ?? "MILESTONE",
-                    });
-                }
-            }
-
-            var createdEvaluation = await _evaluationRepository.CreateEvaluationAsync(evaluation);
+            var createdEvaluation = await _evaluationRepository.CreateEvaluationAsync(dto, user.Id.Value);
 
             var response = new EvaluationResponseDTO
             {
@@ -61,11 +37,12 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 DeliverableId = createdEvaluation.DeliverableId,
                 CreateAt = createdEvaluation.CreateAt ?? DateTime.MinValue,
                 UpdateAt = createdEvaluation.UpdateAt ?? DateTime.MinValue,
-                PenaltyCards = createdEvaluation.PenatyCards.Select(p => new PenaltyCardResponseDTO
+                PenaltyCards = createdEvaluation.PenatyCards?.Select(p => new PenaltyCardResponseDTO
                 {
+                    Id = p.Id,
                     Name = p.Name,
                     Description = p.Description,
-                    Type = p.Type,
+                    Type = p.Type
                 }).ToList()
             };
 
@@ -77,7 +54,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
             var cards = await _evaluationRepository.GetAllPenaltyCardsAsync();
 
             var milestoneCards = cards
-                .Where(c => c.Type != null && c.Type.Equals("MILESTONE", StringComparison.OrdinalIgnoreCase))
+                .Where(c => c.Type != null && c.Type.Equals("Milestone", StringComparison.OrdinalIgnoreCase))
                 .Select(c => new PenaltyCardResponseDTO
                 {
                     Id = c.Id,
@@ -94,11 +71,15 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
         public async Task<PenaltyCardResponseDTO> CreatePenaltyCardAsync(PenaltyCardCreateDTO dto)
         {
+            var formattedType = string.IsNullOrWhiteSpace(dto.Type)
+          ? dto.Type
+          : char.ToUpper(dto.Type[0]) + dto.Type.Substring(1).ToLower();
+
             var card = new PenatyCard
             {
                 Name = dto.Name,
                 Description = dto.Description,
-                Type = dto.Type,
+                Type = formattedType,
                 UserId = dto.UserId == 0 ? null : dto.UserId
         };
 
@@ -110,7 +91,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 Name = created.Name,
                 Description = created.Description,
                 Type = created.Type,
-                UserId = created.UserId, // có thể null
+                UserId = created.UserId, 
                 CreatedAt = created.CreateAt ?? DateTime.UtcNow
             };
         }

@@ -5,7 +5,7 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
     public interface IMeetingService
     {
         Task<object> CreateOrUpdateFreeTimeSlotsAsync(int groupId, FreeTimeSlotsRequest request);
-        Task<List<FreeTimeSlotDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId);
+        Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId);
         Task<FinalizeScheduleResponseDto> FinalizeScheduleAsync(int groupId, FinalizeScheduleRequestDto dto);
     }
 }

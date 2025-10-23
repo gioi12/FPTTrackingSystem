@@ -41,20 +41,40 @@ namespace Repositories.Student.Implements
         {
             await _context.SaveChangesAsync();
         }
-        public async Task<List<FreeTimeSlotDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId)
+        public async Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId)
         {
-            return await _context.GroupUsers
-                .Where(f => f.GroupId == groupId)
-                .GroupBy(f => new { f.UserId, f.GroupId, f.DayOfWeek })
-                .Select(g => new FreeTimeSlotDto
+            var data = await _context.GroupUsers
+                .Where(f => f.GroupId == groupId &&
+                           (f.Role == "Student" || f.Role == "Leader" || f.Role == "Secretary"))
+                .Select(f => new
+                {
+                    f.UserId,
+                    f.GroupId,
+                    f.DayOfWeek,
+                    f.FreeTime
+                })
+                .ToListAsync();
+
+            var result = data
+                .GroupBy(x => new { x.UserId, x.GroupId })
+                .Select(g => new StudentFreeTimeDto
                 {
                     StudentId = g.Key.UserId,
                     GroupId = g.Key.GroupId,
-                    DayOfWeek = g.Key.DayOfWeek,
-                    TimeSlots = g.Select(x => x.FreeTime).ToList()
+                    FreeTimeSlots = g
+                        .GroupBy(x => x.DayOfWeek)
+                        .Select(d => new FreeTimeSlotByDayDto
+                        {
+                            DayOfWeek = d.Key,
+                            TimeSlots = d.Select(t => t.FreeTime).ToList()
+                        })
+                        .ToList()
                 })
-                .ToListAsync();
+                .ToList();
+
+            return result;
         }
+
 
         public async Task<Meeting?> GetMeetingByGroupIdAsync(int groupId)
         {

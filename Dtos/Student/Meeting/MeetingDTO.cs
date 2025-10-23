@@ -52,6 +52,19 @@ namespace DataTranferObjects.Student.Meeting
         public DateTime UpdatedAt { get; set; }
     }
 
+    public class StudentFreeTimeDto
+    {
+        public int StudentId { get; set; }
+        public int GroupId { get; set; }
+        public List<FreeTimeSlotByDayDto> FreeTimeSlots { get; set; }
+    }
+
+    public class FreeTimeSlotByDayDto
+    {
+        public string DayOfWeek { get; set; }
+        public List<string> TimeSlots { get; set; }
+    }
+
 
 
 }

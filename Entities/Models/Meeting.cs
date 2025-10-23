@@ -7,8 +7,6 @@ public partial class Meeting
 {
     public int Id { get; set; }
 
-    public DateTime? MeetingDate { get; set; }
-
     public bool? IsActive { get; set; }
 
     public DateTime? CreateAt { get; set; }
@@ -28,4 +26,6 @@ public partial class Meeting
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
     public virtual MeetingMinute? MeetingMinute { get; set; }
+
+    public virtual ICollection<MeetingScheduleDate> MeetingScheduleDates { get; set; } = new List<MeetingScheduleDate>();
 }
