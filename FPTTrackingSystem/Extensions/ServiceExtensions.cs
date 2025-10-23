@@ -40,6 +40,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            services.AddScoped<IEvaluationRepository, EvaluationRepository>();
             return services;
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
@@ -57,6 +58,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IUploadService, UploadService>();
             services.AddScoped<AuthUtils>();
             services.AddScoped<IMailService, MailService>();
+            services.AddScoped<IEvaluationService, EvaluationService>();
             services.AddScoped<IMeetingService, MeetingService>();
             return services;
         }

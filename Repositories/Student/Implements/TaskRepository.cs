@@ -108,8 +108,8 @@ namespace Repositories.Student.Implements
                     var assignee = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Assignee");
                     var reviewer = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
 
-                    bool isMeetingTask = task.MeetingId.HasValue;
-                    int meetingId = isMeetingTask ? task.MeetingId.Value : 0;
+                    bool isMeetingTask = task.MeetingMinuteId.HasValue;
+                    int meetingId = isMeetingTask ? task.MeetingMinuteId.Value : 0;
 
                     return new TaskDto
                     {
@@ -215,8 +215,8 @@ namespace Repositories.Student.Implements
                 var reviewer = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
 
                 // Xác định isMeetingTask & meetingId
-                bool isMeetingTask = task.MeetingId.HasValue;
-                int meetingId = isMeetingTask ? task.MeetingId.Value : 0;
+                bool isMeetingTask = task.MeetingMinuteId.HasValue;
+                int meetingId = isMeetingTask ? task.MeetingMinuteId.Value : 0;
 
                 var dto = new TaskDto
                 {

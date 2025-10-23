@@ -244,18 +244,21 @@ namespace FPTTrackingSystem.Controllers.Staff
             return StatusCode(result.Status, result);
         }
 
-        [HttpPut("v1/Staff/semester/vacations/{id}")]
-        public async Task<IActionResult> UpdateVacation(int id, [FromBody] SemesterVacationRequestDto dto)
-        {
-            var result = await _semesterService.UpdateVacationAsync(id, dto);
-            return StatusCode(result.Status, result);
-        }
+        [HttpPut("v1/Staff/semester/{semesterId}/vacations")]
+            public async Task<IActionResult> UpdateSemesterVacations(
+                int semesterId,
+                [FromBody] List<SemesterUpdateVacationRequestDto> vacationDtos)
+            {
+                var result = await _semesterService.UpdateSemesterVacationsAsync(semesterId, vacationDtos);
+                return StatusCode(result.Status, result);
+            }
+
 
         [HttpGet("v1/Staff/semester/getVacationBySemesterId/{semesterId}")]
-    public async Task<IActionResult> GetVacationsBySemester(int semesterId)
-    {
-        var response = await _semesterService.GetBySemesterIdAsync(semesterId);
-        return StatusCode(response.Status, response);
-    }
+        public async Task<IActionResult> GetVacationsBySemester(int semesterId)
+        {
+            var response = await _semesterService.GetVacationsBySemesterAsync(semesterId);
+            return StatusCode(response.Status, response);
+        }
     }
 }

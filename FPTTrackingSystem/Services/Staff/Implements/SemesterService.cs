@@ -315,6 +315,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return semesters.Select(s => new SemesterDTO
             {
+                Id = s.Id,
+                IsActive = s.IsActive,
                 Name = s.Name ?? "",
                 StartAt = s.StartAt ?? default,
                 EndAt = s.EndAt ?? default,
@@ -346,6 +348,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return new SemesterDTO
             {
+                Id = semester.Id,
+                IsActive = semester.IsActive,
                 Name = semester.Name ?? "",
                 StartAt = semester.StartAt ?? default,
                 EndAt = semester.EndAt ?? default,
@@ -598,70 +602,90 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         }
 
 
-        public async Task<ApiResponse<string>> UpdateVacationAsync(int id, SemesterVacationRequestDto dto)
+        public async Task<ApiResponse<string>> UpdateSemesterVacationsAsync(int semesterId, List<SemesterUpdateVacationRequestDto> vacationDtos)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
-            var existingVacation = await _context.SemesterVacations
-                .FirstOrDefaultAsync(sv => sv.Id == id);
-
-            if (existingVacation == null)
-                return new ApiResponse<string>(400, "Không tìm thấy kỳ nghỉ để cập nhật.");
-
-            if (dto.StartDate >= dto.EndDate)
-                return new ApiResponse<string>(400, "Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
-
-            var semester = await _context.Semesters
-                .FirstOrDefaultAsync(s => s.Id == dto.SemesterId);
-
+            var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == semesterId);
             if (semester == null)
-                return new ApiResponse<string>(400, $"Không tìm thấy học kỳ ID {dto.SemesterId}.");
+                return new ApiResponse<string>(400, $"Không tìm thấy học kỳ ID {semesterId}.");
 
-            if (dto.StartDate < semester.StartAt || dto.EndDate > semester.EndAt)
-                return new ApiResponse<string>(400, $"Thời gian nghỉ phải nằm trong khoảng {semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}.");
+            // Xóa toàn bộ kỳ nghỉ cũ
+            var oldVacations = await _context.SemesterVacations
+                .Where(v => v.SemesterId == semesterId)
+                .ToListAsync();
 
-            bool isOverlapping = await _context.SemesterVacations
-                .AnyAsync(sv => sv.SemesterId == dto.SemesterId &&
-                                sv.Id != id &&
-                                ((dto.StartDate >= sv.StartAt && dto.StartDate <= sv.EndAt) ||
-                                 (dto.EndDate >= sv.StartAt && dto.EndDate <= sv.EndAt) ||
-                                 (dto.StartDate <= sv.StartAt && dto.EndDate >= sv.EndAt)));
+            _context.SemesterVacations.RemoveRange(oldVacations);
 
-            if (isOverlapping)
-                return new ApiResponse<string>(400, "Khoảng thời gian này bị trùng với kỳ nghỉ khác.");
+            // Validate và thêm danh sách mới
+            foreach (var dto in vacationDtos)
+            {
+                if (dto.StartDate >= dto.EndDate)
+                    return new ApiResponse<string>(400, "Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
 
-            existingVacation.SemesterId = dto.SemesterId;
-            existingVacation.StartAt = dto.StartDate;
-            existingVacation.EndAt = dto.EndDate;
-            existingVacation.Description = dto.Description;
+                if (dto.StartDate < semester.StartAt || dto.EndDate > semester.EndAt)
+                    return new ApiResponse<string>(400, $"Thời gian nghỉ phải nằm trong khoảng {semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}.");
+            }
 
-            _context.SemesterVacations.Update(existingVacation);
+            // Kiểm tra chồng lấn trong list mới
+            var ordered = vacationDtos.OrderBy(v => v.StartDate).ToList();
+            for (int i = 0; i < ordered.Count - 1; i++)
+            {
+                if (ordered[i].EndDate > ordered[i + 1].StartDate)
+                    return new ApiResponse<string>(400, "Các kỳ nghỉ mới bị chồng lấn thời gian.");
+            }
+
+            // Thêm mới danh sách
+            var newVacations = vacationDtos.Select(dto => new SemesterVacation
+            {
+                SemesterId = semesterId,
+                StartAt = dto.StartDate,
+                EndAt = dto.EndDate,
+                Description = dto.Description
+            }).ToList();
+
+            await _context.SemesterVacations.AddRangeAsync(newVacations);
             await _context.SaveChangesAsync();
 
+            // Log lại
             await _logService.AddLogAsync(new Log
             {
-                Name = "Cập nhật thời gian nghỉ học kỳ",
+                Name = "Cập nhật danh sách kỳ nghỉ học kỳ",
                 EntityName = "SemesterVacation",
-                EntityId = id,
+                EntityId = semesterId,
                 Action = "UPDATE",
-                Description = $"Người dùng ID {user.Id} đã cập nhật kỳ nghỉ: {dto.Description} ({dto.StartDate:yyyy-MM-dd} → {dto.EndDate:yyyy-MM-dd})",
+                Description = $"Người dùng ID {user.Id} đã cập nhật toàn bộ kỳ nghỉ cho học kỳ {semesterId}.",
                 UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
             });
 
-            return new ApiResponse<string>(200, "Cập nhật thời gian nghỉ thành công.");
+            return new ApiResponse<string>(200, "Cập nhật danh sách kỳ nghỉ thành công.");
         }
 
-        public async Task<ApiResponse<List<SemesterVacationDto>>> GetBySemesterIdAsync(int semesterId)
+
+        public Task<ApiResponse<List<SemesterVacationDto>>> GetBySemesterIdAsync(int semesterId)
         {
-            var vacations = await _semesterRepository.GetBySemesterIdAsync(semesterId);
-
-            if (vacations == null || !vacations.Any())
-                return ApiResponse<List<SemesterVacationDto>>.Success(new List<SemesterVacationDto>(),"Không có tuần nghỉ nào trong kỳ này.");
-
-            return ApiResponse<List<SemesterVacationDto>>.Success(vacations, "Lấy danh sách tuần nghỉ theo kỳ thành công.");
+            throw new NotImplementedException();
         }
 
+        public async Task<ApiResponse<List<SemesterVacationDto>>> GetVacationsBySemesterAsync(int semesterId)
+        {
+            var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == semesterId);
+            if (semester == null)
+                return new ApiResponse<List<SemesterVacationDto>>(400, $"Không tìm thấy học kỳ ID {semesterId}.");
+
+            var vacations = await _semesterRepository.GetVacationsBySemesterAsync(semesterId);
+
+            var data = vacations.Select(v => new SemesterVacationDto
+            {
+                id = v.Id,
+                StartDate = v.StartAt ?? DateTime.MinValue,
+                EndDate = v.EndAt ?? DateTime.MinValue,
+                Description = v.Description
+            }).ToList();
+
+            return new ApiResponse<List<SemesterVacationDto>>(200, "Lấy danh sách kỳ nghỉ thành công.", data);
+        }
 
     }
 }

@@ -1,4 +1,6 @@
-﻿using DataTranferObjects.Staff.Task;
+﻿using DataTranferObjects.Staff.Semester;
+using DataTranferObjects.Staff.Task;
+using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
