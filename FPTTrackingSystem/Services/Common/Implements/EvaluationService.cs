@@ -128,5 +128,19 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 CreateAt = c.CreateAt
             }).ToList();
         }
+
+        public async Task<List<EvaluationResponseDto>> GetEvaluationsByMentorDeliverableIdAsync(int mentorId)
+        {
+            var evaluations = await _evaluationRepository.GetByDeliverableMentorIdAsync(mentorId);
+
+            return evaluations.Select(e => new EvaluationResponseDto
+            {
+                Feedback = e.Feedback,
+                DeliverableName = e.Deliverable?.Name,
+                CreateAt = e.CreateAt,
+                EvaluatorName = e.Evaluator.Fullname,
+                PenaltyCards = e.PenatyCards.Select(p => p.Name).ToList()
+            }).ToList();
+        }
     }
 }

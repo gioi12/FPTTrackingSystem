@@ -10,6 +10,7 @@ namespace FPTTrackingSystem.Services.Common.Interfaces
         Task<PenaltyCardResponseDTO> CreatePenaltyCardAsync(PenaltyCardCreateDTO dto);
         Task<List<PenaltyCardResponseDTO>> GetCardsByMentorIdAsync(int mentorId);
         Task<List<EvaluationResponseDto>> GetEvaluationsByDeliverableIdAsync(int studentId);
+        Task<List<EvaluationResponseDto>> GetEvaluationsByMentorDeliverableIdAsync(int mentorId);
         Task<List<PenaltyCardResponseDto>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId);
     }
 }
