@@ -182,5 +182,23 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return statusUpdate;
         }
+
+        public async Task<List<DeliverableGroupDetailDTO>> GetDeliverableGroupsByGroupIdAsync(int groupId)
+        {
+            var deliverableGroups = await _deliverableRepository.GetDeliverableGroupsByGroupIdAsync(groupId);
+
+            return deliverableGroups
+                .Where(dg => dg.Deliverable != null && dg.Deliverable.IsActive == true)
+                .Select(dg => new DeliverableGroupDetailDTO
+                {
+                    Id = dg.Deliverable.Id,
+                    Name = dg.Deliverable.Name,
+                    Description = dg.Deliverable.Description,
+                    Deadline = dg.Deliverable.Deadline,
+                    CreateAt = dg.Deliverable.Milestone?.CreateAt
+                })
+                .ToList();
+        }
+
     }
 }

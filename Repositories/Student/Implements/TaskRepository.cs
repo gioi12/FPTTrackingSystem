@@ -91,13 +91,7 @@ namespace Repositories.Student.Implements
                     .Include(t => t.Deliverable)
                     .Include(t => t.TaskUsers)
                         .ThenInclude(tu => tu.User)
-                            .ThenInclude(u => u.Attachments)
-                    .Include(t => t.TaskUsers)
-                        .ThenInclude(tu => tu.User)
                             .ThenInclude(u => u.Comments)
-                    .Include(t => t.TaskUsers)
-                        .ThenInclude(tu => tu.User)
-                            .ThenInclude(u => u.Logs)
                     .Where(t => t.GroupId == groupId)
                     .OrderBy(t => t.Deadline)
                     .ToListAsync();
@@ -143,14 +137,14 @@ namespace Repositories.Student.Implements
                                 Description = task.Deliverable.Description
                             }
                             : null,
-                        Attachments = _context.Attachments?
+/*                        Attachments = _context.Attachments?
                             .Where(a => a.EntityName.Equals("task") && a.EntityId == task.Id)
                             .Select(a => new AttachmentDto
                             {
                                 Id = a.Id,
                                 FileName = a.FileName,
                                 FileUrl = a.FilePath
-                            }).ToList() ?? new List<AttachmentDto>(),
+                            }).ToList() ?? new List<AttachmentDto>(),*/
                         Comments = _context.Comments?
                             .Where(c => c.EntityName.Equals("task") && c.EntityId == task.Id)
                             .Select(c => new CommentDto

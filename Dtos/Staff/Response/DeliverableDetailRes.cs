@@ -19,6 +19,16 @@ namespace DataTranferObjects.Staff.Response
         public string Status { get; set; } = ProgressEnum.Unsubmitted;
         public virtual ICollection<DeliverableItemDetailRes> DeliveryItems { get; set; } = new List<DeliverableItemDetailRes>();
     }
+
+    public class DeliverableGroupDetailDTO
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? Deadline { get; set; }
+        public DateTime? CreateAt { get; set; }
+    }
+
     public class DeliverableItemDetailRes
     {
         public int Id { get; set; }

@@ -12,6 +12,6 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<List<GroupDeliverableRes>> GetDeliverableByGroupId(int groupId);
         Task<DeliverableDetailRes> GetDeliverableByIdAndGroupId(int groupId, int deliverableId);
         Task<string> ConfirmDeliverable(int groupId, int deliverableId);
-
+        Task<List<DeliverableGroupDetailDTO>> GetDeliverableGroupsByGroupIdAsync(int groupId);
     }
 }
