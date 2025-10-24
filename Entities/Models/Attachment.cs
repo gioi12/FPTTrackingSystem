@@ -21,6 +21,8 @@ public partial class Attachment
 
     public int GroupId { get; set; }
 
+    public bool? IsDownload { get; set; }
+
     public virtual Group Group { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

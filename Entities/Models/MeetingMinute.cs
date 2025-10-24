@@ -19,7 +19,7 @@ public partial class MeetingMinute
 
     public string? Other { get; set; }
 
-    public int? MeetingId { get; set; }
+    public int? MeetingScheduleDateId { get; set; }
 
     public DateTime? StartAt { get; set; }
 
@@ -27,7 +27,7 @@ public partial class MeetingMinute
 
     public virtual User? CreateByNavigation { get; set; }
 
-    public virtual Meeting? Meeting { get; set; }
+    public virtual MeetingScheduleDate? MeetingScheduleDate { get; set; }
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }
