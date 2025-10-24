@@ -19,5 +19,6 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
         System.Threading.Tasks.Task DeleteMeetingMinute(int id);
         Task<MeetingResponseDTO?> GetMeetingByIdAsync(int meetingId);
         Task<ApiResponse<List<MeetingScheduleDateDetailDto>>> GetMeetingScheduleDatesByGroupIdAsync(int groupId);
+        Task<bool> UpdateIsMeetingAsync(int id, bool isMeeting);
     }
 }

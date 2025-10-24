@@ -326,5 +326,18 @@ namespace Repositories.Student.Implements
                     .OrderBy(msd => msd.MeetingDate)
                     .ToListAsync();
         }
+
+        public async Task<MeetingScheduleDate?> GetByIdAsync(int id)
+        {
+            return await _context.MeetingScheduleDates.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<bool> UpdateAsync(MeetingScheduleDate entity)
+        {
+            _context.MeetingScheduleDates.Update(entity);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

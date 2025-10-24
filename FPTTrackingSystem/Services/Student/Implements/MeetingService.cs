@@ -208,11 +208,24 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 Description = msd.Description,
                 CreateAt = msd.Meeting?.CreateAt,
                 MeetingLink = msd.Meeting?.MeetingLink,
+                IsMeeting = msd.IsMeeting,
                 Time = msd.Meeting?.Time,
                 DayOfWeek = msd.Meeting?.DayOfWeek
             }).ToList();
 
             return ApiResponse<List<MeetingScheduleDateDetailDto>>.Success(result, "Lấy danh sách ngày họp thành công.");
+        }
+
+        public async Task<bool> UpdateIsMeetingAsync(int id, bool isMeeting)
+        {
+            var schedule = await _repo.GetByIdAsync(id);
+            if (schedule == null) return false;
+
+            schedule.IsMeeting = isMeeting;
+            schedule.UpdatedAt = DateTime.Now;
+
+            await _repo.UpdateAsync(schedule);
+            return true;
         }
     }
 }

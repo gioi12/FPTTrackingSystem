@@ -82,5 +82,15 @@ namespace FPTTrackingSystem.Controllers.Student
                 return StatusCode(500, ApiResponse<string>.InternalError("Lỗi khi lấy danh sách ngày họp."));
             }
         }
+
+        [HttpPut("update-is-meeting/{id}")]
+        public async Task<IActionResult> UpdateIsMeetingAsync(int id, [FromBody] bool isMeeting)
+        {
+            var success = await _service.UpdateIsMeetingAsync(id, isMeeting);
+            if (!success)
+                return NotFound(new { message = "Không tìm thấy lịch họp." });
+
+            return Ok(new { message = "Cập nhật IsMeeting thành công." });
+        }
     }
 }

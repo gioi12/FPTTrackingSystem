@@ -92,6 +92,7 @@ namespace DataTranferObjects.Student.Meeting
         public int Id { get; set; }
         public DateTime? MeetingDate { get; set; }
         public string? Description { get; set; }
+        public bool? IsMeeting { get; set; }
         public DateTime? CreateAt { get; set; }
         public string? MeetingLink { get; set; }
         public string? Time { get; set; }

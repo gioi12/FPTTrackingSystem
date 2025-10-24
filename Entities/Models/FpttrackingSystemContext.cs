@@ -470,6 +470,7 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnName("created_at");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
+            entity.Property(e => e.IsMeeting).HasColumnName("is_Meeting");
             entity.Property(e => e.MeetingDate)
                 .HasColumnType("datetime")
                 .HasColumnName("meeting_date");
