@@ -17,6 +17,8 @@ namespace DataTranferObjects.Staff.Response
         public DateTime? StartAt { get; set; }
         public DateTime? EndAt { get; set; }
         public string Status { get; set; } = ProgressEnum.Unsubmitted;
+        public string Note { get; set; }
+
         public virtual ICollection<DeliverableItemDetailRes> DeliveryItems { get; set; } = new List<DeliverableItemDetailRes>();
     }
 

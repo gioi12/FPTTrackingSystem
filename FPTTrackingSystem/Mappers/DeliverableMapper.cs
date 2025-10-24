@@ -36,6 +36,7 @@ namespace FPTTrackingSystem.Mappers
                .Map(dest => dest.Description, src => src.Description)
                .Map(dest => dest.Deadline, src => src.Deadline)
                .Map(dest => dest.Status, src => src.DeliverableGroups.FirstOrDefault() != null ? src.DeliverableGroups.FirstOrDefault().Status : ProgressEnum.Unsubmitted)
+               .Map(dest => dest.Note, src => src.DeliverableGroups.FirstOrDefault() != null ? src.DeliverableGroups.FirstOrDefault().Note : "")
                .Map(dest => dest.DeliveryItems, src => src.DeliveryItems.Adapt<List<DeliverableItemRes>>());
         }
     }
