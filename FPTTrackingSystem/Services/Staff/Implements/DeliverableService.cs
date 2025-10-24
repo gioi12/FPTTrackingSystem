@@ -117,7 +117,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             res.EndAt = res.Deadline != null
                 ? DateTimeUtils.GetDeadlineDate(res.Deadline, (List<Entities.Models.SemesterWeek>)semester.SemesterWeeks)
                 : null;
-
+   
             var entityName = FileUploadUtils.GetEntityName((int)FileEnum.DeliverableItem);
             var allAttachments = await _attachmentRepository.GetAttachmentsByIds(
                 entityName, res.DeliveryItems.Select(x => x.Id).ToList(), groupId
