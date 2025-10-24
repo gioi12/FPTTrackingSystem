@@ -2,6 +2,7 @@
 using FPTTrackingSystem.Services.Common.Implements;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Utilities;
+using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -120,6 +121,46 @@ namespace FPTTrackingSystem.Controllers.Common
                 return NotFound(new { Message = "Không có thẻ phạt General nào cho sinh viên này." });
 
             return Ok(result);
+        }
+
+        [HttpPut("update/penalty-card/{id}")]
+        public async Task<IActionResult> UpdatePenaltyCard(int id, [FromBody] PenaltyCardUpdateDTO dto)
+        {
+            var result = await _evaluationService.UpdatePenaltyCardAsync(id, dto);
+            if (result == null)
+                return NotFound(ApiResponse<string>.Fail("Penalty card not found", 404));
+
+            return Ok(ApiResponse<object>.Success(new
+            {
+                result.Id,
+                result.Name,
+                result.Description,
+                result.UserId,
+                result.CreateAt
+            }, "Update penalty card success"));
+        }
+
+        [HttpPut("update/evaluation/{id}")]
+        public async Task<IActionResult> UpdateEvaluation(int id, [FromBody] EvaluationUpdateDTO dto)
+        {
+            var result = await _evaluationService.UpdateEvaluationAsync(id, dto);
+            if (result == null)
+                return NotFound(ApiResponse<string>.Fail("Evaluation not found", 404));
+
+            return Ok(ApiResponse<object>.Success(new
+            {
+                result.Id,
+                result.Feedback,
+                result.DeliverableId,
+                result.UpdateAt,
+                PenaltyCards = result.PenatyCards.Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Description,
+                    p.Type
+                }).ToList()
+            }, "Cập nhật Evaluation thành công."));
         }
     }
 }

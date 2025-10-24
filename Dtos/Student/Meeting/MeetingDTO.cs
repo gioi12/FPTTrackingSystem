@@ -87,4 +87,15 @@ namespace DataTranferObjects.Student.Meeting
         public string? CreatedByName { get; set; }
     }
 
+    public class MeetingScheduleDateDetailDto
+    {
+        public int Id { get; set; }
+        public DateTime? MeetingDate { get; set; }
+        public string? Description { get; set; }
+        public DateTime? CreateAt { get; set; }
+        public string? MeetingLink { get; set; }
+        public string? Time { get; set; }
+        public string? DayOfWeek { get; set; }
+    }
+
 }

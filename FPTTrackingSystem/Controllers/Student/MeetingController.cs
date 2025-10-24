@@ -1,6 +1,7 @@
 ﻿using DataTranferObjects.Student.Meeting;
 using FPTTrackingSystem.Services.Student.Implements;
 using FPTTrackingSystem.Services.Student.Interfaces;
+using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -65,6 +66,21 @@ namespace FPTTrackingSystem.Controllers.Student
                 return NotFound(new { message = "Không tìm thấy cuộc họp" });
 
             return Ok(meeting);
+        }
+
+        [HttpGet("group/{groupId}/schedule-dates")]
+        public async Task<IActionResult> GetMeetingScheduleDatesByGroupId(int groupId)
+        {
+            try
+            {
+                var response = await _service.GetMeetingScheduleDatesByGroupIdAsync(groupId);
+                return StatusCode(response.Status, response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetMeetingScheduleDatesByGroupId] Error: {ex.Message}");
+                return StatusCode(500, ApiResponse<string>.InternalError("Lỗi khi lấy danh sách ngày họp."));
+            }
         }
     }
 }

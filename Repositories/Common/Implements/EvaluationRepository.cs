@@ -113,5 +113,53 @@ namespace Repositories.Common.Implements
                .Where(e => e.EvaluatorId == mentorId)
                .ToListAsync();
         }
+
+        public async Task<PenatyCard?> UpdatePenaltyCardAsync(int id, string? name, string? description, int? userId)
+        {
+            var card = await _context.PenatyCards.FirstOrDefaultAsync(x => x.Id == id);
+            if (card == null)
+                return null;
+
+            card.Name = name ?? card.Name;
+            card.Description = description ?? card.Description;
+            card.UserId = userId ?? card.UserId;
+
+            await _context.SaveChangesAsync();
+            return card;
+        }
+
+        public async Task<Evaluation?> UpdateEvaluationAsync(int id, string? feedback, int? deliverableId, List<int>? penaltyCardIds)
+        {
+            var evaluation = await _context.Evaluations
+                .Include(e => e.PenatyCards)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (evaluation == null)
+                return null;
+
+            evaluation.Feedback = feedback ?? evaluation.Feedback;
+            evaluation.DeliverableId = deliverableId ?? evaluation.DeliverableId;
+            evaluation.UpdateAt = DateTime.UtcNow;
+
+            if (penaltyCardIds != null)
+            {
+                foreach (var card in evaluation.PenatyCards.ToList())
+                {
+                    card.EvaluationId = null;
+                }
+
+                var newCards = await _context.PenatyCards
+                    .Where(c => penaltyCardIds.Contains(c.Id))
+                    .ToListAsync();
+
+                foreach (var card in newCards)
+                {
+                    card.EvaluationId = evaluation.Id;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return evaluation;
+        }
     }
 }

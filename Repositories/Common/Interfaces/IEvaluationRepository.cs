@@ -17,5 +17,7 @@ namespace Repositories.Common.Interfaces
         Task<List<Evaluation>> GetByDeliverableMentorIdAsync(int mentorId);
         Task<List<Evaluation>> GetByDeliverableIdAsync(int studentId);
         Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId);
+        Task<PenatyCard?> UpdatePenaltyCardAsync(int id, string? name, string? description, int? userId);
+        Task<Evaluation?> UpdateEvaluationAsync(int id, string? feedback, int? deliverableId, List<int>? penaltyCardIds);
     }
 }

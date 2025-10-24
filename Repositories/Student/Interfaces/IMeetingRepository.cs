@@ -29,6 +29,7 @@ namespace Repositories.Student.Interfaces
         Task<MeetingScheduleDate?> GetMeetingDateByIdAsync(int id);
 
         Task<bool> CheckSecretary(int userId);
+        Task<List<MeetingScheduleDate>> GetMeetingScheduleDatesByGroupIdAsync(int groupId);
 
     }
 }

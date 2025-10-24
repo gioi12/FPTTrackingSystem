@@ -81,7 +81,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 Name = dto.Name,
                 Description = dto.Description,
                 Type = formattedType,
-                EvaluationId = user.Id ?? 0,
+                EvaluatorId = user.Id ?? 0,
                 UserId = dto.UserId == 0 ? null : dto.UserId
         };
 
@@ -142,6 +142,21 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 ReceiverId = e.ReceiverId,
                 PenaltyCards = e.PenatyCards.Select(p => p.Name).ToList()
             }).ToList();
+        }
+
+        public async Task<PenatyCard?> UpdatePenaltyCardAsync(int id, PenaltyCardUpdateDTO dto)
+        {
+            return await _evaluationRepository.UpdatePenaltyCardAsync(id, dto.Name, dto.Description, dto.UserId);
+        }
+
+        public async Task<Evaluation?> UpdateEvaluationAsync(int id, EvaluationUpdateDTO dto)
+        {
+            return await _evaluationRepository.UpdateEvaluationAsync(
+                id,
+                dto.Feedback,
+                dto.DeliverableId,
+                dto.PenaltyCardIds ?? new List<int>()
+            );
         }
     }
 }

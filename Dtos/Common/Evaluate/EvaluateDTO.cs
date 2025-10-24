@@ -68,4 +68,18 @@ namespace DataTranferObjects.Common.Evaluate
         public List<string> PenaltyCards { get; set; } = new();
     }
 
+    public class PenaltyCardUpdateDTO
+    {
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public int? UserId { get; set; }
+    }
+
+    public class EvaluationUpdateDTO
+    {
+        public string? Feedback { get; set; }
+        public int? DeliverableId { get; set; }
+        public List<int>? PenaltyCardIds { get; set; }  
+    }
+
 }
