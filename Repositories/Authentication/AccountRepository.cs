@@ -41,8 +41,9 @@ namespace Repositories.Authentication
             if (user == null)
                 return null;
 
-            var groupId = user.GroupUsers.FirstOrDefault()?.GroupId;
-
+            var groupIds = user.GroupUsers
+                .Select(gu => gu.GroupId)
+                .ToList();
             var groupUser = user.GroupUsers.FirstOrDefault();
             var roleInGroup = groupUser?.Role;
 
@@ -52,7 +53,7 @@ namespace Repositories.Authentication
                 Name = user.Fullname,
                 Role = account.Role.Name,
                 RoleInGroup = roleInGroup,
-                GroupId = groupId
+                Groups = groupIds
             };
         }
     }

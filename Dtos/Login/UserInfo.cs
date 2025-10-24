@@ -12,6 +12,6 @@ namespace DataTranferObjects.Login
         public string? Name { get; set; }
         public string? Role { get; set; }
         public string? RoleInGroup { get; set; }
-        public int? GroupId { get; set; }
+        public List<int>? Groups { get; set; }
     }
 }
