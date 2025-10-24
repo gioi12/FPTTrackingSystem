@@ -14,5 +14,9 @@ namespace Repositories.Common.Interfaces
 
         Task<List<Attachment>> GetAttachmentsByIds(string entityName, List<int> entityIds, int groupId);
 
+        System.Threading.Tasks.Task DeleteAttachment(Attachment attachment);
+        Task<Attachment?> GetAttachmentById(int attachmentId);
+
+        System.Threading.Tasks.Task UpdateAttachment(Attachment attachment);
     }
 }

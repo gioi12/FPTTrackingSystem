@@ -100,6 +100,7 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnName("file_name");
             entity.Property(e => e.FilePath).HasColumnName("file_path");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.IsDownload).HasColumnName("is_download");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.Group).WithMany(p => p.Attachments)

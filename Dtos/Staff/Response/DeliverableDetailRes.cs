@@ -39,6 +39,9 @@ namespace DataTranferObjects.Staff.Response
     }
     public class attachmentItemRes
     {
+        public int id { get; set; }
+        public string fileName { get; set; }
+
         public string path { get; set; }
         public string userName { get; set; }
         public DateTime createAt { get; set; }

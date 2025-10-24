@@ -22,6 +22,17 @@ namespace Repositories.Common.Implements
             await _context.SaveChangesAsync();
         }
 
+        public async System.Threading.Tasks.Task DeleteAttachment(Attachment attachment)
+        {
+            _context.Attachments.Remove(attachment);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Attachment?> GetAttachmentById(int attachmentId)
+        {
+            return  await _context.Attachments.FirstOrDefaultAsync(x => x.Id == attachmentId);
+        }
+
         public async Task<List<Attachment>> GetAttachments(string entityName, int entityId, int groupId)
         {
            return await _context.Attachments
@@ -39,6 +50,12 @@ namespace Repositories.Common.Implements
                             && entityIds.Contains(x.EntityId)
                             && x.GroupId == groupId)
                 .ToListAsync();
+        }
+
+        public async System.Threading.Tasks.Task UpdateAttachment(Attachment attachment)
+        {
+             _context.Attachments.Update(attachment);
+             await _context.SaveChangesAsync();
         }
     }
 }
