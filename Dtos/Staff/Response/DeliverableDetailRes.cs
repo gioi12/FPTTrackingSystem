@@ -41,6 +41,7 @@ namespace DataTranferObjects.Staff.Response
     {
         public int id { get; set; }
         public string fileName { get; set; }
+        public bool isDownload { get; set; } = false;
 
         public string path { get; set; }
         public string userName { get; set; }

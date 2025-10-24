@@ -133,7 +133,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         fileName = a.FileName,
                         path = a.FilePath,
                         createAt = a.CreateAt,
-                        userName = a.User.Fullname
+                        userName = a.User.Fullname,
+                        isDownload = a.IsDownload == null ? false : (bool)a.IsDownload
                     })
                     .ToList();
 
