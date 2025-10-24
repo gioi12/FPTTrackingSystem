@@ -18,27 +18,27 @@ namespace FPTTrackingSystem.Controllers.Student
         }
         [HttpGet("v1/MeetingMinute")]
         [Authorize]
-        public async Task<object> GetMeetingMinuteByMeetingId([FromQuery]int meetingId)
+        public async Task<object> GetMeetingMinuteByMeetingId([FromQuery]int meetingDateId)
         {
-            return Ok(ApiResponse<object>.Success( await _meetingService.GetMeetingMinute(meetingId), "Find meeting minute success."));
+            return Ok(ApiResponse<object>.Success( await _meetingService.GetMeetingMinuteDate(meetingDateId), "Find meeting minute success."));
         }
 
         [HttpPost("v1/MeetingMinute")]
-        [Authorize]
+        [Authorize(Roles = "Student")]
         public async Task<object> CreateMeetingMinute([FromBody] MeetingMinuteRequest request)
         {
             return Ok(ApiResponse<object>.Success(await _meetingService.CreateMeetingMinute(request), "Create meeting minute success."));
         }
 
         [HttpPut("v1/MeetingMinute")]
-        [Authorize]
+        [Authorize(Roles = "Student")]
         public async Task<object> UpdateMeetingMinuteBy([FromBody] MeetingMinuteUpdateReq request)
         {
             return Ok(ApiResponse<object>.Success(await _meetingService.UpdateMeetingMinute(request), "Update meeting minute success."));
         }
 
         [HttpDelete("v1/MeetingMinute/{id}")]
-        [Authorize]
+        [Authorize(Roles = "Student")]
         public async Task<object> DeleteMeetingMinuteBy(int id)
         {
             await _meetingService.DeleteMeetingMinute(id);

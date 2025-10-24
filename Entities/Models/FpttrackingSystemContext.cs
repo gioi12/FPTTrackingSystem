@@ -429,7 +429,7 @@ public partial class FpttrackingSystemContext : DbContext
         {
             entity.ToTable("Meeting_Minute");
 
-            entity.HasIndex(e => e.MeetingId, "UQ_Meeting_Minute").IsUnique();
+            entity.HasIndex(e => e.MeetingScheduleDateId, "UQ_Meeting_Minute").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Attendance)
@@ -444,7 +444,7 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnName("end_at");
             entity.Property(e => e.Issue).HasColumnName("issue");
             entity.Property(e => e.MeetingContent).HasColumnName("meeting_content");
-            entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
+            entity.Property(e => e.MeetingScheduleDateId).HasColumnName("meeting_schedule_date_id");
             entity.Property(e => e.Other).HasColumnName("other");
             entity.Property(e => e.StartAt)
                 .HasColumnType("datetime")
@@ -454,9 +454,9 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasForeignKey(d => d.CreateBy)
                 .HasConstraintName("FK_Meeting_Minute_User1");
 
-            entity.HasOne(d => d.Meeting).WithOne(p => p.MeetingMinute)
-                .HasForeignKey<MeetingMinute>(d => d.MeetingId)
-                .HasConstraintName("FK_Meeting_Minute_Meeting");
+            entity.HasOne(d => d.MeetingScheduleDate).WithOne(p => p.MeetingMinute)
+                .HasForeignKey<MeetingMinute>(d => d.MeetingScheduleDateId)
+                .HasConstraintName("FK_Meeting_Minute_Meeting_Schedule_Date");
         });
 
         modelBuilder.Entity<MeetingScheduleDate>(entity =>

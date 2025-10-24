@@ -10,7 +10,7 @@ namespace DataTranferObjects.Student.Meeting
     public class MeetingMinuteRequest
     {
         [Required]
-        public int MeetingId { get; set; }
+        public int MeetingDateId { get; set; }
         [Required]
         public DateTime? startAt { get; set; }
         public DateTime? endAt { get; set; }

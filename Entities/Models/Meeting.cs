@@ -25,7 +25,5 @@ public partial class Meeting
 
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
-    public virtual MeetingMinute? MeetingMinute { get; set; }
-
     public virtual ICollection<MeetingScheduleDate> MeetingScheduleDates { get; set; } = new List<MeetingScheduleDate>();
 }

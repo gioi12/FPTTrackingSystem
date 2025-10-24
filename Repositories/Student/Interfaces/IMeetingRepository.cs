@@ -20,12 +20,15 @@ namespace Repositories.Student.Interfaces
 
         Task<MeetingMinute> CreateMeetingMinute(MeetingMinute entity);
 
-        Task<MeetingMinute?> GetMeetingMinuteByMeeting(int meetingId);
+        Task<MeetingMinute?> GetMeetingMinuteByMeetingDate(int meetingDateId);
         Task<MeetingMinute?> GetMeetingMinuteById(int id);
         Task<MeetingMinute> UpdateMeetingMinute(MeetingMinute entity);
         System.Threading.Tasks.Task DeleteMeetingMinute(MeetingMinute entity);
         Task<Meeting?> GetMeetingByIdAsync(int meetingId);
         Task<Meeting> FinalizeOrUpdateScheduleAsync(int groupId, FinalMeetingDto dto, int userId);
+        Task<MeetingScheduleDate?> GetMeetingDateByIdAsync(int id);
+
+        Task<bool> CheckSecretary(int userId);
 
     }
 }

@@ -105,16 +105,24 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
         public async Task<MeetingMinuteRes> CreateMeetingMinute(MeetingMinuteRequest request)
         {
-            var meetingMinute = await _repo.GetMeetingMinuteByMeeting(request.MeetingId);
-            if(meetingMinute != null)
+            var meeting = await _repo.GetMeetingDateByIdAsync(request.MeetingDateId);
+            if(meeting == null)
+            {
+                throw new ValidationException("Meeting not found.");
+            }
+            if (meeting.MeetingMinute != null)
             {
                 throw new ValidationException("Meeting minute already exists for this meeting.");
             }
             var user = await _authUtils.GetUserInfoFromCookie();
-
+            var roleUser = await _repo.CheckSecretary((int)user.Id);
+            if (!roleUser)
+            {
+                throw new ValidationException("User not Secretary");
+            }
             MeetingMinute newMinute = new MeetingMinute
             {
-                MeetingId = request.MeetingId,
+                MeetingScheduleDateId = request.MeetingDateId,
                 StartAt = request.startAt,
                 EndAt = request.endAt,
                 Attendance = request.Attendance,
@@ -128,9 +136,14 @@ namespace FPTTrackingSystem.Services.Student.Implements
             return met.Adapt<MeetingMinuteRes>();
         }
 
-        public async Task<MeetingMinuteRes> GetMeetingMinute(int meetingId)
+        public async Task<MeetingMinuteRes> GetMeetingMinuteDate(int meetingDateId)
         {
-            var meetingMinute = await _repo.GetMeetingMinuteByMeeting(meetingId);
+            var meeting = await _repo.GetMeetingDateByIdAsync(meetingDateId);
+            if (meeting == null)
+            {
+                throw new ValidationException("Meeting not found.");
+            }
+            var meetingMinute = await _repo.GetMeetingMinuteByMeetingDate(meetingDateId);
             return meetingMinute.Adapt<MeetingMinuteRes>();
         }
 
@@ -139,7 +152,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             var meetingMinute = await _repo.GetMeetingMinuteById(req.Id);
             if (meetingMinute == null)
             {
-                throw new ValidationException("Meeting not found.");
+                throw new ValidationException("Meeting minute not found.");
             }
             meetingMinute.Issue = req.Issue;
             meetingMinute.StartAt = req.startAt;

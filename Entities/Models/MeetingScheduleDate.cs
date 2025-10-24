@@ -20,4 +20,6 @@ public partial class MeetingScheduleDate
     public DateTime? UpdatedAt { get; set; }
 
     public virtual Meeting? Meeting { get; set; }
+
+    public virtual MeetingMinute? MeetingMinute { get; set; }
 }
