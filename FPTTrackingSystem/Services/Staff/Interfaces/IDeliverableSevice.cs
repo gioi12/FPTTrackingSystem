@@ -11,7 +11,11 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<string> UploadFileMilestoneItem(IFormFile file, int groupId, int deliveryItemId);
         Task<List<GroupDeliverableRes>> GetDeliverableByGroupId(int groupId);
         Task<DeliverableDetailRes> GetDeliverableByIdAndGroupId(int groupId, int deliverableId);
-        Task<string> ConfirmDeliverable(int groupId, int deliverableId);
+        Task<string> ConfirmDeliverable(int groupId, int deliverableId, string? note);
         Task<List<DeliverableGroupDetailDTO>> GetDeliverableGroupsByGroupIdAsync(int groupId);
+        Task DeleteFileMilestoneItem(int attachmentId);
+        Task MarkDownload(int attachmentId);
+        Task<string> RejectDeliverable(int groupId, int deliverableId, string? note);
+
     }
 }

@@ -12,7 +12,7 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
         Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId);
         Task<FinalizeScheduleResponseDto> FinalizeScheduleAsync(int groupId, FinalizeScheduleRequestDto dto);
         Task<MeetingMinuteRes?> CreateMeetingMinute(MeetingMinuteRequest request);
-        Task<MeetingMinuteRes> GetMeetingMinute(int meetingId);
+        Task<MeetingMinuteRes> GetMeetingMinuteDate(int meetingDateId);
 
         Task<MeetingMinuteRes> UpdateMeetingMinute(MeetingMinuteUpdateReq req);
 

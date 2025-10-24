@@ -12,5 +12,6 @@ namespace DataTranferObjects.Enum
         public const string Confirmed = "SUBMITTED";
         public const string Late = "LATE";
         public const string Unsubmitted = "UNSUBMITTED";
+        public const string Rejected = "REJECTED";
     }
 }

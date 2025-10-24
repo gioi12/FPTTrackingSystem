@@ -268,11 +268,11 @@ namespace Repositories.Student.Implements
             return entity;
         }
 
-        public async Task<MeetingMinute?> GetMeetingMinuteByMeeting(int meetingId)
+        public async Task<MeetingMinute?> GetMeetingMinuteByMeetingDate(int meetingDateId)
         {
             return await _context.MeetingMinutes
                 .Include(x=>x.CreateByNavigation)
-                .FirstOrDefaultAsync(m => m.MeetingId == meetingId); 
+                .FirstOrDefaultAsync(m => m.MeetingScheduleDateId == meetingDateId); 
         }
 
         public async Task<MeetingMinute?> GetMeetingMinuteById(int id)
@@ -300,6 +300,20 @@ namespace Repositories.Student.Implements
             return await _context.Meetings
                 .Include(m => m.CreateByNavigation)
                 .FirstOrDefaultAsync(m => m.Id == meetingId);
+        }
+
+        public async Task<MeetingScheduleDate?> GetMeetingDateByIdAsync(int id)
+        {
+            return await _context.MeetingScheduleDates
+                .Include(x=>x.MeetingMinute)
+                .FirstOrDefaultAsync(m => m.Id == id);
+        }
+
+        public async Task<bool> CheckSecretary(int userId)
+        {
+            var user = await _context.GroupUsers.FirstOrDefaultAsync(u => u.UserId == userId && u.Role == "Secretary");
+            if (user != null) return true;
+            return false;
         }
 
         public async Task<List<MeetingScheduleDate>> GetMeetingScheduleDatesByGroupIdAsync(int groupId)

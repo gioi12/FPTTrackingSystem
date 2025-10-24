@@ -5,6 +5,7 @@ using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Controllers.Staff
@@ -44,10 +45,10 @@ namespace FPTTrackingSystem.Controllers.Staff
             return Ok(await _deliverableSevice.GetDeliverableByIdAndGroupId(groupdId, deliverableId));
         }
         [Authorize]
-        [HttpGet("v1/deliverables/confirmed")]
-        public async Task<object> ConfirmDelivery(int groupdId, int deliverableId)
+        [HttpPut("v1/deliverables/confirmed")]
+        public async Task<object> ConfirmDelivery(int groupdId, int deliverableId,string? note)
         {
-            return Ok(await _deliverableSevice.ConfirmDeliverable(groupdId, deliverableId));
+            return Ok(await _deliverableSevice.ConfirmDeliverable(groupdId, deliverableId,note));
         }
 
         [HttpGet("v1/deliverables/getByGroupId/{id}")]
@@ -67,7 +68,27 @@ namespace FPTTrackingSystem.Controllers.Staff
                 return StatusCode(500, ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
             }
         }
+        [Authorize]
+        [HttpDelete("v1/upload/milestone")]
+        public async Task<object> DeleteMilestone(int attachmentId)
+        {
+            await _deliverableSevice.DeleteFileMilestoneItem(attachmentId);
+            return Ok(ApiResponse<object>.Success(null, "Delete attachment successfully."));
+        }
+        [Authorize]
+        [HttpPut("v1/deliverables/reject")]
+        public async Task<object> RejectDelivery(int groupdId, int deliverableId, string? note)
+        {
+            var result = await _deliverableSevice.RejectDeliverable(groupdId, deliverableId, note);
+            return Ok(ApiResponse<object>.Success(result, "Delete attachment successfully."));
 
-
+        }
+        [Authorize(Roles = "Supervisor")]
+        [HttpPut("v1/deliverables/Mark-download")]
+        public async Task<object> MarkDownload(int attachmentId)
+        {
+            await _deliverableSevice.MarkDownload(attachmentId);
+            return Ok(ApiResponse<object>.Success(null, "Mark attachment successfully."));
+        }
     }
 }

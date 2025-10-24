@@ -1,12 +1,9 @@
-﻿using DataTranferObjects.Common.Request;
-using DataTranferObjects.Enum;
+﻿using DataTranferObjects.Enum;
 using DataTranferObjects.Staff.Response;
 using Entities.Models;
 using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Utilities;
 using Mapster;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using Repositories.Common.Interfaces;
 using Repositories.Staff.Interfaces;
 using System.ComponentModel.DataAnnotations;
@@ -72,7 +69,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             string path = await FileUploadUtils.UploadFileAsync(file, (int)FileEnum.DeliverableItem, _env);
             // 1. Milestone(Deliverable) , 2 Task , 3 Groups (Documents)
             string entityName = FileUploadUtils.GetEntityName((int)FileEnum.DeliverableItem);
-            Attachment attachment = new Attachment()
+            Entities.Models.Attachment attachment = new Entities.Models.Attachment()
             {
                 CreateAt = DateTime.Now,
                 FileName = file.FileName,
@@ -80,7 +77,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 EntityName = entityName,
                 EntityId = deliveryItemId,
                 GroupId = groupId,
-                UserId = (int)user.Id
+                UserId = (int)user.Id,
+                IsDownload = false
             };
             await _attachmentRepository.AddAttachment(attachment);
             if (itemDeli.Deliverable.DeliverableGroups.Count == 0)
@@ -131,9 +129,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     .Where(a => a.EntityId == item.Id)
                     .Select(a => new attachmentItemRes
                     {
+                        id = a.Id,
+                        fileName = a.FileName,
                         path = a.FilePath,
                         createAt = a.CreateAt,
-                        userName = a.User.Fullname
+                        userName = a.User.Fullname,
+                        isDownload = a.IsDownload == null ? false : (bool)a.IsDownload
                     })
                     .ToList();
 
@@ -143,7 +144,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return res;
         }
 
-        public async Task<string> ConfirmDeliverable(int groupId, int deliverableId)
+        public async Task<string> ConfirmDeliverable(int groupId, int deliverableId , string? note)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
@@ -178,6 +179,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 statusUpdate = ProgressEnum.Confirmed;
             }
             item.Status = statusUpdate;
+            item.Note = note;
             await _deliverableRepository.UpdateDeliverable(deliverable);
 
             return statusUpdate;
@@ -200,5 +202,50 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .ToList();
         }
 
+        public async System.Threading.Tasks.Task DeleteFileMilestoneItem(int attachmentId)
+        {
+            var attachment = await _attachmentRepository.GetAttachmentById(attachmentId);
+            if(attachment == null) throw new ValidationException("Not found attachment");
+            await _attachmentRepository.DeleteAttachment(attachment);
+        }
+
+        public async System.Threading.Tasks.Task MarkDownload(int attachmentId)
+        {
+            var attachment = await _attachmentRepository.GetAttachmentById(attachmentId);
+            if(attachment == null) throw new ValidationException("Not found attachment");
+            attachment.IsDownload = true;
+            await _attachmentRepository.UpdateAttachment(attachment);
+        }
+
+        public async Task<string> RejectDeliverable(int groupId, int deliverableId,string? note)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            var group = await _groupRepository.GetByIdAsync(groupId);
+            if (group == null)
+                throw new ValidationException("Not found group");
+
+            if (group.GroupUsers == null || !group.GroupUsers.Any(x => x.UserId == user.Id))
+                throw new ValidationException("Not permission");
+
+            var deliverable = await _deliverableRepository.GetById(deliverableId);
+            if (deliverable == null)
+                throw new ValidationException("Not found deliverable");
+
+            var semester = await _semesterRepository.GetSemesterByIdAsync((int)group.SemesterId);
+            var item = deliverable.DeliverableGroups.Where(x => x.GroupId == groupId && x.DeliverableId == deliverableId).FirstOrDefault();
+            if (item.Status == ProgressEnum.Unsubmitted)
+            {
+                throw new ValidationException("Not submitted");
+            }
+
+            item.Note = note;
+            item.Status = ProgressEnum.Rejected;
+            await _deliverableRepository.UpdateDeliverable(deliverable);
+
+            return ProgressEnum.Rejected;
+        }
+
+  
     }
 }
