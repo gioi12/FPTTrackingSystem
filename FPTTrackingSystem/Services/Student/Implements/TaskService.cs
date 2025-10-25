@@ -42,7 +42,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 DeliverableId = dto.DeliverableId,
                 Type = dto.TaskType, 
                 CreatedAt = DateTime.Now,
-                IsActive = true
+                IsActive = true,
+                MeetingScheduleDateId = dto.MeetingId
             };
 
             return await _taskRepository.CreateTaskAsync(
@@ -127,7 +128,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     AssignedUserId = dto.AssignedUserId,
                     AssignedUserName = assignedUser?.Fullname,
                     ReviewerId = dto.ReviewerId,
-                    ReviewerName = reviewerUser?.Fullname
+                    ReviewerName = reviewerUser?.Fullname,
+                    MeetingId = dto.MeetingId
                 };
 
                 return new ApiResponse<TaskResponseUpdateDto>(200, "Cập nhật thành công", responseDto);

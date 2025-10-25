@@ -21,6 +21,7 @@ namespace DataTranferObjects.Staff.Task
         public string Status { get; set; }
         public string Priority { get; set; }
         public string? Process { get; set; }
+        public int? MeetingId { get; set; }
         public int? DeliverableId { get; set; }
         public int AssignedUserId { get; set; }
         public int ReviewerId { get; set; }
@@ -37,6 +38,7 @@ namespace DataTranferObjects.Staff.Task
         public string PriorityId { get; set; }
         public string? Process { get; set; }
         public int? DeliverableId { get; set; }
+        public int? MeetingId { get; set; }
         public int AssignedUserId { get; set; }
         public int? ReviewerId { get; set; }
     }
@@ -66,6 +68,7 @@ namespace DataTranferObjects.Staff.Task
         public string? PriorityId { get; set; }
         public string? Process { get; set; }
         public int? MilestoneId { get; set; }
+        public int? MeetingId { get; set; }
         public int? GroupId { get; set; }
         public int? AssignedUserId { get; set; }
         public string? AssignedUserName { get; set; }

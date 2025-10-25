@@ -24,4 +24,6 @@ public partial class MeetingScheduleDate
     public virtual Meeting? Meeting { get; set; }
 
     public virtual MeetingMinute? MeetingMinute { get; set; }
+
+    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }

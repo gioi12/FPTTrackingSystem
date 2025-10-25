@@ -29,13 +29,13 @@ public partial class Task
 
     public bool? IsActive { get; set; }
 
-    public int? MeetingMinuteId { get; set; }
+    public int? MeetingScheduleDateId { get; set; }
 
     public virtual Deliverable? Deliverable { get; set; }
 
     public virtual Group Group { get; set; } = null!;
 
-    public virtual MeetingMinute? MeetingMinute { get; set; }
+    public virtual MeetingScheduleDate? MeetingScheduleDate { get; set; }
 
     public virtual ICollection<TaskUser> TaskUsers { get; set; } = new List<TaskUser>();
 

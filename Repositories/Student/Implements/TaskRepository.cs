@@ -102,8 +102,8 @@ namespace Repositories.Student.Implements
                     var assignee = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Assignee");
                     var reviewer = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
 
-                    bool isMeetingTask = task.MeetingMinuteId.HasValue;
-                    int meetingId = isMeetingTask ? task.MeetingMinuteId.Value : 0;
+                    bool isMeetingTask = task.MeetingScheduleDateId.HasValue;
+                    int meetingId = isMeetingTask ? task.MeetingScheduleDateId.Value : 0;
 
                     return new TaskDto
                     {
@@ -209,8 +209,8 @@ namespace Repositories.Student.Implements
                 var reviewer = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
 
                 // Xác định isMeetingTask & meetingId
-                bool isMeetingTask = task.MeetingMinuteId.HasValue;
-                int meetingId = isMeetingTask ? task.MeetingMinuteId.Value : 0;
+                bool isMeetingTask = task.MeetingScheduleDateId.HasValue;
+                int meetingId = isMeetingTask ? task.MeetingScheduleDateId.Value : 0;
 
                 var dto = new TaskDto
                 {
@@ -302,6 +302,7 @@ namespace Repositories.Student.Implements
             task.Process = dto.Process;
             task.DeliverableId = dto.DeliverableId;
             task.GroupId = dto.GroupId;
+            task.MeetingScheduleDateId = dto.MeetingId;
 
             // --- Xử lý TaskUsers ---
             // 1️⃣ Người tạo (Creator)
