@@ -92,7 +92,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 });
                 await _deliverableRepository.UpdateDeliverable(deli);
             }
-            return path;
+            else
+            {
+                var deli = itemDeli.Deliverable;
+                deli.DeliverableGroups.FirstOrDefault(x => x.Status == ProgressEnum.Rejected).Status = "Pending";
+            }
+                return path;
         }
 
         public async Task<DeliverableDetailRes> GetDeliverableByIdAndGroupId(int groupId, int deliverableId)
