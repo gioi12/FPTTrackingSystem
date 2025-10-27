@@ -92,6 +92,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 });
                 await _deliverableRepository.UpdateDeliverable(deli);
             }
+            else
+            {
+                var deli = itemDeli.Deliverable;
+                deli.DeliverableGroups.FirstOrDefault(x => x.Status == ProgressEnum.Rejected).Status = "Pending";
+                await _deliverableRepository.UpdateDeliverable(deli);
+
+            }
             return path;
         }
 
