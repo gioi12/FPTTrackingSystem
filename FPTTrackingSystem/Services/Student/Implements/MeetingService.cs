@@ -199,7 +199,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             var list = await _repo.GetMeetingScheduleDatesByGroupIdAsync(groupId);
 
             if (list == null || list.Count == 0)
-                return ApiResponse<List<MeetingScheduleDateDetailDto>>.Success(new List<MeetingScheduleDateDetailDto>(), "Không có ngày họp nào cho nhóm này.");
+                return ApiResponse<List<MeetingScheduleDateDetailDto>>.Success(new List<MeetingScheduleDateDetailDto>(), "Không có ngày họp nào cho nhóm nàys.");
 
             var result = list.Select(msd => new MeetingScheduleDateDetailDto
             {
