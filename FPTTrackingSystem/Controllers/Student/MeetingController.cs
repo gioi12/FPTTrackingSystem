@@ -62,9 +62,15 @@ namespace FPTTrackingSystem.Controllers.Student
         public async Task<IActionResult> GetMeetingById(int id)
         {
             var meeting = await _service.GetMeetingByIdAsync(id);
-            if (meeting == null)
-                return NotFound(new { message = "Không tìm thấy cuộc họp" });
-
+            if(meeting == null)
+    {
+                return Ok(new
+                {
+                    success = 200,
+                    message = "Không tìm thấy cuộc họp",
+                    data = new object()
+                });
+            }
             return Ok(meeting);
         }
 
