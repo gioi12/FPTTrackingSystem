@@ -43,8 +43,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 Type = dto.TaskType, 
                 CreatedAt = DateTime.Now,
                 IsActive = true,
-                MeetingScheduleDateId = dto.MeetingId
-            };
+                MeetingScheduleDateId = dto.MeetingId > 0 ? dto.MeetingId : null
+        };
 
             return await _taskRepository.CreateTaskAsync(
                 newTask,
