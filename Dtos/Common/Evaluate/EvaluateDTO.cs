@@ -60,7 +60,7 @@ namespace DataTranferObjects.Common.Evaluate
 
     public class EvaluationResponseDto
     {
-        public int EvaluationId { get; set; }
+        public int EvaluationId  { get; set; }
         public string? Feedback { get; set; }
         public string? DeliverableName { get; set; }
         public DateTime? CreateAt { get; set; }
