@@ -302,7 +302,7 @@ namespace Repositories.Student.Implements
             task.Process = dto.Process;
             task.DeliverableId = dto.DeliverableId;
             task.GroupId = dto.GroupId;
-            task.MeetingScheduleDateId = dto.MeetingId;
+            task.MeetingScheduleDateId = dto.MeetingId > 0 ? dto.MeetingId : null;
 
             // --- Xử lý TaskUsers ---
             // 1️⃣ Người tạo (Creator)
