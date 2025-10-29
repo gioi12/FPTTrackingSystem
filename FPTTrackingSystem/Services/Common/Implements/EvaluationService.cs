@@ -162,6 +162,8 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             return evaluations.Select(e => new EvaluationResponseDto
             {
+                EvaluationId = e.Id,
+                ReceiverId = e.ReceiverId,
                 Feedback = e.Feedback,
                 DeliverableName = e.Deliverable?.Name,
                 CreateAt = e.CreateAt,
