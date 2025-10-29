@@ -24,54 +24,74 @@ namespace FPTTrackingSystem.Controllers.Student
             try
             {
                 var result = await _service.CreateOrUpdateFreeTimeSlotsAsync(groupId, request);
-                return Ok(result);
+                return StatusCode(200, ApiResponse<object>.Success(result, "Free time slots updated successfully.", 200));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<object>.Fail(ex.Message, 403));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = ex.Message });
+                return StatusCode(500, ApiResponse<object>.InternalError(ex.Message));
             }
         }
 
         [HttpGet("groups/{groupId}/schedule/free-time")]
         public async Task<IActionResult> GetFreeTimeSlots(int groupId)
         {
-            var result = await _service.GetFreeTimeSlotsByGroupIdAsync(groupId);
-            return Ok(new
+            try
             {
-                success = 200,
-                message = "Lấy thành công thời gian rảnh của sinh viên",
-                data = result
-            });
+                var result = await _service.GetFreeTimeSlotsByGroupIdAsync(groupId);
+                return Ok(ApiResponse<object>.Success(result, "Retrieved student free time successfully.", 200));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<object>.Fail(ex.Message, 403));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.InternalError(ex.Message));
+            }
         }
 
         [HttpPost("groups/{groupId}/schedule/finalize")]
         public async Task<IActionResult> FinalizeSchedule(int groupId, [FromBody] FinalizeScheduleRequestDto request)
         {
 
-            var result = await _service.FinalizeScheduleAsync(groupId, request);
-
-            return Ok(new
+            try
             {
-                success = 200,
-                message = "Schedule finalized successfully",
-                data = result
-            });
+                var result = await _service.FinalizeScheduleAsync(groupId, request);
+                return Ok(ApiResponse<object>.Success(result, "Schedule finalized successfully.", 200));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<object>.Fail(ex.Message, 403));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.InternalError(ex.Message));
+            }
         }
 
         [HttpGet("schedule/finalize/getById/{id}")]
         public async Task<IActionResult> GetMeetingById(int id)
         {
-            var meeting = await _service.GetMeetingByIdAsync(id);
-            if(meeting == null)
-    {
-                return Ok(new
-                {
-                    success = 200,
-                    message = "Không tìm thấy cuộc họp",
-                    data = new object()
-                });
+            try
+            {
+                var meeting = await _service.GetMeetingByIdAsync(id);
+                if (meeting == null)
+                    return Ok(ApiResponse<object>.Success(new object(), "Meeting not found."));
+
+                return Ok(ApiResponse<object>.Success(meeting, "Meeting retrieved successfully."));
             }
-            return Ok(meeting);
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<object>.Fail(ex.Message, 403));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.InternalError(ex.Message));
+            }
         }
 
         [HttpGet("group/{groupId}/schedule-dates")]
@@ -82,21 +102,35 @@ namespace FPTTrackingSystem.Controllers.Student
                 var response = await _service.GetMeetingScheduleDatesByGroupIdAsync(groupId);
                 return StatusCode(response.Status, response);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<object>.Fail(ex.Message, 403));
+            }
             catch (Exception ex)
             {
-                Console.WriteLine($"[GetMeetingScheduleDatesByGroupId] Error: {ex.Message}");
-                return StatusCode(500, ApiResponse<string>.InternalError("Lỗi khi lấy danh sách ngày họp."));
+                return StatusCode(500, ApiResponse<object>.InternalError(ex.Message));
             }
         }
 
         [HttpPut("update-is-meeting/{id}")]
         public async Task<IActionResult> UpdateIsMeetingAsync(int id, [FromBody] bool isMeeting)
         {
-            var success = await _service.UpdateIsMeetingAsync(id, isMeeting);
-            if (!success)
-                return NotFound(new { message = "Không tìm thấy lịch họp." });
+            try
+            {
+                var success = await _service.UpdateIsMeetingAsync(id, isMeeting);
+                if (!success)
+                    return StatusCode(404, ApiResponse<object>.Fail("Meeting schedule not found.", 404));
 
-            return Ok(new { message = "Cập nhật IsMeeting thành công." });
+                return Ok(ApiResponse<object>.Success(true, "IsMeeting updated successfully."));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<object>.Fail(ex.Message, 403));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.InternalError(ex.Message));
+            }
         }
     }
 }
