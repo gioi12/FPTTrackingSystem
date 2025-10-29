@@ -33,10 +33,23 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
             if (page <= 0) page = 1;
             if (pageSize <= 0) pageSize = 10;
 
             var query = _groupRepository.GetGroupsQuery();
+            if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
+            {
+                if (user.Groups == null || !user.Groups.Any())
+                    return new PagedResponse<GroupDto>
+                    {
+                        Status = 200,
+                        Message = "Không có nhóm nào thuộc quyền của bạn.",
+                        Data = new PagedData<GroupDto> { Items = new List<GroupDto>(), Total = 0 }
+                    };
+
+                query = query.Where(g => user.Groups.Contains(g.Id));
+            }
             var total = await _groupRepository.CountAsync(query);
 
             var groups = await query
@@ -73,16 +86,21 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int id)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
             var group = await _groupRepository.GetByIdAsync(id);
             if (group == null)
             {
-                return new ApiResponse<GroupDetailDto>
-                {
-                    Status = 200,
-                    Message = "Không tìm thấy nhóm",
-                    Data = null
-                };
+                return new ApiResponse<GroupDetailDto>(200, "Không tìm thấy nhóm.", null);
             }
+            if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
+            {
+                if (user.Groups == null || !user.Groups.Contains(id))
+                {
+                    return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền truy cập nhóm này.", null);
+                }
+            }
+
             var dto = new GroupDetailDto
             {
                 Id = group.Id.ToString(),
@@ -144,6 +162,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<ApiResponse<GroupTrackingResponseDto>> GetGroupTrackingAsync(int groupId, DateTime startDate, DateTime endDate)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
+            {
+                if (user.Groups == null || !user.Groups.Contains(groupId))
+                    return new ApiResponse<GroupTrackingResponseDto>(403, "Bạn không có quyền xem nhóm này.", null);
+            }
             var group = await _groupRepository.GetGroupWithMembersAsync(groupId);
             if (group == null)
             {
@@ -236,10 +261,42 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             };
         }
 
-        public async Task<List<GroupMentorDto>> GetGroupsByUserIdAsync(int userId)
+        public async Task<ApiResponse<List<GroupMentorDto>>> GetGroupsByUserIdAsync(int userId)
         {
+            var currentUser = await _authUtils.GetUserInfoFromCookie();
             var groups = await _groupRepository.GetGroupsByUserIdAsync(userId);
+            if (currentUser.Role == "Student")
+            {
+                // Chỉ xem nhóm của chính mình
+                if (currentUser.Id != userId)
+                {
+                    return new ApiResponse<List<GroupMentorDto>>
+                    {
+                        Status = 403,
+                        Message = "Bạn không có quyền xem nhóm của người dùng khác.",
+                        Data = null
+                    };
+                }
+            }
+            else if (currentUser.Role == "Supervisor" || currentUser.Role == "SupervisorHead")
+            {
+                groups = groups
+                    .Where(g => g.GroupUsers.Any(gu =>
+                        gu.UserId == currentUser.Id &&
+                        (gu.User.Account.RoleId == (int)RoleEnum.Supervior ||
+                         gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead)))
+                    .ToList();
 
+                if (!groups.Any())
+                {
+                    return new ApiResponse<List<GroupMentorDto>>
+                    {
+                        Status = 403,
+                        Message = "Bạn không hướng dẫn nhóm nào trong danh sách này.",
+                        Data = null
+                    };
+                }
+            }
             var result = groups.Select(g => new GroupMentorDto
             {
                 Id = g.Id,
@@ -258,12 +315,22 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     .ToList()
             }).ToList();
 
-            return result;
+            return new ApiResponse<List<GroupMentorDto>>
+            {
+                Status = 200,
+                Message = "Lấy danh sách nhóm thành công.",
+                Data = result
+            };
         }
 
 
         public async Task<ApiResponse<string>> UpdateRoleInGroupAsync(int groupId, int userId, string newRole)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user.Role != "Secretary" && user.Role != "SupervisorHead" && user.Role != "Supervisor")
+                return new ApiResponse<string>(403, "Bạn không có quyền thay đổi vai trò trong nhóm.", null);
+
             try
             {
                 var success = await _groupRepository.UpdateRoleInGroupAsync(groupId, userId, newRole);
@@ -271,7 +338,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 if (!success)
                     return new ApiResponse<string>
                     {
-                        Status = 400,
+                        Status = 200,
                         Message = "Không tìm thấy nhóm hoặc sinh viên.",
                         Data = null
                     };

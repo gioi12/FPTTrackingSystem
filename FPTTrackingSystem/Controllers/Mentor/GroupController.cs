@@ -26,10 +26,12 @@ namespace FPTTrackingSystem.Controllers.Mentor
             var user = await _authUtils.GetUserInfoFromCookie();
             try
             {
-                var groups = await _groupService.GetGroupsByUserIdAsync(user.Id ?? 0);
+                var groupsResponse = await _groupService.GetGroupsByUserIdAsync(user.Id ?? 0);
+
+                var groups = groupsResponse.Data;
 
                 if (groups == null || groups.Count == 0)
-                    return Ok(ApiResponse<object>.Success(null,"Không tìm thấy nhóm nào cho user này."));
+                    return Ok(ApiResponse<object>.Success(null, "Không tìm thấy nhóm nào cho mentor này."));
 
                 return Ok(ApiResponse<List<GroupMentorDto>>.Success(groups, "Lấy danh sách nhóm thành công."));
             }
@@ -38,5 +40,6 @@ namespace FPTTrackingSystem.Controllers.Mentor
                 return StatusCode(500, ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
             }
         }
+
     }
 }

@@ -26,7 +26,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
-            // Kiểm tra student chỉ được tạo task trong nhóm của mình
             if (user.Role == "Student" && (user.Groups == null || !user.Groups.Contains(dto.GroupId)))
                 throw new UnauthorizedAccessException("Bạn không có quyền tạo task trong nhóm này.");
 
@@ -58,12 +57,10 @@ namespace FPTTrackingSystem.Services.Student.Implements
             );
         }
 
-        // ------------------ GET BY GROUP ------------------
         public async Task<ApiResponse<List<TaskDto>>> GetTasksByGroupIdAsync(int groupId)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
-            // Phân quyền truy cập
             if (user.Role == "Student" || user.Role == "Supervisor")
             {
                 if (user.Groups == null || !user.Groups.Contains(groupId))
@@ -92,7 +89,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 return new ApiResponse<TaskDto>(200, "Không tìm thấy task với ID này.", new TaskDto());
             }
 
-            // Kiểm tra quyền xem task
             if ((user.Role == "Student" || user.Role == "Supervisor") &&
                 (user.Groups == null || !user.Groups.Contains(task.Group.Id)))
             {
@@ -113,7 +109,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 if (existingTask == null)
                     return new ApiResponse<TaskResponseUpdateDto>(200, "Không tìm thấy task", null);
 
-                // Student chỉ được cập nhật task của nhóm mình và task do mình tạo
                 if (user.Role == "Student")
                 {
                     if (user.Groups == null || !user.Groups.Contains(existingTask.GroupId))
