@@ -103,7 +103,7 @@ namespace Repositories.Common.Implements
                .ToListAsync();
         }
 
-        public async Task<PenatyCard?> UpdatePenaltyCardAsync(int id, string? name, string? description, int? userId)
+        public async Task<PenatyCard?> UpdatePenaltyCardAsync(int id, string? name, string? description, int? userId, string? type)
         {
             var card = await _context.PenatyCards.FirstOrDefaultAsync(x => x.Id == id);
             if (card == null)
@@ -112,6 +112,7 @@ namespace Repositories.Common.Implements
             card.Name = name ?? card.Name;
             card.Description = description ?? card.Description;
             card.UserId = userId ?? card.UserId;
+            card.Type = type;
 
             await _context.SaveChangesAsync();
             return card;

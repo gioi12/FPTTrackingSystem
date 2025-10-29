@@ -33,6 +33,10 @@ namespace FPTTrackingSystem.Controllers.Common
             {
                 return StatusCode(403, ApiResponse<string>.Forbidden(ex.Message));
             }
+            catch (ArgumentException ex) 
+            {
+                return BadRequest(ApiResponse<string>.Fail(ex.Message, 400));
+            }
             catch (Exception ex)
             {
                 return BadRequest(ApiResponse<string>.Fail(ex.Message));
@@ -62,6 +66,10 @@ namespace FPTTrackingSystem.Controllers.Common
             catch (UnauthorizedAccessException ex)
             {
                 return StatusCode(403, ApiResponse<string>.Forbidden(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<string>.Fail(ex.Message, 400));
             }
             catch (Exception ex)
             {
@@ -139,6 +147,10 @@ namespace FPTTrackingSystem.Controllers.Common
             {
                 return StatusCode(403, ApiResponse<string>.Forbidden(ex.Message));
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<string>.Fail(ex.Message, 400));
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, ApiResponse<string>.InternalError(ex.Message));
@@ -172,6 +184,10 @@ namespace FPTTrackingSystem.Controllers.Common
             catch (UnauthorizedAccessException ex)
             {
                 return StatusCode(403, ApiResponse<string>.Forbidden(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<string>.Fail(ex.Message, 400));
             }
             catch (Exception ex)
             {

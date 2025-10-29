@@ -63,6 +63,7 @@ namespace DataTranferObjects.Common.Evaluate
         public int  EvaluationId { get; set; }
         public string? Feedback { get; set; }
         public string? DeliverableName { get; set; }
+        public string? Type { get; set; }
         public DateTime? CreateAt { get; set; }
         public string? EvaluatorName { get; set; }
         public int ReceiverId { get; set; }
@@ -72,6 +73,7 @@ namespace DataTranferObjects.Common.Evaluate
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
+        public string? Type { get; set; }
         public int? UserId { get; set; }
     }
 

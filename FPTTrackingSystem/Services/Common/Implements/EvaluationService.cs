@@ -28,6 +28,27 @@ namespace FPTTrackingSystem.Services.Common.Implements
             if (user.Role != "Supervisor")
                 throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
 
+            if (dto.ReceiverId <= 0)
+                throw new ArgumentException("ReceiverId must be a positive number.");
+            if (dto.GroupId <= 0)
+                throw new ArgumentException("GroupId must be a positive number.");
+            if (dto.DeliverableId <= 0)
+                throw new ArgumentException("DeliverableId must be a positive number.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Feedback) && dto.Feedback.Length > 500)
+                throw new ArgumentException("Feedback cannot exceed 500 characters.");
+
+            if (string.IsNullOrWhiteSpace(dto.Type))
+                throw new ArgumentException("Type is required.");
+
+            var allowedTypes = new[] { "excellent", "good", "fair", "average", "poor" };
+            var typeLower = dto.Type.Trim().ToLower();
+
+            if (!allowedTypes.Contains(typeLower))
+                throw new ArgumentException("Type must be one of: Excellent, Good, Fair, Average, Poor.");
+
+            var formattedType = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
+
             var isMentorInGroup = await _evaluationRepository.CheckUserInGroupAsync(user.Id.Value, dto.GroupId);
             if (!isMentorInGroup)
                 throw new UnauthorizedAccessException("You are not the mentor of this group and cannot evaluate its members.");
@@ -51,8 +72,8 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 DeliverableId = createdEvaluation.DeliverableId,
                 CreateAt = createdEvaluation.CreateAt ?? DateTime.MinValue,
                 UpdateAt = createdEvaluation.UpdateAt ?? DateTime.MinValue,
-                Type = createdEvaluation.Type
-                
+                Type = formattedType
+
             };
 
             return response;
@@ -87,16 +108,33 @@ namespace FPTTrackingSystem.Services.Common.Implements
             if (user.Role != "Supervisor")
                 throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
 
-            var formattedType = string.IsNullOrWhiteSpace(dto.Type)
-          ? dto.Type
-          : char.ToUpper(dto.Type[0]) + dto.Type.Substring(1).ToLower();
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new ArgumentException("Name is required.");
+            if (dto.Name.Length > 100)
+                throw new ArgumentException("Name cannot exceed 100 characters.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 500)
+                throw new ArgumentException("Description cannot exceed 500 characters.");
+
+            if (string.IsNullOrWhiteSpace(dto.Type))
+                throw new ArgumentException("Type is required.");
+
+            if (dto.UserId < 0)
+                throw new ArgumentException("UserId must be greater than 0 or null.");
+
+            var allowedTypes = new[] { "warning", "no-deduction", "deduction" };
+            var typeLower = dto.Type.Trim().ToLower();
+
+            if (!allowedTypes.Contains(typeLower))
+                throw new ArgumentException("Type must be one of: warning, no-deduction, deduction.");
+
+            var formattedType = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
 
             var card = new PenatyCard
             {
                 Name = dto.Name,
                 Description = dto.Description,
                 Type = formattedType,
-                EvaluatorId = user.Id ?? 0,
                 UserId = dto.UserId == 0 ? null : dto.UserId
         };
 
@@ -128,7 +166,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 DeliverableName = e.Deliverable?.Name,
                 CreateAt = e.CreateAt,
                 EvaluatorName = e.Evaluator.Fullname,
-                PenaltyCards = e.PenatyCards.Select(p => p.Name).ToList()
+                Type = e.Type
             }).ToList();
         }
 
@@ -167,7 +205,29 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             if (user.Role != "Supervisor")
                 throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
-            return await _evaluationRepository.UpdatePenaltyCardAsync(id, dto.Name, dto.Description, dto.UserId);
+
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new ArgumentException("Name is required.");
+            if (dto.Name.Length > 100)
+                throw new ArgumentException("Name cannot exceed 100 characters.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 500)
+                throw new ArgumentException("Description cannot exceed 500 characters.");
+
+            if (string.IsNullOrWhiteSpace(dto.Type))
+                throw new ArgumentException("Type is required.");
+
+            if (dto.UserId < 0)
+                throw new ArgumentException("UserId must be greater than 0 or null.");
+
+            var allowedTypes = new[] { "warning", "no-deduction", "deduction" };
+            var typeLower = dto.Type.Trim().ToLower();
+
+            if (!allowedTypes.Contains(typeLower))
+                throw new ArgumentException("Type must be one of: warning, no-deduction, deduction.");
+
+            var formattedType = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
+            return await _evaluationRepository.UpdatePenaltyCardAsync(id, dto.Name, dto.Description, dto.UserId,dto.Type);
         }
 
         public async Task<Evaluation?> UpdateEvaluationAsync(int id, EvaluationUpdateDTO dto)
@@ -178,11 +238,30 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             if (user.Role != "Supervisor")
                 throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Feedback) && dto.Feedback.Length > 500)
+                throw new ArgumentException("Feedback cannot exceed 500 characters.");
+
+            if (dto.DeliverableId.HasValue && dto.DeliverableId.Value <= 0)
+                throw new ArgumentException("DeliverableId must be a positive number if provided.");
+
+            string? formattedType = null;
+            if (!string.IsNullOrWhiteSpace(dto.Type))
+            {
+                var allowedTypes = new[] { "excellent", "good", "fair", "average", "poor" };
+                var typeLower = dto.Type.Trim().ToLower();
+
+                if (!allowedTypes.Contains(typeLower))
+                    throw new ArgumentException("Type must be one of: Excellent, Good, Fair, Average, Poor.");
+
+                formattedType = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
+            }
+
             return await _evaluationRepository.UpdateEvaluationAsync(
                 id,
                 dto.Feedback,
                 dto.DeliverableId,
-                dto.Type
+                formattedType
             );
         }
     }
