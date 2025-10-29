@@ -176,6 +176,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             return cards.Select(c => new PenaltyCardResponseDto
             {
+                Type = c.Type,
                 Name = c.Name,
                 Description = c.Description,
                 CreateAt = c.CreateAt
@@ -188,6 +189,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             return evaluations.Select(e => new EvaluationResponseDto
             {
+                Type = e.Type,
                 EvaluationId = e.Id,
                 Feedback = e.Feedback,
                 DeliverableName = e.Deliverable?.Name,
