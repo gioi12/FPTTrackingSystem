@@ -49,7 +49,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             var formattedType = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
 
-            var isMentorInGroup = await _evaluationRepository.CheckUserInGroupAsync(user.Id.Value, dto.GroupId);
+            var isMentorInGroup = await _evaluationRepository.CheckUserInGroupAsync(user.Id ?? 0, dto.GroupId);
             if (!isMentorInGroup)
                 throw new UnauthorizedAccessException("You are not the mentor of this group and cannot evaluate its members.");
 
@@ -60,7 +60,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
             if (user == null || user.Id == null)
                 throw new Exception("Không thể xác thực người dùng.");
 
-            var createdEvaluation = await _evaluationRepository.CreateEvaluationAsync(dto, user.Id.Value);
+            var createdEvaluation = await _evaluationRepository.CreateEvaluationAsync(dto, user.Id ?? 0);
 
             var response = new EvaluationResponseDTO
             {
@@ -132,6 +132,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             var card = new PenatyCard
             {
+                EvaluatorId = user.Id ?? 0,
                 Name = dto.Name,
                 Description = dto.Description,
                 Type = formattedType,
