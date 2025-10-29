@@ -29,6 +29,30 @@ namespace FPTTrackingSystem.Services.Student.Implements
             if (user.Role == "Student" && (user.Groups == null || !user.Groups.Contains(dto.GroupId)))
                 throw new UnauthorizedAccessException("Bạn không có quyền tạo task trong nhóm này.");
 
+            if (dto.GroupId <= 0)
+                throw new ArgumentException("GroupId không hợp lệ.");
+
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new ArgumentException("Task name không được để trống.");
+
+            if (string.IsNullOrWhiteSpace(dto.TaskType))
+                throw new ArgumentException("TaskType không được để trống.");
+
+            if (string.IsNullOrWhiteSpace(dto.Status))
+                throw new ArgumentException("Status không được để trống.");
+
+            if (string.IsNullOrWhiteSpace(dto.Priority))
+                throw new ArgumentException("Priority không được để trống.");
+
+            if (dto.EndAt == default)
+                throw new ArgumentException("EndAt không được để trống.");
+
+            if (dto.AssignedUserId <= 0)
+                throw new ArgumentException("AssignedUserId không hợp lệ.");
+
+            if (dto.ReviewerId <= 0)
+                throw new ArgumentException("ReviewerId không hợp lệ.");
+
             var validTaskTypes = new[] { "todo", "progress", "done" };
             if (string.IsNullOrWhiteSpace(dto.TaskType) ||
                 !validTaskTypes.Contains(dto.TaskType.Trim().ToLower()))
@@ -126,6 +150,27 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     if (taskCreator == null || taskCreator.UserId != user.Id)
                         return new ApiResponse<TaskResponseUpdateDto>(403, "Bạn chỉ được sửa task do chính mình tạo.", null);
                 }
+
+                if (dto.GroupId <= 0)
+                    throw new ArgumentException("GroupId không hợp lệ.");
+
+                if (string.IsNullOrWhiteSpace(dto.Name))
+                    throw new ArgumentException("Task name không được để trống.");
+
+                if (string.IsNullOrWhiteSpace(dto.StatusId))
+                    throw new ArgumentException("TaskType không được để trống.");
+
+                if (string.IsNullOrWhiteSpace(dto.PriorityId))
+                    throw new ArgumentException("Priority không được để trống.");
+
+                if (dto.EndAt == default)
+                    throw new ArgumentException("EndAt không được để trống.");
+
+                if (dto.AssignedUserId <= 0)
+                    throw new ArgumentException("AssignedUserId không hợp lệ.");
+
+                if (dto.ReviewerId <= 0)
+                    throw new ArgumentException("ReviewerId không hợp lệ.");
                 var validTaskTypes = new[] { "Assignment", "Meeting", "Deliverable", "General" };
                 if (!validTaskTypes.Contains(dto.StatusId))
                     return ApiResponse<TaskResponseUpdateDto>.Fail("Loại task không hợp lệ.", 400);

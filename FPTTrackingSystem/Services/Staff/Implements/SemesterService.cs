@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using DataTranferObjects.Enum;
 using DataTranferObjects.Staff.Group;
 using DataTranferObjects.Staff.Request;
 using DataTranferObjects.Staff.Response;
@@ -52,108 +53,38 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         /*public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
         {
-            if (!DateTime.TryParse(request.StartAt, out var startAtDateTime) ||
-                !DateTime.TryParse(request.EndAt, out var endAtDateTime))
-            {
-                throw new Exception("Ngày không hợp lệ. Định dạng phải là yyyy-MM-dd.");
-            }
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new ArgumentException("Tên kỳ học không được để trống.");
 
-            var startAt = DateOnly.FromDateTime(startAtDateTime);
-            var endAt = DateOnly.FromDateTime(endAtDateTime);
+            if (string.IsNullOrWhiteSpace(request.StartAt))
+                throw new ArgumentException("Ngày bắt đầu không được để trống.");
 
-            if (startAt >= endAt)
-            {
-                throw new Exception("Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
-            }
+            if (string.IsNullOrWhiteSpace(request.EndAt))
+                throw new ArgumentException("Ngày kết thúc không được để trống.");
 
-            // Chỉ có 1 kỳ active
-            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
-            if (activeSemester != null)
-            {
-                activeSemester.IsActive = false;
-            }
+            if (request.Name.Length > 100)
+                throw new ArgumentException("Tên kỳ học không được vượt quá 100 ký tự.");
 
-            var semester = new Semester
-            {
-                Name = request.Name,
-                StartAt = startAtDateTime,
-                EndAt = endAtDateTime,
-                Description = request.Description,
-                IsActive = true
-            };
-
-            try
-            {
-                _context.Semesters.Add(semester);
-                await _context.SaveChangesAsync();
-
-                _logService.AddLog(new Log
-                {
-                    Name = "Tạo kỳ học mới",
-                    EntityName = "Semester",
-                    EntityId = semester.Id,
-                    Action = "CREATE",
-                    Description = $"Tạo kỳ học {semester.Name} từ {semester.StartAt:yyyy-MM-dd} đến {semester.EndAt:yyyy-MM-dd}",
-                    UserId = 1,
-                    CreateAt = DateTime.Now
-                });
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}");
-            }
-
-            var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
-
-            int learnWeekCount = 0;
-            foreach (var w in weeks)
-            {
-                if (w.IsVacation == false)
-                {
-                    learnWeekCount++;
-                    w.WeekLearn = learnWeekCount;
-                }
-                else
-                {
-                    w.WeekLearn = null;
-                }
-            }
-            var semesterWeeks = weeks.Select(w => new SemesterWeek
-            {
-                SemesterId = semester.Id,
-                WeekNumber = w.WeekNumber,
-                StartAt = w.StartAt,
-                EndAt = w.EndAt,
-                IsVacation = w.IsVacation,
-                WeekLearn = w.WeekLearn
-            }).ToList();
-
-            _context.SemesterWeeks.AddRange(semesterWeeks);
-            await _context.SaveChangesAsync();
-
-            return new SemesterDTO
-            {
-                Name = semester.Name ?? string.Empty,
-                StartAt = semester.StartAt ?? default,
-                EndAt = semester.EndAt ?? default,
-                Weeks = weeks,
-                Description = semester.Description,
-                IsActive = false,
-            };
-        }*/
-
-        public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
-        {
+            if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
+                throw new ArgumentException("Mô tả không được vượt quá 500 ký tự.");
             var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user == null)
+                throw new UnauthorizedAccessException("Không thể xác thực người dùng.");
+
+            // Nếu không phải Staff thì chặn
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Chỉ nhân viên (Staff) mới có quyền tạo kỳ học.");
+
             // 1️⃣ Validate ngày
             if (!DateTime.TryParse(request.StartAt, out var startAtDateTime) ||
                 !DateTime.TryParse(request.EndAt, out var endAtDateTime))
-                throw new Exception("Ngày không hợp lệ. Định dạng phải là yyyy-MM-dd.");
+                throw new ArgumentException("Ngày không hợp lệ. Định dạng phải là yyyy-MM-dd.");
 
             var startAt = DateOnly.FromDateTime(startAtDateTime);
             var endAt = DateOnly.FromDateTime(endAtDateTime);
             if (startAt >= endAt)
-                throw new Exception("Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
+                throw new ArgumentException("Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
 
             // 2️⃣ Vô hiệu hóa kỳ đang active
             var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
@@ -196,14 +127,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
 
             // 4️⃣ Log tạo kỳ mới
-           await _logService.AddLogAsync(new Log
+            await _logService.AddLogAsync(new Log
             {
                 Name = "Tạo kỳ học mới",
                 EntityName = "Semester",
                 EntityId = semester.Id,
                 Action = "CREATE",
                 Description = $"Tạo kỳ học {semester.Name} từ {semester.StartAt:yyyy-MM-dd} đến {semester.EndAt:yyyy-MM-dd}",
-                UserId = user.Id ?? 0, 
+                UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
             });
 
@@ -212,7 +143,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             int learnWeekCount = 0;
             foreach (var w in weeks)
             {
-                if(w.IsVacation != null)
+                if (w.IsVacation != null)
                 {
                     learnWeekCount++;
                     w.WeekLearn = learnWeekCount;
@@ -240,7 +171,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .Where(m => m.IsActive == true)
                 .ToListAsync();
 
-            if(activeMilestones == null)
+            if (activeMilestones == null)
             {
                 throw new Exception("Milestone không tồn tại vui lòng tạo milestone.");
             }
@@ -298,6 +229,182 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Description = semester.Description,
                 Weeks = weeks,
             };
+        }*/
+        public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
+        {
+            // 1️⃣ Validate input fields
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new ArgumentException("Semester name cannot be empty.");
+
+            if (string.IsNullOrWhiteSpace(request.StartAt))
+                throw new ArgumentException("Start date cannot be empty.");
+
+            if (string.IsNullOrWhiteSpace(request.EndAt))
+                throw new ArgumentException("End date cannot be empty.");
+
+            if (request.Name.Length > 100)
+                throw new ArgumentException("Semester name cannot exceed 100 characters.");
+
+            if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
+                throw new ArgumentException("Description cannot exceed 500 characters.");
+
+            // 2️⃣ Get current user
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            // 3️⃣ Authorization check (only Staff can create semesters)
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only Staff members are allowed to create semesters.");
+
+            // 4️⃣ Validate date format and logic
+            if (!DateTime.TryParse(request.StartAt, out var startAtDateTime) ||
+                !DateTime.TryParse(request.EndAt, out var endAtDateTime))
+                throw new ArgumentException("Invalid date format. Dates must follow yyyy-MM-dd format.");
+
+            var startAt = DateOnly.FromDateTime(startAtDateTime);
+            var endAt = DateOnly.FromDateTime(endAtDateTime);
+
+            if (startAt >= endAt)
+                throw new ArgumentException("Start date must be earlier than end date.");
+
+            // 5️⃣ Deactivate current active semester
+            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
+            if (activeSemester != null)
+            {
+                activeSemester.IsActive = false;
+                _context.Semesters.Update(activeSemester);
+            }
+
+            // 6️⃣ Create new semester
+            var semester = new Semester
+            {
+                Name = request.Name,
+                StartAt = startAtDateTime,
+                EndAt = endAtDateTime,
+                Description = request.Description,
+                IsActive = true
+            };
+
+            try
+            {
+                await _context.Semesters.AddAsync(semester);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+                _logger.LogError(dbEx, "Database error while saving semester: {Message}", innerMessage);
+                throw new Exception($"Database error occurred while saving semester: {innerMessage}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while saving semester");
+                throw new Exception($"Unexpected error occurred while saving semester: {ex.Message}");
+            }
+
+            // 7️⃣ Log semester creation
+            await _logService.AddLogAsync(new Log
+            {
+                Name = "Create new semester",
+                EntityName = "Semester",
+                EntityId = semester.Id,
+                Action = "CREATE",
+                Description = $"Created semester '{semester.Name}' from {semester.StartAt:yyyy-MM-dd} to {semester.EndAt:yyyy-MM-dd}.",
+                UserId = user.Id ?? 0,
+                CreateAt = DateTime.Now
+            });
+
+            // 8️⃣ Generate semester weeks
+            var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
+            int learnWeekCount = 0;
+            foreach (var w in weeks)
+            {
+                if (w.IsVacation != null)
+                {
+                    learnWeekCount++;
+                    w.WeekLearn = learnWeekCount;
+                }
+            }
+
+            var semesterWeeks = weeks.Select(w => new SemesterWeek
+            {
+                SemesterId = semester.Id,
+                WeekNumber = w.WeekNumber,
+                StartAt = w.StartAt,
+                EndAt = w.EndAt,
+                StartAtLunar = SemesterHelper.ConvertSolarToLunar(w.StartAt ?? DateTime.Now),
+                EndAtLunar = SemesterHelper.ConvertSolarToLunar(w.EndAt ?? DateTime.Now),
+                IsVacation = w.IsVacation,
+                WeekLearn = w.WeekLearn
+            }).ToList();
+
+            await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
+            await _context.SaveChangesAsync();
+
+            // 9️⃣ Get all active milestones
+            var activeMilestones = await _context.Milestones
+                .Include(m => m.MilestoneItems)
+                .Where(m => m.IsActive == true)
+                .ToListAsync();
+
+            if (activeMilestones == null || !activeMilestones.Any())
+                throw new Exception("No active milestones found. Please create milestones first.");
+
+            // 🔟 Create Deliverables and DeliveryItems from active milestones
+            var deliverables = new List<Deliverable>();
+            var deliveryItems = new List<DeliveryItem>();
+
+            foreach (var milestone in activeMilestones)
+            {
+                var deliverable = new Deliverable
+                {
+                    MilestoneId = milestone.Id,
+                    SemesterId = semester.Id,
+                    Name = milestone.Name,
+                    Description = milestone.Description,
+                    Deadline = milestone.Deadline
+                };
+                deliverables.Add(deliverable);
+
+                foreach (var item in milestone.MilestoneItems)
+                {
+                    var deliveryItem = new DeliveryItem
+                    {
+                        Name = item.Name,
+                        Description = item.Description,
+                        MilestoneItemId = item.Id,
+                        Deliverable = deliverable
+                    };
+                    deliveryItems.Add(deliveryItem);
+                }
+            }
+
+            await _context.Deliverables.AddRangeAsync(deliverables);
+            await _context.DeliveryItems.AddRangeAsync(deliveryItems);
+            await _context.SaveChangesAsync();
+
+            // 11️⃣ Log milestone cloning
+            await _logService.AddLogAsync(new Log
+            {
+                Name = "Clone active milestones to deliverables",
+                EntityName = "Deliverable",
+                Action = "CREATE",
+                Description = $"Automatically generated {deliverables.Count} Deliverables and {deliveryItems.Count} DeliveryItems from active milestones for semester '{semester.Name}'.",
+                UserId = user.Id ?? 0,
+                CreateAt = DateTime.Now
+            });
+
+            // ✅ 12️⃣ Return response
+            return new SemesterDTO
+            {
+                Name = semester.Name ?? string.Empty,
+                StartAt = semester.StartAt ?? default,
+                EndAt = semester.EndAt ?? default,
+                Description = semester.Description,
+                Weeks = weeks,
+            };
         }
 
         public async Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end)
@@ -311,6 +418,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<List<SemesterDTO>> GetAllSemestersAsync()
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only Staff members are allowed to view all semesters.");
             var semesters = await _semesterRepository.getAllSemesters();
 
             return semesters.Select(s => new SemesterDTO
@@ -343,6 +456,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<SemesterDTO?> GetSemesterByIdAsync(int id)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only Staff members are allowed to access semester details.");
             var semester = await _semesterRepository.GetSemesterByIdAsync(id);
             if (semester == null) return null;
 
@@ -376,6 +495,25 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         public async Task<SemesterDTO> UpdateSemesterAsync(int id, SemesterUpdateRequest semesterData)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only Staff members are allowed to access semester details.");
+            if (id <= 0)
+                throw new ArgumentException("Semester ID must be greater than 0.");
+
+            if (semesterData == null)
+                throw new ArgumentNullException(nameof(semesterData), "Request data cannot be null.");
+
+            if (string.IsNullOrWhiteSpace(semesterData.Name))
+                throw new ArgumentException("Semester name cannot be empty.");
+
+            if (semesterData.StartAt == null || semesterData.EndAt == null)
+                throw new ArgumentException("Start date and end date cannot be null.");
+
+            if (semesterData.StartAt >= semesterData.EndAt)
+                throw new ArgumentException("Start date must be earlier than end date.");
             // 1️⃣ Lấy học kỳ hiện tại
             var semester = await _context.Semesters
                 .Include(s => s.SemesterWeeks)
@@ -496,11 +634,27 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<Semester?> GetSemesterByNow()
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only Staff members are allowed to access semester details.");
             return await _semesterRepository.GetSemesterByNow();
         }
 
         public async Task<SemesterDeliveriesDTO?> GetMilestonesBySemester(int id)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only Staff members are allowed to access semester details.");
+
+            if (id <= 0)
+                throw new ArgumentException("Semester ID must be greater than 0.");
+
             var semester = await _semesterRepository.GetMilestonesBySemester(id);
             if (semester == null) return null;
 
@@ -526,6 +680,15 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<SemesterDeliveriesDTO?> GetDeliveriesBySemester(int id)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only Staff members are allowed to access semester details.");
+
+            if (id <= 0)
+                throw new ArgumentException("Semester ID must be greater than 0.");
             var semester = await _semesterRepository.GetDeliveriesBySemester(id);
             if (semester == null) throw new Exception("Id của kì không tồn tại trong hệ thống");
             return new SemesterDeliveriesDTO
@@ -555,87 +718,119 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<ApiResponse<string>> AddVacationsAsync(List<SemesterVacationRequestDto> vacations)
         {
-            if (vacations == null || vacations.Count == 0)
-                return new ApiResponse<string>(400, "Danh sách nghỉ không được để trống.");
-
             var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only staff members are allowed to add semester vacations.");
+
+            if (vacations == null || vacations.Count == 0)
+                return new ApiResponse<string>(400, "Vacation list cannot be empty.");
 
             foreach (var v in vacations)
             {
+                if (v.SemesterId <= 0)
+                    return new ApiResponse<string>(400, "SemesterId must be greater than 0.");
+
+                if (v.StartDate == default || v.EndDate == default)
+                    return new ApiResponse<string>(400, "StartDate and EndDate are required and must be valid dates.");
+
                 if (v.StartDate >= v.EndDate)
-                    return new ApiResponse<string>(400, $"Ngày bắt đầu phải nhỏ hơn ngày kết thúc ({v.Description}).");
+                    return new ApiResponse<string>(400, $"StartDate must be earlier than EndDate (Vacation: {v.Description ?? "Unnamed"}).");
+
+                if (string.IsNullOrWhiteSpace(v.Description))
+                    return new ApiResponse<string>(400, "Vacation description cannot be empty.");
 
                 var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == v.SemesterId);
                 if (semester == null)
-                    return new ApiResponse<string>(400, $"Không tìm thấy học kỳ ID {v.SemesterId}.");
+                    return new ApiResponse<string>(400, $"Semester with ID {v.SemesterId} not found.");
 
                 if (v.StartDate < semester.StartAt || v.EndDate > semester.EndAt)
-                    return new ApiResponse<string>(400, $"Thời gian nghỉ '{v.Description}' phải nằm trong khoảng {semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}.");
+                    return new ApiResponse<string>(400,
+                        $"Vacation '{v.Description}' ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd}) must be within the semester period " +
+                        $"({semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}).");
 
                 bool isOverlapping = await _context.SemesterVacations
                     .AnyAsync(sv => sv.SemesterId == v.SemesterId &&
                                     ((v.StartDate >= sv.StartAt && v.StartDate <= sv.EndAt) ||
                                      (v.EndDate >= sv.StartAt && v.EndDate <= sv.EndAt) ||
                                      (v.StartDate <= sv.StartAt && v.EndDate >= sv.EndAt)));
+
                 if (isOverlapping)
-                    return new ApiResponse<string>(400, $"Khoảng thời gian '{v.Description}' ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd}) bị trùng với kỳ nghỉ khác.");
+                    return new ApiResponse<string>(400,
+                        $"Vacation '{v.Description}' ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd}) overlaps with another existing vacation.");
             }
 
             var success = await _semesterRepository.AddVacationsAsync(vacations);
             if (!success)
-                return new ApiResponse<string>(500, "Thêm thời gian nghỉ thất bại.");
+                return new ApiResponse<string>(500, "Failed to add semester vacations due to a server error.");
 
             var description = string.Join("; ", vacations.Select(v =>
                 $"{v.Description} ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd})"));
 
             await _logService.AddLogAsync(new Log
             {
-                Name = "Thêm thời gian nghỉ học kỳ",
+                Name = "Add semester vacations",
                 EntityName = "SemesterVacation",
                 Action = "CREATE",
-                Description = $"Người dùng ID {user.Id} đã thêm các kỳ nghỉ: {description}",
+                Description = $"User ID {user.Id} added vacations: {description}",
                 UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
             });
 
-            return new ApiResponse<string>(200, "Thêm thời gian nghỉ thành công.");
+            return new ApiResponse<string>(200, "Semester vacations added successfully.");
         }
-
 
         public async Task<ApiResponse<string>> UpdateSemesterVacationsAsync(int semesterId, List<SemesterUpdateVacationRequestDto> vacationDtos)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only staff members are allowed to add semester vacations.");
+
+            if (semesterId <= 0)
+                return new ApiResponse<string>(400, "SemesterId must be greater than 0.");
+
+            if (vacationDtos == null || vacationDtos.Count == 0)
+                return new ApiResponse<string>(400, "Vacation list cannot be empty.");
 
             var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == semesterId);
             if (semester == null)
-                return new ApiResponse<string>(400, $"Không tìm thấy học kỳ ID {semesterId}.");
+                return new ApiResponse<string>(400, $"Semester with ID {semesterId} not found.");
 
-            // Xóa toàn bộ kỳ nghỉ cũ
+            // Delete all old vacations
             var oldVacations = await _context.SemesterVacations
                 .Where(v => v.SemesterId == semesterId)
                 .ToListAsync();
 
             _context.SemesterVacations.RemoveRange(oldVacations);
 
-            // Validate và thêm danh sách mới
             foreach (var dto in vacationDtos)
             {
+                if (dto.StartDate == default || dto.EndDate == default)
+                    return new ApiResponse<string>(400, "StartDate and EndDate cannot be empty or invalid.");
+
                 if (dto.StartDate >= dto.EndDate)
-                    return new ApiResponse<string>(400, "Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
+                    return new ApiResponse<string>(400, "StartDate must be earlier than EndDate.");
+
+                if (string.IsNullOrWhiteSpace(dto.Description))
+                    return new ApiResponse<string>(400, "Vacation description cannot be empty.");
 
                 if (dto.StartDate < semester.StartAt || dto.EndDate > semester.EndAt)
-                    return new ApiResponse<string>(400, $"Thời gian nghỉ phải nằm trong khoảng {semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}.");
+                    return new ApiResponse<string>(400,
+                        $"Vacation period must be within the semester duration ({semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}).");
             }
 
-            // Kiểm tra chồng lấn trong list mới
             var ordered = vacationDtos.OrderBy(v => v.StartDate).ToList();
             for (int i = 0; i < ordered.Count - 1; i++)
             {
                 if (ordered[i].EndDate > ordered[i + 1].StartDate)
-                    return new ApiResponse<string>(400, "Các kỳ nghỉ mới bị chồng lấn thời gian.");
+                    return new ApiResponse<string>(400, "Vacation periods overlap. Please adjust the dates.");
             }
 
-            // Thêm mới danh sách
             var newVacations = vacationDtos.Select(dto => new SemesterVacation
             {
                 SemesterId = semesterId,
@@ -647,20 +842,20 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             await _context.SemesterVacations.AddRangeAsync(newVacations);
             await _context.SaveChangesAsync();
 
-            // Log lại
             await _logService.AddLogAsync(new Log
             {
-                Name = "Cập nhật danh sách kỳ nghỉ học kỳ",
+                Name = "Update semester vacation list",
                 EntityName = "SemesterVacation",
                 EntityId = semesterId,
                 Action = "UPDATE",
-                Description = $"Người dùng ID {user.Id} đã cập nhật toàn bộ kỳ nghỉ cho học kỳ {semesterId}.",
+                Description = $"User ID {user.Id} updated all vacations for semester {semesterId}.",
                 UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
             });
 
-            return new ApiResponse<string>(200, "Cập nhật danh sách kỳ nghỉ thành công.");
+            return new ApiResponse<string>(200, "Semester vacation list updated successfully.");
         }
+
 
 
         public Task<ApiResponse<List<SemesterVacationDto>>> GetBySemesterIdAsync(int semesterId)
@@ -670,6 +865,16 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<ApiResponse<List<SemesterVacationDto>>> GetVacationsBySemesterAsync(int semesterId)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only staff members are allowed to add semester vacations.");
+
+            if (semesterId <= 0)
+                throw new ArgumentException("Semester ID must be greater than 0.");
+
             var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == semesterId);
             if (semester == null)
                 return new ApiResponse<List<SemesterVacationDto>>(400, $"Không tìm thấy học kỳ ID {semesterId}.");
