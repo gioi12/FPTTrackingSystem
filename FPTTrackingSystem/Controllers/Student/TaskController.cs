@@ -83,5 +83,17 @@ namespace FPTTrackingSystem.Controllers.Student
             return StatusCode(response.Status, response);
         }
 
+        [HttpGet("meeting-tasks/{meetingScheduleId}")]
+        public async Task<IActionResult> GetTasksByMeetingScheduleId(int meetingScheduleId)
+        {
+            var tasks = await _taskService.GetMeetingScheduleWithTasksAsync(meetingScheduleId);
+
+            if (tasks == null)
+            {
+                return Ok(new { success = 200, data = new List<object>(), message = "No tasks found for this meeting schedule." });
+            }
+
+            return Ok(new { success = 200, data = tasks });
+        }
     }
 }

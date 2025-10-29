@@ -379,6 +379,31 @@ namespace Repositories.Student.Implements
             return task;
         }
 
-
+        public async Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId)
+        {
+            return await _context.MeetingScheduleDates
+                .Include(m => m.Tasks)
+                .Where(m => m.Id == meetingScheduleId)
+                .Select(m => new
+                {
+                    Id = m.Id,
+                    MeetingDate = m.MeetingDate,
+                    IsActive = m.IsActive,
+                    Description = m.Description,
+                    IsMeeting = m.IsMeeting,
+                    Tasks = m.Tasks
+                        .Where(t => t.Type == "meeting")
+                        .Select(t => new
+                        {
+                            t.Id,
+                            t.GroupId,
+                            t.Name,
+                            t.Description,
+                            t.Deadline,
+                            t.IsActive
+                        }).ToList()
+                })
+                .FirstOrDefaultAsync();
+        }
     }
 }
