@@ -105,7 +105,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
-            if (user.Role != "Mentor")
+            if (user.Role != "Supervisor")
                 throw new UnauthorizedAccessException("Only mentors are allowed to finalize meeting schedules.");
 
             var isMentorOfGroup = await _repo.CheckStudentInGroupAsync(user.Id ?? 0, groupId);
@@ -228,7 +228,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 if (!isInGroup)
                     throw new UnauthorizedAccessException("You are not a member of this group.");
             }
-            else if (user.Role == "Mentor")
+            else if (user.Role == "Supervior")
             {
                 var isMentor = await _repo.CheckStudentInGroupAsync(user.Id ?? 0, groupId);
                 if (!isMentor)
@@ -258,7 +258,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
-            if (user.Role != "Mentor")
+            if (user.Role != "Supervisor")
                 throw new UnauthorizedAccessException("Only mentors can update meeting status.");
 
             var schedule = await _repo.GetByIdWithMeetingAndGroupsAsync(id);

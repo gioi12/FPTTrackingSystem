@@ -29,6 +29,7 @@ namespace Repositories.Common.Implements
                 Feedback = dto.Feedback,
                 GroupId = dto.GroupId,
                 DeliverableId = dto.DeliverableId,
+                Type = dto.Type,
                 CreateAt = DateTime.UtcNow,
                 UpdateAt = DateTime.UtcNow
             };
@@ -36,25 +37,13 @@ namespace Repositories.Common.Implements
             _context.Evaluations.Add(evaluation);
             await _context.SaveChangesAsync();
 
-            if (dto.PenaltyCardIds != null && dto.PenaltyCardIds.Any())
-            {
-                var cards = await _context.PenatyCards
-                    .Where(p => dto.PenaltyCardIds.Contains(p.Id))
-                    .ToListAsync();
-
-                foreach (var card in cards)
-                {
-                    card.EvaluationId = evaluation.Id;
-                }
-
-                await _context.SaveChangesAsync();
-            }
-
-            evaluation.PenatyCards = await _context.PenatyCards
-                .Where(p => p.EvaluationId == evaluation.Id)
-                .ToListAsync();
-
             return evaluation;
+        }
+
+        public async Task<bool> CheckUserInGroupAsync(int studentId, int groupId)
+        {
+            return await _context.GroupUsers
+                .AnyAsync(gu => gu.UserId == studentId && gu.GroupId == groupId && gu.IsActive);
         }
 
         public async Task<List<PenatyCard>> GetAllPenaltyCardsAsync()
@@ -128,10 +117,9 @@ namespace Repositories.Common.Implements
             return card;
         }
 
-        public async Task<Evaluation?> UpdateEvaluationAsync(int id, string? feedback, int? deliverableId, List<int>? penaltyCardIds)
+        public async Task<Evaluation?> UpdateEvaluationAsync(int id, string? feedback, int? deliverableId, string? type)
         {
             var evaluation = await _context.Evaluations
-                .Include(e => e.PenatyCards)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (evaluation == null)
@@ -140,23 +128,7 @@ namespace Repositories.Common.Implements
             evaluation.Feedback = feedback ?? evaluation.Feedback;
             evaluation.DeliverableId = deliverableId ?? evaluation.DeliverableId;
             evaluation.UpdateAt = DateTime.UtcNow;
-
-            if (penaltyCardIds != null)
-            {
-                foreach (var card in evaluation.PenatyCards.ToList())
-                {
-                    card.EvaluationId = null;
-                }
-
-                var newCards = await _context.PenatyCards
-                    .Where(c => penaltyCardIds.Contains(c.Id))
-                    .ToListAsync();
-
-                foreach (var card in newCards)
-                {
-                    card.EvaluationId = evaluation.Id;
-                }
-            }
+            evaluation.Type = type;
 
             await _context.SaveChangesAsync();
             return evaluation;

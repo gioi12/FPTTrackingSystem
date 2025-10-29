@@ -23,6 +23,20 @@ namespace FPTTrackingSystem.Services.Common.Implements
         {
             var user = await _authUtils.GetUserInfoFromCookie();
             if (user == null || user.Id == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
+
+            var isMentorInGroup = await _evaluationRepository.CheckUserInGroupAsync(user.Id.Value, dto.GroupId);
+            if (!isMentorInGroup)
+                throw new UnauthorizedAccessException("You are not the mentor of this group and cannot evaluate its members.");
+
+            var isStudentInGroup = await _evaluationRepository.CheckUserInGroupAsync(dto.ReceiverId, dto.GroupId);
+            if (!isStudentInGroup)
+                throw new UnauthorizedAccessException("The student is not part of this group.");
+
+            if (user == null || user.Id == null)
                 throw new Exception("Không thể xác thực người dùng.");
 
             var createdEvaluation = await _evaluationRepository.CreateEvaluationAsync(dto, user.Id.Value);
@@ -37,13 +51,8 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 DeliverableId = createdEvaluation.DeliverableId,
                 CreateAt = createdEvaluation.CreateAt ?? DateTime.MinValue,
                 UpdateAt = createdEvaluation.UpdateAt ?? DateTime.MinValue,
-                PenaltyCards = createdEvaluation.PenatyCards?.Select(p => new PenaltyCardResponseDTO
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    Type = p.Type
-                }).ToList()
+                Type = createdEvaluation.Type
+                
             };
 
             return response;
@@ -72,6 +81,12 @@ namespace FPTTrackingSystem.Services.Common.Implements
         public async Task<PenaltyCardResponseDTO> CreatePenaltyCardAsync(PenaltyCardCreateDTO dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null || user.Id == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
+
             var formattedType = string.IsNullOrWhiteSpace(dto.Type)
           ? dto.Type
           : char.ToUpper(dto.Type[0]) + dto.Type.Substring(1).ToLower();
@@ -141,22 +156,33 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 CreateAt = e.CreateAt,
                 EvaluatorName = e.Evaluator.Fullname,
                 ReceiverId = e.ReceiverId,
-                PenaltyCards = e.PenatyCards.Select(p => p.Name).ToList()
             }).ToList();
         }
 
         public async Task<PenatyCard?> UpdatePenaltyCardAsync(int id, PenaltyCardUpdateDTO dto)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null || user.Id == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
             return await _evaluationRepository.UpdatePenaltyCardAsync(id, dto.Name, dto.Description, dto.UserId);
         }
 
         public async Task<Evaluation?> UpdateEvaluationAsync(int id, EvaluationUpdateDTO dto)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null || user.Id == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
             return await _evaluationRepository.UpdateEvaluationAsync(
                 id,
                 dto.Feedback,
                 dto.DeliverableId,
-                dto.PenaltyCardIds ?? new List<int>()
+                dto.Type
             );
         }
     }

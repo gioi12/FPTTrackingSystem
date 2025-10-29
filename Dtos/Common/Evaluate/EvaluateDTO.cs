@@ -24,7 +24,7 @@ namespace DataTranferObjects.Common.Evaluate
         public int GroupId { get; set; }
         public int DeliverableId { get; set; }
         public string Feedback { get; set; } = string.Empty;
-        public List<int>? PenaltyCardIds { get; set; } 
+        public string Type { get; set; } = string.Empty;
     }
 
     public class PenaltyCardResponseDto
@@ -55,7 +55,7 @@ namespace DataTranferObjects.Common.Evaluate
         public int? DeliverableId { get; set; }
         public DateTime CreateAt { get; set; }
         public DateTime UpdateAt { get; set; }
-        public List<PenaltyCardResponseDTO> PenaltyCards { get; set; } = new();
+        public string Type { get; set; } = string.Empty;
     }
 
     public class EvaluationResponseDto
@@ -66,7 +66,6 @@ namespace DataTranferObjects.Common.Evaluate
         public DateTime? CreateAt { get; set; }
         public string? EvaluatorName { get; set; }
         public int ReceiverId { get; set; }
-        public List<string> PenaltyCards { get; set; } = new();
     }
 
     public class PenaltyCardUpdateDTO
@@ -80,7 +79,7 @@ namespace DataTranferObjects.Common.Evaluate
     {
         public string? Feedback { get; set; }
         public int? DeliverableId { get; set; }
-        public List<int>? PenaltyCardIds { get; set; }  
+        public string? Type { get; set; }
     }
 
 }

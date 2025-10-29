@@ -27,15 +27,15 @@ namespace FPTTrackingSystem.Controllers.Common
             try
             {
                 var evaluation = await _evaluationService.CreateEvaluationAsync(dto);
-                return Ok(new
-                {
-                    message = "Tạo đánh giá thành công",
-                    data = evaluation
-                });
+                return Ok(ApiResponse<object>.Success(evaluation, "Tạo đánh giá thành công", 200));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<string>.Forbidden(ex.Message));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(ApiResponse<string>.Fail(ex.Message));
             }
         }
 
@@ -57,21 +57,15 @@ namespace FPTTrackingSystem.Controllers.Common
             try
             {
                 var result = await _evaluationService.CreatePenaltyCardAsync(dto);
-                return Ok(new
-                {
-                    status = 200,
-                    message = "Tạo thẻ phạt thành công",
-                    data = result
-                });
+                return Ok(ApiResponse<object>.Success(result, "Tạo thẻ phạt thành công", 200));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<string>.Forbidden(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    status = 500,
-                    message = ex.Message,
-                    data = (object?)null
-                });
+                return StatusCode(500, ApiResponse<string>.InternalError(ex.Message));
             }
         }
 
@@ -126,41 +120,63 @@ namespace FPTTrackingSystem.Controllers.Common
         [HttpPut("update/penalty-card/{id}")]
         public async Task<IActionResult> UpdatePenaltyCard(int id, [FromBody] PenaltyCardUpdateDTO dto)
         {
-            var result = await _evaluationService.UpdatePenaltyCardAsync(id, dto);
-            if (result == null)
-                return NotFound(ApiResponse<string>.Fail("Penalty card not found", 404));
-
-            return Ok(ApiResponse<object>.Success(new
+            try
             {
-                result.Id,
-                result.Name,
-                result.Description,
-                result.UserId,
-                result.CreateAt
-            }, "Update penalty card success"));
+                var result = await _evaluationService.UpdatePenaltyCardAsync(id, dto);
+                if (result == null)
+                    return NotFound(ApiResponse<string>.Fail("Penalty card not found", 404));
+
+                return Ok(ApiResponse<object>.Success(new
+                {
+                    result.Id,
+                    result.Name,
+                    result.Description,
+                    result.UserId,
+                    result.CreateAt
+                }, "Cập nhật penalty card thành công", 200));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<string>.Forbidden(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.InternalError(ex.Message));
+            }
         }
 
         [HttpPut("update/evaluation/{id}")]
         public async Task<IActionResult> UpdateEvaluation(int id, [FromBody] EvaluationUpdateDTO dto)
         {
-            var result = await _evaluationService.UpdateEvaluationAsync(id, dto);
-            if (result == null)
-                return NotFound(ApiResponse<string>.Fail("Evaluation not found", 404));
-
-            return Ok(ApiResponse<object>.Success(new
+            try
             {
-                result.Id,
-                result.Feedback,
-                result.DeliverableId,
-                result.UpdateAt,
-                PenaltyCards = result.PenatyCards.Select(p => new
+                var result = await _evaluationService.UpdateEvaluationAsync(id, dto);
+                if (result == null)
+                    return NotFound(ApiResponse<string>.Fail("Evaluation not found", 404));
+
+                return Ok(ApiResponse<object>.Success(new
                 {
-                    p.Id,
-                    p.Name,
-                    p.Description,
-                    p.Type
-                }).ToList()
-            }, "Cập nhật Evaluation thành công."));
+                    result.Id,
+                    result.Feedback,
+                    result.DeliverableId,
+                    result.UpdateAt,
+                    PenaltyCards = result.PenatyCards.Select(p => new
+                    {
+                        p.Id,
+                        p.Name,
+                        p.Description,
+                        p.Type
+                    }).ToList()
+                }, "Cập nhật Evaluation thành công."));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<string>.Forbidden(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.InternalError(ex.Message));
+            }
         }
     }
 }
