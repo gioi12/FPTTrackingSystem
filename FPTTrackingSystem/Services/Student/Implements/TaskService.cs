@@ -29,21 +29,29 @@ namespace FPTTrackingSystem.Services.Student.Implements
             if (user.Role == "Student" && (user.Groups == null || !user.Groups.Contains(dto.GroupId)))
                 throw new UnauthorizedAccessException("Bạn không có quyền tạo task trong nhóm này.");
 
-            var priority = string.IsNullOrWhiteSpace(dto.Priority)
-                ? string.Empty
-                : char.ToUpper(dto.Priority[0]) + dto.Priority.Substring(1).ToLower();
+            var validTaskTypes = new[] { "todo", "progress", "done" };
+            if (string.IsNullOrWhiteSpace(dto.TaskType) ||
+                !validTaskTypes.Contains(dto.TaskType.Trim().ToLower()))
+                throw new ArgumentException("Invalid TaskType. Allowed values: ToDo, Progress, Done.");
 
+            var validPriorities = new[] { "high", "medium", "low" };
+            if (string.IsNullOrWhiteSpace(dto.Priority) ||
+                !validPriorities.Contains(dto.Priority.Trim().ToLower()))
+                throw new ArgumentException("Invalid Priority. Allowed values: High, Medium, Low.");
+
+            var formattedTaskType = char.ToUpper(dto.TaskType[0]) + dto.TaskType.Substring(1).ToLower();
+            var formattedPriority = char.ToUpper(dto.Priority[0]) + dto.Priority.Substring(1).ToLower();
             var newTask = new Entities.Models.Task
             {
                 GroupId = dto.GroupId,
                 Name = dto.Name,
-                Priority = priority,
+                Priority = formattedPriority,
                 Process = dto.Process,
                 Description = dto.Description,
                 Deadline = dto.EndAt,
                 Status = dto.Status,
                 DeliverableId = dto.DeliverableId,
-                Type = dto.TaskType,
+                Type = formattedTaskType,
                 CreatedAt = DateTime.Now,
                 IsActive = true,
                 MeetingScheduleDateId = dto.MeetingId > 0 ? dto.MeetingId : null
@@ -102,6 +110,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             try
             {
+
                 var user = await _authUtils.GetUserInfoFromCookie();
                 var existingTask = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == dto.Id);
                 var taskCreator = await _context.TaskUsers
@@ -117,7 +126,13 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     if (taskCreator == null || taskCreator.UserId != user.Id)
                         return new ApiResponse<TaskResponseUpdateDto>(403, "Bạn chỉ được sửa task do chính mình tạo.", null);
                 }
+                var validTaskTypes = new[] { "Assignment", "Meeting", "Deliverable", "General" };
+                if (!validTaskTypes.Contains(dto.StatusId))
+                    return ApiResponse<TaskResponseUpdateDto>.Fail("Loại task không hợp lệ.", 400);
 
+                var validPriorities = new[] { "Low", "Medium", "High", "Critical" };
+                if (!validPriorities.Contains(dto.PriorityId))
+                    return ApiResponse<TaskResponseUpdateDto>.Fail("Độ ưu tiên không hợp lệ.", 400);
                 var updatedTask = await _taskRepository.UpdateTaskAsync(dto, user.Id ?? 0);
 
                 var assignedUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);

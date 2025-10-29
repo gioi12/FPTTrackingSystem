@@ -36,6 +36,10 @@ namespace FPTTrackingSystem.Controllers.Student
                     ReviewerId = dto.ReviewerId
                 }, "Tạo task thành công."));
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail(ex.Message, 400));
+            }
             catch (Exception ex)
             {
                 return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));

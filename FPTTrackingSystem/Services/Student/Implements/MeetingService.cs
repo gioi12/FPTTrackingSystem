@@ -258,16 +258,13 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
-            // Only mentors can update meeting status
             if (user.Role != "Mentor")
                 throw new UnauthorizedAccessException("Only mentors can update meeting status.");
 
-            // Load schedule and related Meeting + Groups
             var schedule = await _repo.GetByIdWithMeetingAndGroupsAsync(id);
             if (schedule == null)
                 throw new ValidationException("Meeting schedule not found.");
 
-            // Check if the mentor is in any of the groups associated with this meeting
             var mentorId = user.Id ?? 0;
             var mentorGroupIds = schedule.Meeting?.Groups?.Select(g => g.Id).ToList() ?? new List<int>();
 
@@ -284,7 +281,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
             if (!isMentorOfAnyGroup)
                 throw new UnauthorizedAccessException("You are not authorized to update this meeting schedule.");
 
-            // Update meeting status
             schedule.IsMeeting = isMeeting;
             schedule.UpdatedAt = DateTime.Now;
 
