@@ -21,15 +21,19 @@ namespace FPTTrackingSystem.Services.Student.Implements
             _authUtils = authUtils;
             _context = context;
         }
+
         public async Task<Entities.Models.Task> CreateTaskAsync(CreateTaskDTO dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+
+            // Kiểm tra student chỉ được tạo task trong nhóm của mình
+            if (user.Role == "Student" && (user.Groups == null || !user.Groups.Contains(dto.GroupId)))
+                throw new UnauthorizedAccessException("Bạn không có quyền tạo task trong nhóm này.");
 
             var priority = string.IsNullOrWhiteSpace(dto.Priority)
                 ? string.Empty
                 : char.ToUpper(dto.Priority[0]) + dto.Priority.Substring(1).ToLower();
 
-            // Khởi tạo task mới
             var newTask = new Entities.Models.Task
             {
                 GroupId = dto.GroupId,
@@ -40,11 +44,11 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 Deadline = dto.EndAt,
                 Status = dto.Status,
                 DeliverableId = dto.DeliverableId,
-                Type = dto.TaskType, 
+                Type = dto.TaskType,
                 CreatedAt = DateTime.Now,
                 IsActive = true,
                 MeetingScheduleDateId = dto.MeetingId > 0 ? dto.MeetingId : null
-        };
+            };
 
             return await _taskRepository.CreateTaskAsync(
                 newTask,
@@ -54,49 +58,48 @@ namespace FPTTrackingSystem.Services.Student.Implements
             );
         }
 
-
+        // ------------------ GET BY GROUP ------------------
         public async Task<ApiResponse<List<TaskDto>>> GetTasksByGroupIdAsync(int groupId)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            // Phân quyền truy cập
+            if (user.Role == "Student" || user.Role == "Supervisor")
+            {
+                if (user.Groups == null || !user.Groups.Contains(groupId))
+                {
+                    return new ApiResponse<List<TaskDto>>(403, "Bạn không có quyền xem task của nhóm này.", null);
+                }
+            }
+
             var tasks = await _taskRepository.GetTasksByGroupIdAsync(groupId);
 
             if (tasks == null || !tasks.Any())
             {
-                return new ApiResponse<List<TaskDto>>
-                {
-                    Status = 200,
-                    Message = "Không tìm thấy task nào trong nhóm này.",
-                    Data = new List<TaskDto>() 
-                };
+                return new ApiResponse<List<TaskDto>>(200, "Không tìm thấy task nào trong nhóm này.", new List<TaskDto>());
             }
 
-            return new ApiResponse<List<TaskDto>>
-            {
-                Status = 200,
-                Message = "Lấy danh sách task thành công.",
-                Data = tasks
-            };
+            return new ApiResponse<List<TaskDto>>(200, "Lấy danh sách task thành công.", tasks);
         }
 
         public async Task<ApiResponse<TaskDto>> GetTaskByIdAsync(int taskId)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
             var task = await _taskRepository.GetTaskByIdAsync(taskId);
 
             if (task == null)
             {
-                return new ApiResponse<TaskDto>
-                {
-                    Status = 200,
-                    Message = "Không tìm thấy task với ID này.",
-                    Data = new TaskDto() 
-                };
+                return new ApiResponse<TaskDto>(200, "Không tìm thấy task với ID này.", new TaskDto());
             }
 
-            return new ApiResponse<TaskDto>
+            // Kiểm tra quyền xem task
+            if ((user.Role == "Student" || user.Role == "Supervisor") &&
+                (user.Groups == null || !user.Groups.Contains(task.Group.Id)))
             {
-                Status = 200,
-                Message = "Lấy thông tin task thành công.",
-                Data = task
-            };
+                return new ApiResponse<TaskDto>(403, "Bạn không có quyền xem task này.", null);
+            }
+
+            return new ApiResponse<TaskDto>(200, "Lấy thông tin task thành công.", task);
         }
 
         public async Task<ApiResponse<TaskResponseUpdateDto>> UpdateTaskAsync(UpdateTaskDTO dto)
@@ -104,11 +107,24 @@ namespace FPTTrackingSystem.Services.Student.Implements
             try
             {
                 var user = await _authUtils.GetUserInfoFromCookie();
+                var existingTask = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == dto.Id);
+                var taskCreator = await _context.TaskUsers
+                        .FirstOrDefaultAsync(tu => tu.TaskId == dto.Id && tu.Type == "Creator");
+                if (existingTask == null)
+                    return new ApiResponse<TaskResponseUpdateDto>(200, "Không tìm thấy task", null);
+
+                // Student chỉ được cập nhật task của nhóm mình và task do mình tạo
+                if (user.Role == "Student")
+                {
+                    if (user.Groups == null || !user.Groups.Contains(existingTask.GroupId))
+                        return new ApiResponse<TaskResponseUpdateDto>(403, "Bạn không có quyền sửa task của nhóm khác.", null);
+
+                    if (taskCreator == null || taskCreator.UserId != user.Id)
+                        return new ApiResponse<TaskResponseUpdateDto>(403, "Bạn chỉ được sửa task do chính mình tạo.", null);
+                }
 
                 var updatedTask = await _taskRepository.UpdateTaskAsync(dto, user.Id ?? 0);
 
-                if (updatedTask == null)
-                    return new ApiResponse<TaskResponseUpdateDto>(200, "Không tìm thấy task", null);
                 var assignedUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);
                 var reviewerUser = dto.ReviewerId != null
                     ? await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.ReviewerId)
