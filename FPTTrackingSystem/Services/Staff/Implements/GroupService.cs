@@ -1,20 +1,34 @@
 ﻿using Azure;
-using Microsoft.EntityFrameworkCore;
-using FPTTrackingSystem.Wrappers;
+using DataTranferObjects.Common.Response;
 using DataTranferObjects.Enum;
 using DataTranferObjects.Staff.Group;
+using DataTranferObjects.Staff.Response;
+using Entities.Models;
 using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Utilities;
+using FPTTrackingSystem.Wrappers;
+using Mapster;
+using Microsoft.EntityFrameworkCore;
+using Repositories.Common.Interfaces;
+using Repositories.Staff.Implements;
 using Repositories.Staff.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace FPTTrackingSystem.Services.Staff.Implementations
 {
     public class GroupService : IGroupService
     {
         private readonly IGroupRepository _groupRepository;
+        private readonly AuthUtils _authUtils;
+        private readonly IWebHostEnvironment _env;
+        private readonly IAttachmentRepository _attachmentRepository;
 
-        public GroupService(IGroupRepository groupRepository)
+        public GroupService(IGroupRepository groupRepository, AuthUtils authUtils, IWebHostEnvironment env,IAttachmentRepository attachmentRepository)
         {
             _groupRepository = groupRepository;
+            _authUtils = authUtils;
+            _env = env;
+            _attachmentRepository = attachmentRepository;
         }
 
         public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
@@ -284,6 +298,47 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             }
         }
 
+        public async Task<string> UploadFileGroup(IFormFile file, int groupId)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            var group = await _groupRepository.GetByIdAsync(groupId);
+            if (group == null)
+                throw new ValidationException("Not found group");
+
+            string path = await FileUploadUtils.UploadFileAsync(file, (int)FileEnum.Group, _env);
+            // 1. Milestone(Deliverable) , 2 Task , 3 Groups (Documents)
+            string entityName = FileUploadUtils.GetEntityName((int)FileEnum.Group);
+            Entities.Models.Attachment attachment = new Entities.Models.Attachment()
+            {
+                CreateAt = DateTime.Now,
+                FileName = file.FileName,
+                FilePath = path,
+                EntityName = entityName,
+                EntityId = groupId,
+                GroupId = groupId,
+                UserId = (int)user.Id,
+                IsDownload = false
+            };
+            await _attachmentRepository.AddAttachment(attachment);
+            return path;
+        }
+
+        public async System.Threading.Tasks.Task DeleteFileGroup(int attachmentId)
+        {
+            var attachment = await _attachmentRepository.GetAttachmentById(attachmentId);
+            if (attachment == null) throw new ValidationException("Not found attachment");
+            await _attachmentRepository.DeleteAttachment(attachment);
+        }
+
+        public async Task<List<AttachmentRes>> GetFilesGroup(int groupId)
+        {
+            var entityName = FileUploadUtils.GetEntityName((int)FileEnum.Group);
+            var allAttachments = await _attachmentRepository.GetAttachments(
+                entityName, groupId, groupId
+            );
+
+            return allAttachments.Adapt<List<AttachmentRes>>();
+        }
     }
 
 }

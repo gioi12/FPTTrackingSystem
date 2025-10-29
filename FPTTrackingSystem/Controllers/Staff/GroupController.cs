@@ -1,11 +1,13 @@
-﻿using FPTTrackingSystem.Services.Staff.Interfaces;
+﻿using FPTTrackingSystem.Services.Staff.Implementations;
+using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Wrappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Controllers.Staff
 {
-    [Route("api/v1/Staff")]
+    [Route("api/")]
     [ApiController]
     public class GroupController : ControllerBase
     {
@@ -16,14 +18,14 @@ namespace FPTTrackingSystem.Controllers.Staff
             _groupService = groupService;
         }
 
-        [HttpGet("capstone-groups")]
+        [HttpGet("v1/Staff/capstone-groups")]
         public async Task<IActionResult> GetCapstoneGroups([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _groupService.GetGroupsAsync(page, pageSize);
             return Ok(result);
         }
 
-        [HttpGet("capstone-groups/{id}")]
+        [HttpGet("v1/Staff/capstone-groups/{id}")]
         public async Task<IActionResult> GetGroupById(string id)
         {
             var groupId = int.Parse(id);
@@ -31,17 +33,17 @@ namespace FPTTrackingSystem.Controllers.Staff
             return StatusCode(result.Status, result);
         }
 
-        [HttpGet("dashboard-majors-groups")]
+        [HttpGet("v1/Staff/dashboard-majors-groups")]
         public async Task<IActionResult> GetMajorGroupTotals()
         {
             var response = await _groupService.GetMajorGroupTotalsAsync();
             return Ok(response);
         }
-        [HttpGet("group-tracking")]
+        [HttpGet("v1/Staff/group-tracking")]
         public async Task<IActionResult> GetGroupTracking(
-    [FromQuery] string groupId,
-    [FromQuery] string startDate,
-    [FromQuery] string endDate)
+            [FromQuery] string groupId,
+            [FromQuery] string startDate,
+            [FromQuery] string endDate)
         {
             if (!int.TryParse(groupId, out int gId))
             {
@@ -84,13 +86,33 @@ namespace FPTTrackingSystem.Controllers.Staff
         }
 
 
-        [HttpPut("update-role")]
+        [HttpPut("v1/Staff/update-role")]
         public async Task<ActionResult<ApiResponse<string>>> UpdateRoleInGroup([FromQuery] int groupId, [FromQuery] int studentId, [FromBody] string newRole)
         {
             var result = await _groupService.UpdateRoleInGroupAsync(groupId, studentId, newRole);
             return StatusCode(200, result);
         }
 
-
+        [Authorize(Roles = "Supervisor")]
+        [HttpPost("v1/upload/group")]
+        public async Task<object> UploadMilestone(IFormFile file, int groupId)
+        {
+            var message = await _groupService.UploadFileGroup(file, groupId);
+            return Ok(ApiResponse<object>.Success(message,"Upload Successfully"));
+        }
+        [Authorize(Roles = "Supervisor")]
+        [HttpDelete("v1/upload/group")]
+        public async Task<object> DeleteGroup(int attachmentId)
+        {
+            await _groupService.DeleteFileGroup(attachmentId);
+            return Ok(ApiResponse<object>.Success(null, "Delete attachment successfully."));
+        }
+        [Authorize]
+        [HttpGet("v1/upload/files")]
+        public async Task<object> FilesGroup(int groupId)
+        {
+            var list = await _groupService.GetFilesGroup(groupId);
+            return Ok(ApiResponse<object>.Success(list, "Get attachments successfully."));
+        }
     }
 }

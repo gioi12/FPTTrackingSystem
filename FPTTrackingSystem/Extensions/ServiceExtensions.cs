@@ -150,6 +150,7 @@ namespace FPTTrackingSystem.Extensions
             MilestoneMapper.ToMilestoneResponse();
             DeliverableMapper.ToDeliverableResponse();
             MeetingMinuteMapper.ToMeetingMinuteResponse();
+            AttachmentMapper.ToAttachmentResponse();
             return services;
         }
     }

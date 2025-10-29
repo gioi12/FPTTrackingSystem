@@ -36,6 +36,7 @@ namespace Repositories.Common.Implements
         public async Task<List<Attachment>> GetAttachments(string entityName, int entityId, int groupId)
         {
            return await _context.Attachments
+                .Include(x=>x.User)
                 .Where(x=> x.EntityName == entityName && x.EntityId == entityId && x.GroupId == groupId )
                 .ToListAsync();
         }
