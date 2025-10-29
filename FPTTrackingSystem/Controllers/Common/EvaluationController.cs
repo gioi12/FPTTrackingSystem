@@ -140,6 +140,7 @@ namespace FPTTrackingSystem.Controllers.Common
                     result.Name,
                     result.Description,
                     result.UserId,
+                    result.Type,
                     result.CreateAt
                 }, "Cập nhật penalty card thành công", 200));
             }
@@ -172,13 +173,7 @@ namespace FPTTrackingSystem.Controllers.Common
                     result.Feedback,
                     result.DeliverableId,
                     result.UpdateAt,
-                    PenaltyCards = result.PenatyCards.Select(p => new
-                    {
-                        p.Id,
-                        p.Name,
-                        p.Description,
-                        p.Type
-                    }).ToList()
+                    result.Type,
                 }, "Cập nhật Evaluation thành công."));
             }
             catch (UnauthorizedAccessException ex)
