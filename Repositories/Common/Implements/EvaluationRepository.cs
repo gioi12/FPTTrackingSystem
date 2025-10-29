@@ -63,7 +63,7 @@ namespace Repositories.Common.Implements
         {
             return await _context.PenatyCards
                 .Include(p => p.User)
-                .Where(p => p.EvaluatorId == mentorId && p.Type != null && p.Type.ToLower() == "general")
+                .Where(p => p.EvaluatorId == mentorId && p.Type != null)
                 .Select(p => new PenaltyCardResponseDTO
                 {
                     Id = p.Id,
@@ -88,7 +88,7 @@ namespace Repositories.Common.Implements
         public async Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)
         {
             return await _context.PenatyCards
-                .Where(p => p.UserId == studentId && p.Type != null && p.Type.ToLower() == "general")
+                .Where(p => p.UserId == studentId && p.Type != null)
                 .OrderByDescending(p => p.CreateAt)
                 .ToListAsync();
         }
