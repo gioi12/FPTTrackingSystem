@@ -57,26 +57,29 @@ namespace FPTTrackingSystem.Services.Student.Implements
             if (string.IsNullOrWhiteSpace(dto.Status) ||
                 !validTaskTypes.Contains(dto.Status.Trim().ToLower()))
                 throw new ArgumentException("Invalid TaskType. Allowed values: ToDo, Progress, Done.");
+            var taskType = dto.TaskType.Trim().ToLower();
+            var status = dto.Status.Trim().ToLower();
+            var priority = dto.Priority.Trim().ToLower();
 
             var validPriorities = new[] { "high", "medium", "low" };
             if (string.IsNullOrWhiteSpace(dto.Priority) ||
                 !validPriorities.Contains(dto.Priority.Trim().ToLower()))
                 throw new ArgumentException("Invalid Priority. Allowed values: High, Medium, Low.");
 
-            var formattedStatusType = char.ToUpper(dto.Status[0]) + dto.Status.Substring(1).ToLower();
-            var formattedTaskType = char.ToUpper(dto.TaskType[0]) + dto.TaskType.Substring(1).ToLower();
-            var formattedPriority = char.ToUpper(dto.Priority[0]) + dto.Priority.Substring(1).ToLower();
+            string Capitalize(string s) =>
+                string.IsNullOrWhiteSpace(s) ? s : char.ToUpper(s[0]) + s.Substring(1).ToLower();
+
             var newTask = new Entities.Models.Task
             {
                 GroupId = dto.GroupId,
                 Name = dto.Name,
-                Priority = formattedPriority,
+                Priority = Capitalize(priority),
                 Process = dto.Process,
                 Description = dto.Description,
                 Deadline = dto.EndAt,
-                Status = formattedStatusType,
+                Status = Capitalize(status),
                 DeliverableId = dto.DeliverableId,
-                Type = formattedTaskType,
+                Type = Capitalize(taskType),
                 CreatedAt = DateTime.Now,
                 IsActive = true,
                 MeetingScheduleDateId = dto.MeetingId > 0 ? dto.MeetingId : null
@@ -170,6 +173,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 if (dto.AssignedUserId <= 0)
                     throw new ArgumentException("AssignedUserId không hợp lệ.");
 
+                var status = dto.StatusId.Trim().ToLower();
+                var priority = dto.PriorityId.Trim().ToLower();
+
                 if (dto.ReviewerId <= 0)
                     throw new ArgumentException("ReviewerId không hợp lệ.");
                 var validTaskTypes = new[] { "todo", "progress", "done" };
@@ -178,10 +184,15 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     throw new ArgumentException("Invalid TaskType. Allowed values: ToDo, Progress, Done.");
 
                 var validPriorities = new[] { "high", "medium", "low" };
-                if (string.IsNullOrWhiteSpace(dto.PriorityId) ||
-                    !validTaskTypes.Contains(dto.PriorityId.Trim().ToLower()))
+                if (string.IsNullOrWhiteSpace(priority) ||
+                    !validPriorities.Contains(priority.Trim().ToLower()))
                     return ApiResponse<TaskResponseUpdateDto>.Fail("Độ ưu tiên không hợp lệ.", 400);
                 var updatedTask = await _taskRepository.UpdateTaskAsync(dto, user.Id ?? 0);
+                string Capitalize(string s) =>
+                string.IsNullOrWhiteSpace(s) ? s : char.ToUpper(s[0]) + s.Substring(1).ToLower();
+
+                dto.StatusId = Capitalize(status);
+                dto.PriorityId = Capitalize(priority);
 
                 var assignedUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);
                 var reviewerUser = dto.ReviewerId != null
