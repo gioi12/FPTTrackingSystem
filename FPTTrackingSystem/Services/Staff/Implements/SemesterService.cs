@@ -418,12 +418,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<List<SemesterDTO>> GetAllSemestersAsync()
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (user == null)
-                throw new UnauthorizedAccessException("User authentication failed.");
-
-            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
-                throw new UnauthorizedAccessException("Only Staff members are allowed to view all semesters.");
             var semesters = await _semesterRepository.getAllSemesters();
 
             return semesters.Select(s => new SemesterDTO
@@ -456,12 +450,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<SemesterDTO?> GetSemesterByIdAsync(int id)
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (user == null)
-                throw new UnauthorizedAccessException("User authentication failed.");
-
-            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
-                throw new UnauthorizedAccessException("Only Staff members are allowed to access semester details.");
             var semester = await _semesterRepository.GetSemesterByIdAsync(id);
             if (semester == null) return null;
 
@@ -639,13 +627,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<SemesterDeliveriesDTO?> GetMilestonesBySemester(int id)
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (user == null)
-                throw new UnauthorizedAccessException("User authentication failed.");
-
-            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
-                throw new UnauthorizedAccessException("Only Staff members are allowed to access semester details.");
-
             if (id <= 0)
                 throw new ArgumentException("Semester ID must be greater than 0.");
 
@@ -674,13 +655,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<SemesterDeliveriesDTO?> GetDeliveriesBySemester(int id)
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (user == null)
-                throw new UnauthorizedAccessException("User authentication failed.");
-
-            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
-                throw new UnauthorizedAccessException("Only Staff members are allowed to access semester details.");
-
             if (id <= 0)
                 throw new ArgumentException("Semester ID must be greater than 0.");
             var semester = await _semesterRepository.GetDeliveriesBySemester(id);
@@ -859,13 +833,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<ApiResponse<List<SemesterVacationDto>>> GetVacationsBySemesterAsync(int semesterId)
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (user == null)
-                throw new UnauthorizedAccessException("User authentication failed.");
-
-            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
-                throw new UnauthorizedAccessException("Only staff members are allowed to add semester vacations.");
-
             if (semesterId <= 0)
                 throw new ArgumentException("Semester ID must be greater than 0.");
 
