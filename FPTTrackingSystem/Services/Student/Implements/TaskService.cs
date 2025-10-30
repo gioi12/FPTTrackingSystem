@@ -63,6 +63,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 !validPriorities.Contains(dto.Priority.Trim().ToLower()))
                 throw new ArgumentException("Invalid Priority. Allowed values: High, Medium, Low.");
 
+            var formattedStatusType = char.ToUpper(dto.Status[0]) + dto.Status.Substring(1).ToLower();
             var formattedTaskType = char.ToUpper(dto.TaskType[0]) + dto.TaskType.Substring(1).ToLower();
             var formattedPriority = char.ToUpper(dto.Priority[0]) + dto.Priority.Substring(1).ToLower();
             var newTask = new Entities.Models.Task
@@ -73,7 +74,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 Process = dto.Process,
                 Description = dto.Description,
                 Deadline = dto.EndAt,
-                Status = dto.Status,
+                Status = formattedStatusType,
                 DeliverableId = dto.DeliverableId,
                 Type = formattedTaskType,
                 CreatedAt = DateTime.Now,
