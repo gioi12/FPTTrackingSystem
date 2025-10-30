@@ -54,8 +54,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 throw new ArgumentException("ReviewerId không hợp lệ.");
 
             var validTaskTypes = new[] { "todo", "progress", "done" };
-            if (string.IsNullOrWhiteSpace(dto.TaskType) ||
-                !validTaskTypes.Contains(dto.TaskType.Trim().ToLower()))
+            if (string.IsNullOrWhiteSpace(dto.Status) ||
+                !validTaskTypes.Contains(dto.Status.Trim().ToLower()))
                 throw new ArgumentException("Invalid TaskType. Allowed values: ToDo, Progress, Done.");
 
             var validPriorities = new[] { "high", "medium", "low" };
