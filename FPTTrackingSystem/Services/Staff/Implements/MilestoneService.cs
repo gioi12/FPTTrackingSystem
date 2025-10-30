@@ -230,13 +230,16 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         {
             var milestones = await _milestoneRepository.GetMilestonesByGroupIdAsync(groupId);
             var semester = await _semesterRepository.GetSemesterByIdAsync(semesterId);
-            var weeks = semester.SemesterWeeks?.ToList() ?? new List<SemesterWeek>();
+            var holidays = semester.SemesterVacations
+               .Where(x => x.StartAt.HasValue && x.EndAt.HasValue)
+               .Select(x => (x.StartAt.Value, x.EndAt.Value))
+               .ToList();
             return milestones.Select(m => new MilestonesDTO
             {
                 Id = m.Id,
                 Name = m.Name,
                 Description = m.Description,
-                Deadline = DateTimeUtils.GetDeadlineDate(m.Deadline, weeks),
+                Deadline = DateTimeUtils.GetTargetDate(m.Deadline, (DateTime)semester.StartAt, holidays),
                 CreateAt = m.CreateAt,
                 CreateBy = m.CreateBy,
                 MajorId = m.MajorId

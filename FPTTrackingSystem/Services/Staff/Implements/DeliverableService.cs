@@ -32,10 +32,18 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var list = await _deliverableRepository.GetByCodeAndSemester(code, semesterId);
             var semester = await _semesterRepository.GetSemesterByIdAsync(semesterId);
             var res = list.Adapt<List<DeliverableRes>>();
+            var holidays = semester.SemesterVacations
+               .Where(x => x.StartAt.HasValue && x.EndAt.HasValue)
+               .Select(x => (x.StartAt.Value, x.EndAt.Value))
+               .ToList();
             foreach (var item in res)
             {
                 item.StartAt = semester.StartAt;
-                item.EndAt = item.Deadline != null ? DateTimeUtils.GetDeadlineDate(item.Deadline, (List<Entities.Models.SemesterWeek>)semester.SemesterWeeks) : null;
+                item.EndAt = item.Deadline != null ? DateTimeUtils.GetTargetDate(
+                    item.Deadline,
+                    (DateTime)semester.StartAt,
+                    holidays
+                ) : null;
             }
             return res;
         }
@@ -49,10 +57,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var list = await _deliverableRepository.GetByCodeAndSemester((int)group.MajorId, (int)group.SemesterId);
             var semester = await _semesterRepository.GetSemesterByIdAsync((int)group.SemesterId);
             var res = list.Adapt<List<GroupDeliverableRes>>();
+            var holidays = semester.SemesterVacations
+                .Where(x => x.StartAt.HasValue && x.EndAt.HasValue)
+                .Select(x => (x.StartAt.Value, x.EndAt.Value))
+                .ToList();
             foreach (var item in res)
             {
                 item.StartAt = semester.StartAt;
-                item.EndAt = item.Deadline != null ? DateTimeUtils.GetDeadlineDate(item.Deadline, (List<Entities.Models.SemesterWeek>)semester.SemesterWeeks) : null;
+                item.EndAt = item.Deadline != null ? DateTimeUtils.GetTargetDate(item.Deadline, (DateTime)semester.StartAt, holidays) : null;
             }
             return res;
         }
@@ -120,9 +132,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var semester = await _semesterRepository.GetSemesterByIdAsync((int)group.SemesterId);
 
             var res = deliverable.Adapt<DeliverableDetailRes>();
+            var holidays = semester.SemesterVacations
+                .Where(x => x.StartAt.HasValue && x.EndAt.HasValue)
+                .Select(x => (x.StartAt.Value, x.EndAt.Value))
+                .ToList();
             res.StartAt = semester.StartAt;
             res.EndAt = res.Deadline != null
-                ? DateTimeUtils.GetDeadlineDate(res.Deadline, (List<Entities.Models.SemesterWeek>)semester.SemesterWeeks)
+                ? DateTimeUtils.GetTargetDate(res.Deadline, (DateTime)semester.StartAt,holidays)
                 : null;
    
             var entityName = FileUploadUtils.GetEntityName((int)FileEnum.DeliverableItem);
@@ -172,10 +188,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 throw new ValidationException("Not submitted");
             }
-
+            var holidays = semester.SemesterVacations
+               .Where(x => x.StartAt.HasValue && x.EndAt.HasValue)
+               .Select(x => (x.StartAt.Value, x.EndAt.Value))
+               .ToList();
             var deadlineAt = deliverable.Deadline != null
-                ? DateTimeUtils.GetDeadlineDate(deliverable.Deadline, (List<Entities.Models.SemesterWeek>)semester.SemesterWeeks)
+                ? (DateTime?)DateTimeUtils.GetTargetDate(deliverable.Deadline, (DateTime)semester.StartAt, holidays)
                 : null;
+
             string statusUpdate = null;
             if(DateTime.Now > deadlineAt)
             {
