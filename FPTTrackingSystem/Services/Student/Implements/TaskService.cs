@@ -177,7 +177,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     throw new ArgumentException("Invalid TaskType. Allowed values: ToDo, Progress, Done.");
 
                 var validPriorities = new[] { "high", "medium", "low" };
-                if (!validPriorities.Contains(dto.PriorityId))
+                if (string.IsNullOrWhiteSpace(dto.PriorityId) ||
+                    !validTaskTypes.Contains(dto.PriorityId.Trim().ToLower()))
                     return ApiResponse<TaskResponseUpdateDto>.Fail("Độ ưu tiên không hợp lệ.", 400);
                 var updatedTask = await _taskRepository.UpdateTaskAsync(dto, user.Id ?? 0);
 
