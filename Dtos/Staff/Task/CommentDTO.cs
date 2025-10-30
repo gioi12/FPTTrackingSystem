@@ -19,7 +19,6 @@ namespace DataTranferObjects.Staff.Task
 
     public class CreateCommentDto
     {
-        public int EntityId { get; set; }
         public string Feedback { get; set; } = string.Empty;
         public int GroupId { get; set; }
     }

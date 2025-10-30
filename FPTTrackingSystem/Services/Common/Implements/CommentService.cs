@@ -27,7 +27,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
             var comment = new Comment
             {
                 EntityName = "Task",
-                EntityId = dto.EntityId,
+                EntityId = 1,
                 Feedback = dto.Feedback,
                 GroupId = dto.GroupId,
                 UserId = user.Id ?? 0,
