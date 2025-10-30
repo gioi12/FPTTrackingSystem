@@ -171,11 +171,11 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
                 if (dto.ReviewerId <= 0)
                     throw new ArgumentException("ReviewerId không hợp lệ.");
-                var validTaskTypes = new[] { "Assignment", "Meeting", "Deliverable", "General" };
+                var validTaskTypes = new[] { "todo", "progress", "done" };
                 if (!validTaskTypes.Contains(dto.StatusId))
                     return ApiResponse<TaskResponseUpdateDto>.Fail("Loại task không hợp lệ.", 400);
 
-                var validPriorities = new[] { "Low", "Medium", "High", "Critical" };
+                var validPriorities = new[] { "high", "medium", "low" };
                 if (!validPriorities.Contains(dto.PriorityId))
                     return ApiResponse<TaskResponseUpdateDto>.Fail("Độ ưu tiên không hợp lệ.", 400);
                 var updatedTask = await _taskRepository.UpdateTaskAsync(dto, user.Id ?? 0);
