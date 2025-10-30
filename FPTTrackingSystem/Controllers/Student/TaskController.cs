@@ -83,8 +83,19 @@ namespace FPTTrackingSystem.Controllers.Student
         [HttpPost("update")]
         public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskDTO dto)
         {
-            var response = await _taskService.UpdateTaskAsync(dto);
-            return StatusCode(response.Status, response);
+            try
+            {
+                var response = await _taskService.UpdateTaskAsync(dto);
+                return StatusCode(response.Status, response);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail(ex.Message, 400));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
+            }
         }
 
         [HttpGet("meeting-tasks/{meetingScheduleId}")]
