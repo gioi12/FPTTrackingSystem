@@ -634,12 +634,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<Semester?> GetSemesterByNow()
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (user == null)
-                throw new UnauthorizedAccessException("User authentication failed.");
-
-            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
-                throw new UnauthorizedAccessException("Only Staff members are allowed to access semester details.");
             return await _semesterRepository.GetSemesterByNow();
         }
 
