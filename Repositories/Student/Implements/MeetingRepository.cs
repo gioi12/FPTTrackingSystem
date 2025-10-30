@@ -27,6 +27,12 @@ namespace Repositories.Student.Implements
                 .FirstOrDefaultAsync(g => g.UserId == studentId && g.GroupId == groupId);
         }
 
+        public async Task<bool> CheckStudentInGroupAsync(int studentId, int groupId)
+        {
+            return await _context.GroupUsers
+                .AnyAsync(gu => gu.UserId == studentId && gu.GroupId == groupId && gu.IsActive);
+        }
+
         public async Task<GroupUser> CreateFreeTimeSlotAsync(GroupUser entity)
         {
             await _context.GroupUsers.AddAsync(entity);
@@ -338,6 +344,15 @@ namespace Repositories.Student.Implements
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<MeetingScheduleDate?> GetByIdWithMeetingAndGroupsAsync(int id)
+        {
+            return await _context.MeetingScheduleDates
+                .Include(msd => msd.Meeting)
+                    .ThenInclude(m => m.Groups)
+                .FirstOrDefaultAsync(msd => msd.Id == id);
+        }
+
 
     }
 }

@@ -29,6 +29,7 @@ namespace Repositories.Common.Implements
                 Feedback = dto.Feedback,
                 GroupId = dto.GroupId,
                 DeliverableId = dto.DeliverableId,
+                Type = dto.Type,
                 CreateAt = DateTime.UtcNow,
                 UpdateAt = DateTime.UtcNow
             };
@@ -36,25 +37,13 @@ namespace Repositories.Common.Implements
             _context.Evaluations.Add(evaluation);
             await _context.SaveChangesAsync();
 
-            if (dto.PenaltyCardIds != null && dto.PenaltyCardIds.Any())
-            {
-                var cards = await _context.PenatyCards
-                    .Where(p => dto.PenaltyCardIds.Contains(p.Id))
-                    .ToListAsync();
-
-                foreach (var card in cards)
-                {
-                    card.EvaluationId = evaluation.Id;
-                }
-
-                await _context.SaveChangesAsync();
-            }
-
-            evaluation.PenatyCards = await _context.PenatyCards
-                .Where(p => p.EvaluationId == evaluation.Id)
-                .ToListAsync();
-
             return evaluation;
+        }
+
+        public async Task<bool> CheckUserInGroupAsync(int studentId, int groupId)
+        {
+            return await _context.GroupUsers
+                .AnyAsync(gu => gu.UserId == studentId && gu.GroupId == groupId && gu.IsActive);
         }
 
         public async Task<List<PenatyCard>> GetAllPenaltyCardsAsync()
@@ -70,11 +59,23 @@ namespace Repositories.Common.Implements
             return card;
         }
 
+        public async Task<Evaluation?> GetByEvaluatorReceiverDeliverableAsync(int evaluatorId, int receiverId, int deliverableId, int groupId)
+        {
+            return await _context.Evaluations
+                .FirstOrDefaultAsync(e =>
+                    e.EvaluatorId == evaluatorId &&
+                    e.ReceiverId == receiverId &&
+                    e.DeliverableId == deliverableId &&
+                    e.GroupId == groupId
+                );
+        }
+
+
         public async Task<List<PenaltyCardResponseDTO>> GetCardsByMentorIdAsync(int mentorId)
         {
             return await _context.PenatyCards
                 .Include(p => p.User)
-                .Where(p => p.EvaluatorId == mentorId && p.Type != null && p.Type.ToLower() == "general")
+                .Where(p => p.EvaluatorId == mentorId && p.Type != null)
                 .Select(p => new PenaltyCardResponseDTO
                 {
                     Id = p.Id,
@@ -99,7 +100,7 @@ namespace Repositories.Common.Implements
         public async Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)
         {
             return await _context.PenatyCards
-                .Where(p => p.UserId == studentId && p.Type != null && p.Type.ToLower() == "general")
+                .Where(p => p.UserId == studentId && p.Type != null)
                 .OrderByDescending(p => p.CreateAt)
                 .ToListAsync();
         }
@@ -114,7 +115,7 @@ namespace Repositories.Common.Implements
                .ToListAsync();
         }
 
-        public async Task<PenatyCard?> UpdatePenaltyCardAsync(int id, string? name, string? description, int? userId)
+        public async Task<PenatyCard?> UpdatePenaltyCardAsync(int id, string? name, string? description, int? userId, string? type)
         {
             var card = await _context.PenatyCards.FirstOrDefaultAsync(x => x.Id == id);
             if (card == null)
@@ -123,15 +124,15 @@ namespace Repositories.Common.Implements
             card.Name = name ?? card.Name;
             card.Description = description ?? card.Description;
             card.UserId = userId ?? card.UserId;
+            card.Type = type;
 
             await _context.SaveChangesAsync();
             return card;
         }
 
-        public async Task<Evaluation?> UpdateEvaluationAsync(int id, string? feedback, int? deliverableId, List<int>? penaltyCardIds)
+        public async Task<Evaluation?> UpdateEvaluationAsync(int id, string? feedback, int? deliverableId, string? type)
         {
             var evaluation = await _context.Evaluations
-                .Include(e => e.PenatyCards)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (evaluation == null)
@@ -140,23 +141,7 @@ namespace Repositories.Common.Implements
             evaluation.Feedback = feedback ?? evaluation.Feedback;
             evaluation.DeliverableId = deliverableId ?? evaluation.DeliverableId;
             evaluation.UpdateAt = DateTime.UtcNow;
-
-            if (penaltyCardIds != null)
-            {
-                foreach (var card in evaluation.PenatyCards.ToList())
-                {
-                    card.EvaluationId = null;
-                }
-
-                var newCards = await _context.PenatyCards
-                    .Where(c => penaltyCardIds.Contains(c.Id))
-                    .ToListAsync();
-
-                foreach (var card in newCards)
-                {
-                    card.EvaluationId = evaluation.Id;
-                }
-            }
+            evaluation.Type = type;
 
             await _context.SaveChangesAsync();
             return evaluation;

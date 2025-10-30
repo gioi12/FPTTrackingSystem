@@ -23,6 +23,9 @@
         public static ApiResponse<T> Unauthorized(string message = "Unauthorized")
             => new ApiResponse<T>(401, message);
 
+        public static ApiResponse<T> Forbidden(string message = "Forbidden")
+            => new ApiResponse<T>(403, message);
+
         public static ApiResponse<T> InternalError(string message = "Internal Server Error")
             => new ApiResponse<T>(500, message);
     }

@@ -1,4 +1,5 @@
-﻿using DataTranferObjects.Student.Meeting;
+﻿using DataTranferObjects.Enum;
+using DataTranferObjects.Student.Meeting;
 using Entities.Models;
 using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Utilities;
@@ -24,6 +25,14 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
         public async Task<object> CreateOrUpdateFreeTimeSlotsAsync(int groupId, FreeTimeSlotsRequest request)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user.Role != "Student")
+                throw new UnauthorizedAccessException("Only students are allowed to update free time slots.");
+
+            var isInGroup = await _repo.CheckStudentInGroupAsync(user.Id ?? 0, groupId);
+            if (!isInGroup)
+                throw new UnauthorizedAccessException("You are not a member of this group.");
             if (request.FreeTimeSlots == null || !request.FreeTimeSlots.Any())
                 throw new Exception("FreeTimeSlots cannot be empty");
 
@@ -81,12 +90,27 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
         public async Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user.Role == "Student")
+            {
+                var isInGroup = await _repo.CheckStudentInGroupAsync(user.Id ?? 0, groupId);
+                if (!isInGroup)
+                    throw new UnauthorizedAccessException("You are not a member of this group.");
+            }
             return await _repo.GetFreeTimeSlotsByGroupIdAsync(groupId);
         }
 
         public async Task<FinalizeScheduleResponseDto> FinalizeScheduleAsync(int groupId, FinalizeScheduleRequestDto dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors are allowed to finalize meeting schedules.");
+
+            var isMentorOfGroup = await _repo.CheckStudentInGroupAsync(user.Id ?? 0, groupId);
+            if (!isMentorOfGroup)
+                throw new UnauthorizedAccessException("You are not the mentor of this group.");
             var meeting = await _repo.FinalizeOrUpdateScheduleAsync(groupId, dto.FinalMeeting, user.Id ?? 0);
 
             return new FinalizeScheduleResponseDto
@@ -196,6 +220,20 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
         public async Task<ApiResponse<List<MeetingScheduleDateDetailDto>>> GetMeetingScheduleDatesByGroupIdAsync(int groupId)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user.Role == "Student")
+            {
+                var isInGroup = await _repo.CheckStudentInGroupAsync(user.Id ?? 0, groupId);
+                if (!isInGroup)
+                    throw new UnauthorizedAccessException("You are not a member of this group.");
+            }
+            else if (user.Role == "Supervior")
+            {
+                var isMentor = await _repo.CheckStudentInGroupAsync(user.Id ?? 0, groupId);
+                if (!isMentor)
+                    throw new UnauthorizedAccessException("You are not the mentor of this group.");
+            }
             var list = await _repo.GetMeetingScheduleDatesByGroupIdAsync(groupId);
 
             if (list == null || list.Count == 0)
@@ -218,8 +256,30 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
         public async Task<bool> UpdateIsMeetingAsync(int id, bool isMeeting)
         {
-            var schedule = await _repo.GetByIdAsync(id);
-            if (schedule == null) return false;
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors can update meeting status.");
+
+            var schedule = await _repo.GetByIdWithMeetingAndGroupsAsync(id);
+            if (schedule == null)
+                throw new ValidationException("Meeting schedule not found.");
+
+            var mentorId = user.Id ?? 0;
+            var mentorGroupIds = schedule.Meeting?.Groups?.Select(g => g.Id).ToList() ?? new List<int>();
+
+            bool isMentorOfAnyGroup = false;
+            foreach (var groupId in mentorGroupIds)
+            {
+                if (await _repo.CheckStudentInGroupAsync(mentorId, groupId))
+                {
+                    isMentorOfAnyGroup = true;
+                    break;
+                }
+            }
+
+            if (!isMentorOfAnyGroup)
+                throw new UnauthorizedAccessException("You are not authorized to update this meeting schedule.");
 
             schedule.IsMeeting = isMeeting;
             schedule.UpdatedAt = DateTime.Now;
@@ -227,5 +287,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
             await _repo.UpdateAsync(schedule);
             return true;
         }
+
     }
 }

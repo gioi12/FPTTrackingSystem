@@ -40,10 +40,15 @@ namespace FPTTrackingSystem.Controllers.Staff
         public async Task<IActionResult> CreateSemester([FromBody] SemesterCreateRequest request)
         {
             if (!DateOnly.TryParse(request.StartAt, out var startAt) ||
-       !DateOnly.TryParse(request.EndAt, out var endAt))
+                !DateOnly.TryParse(request.EndAt, out var endAt))
             {
-                return BadRequest("Ngày không hợp lệ (định dạng phải là yyyy-MM-dd).");
+                return BadRequest(new
+                {
+                    Status = 400,
+                    Message = "Ngày không hợp lệ (định dạng phải là yyyy-MM-dd)."
+                });
             }
+
             var isOverlap = await _semesterService.IsOverlappingAsync(startAt, endAt);
             if (isOverlap)
             {
@@ -54,13 +59,34 @@ namespace FPTTrackingSystem.Controllers.Staff
                 });
             }
 
-            var result = await _semesterService.CreateSemesterAsync(request);
-            return Ok(new
+            try
             {
-                Status = 200,
-                Message = "Tạo kỳ học thành công!",
-                Data = result
-            });
+                var result = await _semesterService.CreateSemesterAsync(request);
+
+                return Ok(new
+                {
+                    Status = 200,
+                    Message = "Tạo kỳ học thành công!",
+                    Data = result
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new
+                {
+                    Status = 400,
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Status = 500,
+                    Message = "Đã xảy ra lỗi nội bộ.",
+                    Detail = ex.Message
+                });
+            }
         }
 
         [HttpGet("v1/Staff/semester/getAll")]
@@ -245,13 +271,39 @@ namespace FPTTrackingSystem.Controllers.Staff
         }
 
         [HttpPut("v1/Staff/semester/{semesterId}/vacations")]
-            public async Task<IActionResult> UpdateSemesterVacations(
-                int semesterId,
-                [FromBody] List<SemesterUpdateVacationRequestDto> vacationDtos)
+        public async Task<IActionResult> UpdateSemesterVacations(int semesterId,[FromBody] List<SemesterUpdateVacationRequestDto> vacationDtos)
+        {
+            try
             {
                 var result = await _semesterService.UpdateSemesterVacationsAsync(semesterId, vacationDtos);
                 return StatusCode(result.Status, result);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new
+                {
+                    Status = 403,
+                    Message = ex.Message
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return StatusCode(400, new
+                {
+                    Status = 400,
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Status = 500,
+                    Message = "Internal server error.",
+                    Detail = ex.Message
+                });
+            }
+        }
 
 
         [HttpGet("v1/Staff/semester/getVacationBySemesterId/{semesterId}")]

@@ -23,9 +23,55 @@ namespace FPTTrackingSystem.Services.Common.Implements
         {
             var user = await _authUtils.GetUserInfoFromCookie();
             if (user == null || user.Id == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
+
+            if (dto.ReceiverId <= 0)
+                throw new ArgumentException("ReceiverId must be a positive number.");
+            if (dto.GroupId <= 0)
+                throw new ArgumentException("GroupId must be a positive number.");
+            if (dto.DeliverableId <= 0)
+                throw new ArgumentException("DeliverableId must be a positive number.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Feedback) && dto.Feedback.Length > 500)
+                throw new ArgumentException("Feedback cannot exceed 500 characters.");
+
+            if (string.IsNullOrWhiteSpace(dto.Type))
+                throw new ArgumentException("Type is required.");
+
+            var allowedTypes = new[] { "excellent", "good", "fair", "average", "poor" };
+            var typeLower = dto.Type.Trim().ToLower();
+
+            if (!allowedTypes.Contains(typeLower))
+                throw new ArgumentException("Type must be one of: Excellent, Good, Fair, Average, Poor.");
+
+            var formattedType = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
+
+            var isMentorInGroup = await _evaluationRepository.CheckUserInGroupAsync(user.Id ?? 0, dto.GroupId);
+            if (!isMentorInGroup)
+                throw new UnauthorizedAccessException("You are not the mentor of this group and cannot evaluate its members.");
+
+            var isStudentInGroup = await _evaluationRepository.CheckUserInGroupAsync(dto.ReceiverId, dto.GroupId);
+            if (!isStudentInGroup)
+                throw new UnauthorizedAccessException("The student is not part of this group.");
+
+            if (user == null || user.Id == null)
                 throw new Exception("Không thể xác thực người dùng.");
 
-            var createdEvaluation = await _evaluationRepository.CreateEvaluationAsync(dto, user.Id.Value);
+            var existingEvaluation = await _evaluationRepository.GetByEvaluatorReceiverDeliverableAsync(
+                                        evaluatorId: user.Id ?? 0,
+                                        receiverId: dto.ReceiverId,
+                                        deliverableId: dto.DeliverableId,
+                                        groupId: dto.GroupId
+                                    );
+
+            if (existingEvaluation != null)
+                throw new ArgumentException("Mentor đã đánh giá sinh viên này trong deliverable này rồi.");
+
+
+            var createdEvaluation = await _evaluationRepository.CreateEvaluationAsync(dto, user.Id ?? 0);
 
             var response = new EvaluationResponseDTO
             {
@@ -37,13 +83,8 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 DeliverableId = createdEvaluation.DeliverableId,
                 CreateAt = createdEvaluation.CreateAt ?? DateTime.MinValue,
                 UpdateAt = createdEvaluation.UpdateAt ?? DateTime.MinValue,
-                PenaltyCards = createdEvaluation.PenatyCards?.Select(p => new PenaltyCardResponseDTO
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    Type = p.Type
-                }).ToList()
+                Type = formattedType
+
             };
 
             return response;
@@ -72,16 +113,40 @@ namespace FPTTrackingSystem.Services.Common.Implements
         public async Task<PenaltyCardResponseDTO> CreatePenaltyCardAsync(PenaltyCardCreateDTO dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
-            var formattedType = string.IsNullOrWhiteSpace(dto.Type)
-          ? dto.Type
-          : char.ToUpper(dto.Type[0]) + dto.Type.Substring(1).ToLower();
+            if (user == null || user.Id == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
+
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new ArgumentException("Name is required.");
+            if (dto.Name.Length > 100)
+                throw new ArgumentException("Name cannot exceed 100 characters.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 500)
+                throw new ArgumentException("Description cannot exceed 500 characters.");
+
+            if (string.IsNullOrWhiteSpace(dto.Type))
+                throw new ArgumentException("Type is required.");
+
+            if (dto.UserId < 0)
+                throw new ArgumentException("UserId must be greater than 0 or null.");
+
+            var allowedTypes = new[] { "warning", "no-deduction", "deduction" };
+            var typeLower = dto.Type.Trim().ToLower();
+
+            if (!allowedTypes.Contains(typeLower))
+                throw new ArgumentException("Type must be one of: warning, no-deduction, deduction.");
+
+            var formattedType = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
 
             var card = new PenatyCard
             {
+                EvaluatorId = user.Id ?? 0,
                 Name = dto.Name,
                 Description = dto.Description,
                 Type = formattedType,
-                EvaluatorId = user.Id ?? 0,
                 UserId = dto.UserId == 0 ? null : dto.UserId
         };
 
@@ -109,11 +174,13 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             return evaluations.Select(e => new EvaluationResponseDto
             {
+                EvaluationId = e.Id,
+                ReceiverId = e.ReceiverId,
                 Feedback = e.Feedback,
                 DeliverableName = e.Deliverable?.Name,
                 CreateAt = e.CreateAt,
                 EvaluatorName = e.Evaluator.Fullname,
-                PenaltyCards = e.PenatyCards.Select(p => p.Name).ToList()
+                Type = e.Type
             }).ToList();
         }
 
@@ -123,9 +190,11 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             return cards.Select(c => new PenaltyCardResponseDto
             {
+                Type = c.Type,
                 Name = c.Name,
                 Description = c.Description,
-                CreateAt = c.CreateAt
+                CreateAt = c.CreateAt,
+                Total = cards.Count(),
             }).ToList();
         }
 
@@ -135,28 +204,82 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             return evaluations.Select(e => new EvaluationResponseDto
             {
+                Type = e.Type,
                 EvaluationId = e.Id,
                 Feedback = e.Feedback,
                 DeliverableName = e.Deliverable?.Name,
                 CreateAt = e.CreateAt,
                 EvaluatorName = e.Evaluator.Fullname,
                 ReceiverId = e.ReceiverId,
-                PenaltyCards = e.PenatyCards.Select(p => p.Name).ToList()
+                Total = evaluations.Count(),
             }).ToList();
         }
 
         public async Task<PenatyCard?> UpdatePenaltyCardAsync(int id, PenaltyCardUpdateDTO dto)
         {
-            return await _evaluationRepository.UpdatePenaltyCardAsync(id, dto.Name, dto.Description, dto.UserId);
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null || user.Id == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
+
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new ArgumentException("Name is required.");
+            if (dto.Name.Length > 100)
+                throw new ArgumentException("Name cannot exceed 100 characters.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 500)
+                throw new ArgumentException("Description cannot exceed 500 characters.");
+
+            if (string.IsNullOrWhiteSpace(dto.Type))
+                throw new ArgumentException("Type is required.");
+
+            if (dto.UserId < 0)
+                throw new ArgumentException("UserId must be greater than 0 or null.");
+
+            var allowedTypes = new[] { "warning", "no-deduction", "deduction" };
+            var typeLower = dto.Type.Trim().ToLower();
+
+            if (!allowedTypes.Contains(typeLower))
+                throw new ArgumentException("Type must be one of: warning, no-deduction, deduction.");
+
+            var formattedType = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
+            return await _evaluationRepository.UpdatePenaltyCardAsync(id, dto.Name, dto.Description, dto.UserId,dto.Type);
         }
 
         public async Task<Evaluation?> UpdateEvaluationAsync(int id, EvaluationUpdateDTO dto)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null || user.Id == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+
+            if (user.Role != "Supervisor")
+                throw new UnauthorizedAccessException("Only mentors are allowed create evaluation.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Feedback) && dto.Feedback.Length > 500)
+                throw new ArgumentException("Feedback cannot exceed 500 characters.");
+
+            if (dto.DeliverableId.HasValue && dto.DeliverableId.Value <= 0)
+                throw new ArgumentException("DeliverableId must be a positive number if provided.");
+
+            string? formattedType = null;
+            if (!string.IsNullOrWhiteSpace(dto.Type))
+            {
+                var allowedTypes = new[] { "excellent", "good", "fair", "average", "poor" };
+                var typeLower = dto.Type.Trim().ToLower();
+
+                if (!allowedTypes.Contains(typeLower))
+                    throw new ArgumentException("Type must be one of: Excellent, Good, Fair, Average, Poor.");
+
+                formattedType = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
+            }
+
             return await _evaluationRepository.UpdateEvaluationAsync(
                 id,
                 dto.Feedback,
                 dto.DeliverableId,
-                dto.PenaltyCardIds ?? new List<int>()
+                formattedType
             );
         }
     }
