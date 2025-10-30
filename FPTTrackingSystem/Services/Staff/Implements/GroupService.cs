@@ -183,14 +183,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             // ============ TimeSlots cố định ============
             var timeSlots = new List<string>
-        {
-            "00:00 - 04:00",
-            "04:00 - 08:00",
-            "08:00 - 12:00",
-            "12:00 - 16:00",
-            "16:00 - 20:00",
-            "20:00 - 24:00"
-        };
+            {
+                "00:00 - 04:00",
+                "04:00 - 08:00",
+                "08:00 - 12:00",
+                "12:00 - 16:00",
+                "16:00 - 20:00",
+                "20:00 - 24:00"
+            };
 
             // ============ Days of week ============
             var days = Enumerable.Range(0, 7)
