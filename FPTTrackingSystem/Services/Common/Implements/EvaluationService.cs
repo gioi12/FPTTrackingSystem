@@ -60,6 +60,17 @@ namespace FPTTrackingSystem.Services.Common.Implements
             if (user == null || user.Id == null)
                 throw new Exception("Không thể xác thực người dùng.");
 
+            var existingEvaluation = await _evaluationRepository.GetByEvaluatorReceiverDeliverableAsync(
+                                        evaluatorId: user.Id ?? 0,
+                                        receiverId: dto.ReceiverId,
+                                        deliverableId: dto.DeliverableId,
+                                        groupId: dto.GroupId
+                                    );
+
+            if (existingEvaluation != null)
+                throw new ArgumentException("Mentor đã đánh giá sinh viên này trong deliverable này rồi.");
+
+
             var createdEvaluation = await _evaluationRepository.CreateEvaluationAsync(dto, user.Id ?? 0);
 
             var response = new EvaluationResponseDTO
@@ -182,7 +193,8 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 Type = c.Type,
                 Name = c.Name,
                 Description = c.Description,
-                CreateAt = c.CreateAt
+                CreateAt = c.CreateAt,
+                Total = cards.Count(),
             }).ToList();
         }
 
@@ -199,6 +211,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 CreateAt = e.CreateAt,
                 EvaluatorName = e.Evaluator.Fullname,
                 ReceiverId = e.ReceiverId,
+                Total = evaluations.Count(),
             }).ToList();
         }
 

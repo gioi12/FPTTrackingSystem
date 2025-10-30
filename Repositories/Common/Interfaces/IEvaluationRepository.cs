@@ -20,5 +20,6 @@ namespace Repositories.Common.Interfaces
         Task<PenatyCard?> UpdatePenaltyCardAsync(int id, string? name, string? description, int? userId, string? type);
         Task<Evaluation?> UpdateEvaluationAsync(int id, string? feedback, int? deliverableId, string? type);
         Task<bool> CheckUserInGroupAsync(int studentId, int groupId);
+        Task<Evaluation?> GetByEvaluatorReceiverDeliverableAsync(int evaluatorId, int receiverId, int deliverableId, int groupId);
     }
 }

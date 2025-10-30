@@ -59,6 +59,18 @@ namespace Repositories.Common.Implements
             return card;
         }
 
+        public async Task<Evaluation?> GetByEvaluatorReceiverDeliverableAsync(int evaluatorId, int receiverId, int deliverableId, int groupId)
+        {
+            return await _context.Evaluations
+                .FirstOrDefaultAsync(e =>
+                    e.EvaluatorId == evaluatorId &&
+                    e.ReceiverId == receiverId &&
+                    e.DeliverableId == deliverableId &&
+                    e.GroupId == groupId
+                );
+        }
+
+
         public async Task<List<PenaltyCardResponseDTO>> GetCardsByMentorIdAsync(int mentorId)
         {
             return await _context.PenatyCards

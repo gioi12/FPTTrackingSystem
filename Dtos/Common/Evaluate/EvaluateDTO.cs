@@ -33,6 +33,7 @@ namespace DataTranferObjects.Common.Evaluate
         public string? Type { get; set; }
         public string? Description { get; set; }
         public DateTime? CreateAt { get; set; }
+        public int Total { get; set; }
     }
 
     public class PenaltyCardResponseDTO
@@ -68,6 +69,7 @@ namespace DataTranferObjects.Common.Evaluate
         public DateTime? CreateAt { get; set; }
         public string? EvaluatorName { get; set; }
         public int ReceiverId { get; set; }
+        public int Total { get; set; }
     }
 
     public class PenaltyCardUpdateDTO
