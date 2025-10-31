@@ -328,7 +328,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
-            if (user.Role != "Secretary" && user.Role != "SupervisorHead" && user.Role != "Supervisor")
+            if (user.RoleInGroup != "Secretary" && user.Role != "SupervisorHead" && user.Role != "Supervisor")
                 return new ApiResponse<string>(403, "Bạn không có quyền thay đổi vai trò trong nhóm.", null);
 
             try
