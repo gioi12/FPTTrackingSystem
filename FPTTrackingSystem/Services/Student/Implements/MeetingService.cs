@@ -258,8 +258,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
-            if (user.Role != "Supervisor")
-                throw new UnauthorizedAccessException("Only mentors can update meeting status.");
+            if (user.Role != "Supervisor"  || user.Role != "Secretary")
+                throw new UnauthorizedAccessException("Only mentors or secretary can update meeting status.");
 
             var schedule = await _repo.GetByIdWithMeetingAndGroupsAsync(id);
             if (schedule == null)
