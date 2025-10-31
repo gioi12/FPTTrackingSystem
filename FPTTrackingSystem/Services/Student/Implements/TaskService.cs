@@ -181,7 +181,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 var validTaskTypes = new[] { "todo", "inprogress", "done" };
                 if (string.IsNullOrWhiteSpace(dto.StatusId) ||
                     !validTaskTypes.Contains(dto.StatusId.Trim().ToLower()))
-                    throw new ArgumentException("Invalid TaskType. Allowed values: ToDo, Progress, Done.");
+                    throw new ArgumentException("Invalid TaskType. Allowed values: ToDo, InProgress, Done.");
 
                 var validPriorities = new[] { "high", "medium", "low" };
                 if (string.IsNullOrWhiteSpace(priority) ||
