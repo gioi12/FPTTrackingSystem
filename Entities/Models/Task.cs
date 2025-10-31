@@ -31,6 +31,8 @@ public partial class Task
 
     public int? MeetingScheduleDateId { get; set; }
 
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
     public virtual Deliverable? Deliverable { get; set; }
 
     public virtual Group Group { get; set; } = null!;

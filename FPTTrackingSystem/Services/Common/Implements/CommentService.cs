@@ -20,34 +20,52 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
         public async Task<ApiResponse<CommentDTO>> CreateCommentAsync(CreateCommentDto dto)
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (user == null)
-                return new ApiResponse<CommentDTO>(401, "Người dùng chưa đăng nhập");
-
-            var comment = new Comment
+            try
             {
-                EntityName = "Task",
-                EntityId = 1,
-                Feedback = dto.Feedback,
-                GroupId = dto.GroupId,
-                UserId = user.Id ?? 0,
-                CreateAt = DateTime.Now
-            };
+                if (dto == null)
+                    return new ApiResponse<CommentDTO>(400, "Invalid request data.");
 
-            var savedComment = await _commentRepository.CreateCommentAsync(comment);
+                if (dto.TaskId <= 0)
+                    return new ApiResponse<CommentDTO>(400, "Invalid TaskId.");
 
-            var result = new CommentDTO
+                if (dto.GroupId <= 0)
+                    return new ApiResponse<CommentDTO>(400, "Invalid GroupId.");
+
+                if (string.IsNullOrWhiteSpace(dto.Feedback))
+                    return new ApiResponse<CommentDTO>(400, "Feedback cannot be empty.");
+
+                var user = await _authUtils.GetUserInfoFromCookie();
+                if (user == null)
+                    return new ApiResponse<CommentDTO>(401, "User not logged in.");
+
+                var comment = new Comment
+                {
+                    TaskId = dto.TaskId,
+                    Feedback = dto.Feedback.Trim(),
+                    GroupId = dto.GroupId,
+                    UserId = user.Id ?? 0,
+                    CreateAt = DateTime.Now
+                };
+
+                var savedComment = await _commentRepository.CreateCommentAsync(comment);
+
+                var result = new CommentDTO
+                {
+                    Id = savedComment.Id,
+                    Feedback = savedComment.Feedback,
+                    GroupId = savedComment.GroupId,
+                    UserId = savedComment.UserId,
+                    CreateAt = savedComment.CreateAt
+                };
+
+                return new ApiResponse<CommentDTO>(200, "Comment created successfully.", result);
+            }
+            catch (Exception ex)
             {
-                Id = savedComment.Id,
-                EntityName = savedComment.EntityName,
-                EntityId = savedComment.EntityId,
-                Feedback = savedComment.Feedback,
-                GroupId = savedComment.GroupId,
-                UserId = savedComment.UserId,
-                CreateAt = savedComment.CreateAt
-            };
-
-            return new ApiResponse<CommentDTO>(200, "Tạo comment thành công", result);
+                Console.WriteLine($"[CreateCommentAsync] Error: {ex.Message}");
+                return new ApiResponse<CommentDTO>(500, "An error occurred while creating the comment.");
+            }
         }
+
     }
 }

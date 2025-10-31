@@ -122,18 +122,19 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.CreateAt)
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
-            entity.Property(e => e.EntityId).HasColumnName("entity_id");
-            entity.Property(e => e.EntityName)
-                .HasMaxLength(50)
-                .HasColumnName("entity_name");
             entity.Property(e => e.Feedback).HasColumnName("feedback");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.TaskId).HasColumnName("task_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.Group).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Comment_Group");
+
+            entity.HasOne(d => d.Task).WithMany(p => p.Comments)
+                .HasForeignKey(d => d.TaskId)
+                .HasConstraintName("FK_Comment_Task");
 
             entity.HasOne(d => d.User).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.UserId)

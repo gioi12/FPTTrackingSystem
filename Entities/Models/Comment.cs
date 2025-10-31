@@ -7,10 +7,6 @@ public partial class Comment
 {
     public int Id { get; set; }
 
-    public string EntityName { get; set; } = null!;
-
-    public int EntityId { get; set; }
-
     public string Feedback { get; set; } = null!;
 
     public DateTime CreateAt { get; set; }
@@ -19,7 +15,11 @@ public partial class Comment
 
     public int GroupId { get; set; }
 
+    public int? TaskId { get; set; }
+
     public virtual Group Group { get; set; } = null!;
+
+    public virtual Task? Task { get; set; }
 
     public virtual User User { get; set; } = null!;
 }

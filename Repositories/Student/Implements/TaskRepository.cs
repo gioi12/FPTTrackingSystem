@@ -89,9 +89,9 @@ namespace Repositories.Student.Implements
                 var tasks = await _context.Tasks
                     .Include(t => t.Group)
                     .Include(t => t.Deliverable)
+                    .Include(t => t.Comments)
                     .Include(t => t.TaskUsers)
                         .ThenInclude(tu => tu.User)
-                            .ThenInclude(u => u.Comments)
                     .Where(t => t.GroupId == groupId)
                     .OrderBy(t => t.Deadline)
                     .ToListAsync();
@@ -137,24 +137,24 @@ namespace Repositories.Student.Implements
                                 Description = task.Deliverable.Description
                             }
                             : null,
-/*                        Attachments = _context.Attachments?
-                            .Where(a => a.EntityName.Equals("task") && a.EntityId == task.Id)
-                            .Select(a => new AttachmentDto
-                            {
-                                Id = a.Id,
-                                FileName = a.FileName,
-                                FileUrl = a.FilePath
-                            }).ToList() ?? new List<AttachmentDto>(),*/
-                        Comments = _context.Comments?
-                            .Where(c => c.EntityName.Equals("task") && c.EntityId == task.Id)
-                            .Select(c => new CommentDto
-                            {
-                                Id = c.Id,
-                                Author = c.User.RollNumber ?? "",
-                                AuthorName = c.User.Fullname,
-                                Content = c.Feedback ?? "",
-                                Timestamp = c.CreateAt
-                            }).ToList() ?? new List<CommentDto>(),
+                        /*                        Attachments = _context.Attachments?
+                                                    .Where(a => a.EntityName.Equals("task") && a.EntityId == task.Id)
+                                                    .Select(a => new AttachmentDto
+                                                    {
+                                                        Id = a.Id,
+                                                        FileName = a.FileName,
+                                                        FileUrl = a.FilePath
+                                                    }).ToList() ?? new List<AttachmentDto>(),*/
+                        Comments = task.Comments?
+                                    .Select(c => new CommentDto
+                                    {
+                                        Id = c.Id,
+                                        Author = c.User.RollNumber ?? "",
+                                        AuthorName = c.User.Fullname,
+                                        Content = c.Feedback ?? "",
+                                        Timestamp = c.CreateAt
+                                    }).ToList() ?? new List<CommentDto>(),
+
                         History = _context.Logs
                             .Where(h => h.EntityName.Equals("task") && h.EntityId == task.Id)
                             .Select(h => new HistoryDto
@@ -187,15 +187,9 @@ namespace Repositories.Student.Implements
                 var task = await _context.Tasks
                     .Include(t => t.Group)
                     .Include(t => t.Deliverable)
+                    .Include(t => t.Comments)
                     .Include(t => t.TaskUsers)
                         .ThenInclude(tu => tu.User)
-                            .ThenInclude(u => u.Attachments)
-                    .Include(t => t.TaskUsers)
-                        .ThenInclude(tu => tu.User)
-                            .ThenInclude(u => u.Comments)
-                    .Include(t => t.TaskUsers)
-                        .ThenInclude(tu => tu.User)
-                            .ThenInclude(u => u.Logs)
                     .FirstOrDefaultAsync(t => t.Id == taskId);
 
                 if (task == null)
@@ -251,16 +245,15 @@ namespace Repositories.Student.Implements
                             FileName = a.FileName,
                             FileUrl = a.FilePath
                         }).ToList() ?? new List<AttachmentDto>(),
-                    Comments = _context.Comments?
-                        .Where(c => c.EntityName.Equals("task") && c.EntityId == taskId)
-                        .Select(c => new CommentDto
-                        {
-                            Id = c.Id,
-                            Author = c.User.RollNumber ?? "",
-                            AuthorName = c.User.Fullname,
-                            Content = c.Feedback ?? "",
-                            Timestamp = c.CreateAt
-                        }).ToList() ?? new List<CommentDto>(),
+                    Comments = task.Comments?
+                                .Select(c => new CommentDto
+                                {
+                                    Id = c.Id,
+                                    Author = c.User.RollNumber ?? "",
+                                    AuthorName = c.User.Fullname,
+                                    Content = c.Feedback ?? "",
+                                    Timestamp = c.CreateAt
+                                }).ToList() ?? new List<CommentDto>(),
                     History = _context.Logs
                         .Where(h => h.EntityName.Equals("task") && h.EntityId == taskId)
                         .Select(h => new HistoryDto
