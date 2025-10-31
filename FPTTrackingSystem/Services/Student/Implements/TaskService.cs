@@ -78,7 +78,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 Description = dto.Description,
                 Deadline = dto.EndAt,
                 Status = Capitalize(status),
-                DeliverableId = dto.DeliverableId,
+                DeliverableId = dto.DeliverableId > 0 ? dto.DeliverableId : null,
                 Type = Capitalize(taskType),
                 CreatedAt = DateTime.Now,
                 IsActive = true,
