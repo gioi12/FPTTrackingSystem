@@ -236,7 +236,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             };
         }
 
-        public async Task<ApiResponse<List<MeetingScheduleDateDetailDto>>> GetMeetingScheduleDatesByGroupIdAsync(int groupId, int semesterId)
+        public async Task<ApiResponse<List<MeetingScheduleDateDetailDto>>> GetMeetingScheduleDatesByGroupIdAsync(int groupId)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
@@ -252,7 +252,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 if (!isMentor)
                     throw new UnauthorizedAccessException("You are not the mentor of this group.");
             }
-            var list = await _repo.GetMeetingScheduleDatesByGroupIdAsync(groupId, semesterId);
+            var list = await _repo.GetMeetingScheduleDatesByGroupIdAsync(groupId);
 
             if (list == null || list.Count == 0)
                 return ApiResponse<List<MeetingScheduleDateDetailDto>>.Success(new List<MeetingScheduleDateDetailDto>(), "Không có ngày họp nào cho nhóm nàys.");
