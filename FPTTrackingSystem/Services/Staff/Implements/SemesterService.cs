@@ -364,7 +364,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     SemesterId = semester.Id,
                     Name = milestone.Name,
                     Description = milestone.Description,
-                    Deadline = milestone.Deadline
+                    Deadline = milestone.Deadline,
+                    IsActive = true,
+                    MajorId = milestone.MajorId
                 };
                 deliverables.Add(deliverable);
 
