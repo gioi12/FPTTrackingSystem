@@ -214,7 +214,7 @@ namespace Repositories.Student.Implements
 
                 _context.Meetings.Add(meeting);
                 group.Meeting = meeting;
-                await _context.SaveChangesAsync(); // ✅ đảm bảo meeting.Id có giá trị
+                await _context.SaveChangesAsync(); 
             }
             else
             {
@@ -347,7 +347,7 @@ namespace Repositories.Student.Implements
             if (user != null) return true;
             return false;
         }
-
+         
         public async Task<List<MeetingScheduleDate>> GetMeetingScheduleDatesByGroupIdAsync(int groupId)
         {
             return await _context.MeetingScheduleDates

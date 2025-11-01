@@ -14,18 +14,20 @@ namespace FPTTrackingSystem.Services.Student.Implements
         private readonly ITaskRepository _taskRepository;
         private readonly AuthUtils _authUtils;
         private readonly FpttrackingSystemContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TaskService(ITaskRepository taskRepository, AuthUtils authUtils, FpttrackingSystemContext context)
+        public TaskService(ITaskRepository taskRepository, AuthUtils authUtils, FpttrackingSystemContext context, IHttpContextAccessor httpContextAccessor)
         {
             _taskRepository = taskRepository;
             _authUtils = authUtils;
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Entities.Models.Task> CreateTaskAsync(CreateTaskDTO dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
-
+            var endTimeCookie = _httpContextAccessor.HttpContext?.Request.Cookies["end_Time"];
             if (user.Role == "Student" && (user.Groups == null || !user.Groups.Contains(dto.GroupId)))
                 throw new UnauthorizedAccessException("Bạn không có quyền tạo task trong nhóm này.");
 
@@ -46,11 +48,22 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
             if (dto.EndAt == default)
                 throw new ArgumentException("EndAt không được để trống.");
+            if (!string.IsNullOrWhiteSpace(endTimeCookie) && DateTime.TryParse(endTimeCookie, out DateTime semesterEndTime))
+            {
+                if (dto.EndAt <= DateTime.Now)
+                    throw new ArgumentException("Task deadline must be greater than the current time.");
 
+                if (dto.EndAt > semesterEndTime)
+                    throw new ArgumentException("Task deadline cannot exceed the semester end date.");
+            }
+            else
+            {
+                throw new InvalidOperationException("Semester end time cookie not found or invalid.");
+            }
             if (dto.AssignedUserId <= 0)
                 throw new ArgumentException("AssignedUserId không hợp lệ.");
 
-            if (dto.ReviewerId <= 0)
+            if (dto.ReviewerId < 0)
                 throw new ArgumentException("ReviewerId không hợp lệ.");
 
             var validTaskTypes = new[] { "todo", "progress", "done" };

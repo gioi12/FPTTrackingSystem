@@ -44,7 +44,7 @@ namespace Repositories.Student.Implements
                 };
 
                 var taskUsers = new List<TaskUser> { creator, assignee };
-                if (reviewerId.HasValue)
+                if (reviewerId.HasValue && reviewerId.Value > 0)
                 {
                     taskUsers.Add(new TaskUser
                     {
@@ -64,8 +64,8 @@ namespace Repositories.Student.Implements
                     EntityId = task.Id,
                     Action = "CREATE",
                     Description = $"Người dùng ID {createdBy} đã tạo task \"{task.Name}\" " +
-                                  $"và giao cho user ID {assignedUserId}" +
-                                  $"{(reviewerId.HasValue ? $" (reviewer ID {reviewerId.Value})" : "")}.",
+              $"và giao cho user ID {assignedUserId}" +
+              $"{(reviewerId.HasValue && reviewerId.Value > 0 ? $" (reviewer ID {reviewerId.Value})" : "")}.",
                     UserId = createdBy,
                     CreateAt = DateTime.Now
                 };

@@ -41,6 +41,8 @@ namespace FPTTrackingSystem.Controllers
             {
                 Response.Cookies.Append("semesterId", semester.Id.ToString(), cookieOptions);
                 Response.Cookies.Append("semesterName", semester.Name ?? "", cookieOptions);
+                Response.Cookies.Append("start_Time",semester.StartAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",cookieOptions);
+                Response.Cookies.Append("end_Time", semester.EndAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "", cookieOptions);
             }
 
             return ApiResponse<object>.Success(
