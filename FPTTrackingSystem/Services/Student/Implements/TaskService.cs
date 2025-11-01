@@ -1,11 +1,17 @@
-﻿using DataTranferObjects.Enum;
+﻿using DataTranferObjects.Common.Response;
+using DataTranferObjects.Enum;
 using DataTranferObjects.Staff.Task;
 using Entities.Models;
 using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Repositories.Common.Interfaces;
+using Repositories.Staff.Interfaces;
 using Repositories.Student.Interfaces;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace FPTTrackingSystem.Services.Student.Implements
 {
@@ -15,13 +21,18 @@ namespace FPTTrackingSystem.Services.Student.Implements
         private readonly AuthUtils _authUtils;
         private readonly FpttrackingSystemContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public TaskService(ITaskRepository taskRepository, AuthUtils authUtils, FpttrackingSystemContext context, IHttpContextAccessor httpContextAccessor)
+        private readonly IWebHostEnvironment _env;
+        private readonly IAttachmentRepository _attachmentRepository;
+        private readonly IGroupRepository _groupRepository;
+        public TaskService(ITaskRepository taskRepository, AuthUtils authUtils, FpttrackingSystemContext context, IHttpContextAccessor httpContextAccessor,IAttachmentRepository attachmentRepository,IWebHostEnvironment env,IGroupRepository groupRepository)
         {
             _taskRepository = taskRepository;
             _authUtils = authUtils;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _attachmentRepository = attachmentRepository;
+            _env = env;
+            _groupRepository = groupRepository;
         }
 
         public async Task<Entities.Models.Task> CreateTaskAsync(CreateTaskDTO dto)
@@ -283,6 +294,51 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId)
         {
             return await _taskRepository.GetMeetingScheduleWithTasksAsync(meetingScheduleId);
+        }
+
+        public async Task<string> UploadFileTask(IFormFile file, int groupId, int taskId)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            var group = await _groupRepository.GetByIdAsync(groupId);
+            var task = await _taskRepository.GetTaskByIdAsync(taskId);
+            if (task == null)
+                throw new ValidationException("Not found task");
+            if (group == null)
+                throw new ValidationException("Not found group");
+
+            string path = await FileUploadUtils.UploadFileAsync(file, (int)FileEnum.Task, _env);
+            // 1. Milestone(Deliverable) , 2 Task , 3 Groups (Documents)
+            string entityName = FileUploadUtils.GetEntityName((int)FileEnum.Task);
+            Entities.Models.Attachment attachment = new Entities.Models.Attachment()
+            {
+                CreateAt = DateTime.Now,
+                FileName = file.FileName,
+                FilePath = path,
+                EntityName = entityName,
+                EntityId = taskId,
+                GroupId = groupId,
+                UserId = (int)user.Id,
+                IsDownload = false
+            };
+            await _attachmentRepository.AddAttachment(attachment);
+            return path;
+        }
+
+        public async System.Threading.Tasks.Task DeleteFileTask(int attachmentId)
+        {
+            var attachment = await _attachmentRepository.GetAttachmentById(attachmentId);
+            if (attachment == null) throw new ValidationException("Not found attachment");
+            await _attachmentRepository.DeleteAttachment(attachment);
+        }
+
+        public async Task<List<AttachmentRes>> GetFilesTask(int groupId,int taskId)
+        {
+            var entityName = FileUploadUtils.GetEntityName((int)FileEnum.Task);
+            var allAttachments = await _attachmentRepository.GetAttachments(
+                entityName, groupId, taskId
+            );
+
+            return allAttachments.Adapt<List<AttachmentRes>>();
         }
     }
 }

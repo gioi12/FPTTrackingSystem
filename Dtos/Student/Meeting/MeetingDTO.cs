@@ -97,6 +97,8 @@ namespace DataTranferObjects.Student.Meeting
         public string? MeetingLink { get; set; }
         public string? Time { get; set; }
         public string? DayOfWeek { get; set; }
+        public bool? IsMinute { get; set; } = false;
+
     }
 
 }

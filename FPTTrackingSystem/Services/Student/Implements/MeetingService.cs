@@ -266,7 +266,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 MeetingLink = msd.Meeting?.MeetingLink,
                 IsMeeting = msd.IsMeeting,
                 Time = msd.Meeting?.Time,
-                DayOfWeek = msd.Meeting?.DayOfWeek
+                DayOfWeek = msd.Meeting?.DayOfWeek,
+                IsMinute = msd.MeetingMinute != null ? true : false
             }).ToList();
 
             return ApiResponse<List<MeetingScheduleDateDetailDto>>.Success(result, "Lấy danh sách ngày họp thành công.");

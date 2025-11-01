@@ -2,11 +2,12 @@
 using Entities.Models;
 using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Wrappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Controllers.Student
 {
-    [Route("api/v1/Student/Task")]
+    [Route("api/")]
     public class TaskController : Controller
     {
         private readonly ITaskService _taskService;
@@ -16,7 +17,7 @@ namespace FPTTrackingSystem.Controllers.Student
             _taskService = taskService;
         }
 
-        [HttpPost("create")]
+        [HttpPost("v1/Student/Task/create")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskDTO dto)
         {
             try
@@ -46,7 +47,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpGet("get-by-group/{groupId}")]
+        [HttpGet("v1/Student/Task/get-by-group/{groupId}")]
         public async Task<IActionResult> GetTasksByGroup(int groupId)
         {
             try
@@ -66,7 +67,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpGet("assignee")]
+        [HttpGet("v1/Student/Task/assignee")]
         public async Task<IActionResult> GetTasksByAssignee()
         {
             var tasks = await _taskService.GetTasksByAssigneeAsync();
@@ -82,7 +83,7 @@ namespace FPTTrackingSystem.Controllers.Student
         }
 
 
-        [HttpGet("get-by-id/{taskId}")]
+        [HttpGet("v1/Student/Task/get-by-id/{taskId}")]
         public async Task<IActionResult> GetTaskById(int taskId)
         {
             try
@@ -96,7 +97,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpPost("update")]
+        [HttpPost("v1/Student/Task/update")]
         public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskDTO dto)
         {
             try
@@ -114,7 +115,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpGet("meeting-tasks/{meetingScheduleId}")]
+        [HttpGet("v1/Student/Task/meeting-tasks/{meetingScheduleId}")]
         public async Task<IActionResult> GetTasksByMeetingScheduleId(int meetingScheduleId)
         {
             var tasks = await _taskService.GetMeetingScheduleWithTasksAsync(meetingScheduleId);
@@ -125,6 +126,28 @@ namespace FPTTrackingSystem.Controllers.Student
             }
 
             return Ok(new { success = 200, data = tasks });
+        }
+
+        [Authorize]
+        [HttpPost("v1/upload/task")]
+        public async Task<object> UploadMTask(IFormFile file, int groupId,int taskId)
+        {
+            var message = await _taskService.UploadFileTask(file, groupId,taskId);
+            return Ok(ApiResponse<object>.Success(message, "Upload Successfully"));
+        }
+        [Authorize]
+        [HttpDelete("v1/upload/task")]
+        public async Task<object> DeleteTask(int attachmentId)
+        {
+            await _taskService.DeleteFileTask(attachmentId);
+            return Ok(ApiResponse<object>.Success(null, "Delete attachment successfully."));
+        }
+        [Authorize]
+        [HttpGet("v1/upload/tasks")]
+        public async Task<object> FilesGroup(int groupId,int taskId)
+        {
+            var list = await _taskService.GetFilesTask(groupId, taskId);
+            return Ok(ApiResponse<object>.Success(list, "Get attachments successfully."));
         }
     }
 }
