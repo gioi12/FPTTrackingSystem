@@ -169,35 +169,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     isActive = task.IsActive ?? false,
                     Group = task.Group != null
                         ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
-                        : null,
-                    Milestone = task.Deliverable != null
-                        ? new MilestonesDto
-                        {
-                            Id = task.Deliverable.Id,
-                            Name = task.Deliverable.Name,
-                            isActive = task.Deliverable.IsActive,
-                            Description = task.Deliverable.Description
-                        }
-                        : null,
-                    Comments = task.Comments?
-                        .Select(c => new CommentDto
-                        {
-                            Id = c.Id,
-                            Author = c.User.RollNumber ?? "",
-                            AuthorName = c.User.Fullname,
-                            Content = c.Feedback ?? "",
-                            Timestamp = c.CreateAt
-                        }).ToList() ?? new List<CommentDto>(),
-                    History = _context.Logs
-                        .Where(h => h.EntityName.Equals("task") && h.EntityId == task.Id)
-                        .Select(h => new HistoryDto
-                        {
-                            Id = h.Id,
-                            Detail = h.Description,
-                            At = h.CreateAt,
-                            User = h.User.RollNumber,
-                            Action = h.Action
-                        }).ToList()
+                        : null
                 };
             }).ToList();
 

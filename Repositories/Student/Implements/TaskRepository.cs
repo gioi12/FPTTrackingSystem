@@ -129,7 +129,6 @@ namespace Repositories.Student.Implements
                         CreatedByName = createdByUser?.User.Fullname,
                         Priority = task.Priority,
                         Status = task.Status,
-                        Process = task.Process,
                         AssigneeId = assignee?.User.Id,
                         AssigneeName = assignee?.User.Fullname,
                         ReviewerId = reviewer?.User?.Id,
@@ -230,7 +229,6 @@ namespace Repositories.Student.Implements
                     CreatedByName = createdByUser?.User.Fullname,
                     Priority = task.Priority,
                     Status = task.Status,
-                    Process = task.Process,
                     AssigneeId = assignee?.User.Id,
                     AssigneeName = assignee?.User.Fullname,
                     ReviewerId = reviewer?.User?.Id,
@@ -305,7 +303,6 @@ namespace Repositories.Student.Implements
             task.Deadline = dto.EndAt;
             task.Status = dto.StatusId;
             task.Priority = dto.PriorityId;
-            task.Process = dto.Process;
             task.DeliverableId = dto.DeliverableId;
             task.GroupId = dto.GroupId;
             task.MeetingScheduleDateId = dto.MeetingId > 0 ? dto.MeetingId : null;
