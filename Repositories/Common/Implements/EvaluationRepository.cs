@@ -75,7 +75,7 @@ namespace Repositories.Common.Implements
         {
             return await _context.PenatyCards
                 .Include(p => p.User)
-                .Where(p => p.EvaluatorId == mentorId && p.Type != null)
+                .Where(p => p.UserId == mentorId && p.Type != null)
                 .Select(p => new PenaltyCardResponseDTO
                 {
                     Id = p.Id,
@@ -93,7 +93,6 @@ namespace Repositories.Common.Implements
             return await _context.Evaluations
                 .Include(e => e.Evaluator)
                 .Include(e => e.Deliverable)
-                .Include(e => e.PenatyCards)
                 .Where(e => e.ReceiverId == studentId)
                 .ToListAsync();
         }
@@ -110,7 +109,6 @@ namespace Repositories.Common.Implements
             return await _context.Evaluations
                .Include(e => e.Evaluator)
                .Include(e => e.Deliverable)
-               .Include(e => e.PenatyCards)
                .Where(e => e.EvaluatorId == mentorId)
                .ToListAsync();
         }

@@ -20,7 +20,6 @@ namespace DataTranferObjects.Staff.Task
         public DateTime EndAt { get; set; }
         public string Status { get; set; }
         public string Priority { get; set; }
-        public string? Process { get; set; }
         public int? MeetingId { get; set; }
         public int? DeliverableId { get; set; }
         public int AssignedUserId { get; set; }
@@ -97,7 +96,6 @@ namespace DataTranferObjects.Staff.Task
         public string? TaskType { get; set; }
         public string? Priority { get; set; }
         public string? Status { get; set; }
-        public string? Process { get; set; }
 
         public GroupTaskDto? Group { get; set; }
 

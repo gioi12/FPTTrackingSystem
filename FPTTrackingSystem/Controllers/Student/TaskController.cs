@@ -66,6 +66,22 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
+        [HttpGet("assignee")]
+        public async Task<IActionResult> GetTasksByAssignee()
+        {
+            var tasks = await _taskService.GetTasksByAssigneeAsync();
+
+            return Ok(new
+            {
+                statusCode = 200,
+                message = tasks != null && tasks.Any()
+                    ? "Success"
+                    : "No tasks found for this assignee.",
+                data = tasks ?? new List<TaskDto>()
+            });
+        }
+
+
         [HttpGet("get-by-id/{taskId}")]
         public async Task<IActionResult> GetTaskById(int taskId)
         {

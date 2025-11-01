@@ -82,6 +82,19 @@ namespace Repositories.Student.Implements
             }
         }
 
+        public async Task<List<Entities.Models.Task>> GetTasksByAssigneeAsync(int userId)
+        {
+            return await _context.Tasks
+                .Include(t => t.Group)
+                .Include(t => t.Deliverable)
+                .Include(t => t.Comments)
+                .Include(t => t.TaskUsers)
+                    .ThenInclude(tu => tu.User)
+                .Where(t => t.TaskUsers.Any(tu => tu.UserId == userId && tu.Type == "Assignee"))
+                .OrderBy(t => t.Deadline)
+                .ToListAsync();
+        }
+
         public async Task<List<TaskDto>> GetTasksByGroupIdAsync(int groupId)
         {
             try

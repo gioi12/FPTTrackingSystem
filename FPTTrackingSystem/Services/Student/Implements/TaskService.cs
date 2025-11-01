@@ -74,7 +74,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 GroupId = dto.GroupId,
                 Name = dto.Name,
                 Priority = Capitalize(priority),
-                Process = dto.Process,
                 Description = dto.Description,
                 Deadline = dto.EndAt,
                 Status = Capitalize(status),
@@ -132,6 +131,77 @@ namespace FPTTrackingSystem.Services.Student.Implements
             }
 
             return new ApiResponse<TaskDto>(200, "Lấy thông tin task thành công.", task);
+        }
+
+        public async Task<List<TaskDto>> GetTasksByAssigneeAsync()
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            var tasks = await _taskRepository.GetTasksByAssigneeAsync(user.Id ?? 0);
+
+            var result = tasks.Select(task =>
+            {
+                var createdByUser = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Creator");
+                var assignee = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Assignee");
+                var reviewer = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
+
+                bool isMeetingTask = task.MeetingScheduleDateId.HasValue;
+                int meetingId = isMeetingTask ? task.MeetingScheduleDateId.Value : 0;
+
+                return new TaskDto
+                {
+                    Id = task.Id,
+                    Title = task.Name,
+                    Description = task.Description,
+                    Deadline = task.Deadline,
+                    CreatedAt = task.CreatedAt,
+                    CreatedBy = createdByUser?.User.Id,
+                    CreatedByName = createdByUser?.User.Fullname,
+                    Priority = task.Priority,
+                    Status = task.Status,
+                    AssigneeId = assignee?.User.Id,
+                    AssigneeName = assignee?.User.Fullname,
+                    ReviewerId = reviewer?.User?.Id,
+                    ReviewerName = reviewer?.User?.Fullname,
+                    TaskType = task.Type,
+                    isMeetingTask = isMeetingTask,
+                    meetingId = meetingId,
+                    isActive = task.IsActive ?? false,
+                    Group = task.Group != null
+                        ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
+                        : null,
+                    Milestone = task.Deliverable != null
+                        ? new MilestonesDto
+                        {
+                            Id = task.Deliverable.Id,
+                            Name = task.Deliverable.Name,
+                            isActive = task.Deliverable.IsActive,
+                            Description = task.Deliverable.Description
+                        }
+                        : null,
+                    Comments = task.Comments?
+                        .Select(c => new CommentDto
+                        {
+                            Id = c.Id,
+                            Author = c.User.RollNumber ?? "",
+                            AuthorName = c.User.Fullname,
+                            Content = c.Feedback ?? "",
+                            Timestamp = c.CreateAt
+                        }).ToList() ?? new List<CommentDto>(),
+                    History = _context.Logs
+                        .Where(h => h.EntityName.Equals("task") && h.EntityId == task.Id)
+                        .Select(h => new HistoryDto
+                        {
+                            Id = h.Id,
+                            Detail = h.Description,
+                            At = h.CreateAt,
+                            User = h.User.RollNumber,
+                            Action = h.Action
+                        }).ToList()
+                };
+            }).ToList();
+
+            return result;
         }
 
         public async Task<ApiResponse<TaskResponseUpdateDto>> UpdateTaskAsync(UpdateTaskDTO dto)
@@ -207,7 +277,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     Deadline = updatedTask.Deadline,
                     StatusId = updatedTask.Status,
                     PriorityId = updatedTask.Priority,
-                    Process = updatedTask.Process,
                     MilestoneId = updatedTask.DeliverableId,
                     GroupId = updatedTask.GroupId,
                     AssignedUserId = dto.AssignedUserId,

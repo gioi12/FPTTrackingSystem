@@ -10,5 +10,6 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
         Task<ApiResponse<TaskDto>> GetTaskByIdAsync(int taskId);
         Task<ApiResponse<TaskResponseUpdateDto>> UpdateTaskAsync(UpdateTaskDTO dto);
         Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId);
+        Task<List<TaskDto>> GetTasksByAssigneeAsync();
     }
 }
