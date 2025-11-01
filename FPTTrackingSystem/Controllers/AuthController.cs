@@ -25,7 +25,7 @@ namespace FPTTrackingSystem.Controllers
         [HttpPost("v1/auth/login")]
         public async Task<object> Login([FromBody] LoginDTO req)
         {
-            string token = await _accountService.LoginAsync(req);
+            var (token, semester) = await _accountService.LoginAsync(req);
 
             var cookieOptions = new CookieOptions
             {
@@ -36,6 +36,13 @@ namespace FPTTrackingSystem.Controllers
                 Expires = DateTimeOffset.UtcNow.AddHours(1)
             };
             Response.Cookies.Append("token", token, cookieOptions);
+
+            if (semester != null)
+            {
+                Response.Cookies.Append("semesterId", semester.Id.ToString(), cookieOptions);
+                Response.Cookies.Append("semesterName", semester.Name ?? "", cookieOptions);
+            }
+
             return ApiResponse<object>.Success(
              null,"Login Successfully",200);
            

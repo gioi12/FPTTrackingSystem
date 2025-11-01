@@ -94,12 +94,12 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpGet("group/{groupId}/schedule-dates")]
-        public async Task<IActionResult> GetMeetingScheduleDatesByGroupId(int groupId)
+        [HttpGet("group/{groupId}/semester/{semesterId}/schedule-dates")]
+        public async Task<IActionResult> GetMeetingScheduleDatesByGroupId(int groupId, int semesterId)
         {
             try
             {
-                var response = await _service.GetMeetingScheduleDatesByGroupIdAsync(groupId);
+                var response = await _service.GetMeetingScheduleDatesByGroupIdAsync(groupId, semesterId);
                 return StatusCode(response.Status, response);
             }
             catch (UnauthorizedAccessException ex)

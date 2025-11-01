@@ -13,6 +13,8 @@ using Repositories.Common.Interfaces;
 using Repositories.Staff.Implements;
 using Repositories.Staff.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+
 
 namespace FPTTrackingSystem.Services.Staff.Implementations
 {
@@ -22,13 +24,15 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         private readonly AuthUtils _authUtils;
         private readonly IWebHostEnvironment _env;
         private readonly IAttachmentRepository _attachmentRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GroupService(IGroupRepository groupRepository, AuthUtils authUtils, IWebHostEnvironment env,IAttachmentRepository attachmentRepository)
+        public GroupService(IGroupRepository groupRepository, AuthUtils authUtils, IWebHostEnvironment env,IAttachmentRepository attachmentRepository, IHttpContextAccessor httpContextAccessor)
         {
             _groupRepository = groupRepository;
             _authUtils = authUtils;
             _env = env;
             _attachmentRepository = attachmentRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
@@ -88,16 +92,34 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
+
+            var semesterIdCookie = _httpContextAccessor.HttpContext?.Request.Cookies["semesterId"];
+            if (string.IsNullOrEmpty(semesterIdCookie))
+            {
+                return new ApiResponse<GroupDetailDto>(400, "Current semester information not found in cookie.", null);
+            }
+
+            if (!int.TryParse(semesterIdCookie, out int currentSemesterId))
+            {
+                return new ApiResponse<GroupDetailDto>(400, "Invalid current semester value in cookie.", null);
+            }
+
             var group = await _groupRepository.GetByIdAsync(id);
+
             if (group == null)
             {
-                return new ApiResponse<GroupDetailDto>(200, "Không tìm thấy nhóm.", null);
+                return new ApiResponse<GroupDetailDto>(200, "Group not found.", null);
+            }
+
+            if (group.SemesterId != currentSemesterId)
+            {
+                return new ApiResponse<GroupDetailDto>(200, "This group does not belong to the current semester.", null);
             }
             if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
             {
                 if (user.Groups == null || !user.Groups.Contains(id))
                 {
-                    return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền truy cập nhóm này.", null);
+                    return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền truy cập nhóm này.", new GroupDetailDto());
                 }
             }
 

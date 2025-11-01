@@ -20,17 +20,18 @@ namespace FPTTrackingSystem.Services.Authentication
             _accountRepository = accountRepository;
             _jwtService = jwtService;
         }
-        public async Task<string> LoginAsync(LoginDTO req)
+        public async Task<(string token, Semester? semester)> LoginAsync(LoginDTO req)
         {
             Account? acc = await _accountRepository.LoginAsync(req);
             if (acc == null)
-            {
                 throw new ValidationException("Invalid username or password");
-            }
-            // id cua account
-            return 
-                _jwtService.GenerateToken(acc.Id.ToString(), acc.Role.Name);
+
+            var semester = await _accountRepository.GetSemesterByNow();
+
+            string token = _jwtService.GenerateToken(acc.Id.ToString(), acc.Role.Name);
+            return (token, semester);
         }
+
 
         public Task<UserInfo?> GetUserInfo(int id)
         {

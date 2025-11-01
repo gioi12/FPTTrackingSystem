@@ -14,5 +14,6 @@ namespace Repositories.Authentication
     {
         public Task<Account?> LoginAsync(LoginDTO loginDto);
         public Task<UserInfo?> UserInfo(int id);
+        Task<Semester?> GetSemesterByNow();
     }
 }

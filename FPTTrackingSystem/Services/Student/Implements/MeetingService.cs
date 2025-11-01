@@ -26,6 +26,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async Task<object> CreateOrUpdateFreeTimeSlotsAsync(int groupId, FreeTimeSlotsRequest request)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User not logged in.");
 
             if (user.Role != "Student")
                 throw new UnauthorizedAccessException("Only students are allowed to update free time slots.");
@@ -33,41 +35,50 @@ namespace FPTTrackingSystem.Services.Student.Implements
             var isInGroup = await _repo.CheckStudentInGroupAsync(user.Id ?? 0, groupId);
             if (!isInGroup)
                 throw new UnauthorizedAccessException("You are not a member of this group.");
+
             if (request.FreeTimeSlots == null || !request.FreeTimeSlots.Any())
-                throw new Exception("FreeTimeSlots cannot be empty");
+                throw new Exception("FreeTimeSlots cannot be empty.");
 
-            var resultList = new List<object>();
             var now = DateTime.UtcNow;
+            var studentId = request.FreeTimeSlots.First().StudentId;
 
-            foreach (var slot in request.FreeTimeSlots)
+            var dayOfWeeks = request.FreeTimeSlots
+                .Select(x => CapitalizeFirstLetter(x.DayOfWeek))
+                .Distinct()
+                .ToList();
+
+            var timesMatrix = request.FreeTimeSlots
+                .Select(day => day.TimeSlots.SelectMany(t => t.TimeSlots).ToList())
+                .ToList();
+
+            var serializedFreeTime = JsonSerializer.Serialize(timesMatrix);
+            var joinedDays = string.Join(", ", dayOfWeeks);
+
+            var existing = await _repo.GetFreeTimeSlotAsync(studentId, groupId);
+
+            if (existing == null)
             {
-                var existing = await _repo.GetFreeTimeSlotAsync(slot.StudentId, groupId);
-
-                if (existing == null)
+                var newSlot = new GroupUser
                 {
-                    throw new Exception($"GroupUser not found for studentId={slot.StudentId}, groupId={groupId}");
-                }
+                    UserId = studentId,
+                    GroupId = groupId,
+                    DayOfWeek = joinedDays,
+                    FreeTime = serializedFreeTime,
+                    CreateAt = now,
+                    UpdateAt = now,
+                    IsActive = true,
+                    Role = "Student"
+                };
 
-                // Gộp toàn bộ times cho từng ngày
-                var days = slot.TimeSlots.Select(d => CapitalizeFirstLetter(d.DayOfWeek));
-                existing.DayOfWeek = string.Join(", ", days);
-
-                // Tạo mảng 2 chiều cho time slots
-                var timesArray = slot.TimeSlots.Select(d => d.TimeSlots).ToList();
-                existing.FreeTime = System.Text.Json.JsonSerializer.Serialize(timesArray);
+                await _repo.CreateFreeTimeSlotAsync(newSlot);
+            }
+            else
+            {
+                existing.DayOfWeek = joinedDays;
+                existing.FreeTime = serializedFreeTime;
                 existing.UpdateAt = now;
 
-
                 await _repo.UpdateFreeTimeSlotAsync(existing);
-
-                resultList.Add(new
-                {
-                    studentId = slot.StudentId,
-                    groupId = groupId,
-                    dayOfWeek = existing.DayOfWeek,
-                    freeTime = existing.FreeTime,
-                    updatedAt = now
-                });
             }
 
             await _repo.SaveChangesAsync();
@@ -75,8 +86,15 @@ namespace FPTTrackingSystem.Services.Student.Implements
             return new
             {
                 success = true,
-                message = "Free time slots updated successfully",
-                data = resultList
+                message = "Free time slots created or updated successfully.",
+                data = new
+                {
+                    studentId = studentId,
+                    groupId = groupId,
+                    dayOfWeek = joinedDays,
+                    freeTime = serializedFreeTime,
+                    updatedAt = now
+                }
             };
         }
 
@@ -218,7 +236,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             };
         }
 
-        public async Task<ApiResponse<List<MeetingScheduleDateDetailDto>>> GetMeetingScheduleDatesByGroupIdAsync(int groupId)
+        public async Task<ApiResponse<List<MeetingScheduleDateDetailDto>>> GetMeetingScheduleDatesByGroupIdAsync(int groupId, int semesterId)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
@@ -234,7 +252,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 if (!isMentor)
                     throw new UnauthorizedAccessException("You are not the mentor of this group.");
             }
-            var list = await _repo.GetMeetingScheduleDatesByGroupIdAsync(groupId);
+            var list = await _repo.GetMeetingScheduleDatesByGroupIdAsync(groupId, semesterId);
 
             if (list == null || list.Count == 0)
                 return ApiResponse<List<MeetingScheduleDateDetailDto>>.Success(new List<MeetingScheduleDateDetailDto>(), "Không có ngày họp nào cho nhóm nàys.");

@@ -56,5 +56,10 @@ namespace Repositories.Authentication
                 Groups = groupIds
             };
         }
+
+        public async Task<Semester?> GetSemesterByNow()
+        {
+            return await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
+        }
     }
 }

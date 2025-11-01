@@ -195,7 +195,6 @@ namespace Repositories.Student.Implements
                 throw new Exception("Không tìm thấy nhóm.");
 
             var semester = group.Semester ?? throw new Exception("Nhóm chưa thuộc kỳ học nào.");
-
             var meeting = group.Meeting;
 
             bool isNewMeeting = meeting == null;
@@ -212,15 +211,15 @@ namespace Repositories.Student.Implements
                     CreateAt = DateTime.UtcNow,
                     UpdateAt = DateTime.UtcNow
                 };
+
                 _context.Meetings.Add(meeting);
                 group.Meeting = meeting;
+                await _context.SaveChangesAsync(); // ✅ đảm bảo meeting.Id có giá trị
             }
             else
             {
                 bool dayChanged = !string.Equals(meeting.DayOfWeek, dto.Day, StringComparison.OrdinalIgnoreCase);
                 bool timeChanged = meeting.Time != dto.Time;
-                bool semesterChanged = meeting.MeetingScheduleDates.Any(d =>
-                    d.MeetingDate < semester.StartAt || d.MeetingDate > semester.EndAt);
 
                 meeting.DayOfWeek = dto.Day;
                 meeting.Time = dto.Time;
@@ -228,41 +227,68 @@ namespace Repositories.Student.Implements
                 meeting.IsActive = true;
                 meeting.UpdateAt = DateTime.UtcNow;
 
-                if (dayChanged || semesterChanged)
+                if (dayChanged)
                 {
-                    var oldDates = _context.MeetingScheduleDates.Where(m => m.MeetingId == meeting.Id);
-                    _context.MeetingScheduleDates.RemoveRange(oldDates);
+                    var allNewDates = calculator.GetAllDatesForDayOfWeek(
+                        semester.StartAt!.Value,
+                        semester.EndAt!.Value,
+                        dto.Day
+                    );
+
+                    // ✅ Luôn load từ DB
+                    var existingDates = await _context.MeetingScheduleDates
+                        .Where(x => x.MeetingId == meeting.Id)
+                        .ToListAsync();
+
+                    // ✅ Cập nhật hoặc xóa lịch cũ (chưa họp)
+                    foreach (var schedule in existingDates)
+                    {
+                        if (schedule.IsMeeting == false || schedule.IsMeeting == null)
+                        {
+                            var oldWeek = calculator.GetWeekNumberInSemester(semester.StartAt.Value, schedule.MeetingDate ?? default);
+                            var newDate = allNewDates.FirstOrDefault(d =>
+                                calculator.GetWeekNumberInSemester(semester.StartAt.Value, d) == oldWeek);
+
+                            if (newDate != default)
+                            {
+                                schedule.MeetingDate = newDate;
+                                schedule.UpdatedAt = DateTime.UtcNow;
+                                schedule.Description = $"Buổi họp {dto.Day} tuần {oldWeek}";
+                            }
+                            else
+                            {
+                                // Không còn tuần tương ứng => xóa
+                                _context.MeetingScheduleDates.Remove(schedule);
+                            }
+                        }
+                    }
+
+                    // ✅ Thêm các tuần chưa có
+                    var existingWeeks = existingDates
+                        .Select(e => calculator.GetWeekNumberInSemester(semester.StartAt.Value, e.MeetingDate ?? default))
+                        .ToHashSet();
+
+                    var missingWeeks = allNewDates
+                        .Where(d => !existingWeeks.Contains(calculator.GetWeekNumberInSemester(semester.StartAt.Value, d)))
+                        .ToList();
+
+                    foreach (var date in missingWeeks)
+                    {
+                        _context.MeetingScheduleDates.Add(new MeetingScheduleDate
+                        {
+                            MeetingId = meeting.Id,
+                            MeetingDate = date,
+                            IsActive = true,
+                            IsMeeting = false,
+                            Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        });
+                    }
                 }
             }
 
             await _context.SaveChangesAsync();
-
-            if (isNewMeeting ||
-                !string.Equals(meeting.DayOfWeek, dto.Day, StringComparison.OrdinalIgnoreCase) ||
-                meeting.MeetingScheduleDates == null ||
-                meeting.MeetingScheduleDates.Count == 0)
-            {
-                var allDates = calculator.GetAllDatesForDayOfWeek(
-                    semester.StartAt!.Value,
-                    semester.EndAt!.Value,
-                    dto.Day
-                );
-
-                foreach (var date in allDates)
-                {
-                    _context.MeetingScheduleDates.Add(new MeetingScheduleDate
-                    {
-                        MeetingId = meeting.Id,
-                        MeetingDate = date,
-                        IsActive = true,
-                        Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    });
-                }
-                await _context.SaveChangesAsync();
-            }
-
             return meeting;
         }
 
@@ -322,15 +348,16 @@ namespace Repositories.Student.Implements
             return false;
         }
 
-        public async Task<List<MeetingScheduleDate>> GetMeetingScheduleDatesByGroupIdAsync(int groupId)
+        public async Task<List<MeetingScheduleDate>> GetMeetingScheduleDatesByGroupIdAsync(int groupId, int semesterId)
         {
             return await _context.MeetingScheduleDates
-                    .Include(msd => msd.Meeting)
-                    .Where(msd => msd.Meeting != null &&
-                                  msd.Meeting.Groups.Any(g => g.Id == groupId) &&
-                                  msd.IsActive == true)
-                    .OrderBy(msd => msd.MeetingDate)
-                    .ToListAsync();
+                .Include(msd => msd.Meeting)
+                .Where(msd =>
+                    msd.Meeting != null &&
+                    msd.Meeting.Groups.Any(g => g.Id == groupId && g.SemesterId.HasValue && g.SemesterId.Value == semesterId) &&
+                    msd.IsActive == true)
+                .OrderBy(msd => msd.MeetingDate)
+                .ToListAsync();
         }
 
         public async Task<MeetingScheduleDate?> GetByIdAsync(int id)
