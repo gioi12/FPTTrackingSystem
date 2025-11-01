@@ -19,9 +19,5 @@ public partial class PenatyCard
 
     public DateTime? CreateAt { get; set; }
 
-    public int? EvaluatorId { get; set; }
-
-    public virtual Evaluation? Evaluation { get; set; }
-
     public virtual User? User { get; set; }
 }

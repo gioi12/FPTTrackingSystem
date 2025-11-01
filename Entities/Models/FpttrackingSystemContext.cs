@@ -548,7 +548,6 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasMaxLength(300)
                 .HasColumnName("description");
             entity.Property(e => e.EvaluationId).HasColumnName("evaluation_id");
-            entity.Property(e => e.EvaluatorId).HasColumnName("evaluator_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");
@@ -556,10 +555,6 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("type");
             entity.Property(e => e.UserId).HasColumnName("user_id");
-
-            entity.HasOne(d => d.Evaluation).WithMany(p => p.PenatyCards)
-                .HasForeignKey(d => d.EvaluationId)
-                .HasConstraintName("FK_Penaty_Card_Evaluation");
 
             entity.HasOne(d => d.User).WithMany(p => p.PenatyCards)
                 .HasForeignKey(d => d.UserId)
@@ -708,44 +703,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.MeetingScheduleDate).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.MeetingScheduleDateId)
                 .HasConstraintName("FK_Task_Meeting_Schedule_Date");
-
-            entity.HasMany(d => d.TaskReferences).WithMany(p => p.Tasks)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TaskDependence",
-                    r => r.HasOne<Task>().WithMany()
-                        .HasForeignKey("TaskReferenceId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_Task_Dependence_Task1"),
-                    l => l.HasOne<Task>().WithMany()
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_Task_Dependence_Task"),
-                    j =>
-                    {
-                        j.HasKey("TaskId", "TaskReferenceId");
-                        j.ToTable("Task_Dependence");
-                        j.IndexerProperty<int>("TaskId").HasColumnName("task_id");
-                        j.IndexerProperty<int>("TaskReferenceId").HasColumnName("task_reference_id");
-                    });
-
-            entity.HasMany(d => d.Tasks).WithMany(p => p.TaskReferences)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TaskDependence",
-                    r => r.HasOne<Task>().WithMany()
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_Task_Dependence_Task"),
-                    l => l.HasOne<Task>().WithMany()
-                        .HasForeignKey("TaskReferenceId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_Task_Dependence_Task1"),
-                    j =>
-                    {
-                        j.HasKey("TaskId", "TaskReferenceId");
-                        j.ToTable("Task_Dependence");
-                        j.IndexerProperty<int>("TaskId").HasColumnName("task_id");
-                        j.IndexerProperty<int>("TaskReferenceId").HasColumnName("task_reference_id");
-                    });
         });
 
         modelBuilder.Entity<TaskUser>(entity =>

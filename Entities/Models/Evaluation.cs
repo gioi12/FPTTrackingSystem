@@ -29,7 +29,5 @@ public partial class Evaluation
 
     public virtual Group Group { get; set; } = null!;
 
-    public virtual ICollection<PenatyCard> PenatyCards { get; set; } = new List<PenatyCard>();
-
     public virtual User Receiver { get; set; } = null!;
 }
