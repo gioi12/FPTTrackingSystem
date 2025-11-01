@@ -22,8 +22,8 @@ namespace DataTranferObjects.Staff.Task
         public string Priority { get; set; }
         public int? MeetingId { get; set; }
         public int? DeliverableId { get; set; }
-        public int AssignedUserId { get; set; }
-        public int ReviewerId { get; set; }
+        public int? AssignedUserId { get; set; }
+        public int? ReviewerId { get; set; }
     }
 
     public class UpdateTaskDTO

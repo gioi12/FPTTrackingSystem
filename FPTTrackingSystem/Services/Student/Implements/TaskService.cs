@@ -99,7 +99,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
             return await _taskRepository.CreateTaskAsync(
                 newTask,
-                dto.AssignedUserId,
+                dto.AssignedUserId ?? 0,
                 user.Id ?? 0,
                 dto.ReviewerId
             );
