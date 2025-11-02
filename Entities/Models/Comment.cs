@@ -13,9 +13,9 @@ public partial class Comment
 
     public int UserId { get; set; }
 
-    public int? TaskId { get; set; }
-
     public int GroupId { get; set; }
+
+    public int? TaskId { get; set; }
 
     public virtual Group Group { get; set; } = null!;
 
