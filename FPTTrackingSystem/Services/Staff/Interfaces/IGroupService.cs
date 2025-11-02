@@ -16,5 +16,9 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<string> UploadFileGroup(IFormFile file, int groupId);
         Task DeleteFileGroup(int attachmentId);
         Task<List<AttachmentRes>> GetFilesGroup(int groupId);
+
+        Task<object> GetMockData();
+        Task<object> CreateMockData();
+
     }
 }

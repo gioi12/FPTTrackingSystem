@@ -114,5 +114,19 @@ namespace FPTTrackingSystem.Controllers.Staff
             var list = await _groupService.GetFilesGroup(groupId);
             return Ok(ApiResponse<object>.Success(list, "Get attachments successfully."));
         }
+        [Authorize(Roles = "Staff")]
+        [HttpGet("v1/mock-data/group")]
+        public async Task<object> MockDataGroup()
+        {
+            var data = await _groupService.GetMockData();
+            return Ok(ApiResponse<object>.Success(data, "Upload Successfully"));
+        }
+        [Authorize(Roles = "Staff")]
+        [HttpPost("v1/mock-data/group")]
+        public async Task<object> CreateGroups()
+        {
+            var message = await _groupService.CreateMockData();
+            return Ok(ApiResponse<object>.Success(message, "Upload Successfully"));
+        }
     }
 }

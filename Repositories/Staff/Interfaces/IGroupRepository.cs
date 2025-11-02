@@ -20,5 +20,6 @@ namespace Repositories.Staff.Interfaces
         public Task<List<Milestone>> GetMilestonesByMajorAsync(int majorId);
         Task<List<Group>> GetGroupsByUserIdAsync(int userId);
         Task<bool> UpdateRoleInGroupAsync(int groupId, int userId, string newRole);
+        System.Threading.Tasks.Task CreateGroups(List<Group> groups);
     }
 }

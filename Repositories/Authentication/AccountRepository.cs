@@ -61,5 +61,16 @@ namespace Repositories.Authentication
         {
             return await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
         }
+
+        public async Task<List<Account>> CreateUsers(List<Account> accounts)
+        {
+            if (accounts == null || accounts.Count == 0)
+                throw new Exception("Account list cannot be null or empty");
+
+            await _context.Accounts.AddRangeAsync(accounts);
+            await _context.SaveChangesAsync();
+
+            return accounts;
+        }
     }
 }
