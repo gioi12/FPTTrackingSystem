@@ -4,16 +4,18 @@ using DataTranferObjects.Enum;
 using DataTranferObjects.Staff.Group;
 using DataTranferObjects.Staff.Response;
 using Entities.Models;
+using FPTTrackingSystem.Helper;
 using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Repositories.Authentication;
 using Repositories.Common.Interfaces;
 using Repositories.Staff.Implements;
 using Repositories.Staff.Interfaces;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http;
 
 
 namespace FPTTrackingSystem.Services.Staff.Implementations
@@ -25,14 +27,18 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         private readonly IWebHostEnvironment _env;
         private readonly IAttachmentRepository _attachmentRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISemesterRepository _semesterRepository;
+        private readonly IAccountRepository _accountRepository;
 
-        public GroupService(IGroupRepository groupRepository, AuthUtils authUtils, IWebHostEnvironment env,IAttachmentRepository attachmentRepository, IHttpContextAccessor httpContextAccessor)
+        public GroupService(IGroupRepository groupRepository, AuthUtils authUtils, IWebHostEnvironment env,IAttachmentRepository attachmentRepository, IHttpContextAccessor httpContextAccessor,IAccountRepository accountRepository,ISemesterRepository semesterRepository)
         {
             _groupRepository = groupRepository;
             _authUtils = authUtils;
             _env = env;
             _attachmentRepository = attachmentRepository;
             _httpContextAccessor = httpContextAccessor;
+            _accountRepository = accountRepository;
+            _semesterRepository = semesterRepository;
         }
 
         public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
@@ -427,6 +433,183 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             );
 
             return allAttachments.Adapt<List<AttachmentRes>>();
+        }
+
+        public Task<object> GetMockData()
+        {
+            // Map RollNumber -> UserId giả
+            var userIdMap = new Dictionary<string, int>
+    {
+        {"SE150001", 1},
+        {"SE150002", 2},
+        {"SE150003", 3},
+        {"SE150004", 4},
+        {"ME01", 5},
+        {"ME02", 6}
+    };
+
+            // Lấy tất cả users từ Accounts với Id giả
+            var allUsers = MockData.Accounts
+                .Where(a => a.Users != null && a.Users.Any())
+                .SelectMany(a => a.Users)
+                .Select(u => new
+                {
+                    Id = userIdMap.ContainsKey(u.RollNumber) ? userIdMap[u.RollNumber] : 0,
+                    u.Fullname,
+                    u.RollNumber,
+                    u.Mail,
+                    u.Phone
+                })
+                .ToList();
+
+            // Tạo groups với IDs tương ứng
+            var groups = MockData.GetGroups(1, 1, 2, 3, 4, 5, 6);
+
+            var result = groups.Select(group => new
+            {
+                GroupCode = group.Code,
+                GroupName = group.Name,
+                MajorId = group.MajorId,
+                Profession = group.Profession,
+                VietnameseTitle = group.VietnameseTitle,
+                Description = group.Description,
+                Status = group.StatusId,
+                Members = group.GroupUsers.Select(gu =>
+                {
+                    var user = allUsers.FirstOrDefault(u => u.Id == gu.UserId);
+                    return new
+                    {
+                        UserId = user?.Id,
+                        Fullname = user?.Fullname,
+                        RollNumber = user?.RollNumber,
+                        Email = user?.Mail,
+                        Phone = user?.Phone,
+                        RoleInGroup = gu.Role,
+                        IsActive = gu.IsActive,
+                        Status = gu.Status
+                    };
+                }).ToList()
+            }).ToList();
+
+            return System.Threading.Tasks.Task.FromResult<object>(result);
+        }
+
+
+
+        public async Task<object> CreateMockData()
+        {
+            var semester = await _semesterRepository.findActive();
+            if (semester == null)
+            {
+                throw new ValidationException("Chưa có kỳ học active");
+            }
+
+            // 1. Lấy mock data
+            var accounts = MockData.Accounts;
+
+            // 2. Tạo accounts (sau khi SaveChanges, accounts đã có Id rồi!)
+            await _accountRepository.CreateUsers(accounts);
+
+            // 3. Dùng lại accounts - Id đã được tự động fill
+            var user1 = accounts[0].Users.FirstOrDefault();
+            var user2 = accounts[1].Users.FirstOrDefault();
+            var user3 = accounts[2].Users.FirstOrDefault();
+            var user4 = accounts[3].Users.FirstOrDefault();
+            var mentor1 = accounts[4].Users.FirstOrDefault();
+            var mentor2 = accounts[5].Users.FirstOrDefault();
+
+            // 4. Tạo groups với UserId đã có
+            var groups = new List<Group>
+    {
+        new Group
+        {
+            Code = "G01",
+            Name = "Capstone Team Alpha",
+            SemesterId = semester.Id,
+            CreateAt = DateTime.Now.AddMonths(-2),
+            Profession = "AI Development",
+            MajorId = 1,
+            Description = "Team làm chatbot AI",
+            VietnameseTitle = "Nhóm Alpha",
+            StatusId = "ACTIVE",
+            GroupUsers = new List<GroupUser>
+            {
+                new GroupUser
+                {
+                    UserId = user1.Id,
+                    Role = "Leader",
+                    IsActive = true,
+                    CreateAt = DateTime.Now.AddMonths(-2),
+                    UpdateAt = DateTime.Now,
+                    Status = "Active"
+                },
+                new GroupUser
+                {
+                    UserId = user2.Id,
+                    Role = "Member",
+                    IsActive = true,
+                    CreateAt = DateTime.Now.AddMonths(-2),
+                    UpdateAt = DateTime.Now,
+                    Status = "Active"
+                },
+                new GroupUser
+                {
+                    UserId = mentor1.Id,
+                    Role = "Supervisor",
+                    IsActive = true,
+                    CreateAt = DateTime.Now.AddMonths(-1),
+                    UpdateAt = DateTime.Now,
+                    Status = "Active"
+                }
+            }
+        },
+        new Group
+        {
+            Code = "G02",
+            Name = "Chiến dịch quảng cáo xanh",
+            SemesterId = semester.Id,
+            CreateAt = DateTime.Now.AddMonths(-1),
+            Profession = "Marketing",
+            MajorId = 2,
+            Description = "Team xây dựng plan marketing",
+            VietnameseTitle = "Nhóm Marketing",
+            StatusId = "ACTIVE",
+            GroupUsers = new List<GroupUser>
+            {
+                new GroupUser
+                {
+                    UserId = user3.Id,
+                    Role = "Leader",
+                    IsActive = true,
+                    CreateAt = DateTime.Now.AddMonths(-1),
+                    UpdateAt = DateTime.Now,
+                    Status = "Active"
+                },
+                new GroupUser
+                {
+                    UserId = user4.Id,
+                    Role = "Member",
+                    IsActive = true,
+                    CreateAt = DateTime.Now.AddMonths(-1),
+                    UpdateAt = DateTime.Now,
+                    Status = "Active"
+                },
+                new GroupUser
+                {
+                    UserId = mentor2.Id,
+                    Role = "Supervisor",
+                    IsActive = true,
+                    CreateAt = DateTime.Now.AddMonths(-1),
+                    UpdateAt = DateTime.Now,
+                    Status = "Active"
+                }
+            }
+        }
+    };
+
+            await _groupRepository.CreateGroups(groups);
+
+            return "Create mock data successfully";
         }
     }
 

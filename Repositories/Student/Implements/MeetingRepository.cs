@@ -351,6 +351,7 @@ namespace Repositories.Student.Implements
         public async Task<List<MeetingScheduleDate>> GetMeetingScheduleDatesByGroupIdAsync(int groupId)
         {
             return await _context.MeetingScheduleDates
+                .Include(x=> x.MeetingMinute)
                 .Include(msd => msd.Meeting)
                 .Where(msd =>
                     msd.Meeting != null &&

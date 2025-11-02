@@ -125,5 +125,10 @@ namespace Repositories.Staff.Implements
             return true;
         }
 
+        public async System.Threading.Tasks.Task CreateGroups(List<Group> groups)
+        {
+             await _context.Groups.AddRangeAsync(groups);
+             await _context.SaveChangesAsync();
+        }
     }
 }
