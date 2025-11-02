@@ -218,9 +218,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
             await _repo.DeleteMeetingMinute(meetMinu);
         }
 
-        public async Task<MeetingResponseDTO?> GetMeetingByIdAsync(int meetingId)
+        public async Task<MeetingResponseDTO?> GetMeetingByGroupIdAsync(int GroupId)
         {
-            var meeting = await _repo.GetMeetingByIdAsync(meetingId);
+            var meeting = await _repo.GetMeetingByGroupIdAsync(GroupId);
             if (meeting == null)
                 return null;
 

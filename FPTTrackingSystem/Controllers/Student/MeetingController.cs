@@ -73,12 +73,12 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpGet("schedule/finalize/getById/{id}")]
-        public async Task<IActionResult> GetMeetingById(int id)
+        [HttpGet("schedule/finalize/getById/{GroupId}")]
+        public async Task<IActionResult> GetMeetingById(int GroupId)
         {
             try
             {
-                var meeting = await _service.GetMeetingByIdAsync(id);
+                var meeting = await _service.GetMeetingByGroupIdAsync(GroupId);
                 if (meeting == null)
                     return Ok(ApiResponse<object>.Success(new object(), "Meeting not found."));
 
