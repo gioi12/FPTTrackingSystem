@@ -64,7 +64,7 @@ app.UseStaticFiles(new StaticFileOptions
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
     }
 });
-// xoa sau khi deploy,fix ci cd
+// xoa sau khi deploy,fix ci cd 2
 app.UseSwagger();
 app.UseSwaggerUI();
 //cors
