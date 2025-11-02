@@ -168,7 +168,7 @@ namespace FPTTrackingSystem.Helper
                         new GroupUser
                         {
                             UserId = user2Id,
-                            Role = "Member",
+                            Role = "Student",
                             IsActive = true,
                             CreateAt = DateTime.Now.AddMonths(-2),
                             UpdateAt = DateTime.Now,
@@ -211,7 +211,7 @@ namespace FPTTrackingSystem.Helper
                         new GroupUser
                         {
                             UserId = user4Id,
-                            Role = "Member",
+                            Role = "Student",
                             IsActive = true,
                             CreateAt = DateTime.Now.AddMonths(-1),
                             UpdateAt = DateTime.Now,
