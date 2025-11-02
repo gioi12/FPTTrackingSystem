@@ -95,7 +95,7 @@ namespace Repositories.Staff.Implements
         .Include(gu => gu.Group)
             .ThenInclude(g => g.GroupUsers)
                 .ThenInclude(gu2 => gu2.User)
-        .Where(gu => gu.UserId == userId && gu.Role == "Mentor" && gu.IsActive)
+        .Where(gu => gu.UserId == userId && gu.Role == "Supervisor" && gu.IsActive)
         .Select(gu => gu.Group)
         .ToListAsync();
         }
