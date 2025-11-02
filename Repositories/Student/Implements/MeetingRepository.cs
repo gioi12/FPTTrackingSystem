@@ -53,7 +53,7 @@ namespace Repositories.Student.Implements
         {
             var data = await _context.GroupUsers
                 .Where(f => f.GroupId == groupId &&
-                           (f.Role == "Student" || f.Role == "Leader" || f.Role == "Secretary"))
+                           (f.Role == "Student" || f.Role == "Leader" || f.Role == "Secretary" || f.Role == "Member"))
                 .Select(f => new
                 {
                     f.UserId,

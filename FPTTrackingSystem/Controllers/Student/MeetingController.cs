@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Controllers.Student
 {
-    [Route("api/v1/Student/[controller]/")]
+    [Route("api/")]
     [ApiController]
     public class MeetingController : ControllerBase
     {
@@ -17,8 +17,13 @@ namespace FPTTrackingSystem.Controllers.Student
         {
             _service = service;
         }
-
-        [HttpPost("groups/{groupId}/schedule/free-time")]
+        /// <summary>
+        ///  /api/v1/Student/Meeting/groups/4/schedule/free-time
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("v1/Student/Meeting/groups/{groupId}/schedule/free-time")]
         public async Task<IActionResult> CreateOrUpdateFreeTimeSlots(int groupId, [FromBody] FreeTimeSlotsRequest request)
         {
             try
@@ -36,7 +41,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpGet("groups/{groupId}/schedule/free-time")]
+        [HttpGet("v1/Student/Meeting/groups/{groupId}/schedule/free-time")]
         public async Task<IActionResult> GetFreeTimeSlots(int groupId)
         {
             try
@@ -54,7 +59,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpPost("groups/{groupId}/schedule/finalize")]
+        [HttpPost("v1/Student/Meeting/groups/{groupId}/schedule/finalize")]
         public async Task<IActionResult> FinalizeSchedule(int groupId, [FromBody] FinalizeScheduleRequestDto request)
         {
 
@@ -73,7 +78,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpGet("schedule/finalize/getById/{GroupId}")]
+        [HttpGet("v1/Student/Meeting/schedule/finalize/getById/{GroupId}")]
         public async Task<IActionResult> GetMeetingById(int GroupId)
         {
             try
@@ -94,7 +99,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpGet("group/{groupId}/schedule-dates")]
+        [HttpGet("v1/Student/Meeting/group/{groupId}/schedule-dates")]
         public async Task<IActionResult> GetMeetingScheduleDatesByGroupId(int groupId)
         {
             try
@@ -112,7 +117,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpPut("update-is-meeting/{id}")]
+        [HttpPut("v1/Student/Meeting/update-is-meeting/{id}")]
         public async Task<IActionResult> UpdateIsMeetingAsync(int id, [FromBody] bool isMeeting)
         {
             try
