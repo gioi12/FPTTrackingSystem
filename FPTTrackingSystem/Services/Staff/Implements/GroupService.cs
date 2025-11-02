@@ -306,7 +306,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     };
                 }
             }
-            else if (currentUser.Role == "Supervisor" || currentUser.Role == "SupervisorHead")
+            else if (currentUser.RoleInGroup == StringEnum.Supervior || currentUser.RoleInGroup == "SupervisorHead")
             {
                 groups = groups
                     .Where(g => g.GroupUsers.Any(gu =>
@@ -332,7 +332,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Name = g.Name,
                 status = g.Status != null ? g.Status.Name : "active",
                 students = g.GroupUsers
-                    .Where(gu => gu.Role == "Student" || gu.Role == "Secretary" || gu.Role == "Leader" && gu.IsActive)
+                    .Where(gu => gu.Role == StringEnum.Student || gu.Role == StringEnum.Secretary || gu.Role == StringEnum.Leader && gu.IsActive)
                     .Select(s => new StudentGroupDTO
                     {
                         Id = s.User.Id,

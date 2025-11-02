@@ -11,5 +11,9 @@ namespace DataTranferObjects.Enum
         public const string Create = "CREATE";
         public const string Update = "UPDATE";
         public const string Delete = "DELETE";
+        public const string Student = "Student";
+        public const string Supervior = "Supervior";
+        public const string Leader = "Leader";
+        public const string Secretary = "Secretary";
     }
 }
