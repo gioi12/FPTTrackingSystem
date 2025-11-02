@@ -12,6 +12,7 @@ using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Staff.Interfaces;
+using System.Globalization;
 
 namespace FPTTrackingSystem.Services.Staff.Implementations
 {
@@ -230,17 +231,10 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Weeks = weeks,
             };
         }*/
-        public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
+        public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request, DateOnly startAt, DateOnly endAt)
         {
-            // 1️⃣ Validate input fields
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new ArgumentException("Semester name cannot be empty.");
-
-            if (string.IsNullOrWhiteSpace(request.StartAt))
-                throw new ArgumentException("Start date cannot be empty.");
-
-            if (string.IsNullOrWhiteSpace(request.EndAt))
-                throw new ArgumentException("End date cannot be empty.");
 
             if (request.Name.Length > 100)
                 throw new ArgumentException("Semester name cannot exceed 100 characters.");
@@ -248,28 +242,22 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
                 throw new ArgumentException("Description cannot exceed 500 characters.");
 
-            // 2️⃣ Get current user
+            // ✅ Get current user from cookie
             var user = await _authUtils.GetUserInfoFromCookie();
-
             if (user == null)
                 throw new UnauthorizedAccessException("User authentication failed.");
 
-            // 3️⃣ Authorization check (only Staff can create semesters)
             if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
-                throw new UnauthorizedAccessException("Only Staff members are allowed to create semesters.");
+                throw new UnauthorizedAccessException("Only Staff members can create semesters.");
 
-            // 4️⃣ Validate date format and logic
-            if (!DateTime.TryParse(request.StartAt, out var startAtDateTime) ||
-                !DateTime.TryParse(request.EndAt, out var endAtDateTime))
-                throw new ArgumentException("Invalid date format. Dates must follow yyyy-MM-dd format.");
-
-            var startAt = DateOnly.FromDateTime(startAtDateTime);
-            var endAt = DateOnly.FromDateTime(endAtDateTime);
-
+            // ✅ Validate logical date range
             if (startAt >= endAt)
                 throw new ArgumentException("Start date must be earlier than end date.");
 
-            // 5️⃣ Deactivate current active semester
+            var startAtDateTime = startAt.ToDateTime(TimeOnly.MinValue);
+            var endAtDateTime = endAt.ToDateTime(TimeOnly.MinValue);
+
+            // ✅ Disable any currently active semester
             var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
             if (activeSemester != null)
             {
@@ -277,13 +265,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 _context.Semesters.Update(activeSemester);
             }
 
-            // 6️⃣ Create new semester
+            // ✅ Create new semester
             var semester = new Semester
             {
-                Name = request.Name,
+                Name = request.Name.Trim(),
+                Description = request.Description?.Trim(),
                 StartAt = startAtDateTime,
                 EndAt = endAtDateTime,
-                Description = request.Description,
                 IsActive = true
             };
 
@@ -334,8 +322,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 WeekNumber = w.WeekNumber,
                 StartAt = w.StartAt,
                 EndAt = w.EndAt,
-                StartAtLunar = SemesterHelper.ConvertSolarToLunar(w.StartAt ?? DateTime.Now),
-                EndAtLunar = SemesterHelper.ConvertSolarToLunar(w.EndAt ?? DateTime.Now),
+                StartAtLunar = SafeConvertToLunar(w.StartAt ?? DateTime.Now),
+                EndAtLunar = SafeConvertToLunar(w.EndAt ?? DateTime.Now),
                 IsVacation = w.IsVacation,
                 WeekLearn = w.WeekLearn
             }).ToList();
@@ -348,9 +336,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .Include(m => m.MilestoneItems)
                 .Where(m => m.IsActive == true)
                 .ToListAsync();
-
-            if (activeMilestones == null || !activeMilestones.Any())
-                throw new Exception("No active milestones found. Please create milestones first.");
 
             // 🔟 Create Deliverables and DeliveryItems from active milestones
             var deliverables = new List<Deliverable>();
@@ -407,6 +392,19 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Description = semester.Description,
                 Weeks = weeks,
             };
+        }
+
+        private DateTime SafeConvertToLunar(DateTime date)
+        {
+            try
+            {
+                return SemesterHelper.ConvertSolarToLunar(date);
+            }
+            catch
+            {
+                _logger.LogError($"Lunar conversion failed for date {date:yyyy-MM-dd}");
+                return date; 
+            }
         }
 
         public async Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end)

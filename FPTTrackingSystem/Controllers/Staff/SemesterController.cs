@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace FPTTrackingSystem.Controllers.Staff
 {
@@ -39,57 +40,44 @@ namespace FPTTrackingSystem.Controllers.Staff
         [HttpPost("v1/Staff/semester/create")]
         public async Task<IActionResult> CreateSemester([FromBody] SemesterCreateRequest request)
         {
-            if (!DateOnly.TryParse(request.StartAt, out var startAt) ||
-                !DateOnly.TryParse(request.EndAt, out var endAt))
+            var format = "dd/MM/yyyy";
+            var provider = CultureInfo.InvariantCulture;
+
+            // ✅ Validate & parse date input
+            if (!DateOnly.TryParseExact(request.StartAt, format, provider, DateTimeStyles.None, out var startAt) ||
+                !DateOnly.TryParseExact(request.EndAt, format, provider, DateTimeStyles.None, out var endAt))
             {
-                return BadRequest(new
-                {
-                    Status = 400,
-                    Message = "Ngày không hợp lệ (định dạng phải là yyyy-MM-dd)."
-                });
+                return BadRequest(new ApiResponse<string>(400, "Invalid date format. Expected format is dd/MM/yyyy."));
             }
 
+            // ✅ Check overlap
             var isOverlap = await _semesterService.IsOverlappingAsync(startAt, endAt);
             if (isOverlap)
             {
-                return BadRequest(new
-                {
-                    Status = 400,
-                    Message = "Khoảng thời gian của kỳ học này đã tồn tại trong hệ thống."
-                });
+                return BadRequest(new ApiResponse<string>(400, "This semester's time range overlaps with an existing semester."));
             }
 
             try
             {
-                var result = await _semesterService.CreateSemesterAsync(request);
+                var result = await _semesterService.CreateSemesterAsync(request, startAt, endAt);
 
-                return Ok(new
-                {
-                    Status = 200,
-                    Message = "Tạo kỳ học thành công!",
-                    Data = result
-                });
+                return Ok(new ApiResponse<object>(200, "Semester created successfully!", result));
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new
-                {
-                    Status = 400,
-                    Message = ex.Message
-                });
+                return BadRequest(new ApiResponse<string>(400, ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ApiResponse<string>(401, ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    Status = 500,
-                    Message = "Đã xảy ra lỗi nội bộ.",
-                    Detail = ex.Message
-                });
+                return StatusCode(500, new ApiResponse<string>(500, $"Internal server error: {ex.Message}"));
             }
         }
 
-        [HttpGet("v1/Staff/semester/getAll")]
+    [HttpGet("v1/Staff/semester/getAll")]
         public async Task<IActionResult> GetAllSemesters()
         {
             try

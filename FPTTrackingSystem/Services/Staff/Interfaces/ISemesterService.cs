@@ -9,7 +9,7 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
     public interface ISemesterService
     {
         Task<ApiResponse<SemesterActiveRes>> GetSemesterActiveAndMajors();
-        Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request);
+        Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request, DateOnly startAt, DateOnly endAt);
         Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end);
         Task<List<SemesterDTO>> GetAllSemestersAsync();
         Task<SemesterDTO?> GetSemesterByIdAsync(int id);

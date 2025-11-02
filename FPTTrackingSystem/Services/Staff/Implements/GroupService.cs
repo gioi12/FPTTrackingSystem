@@ -111,7 +111,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 return new ApiResponse<GroupDetailDto>(200, "Group not found.", null);
             }
 
-            if (group.SemesterId != currentSemesterId)
+            if (group.SemesterId != currentSemesterId && user.Role != RoleEnum.Staff.ToString())
             {
                 return new ApiResponse<GroupDetailDto>(200, "This group does not belong to the current semester.", null);
             }
