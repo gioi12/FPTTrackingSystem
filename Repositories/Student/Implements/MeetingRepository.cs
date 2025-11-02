@@ -199,8 +199,6 @@ namespace Repositories.Student.Implements
 
             bool isNewMeeting = meeting == null;
 
-            if (isNewMeeting)
-            {
                 meeting = new Meeting
                 {
                     DayOfWeek = dto.Day,
@@ -214,9 +212,23 @@ namespace Repositories.Student.Implements
 
                 _context.Meetings.Add(meeting);
                 group.Meeting = meeting;
-                await _context.SaveChangesAsync(); 
-            }
-            else
+                await _context.SaveChangesAsync();
+
+                var allDates = calculator.GetAllDatesForDayOfWeek(semester.StartAt!.Value,semester.EndAt!.Value,dto.Day);
+
+                var scheduleDates = allDates.Select(date => new MeetingScheduleDate
+                {
+                    MeetingId = meeting.Id,
+                    MeetingDate = date,
+                    IsActive = true,
+                    IsMeeting = false,
+                    Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }).ToList();
+
+                _context.MeetingScheduleDates.AddRange(scheduleDates);
+/*            else
             {
                 bool dayChanged = !string.Equals(meeting.DayOfWeek, dto.Day, StringComparison.OrdinalIgnoreCase);
                 bool timeChanged = meeting.Time != dto.Time;
@@ -286,7 +298,7 @@ namespace Repositories.Student.Implements
                         });
                     }
                 }
-            }
+            }*/
 
             await _context.SaveChangesAsync();
             return meeting;
