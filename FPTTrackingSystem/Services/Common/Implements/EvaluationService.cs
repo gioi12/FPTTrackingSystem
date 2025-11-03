@@ -143,6 +143,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
             var card = new PenatyCard
             {
+                EvaluationId = user.Id ?? 0,
                 Name = dto.Name,
                 Description = dto.Description,
                 Type = formattedType,
