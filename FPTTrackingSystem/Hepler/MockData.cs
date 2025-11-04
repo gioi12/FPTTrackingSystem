@@ -11,7 +11,6 @@ namespace FPTTrackingSystem.Helper
                 Username = "gioidmhe171512@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 1,
-                IsActive = true,
                 Users = new List<User>
                 {
                     new User
@@ -34,7 +33,6 @@ namespace FPTTrackingSystem.Helper
                 Username = "haildhe172452@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 1,
-                IsActive = true,
                 Users = new List<User>
                 {
                     new User
@@ -57,7 +55,6 @@ namespace FPTTrackingSystem.Helper
                 Username = "cuonghvhe176362@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 1,
-                IsActive = true,
                 Users = new List<User>
                 {
                     new User
@@ -80,7 +77,6 @@ namespace FPTTrackingSystem.Helper
                 Username = "handghe170064@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 1,
-                IsActive = true,
                 Users = new List<User>
                 {
                     new User
@@ -103,7 +99,6 @@ namespace FPTTrackingSystem.Helper
                 Username = "doangioi0403@gmail.com",
                 Password = "123456",
                 RoleId = 2,
-                IsActive = true,
                 Users = new List<User>
                 {
                     new User
@@ -124,7 +119,6 @@ namespace FPTTrackingSystem.Helper
                 Username = "huongtthe172436@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 2,
-                IsActive = true,
                 Users = new List<User>
                 {
                     new User
