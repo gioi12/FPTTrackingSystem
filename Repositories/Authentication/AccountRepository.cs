@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,6 +26,12 @@ namespace Repositories.Authentication
                 .Include(x=>x.Role)
                 .FirstOrDefaultAsync(x => x.Username == req.UserName && x.Password == req.Password);
         }
+
+        public async Task<List<Account>> GetAllAsync(Expression<Func<Account, bool>> predicate)
+        {
+            return await _context.Accounts.Where(predicate).ToListAsync();
+        }
+
 
         public async Task<UserInfo?> UserInfo(int id)
         {

@@ -3,6 +3,7 @@ using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
@@ -15,7 +16,7 @@ namespace Repositories.Authentication
         public Task<Account?> LoginAsync(LoginDTO loginDto);
         public Task<UserInfo?> UserInfo(int id);
         Task<Semester?> GetSemesterByNow();
-
+        Task<List<Account>> GetAllAsync(Expression<Func<Account, bool>> predicate);
         public Task<List<Account>> CreateUsers(List<Account> accounts);
     }
 }

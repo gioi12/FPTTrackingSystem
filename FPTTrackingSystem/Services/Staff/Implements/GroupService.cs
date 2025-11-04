@@ -507,6 +507,18 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             // 1. Lấy mock data
             var accounts = MockData.Accounts;
 
+            var mockUsernames = accounts.Select(a => a.Username.ToLower()).ToList();
+
+            var existingAccounts = await _accountRepository.GetAllAsync(
+                         a => mockUsernames.Contains(a.Username.ToLower()));
+
+            if (existingAccounts.Any())
+            {
+                var existingUsernames = string.Join(", ", existingAccounts.Select(a => a.Username));
+                throw new ValidationException($"Các username sau đã tồn tại và đang active: {existingUsernames}. Không thể tạo mock data.");
+            }
+
+
             // 2. Tạo accounts (sau khi SaveChanges, accounts đã có Id rồi!)
             await _accountRepository.CreateUsers(accounts);
 
