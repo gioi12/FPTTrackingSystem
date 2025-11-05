@@ -72,7 +72,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                      CourseCode = g.Name,
                      GroupCode = g.Code,
                      Term = g.Semester != null ? g.Semester.Name : "",
-                     Major = g.Major != null ? g.Major.Name : "",
+                     Major = g.Major != null ? g.Major.Code : "",
                      StudentCount = g.GroupUsers.Count(gu => gu.User.Account.RoleId == (int)RoleEnum.Student),
                      Supervisor = g.GroupUsers
                         .Where(gu => gu.User.Account.RoleId == (int)RoleEnum.Supervior || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead)
@@ -102,7 +102,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var semesterIdCookie = _httpContextAccessor.HttpContext?.Request.Cookies["semesterId"];
             if (string.IsNullOrEmpty(semesterIdCookie))
             {
-                return new ApiResponse<GroupDetailDto>(400, "Current semester information not found in cookie.", null);
+                return new ApiResponse<GroupDetailDto>(400, "Current semester information not found.", null);
             }
 
             if (!int.TryParse(semesterIdCookie, out int currentSemesterId))
