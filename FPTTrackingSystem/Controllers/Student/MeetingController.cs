@@ -85,7 +85,7 @@ namespace FPTTrackingSystem.Controllers.Student
             {
                 var meeting = await _service.GetMeetingByGroupIdAsync(GroupId);
                 if (meeting == null)
-                    return Ok(ApiResponse<object>.Success(new object(), "Meeting not found."));
+                    return Ok(ApiResponse<MeetingResponseDTO>.Success(new MeetingResponseDTO(), "Schedule not found."));
 
                 return Ok(ApiResponse<object>.Success(meeting, "Meeting retrieved successfully."));
             }
