@@ -107,7 +107,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             else
             {
                 var deli = itemDeli.Deliverable;
-                deli.DeliverableGroups.FirstOrDefault(x => x.Status == ProgressEnum.Rejected).Status = "Pending";
+                var groupDeli = deli.DeliverableGroups.FirstOrDefault(x => x.Status == ProgressEnum.Rejected);
+                if (groupDeli != null)
+                {
+                    groupDeli.Status = ProgressEnum.Pending;
+                }
                 await _deliverableRepository.UpdateDeliverable(deli);
 
             }
