@@ -4,6 +4,7 @@ using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FPTTrackingSystem.Controllers.Student
 {
@@ -11,10 +12,11 @@ namespace FPTTrackingSystem.Controllers.Student
     public class TaskController : Controller
     {
         private readonly ITaskService _taskService;
-
-        public TaskController(ITaskService taskService)
+        private readonly FpttrackingSystemContext _context;
+        public TaskController(ITaskService taskService, FpttrackingSystemContext context)
         {
             _taskService = taskService;
+            _context = context;
         }
 
         [HttpPost("v1/Student/Task/create")]
@@ -25,16 +27,27 @@ namespace FPTTrackingSystem.Controllers.Student
                 var createdTask = await _taskService.CreateTaskAsync(dto);
 
                 if (createdTask == null)
-                    return BadRequest(ApiResponse<object>.Fail("Tạo task thất bại."));
+                    return BadRequest(ApiResponse<object>.Fail("Tạo task thất bại.", 400));
+
+                // Sau khi task được tạo, truy vấn danh sách TaskUser để lấy role thực tế
+                var taskUsers = await _context.TaskUsers
+                    .Where(tu => tu.TaskId == createdTask.Id)
+                    .ToListAsync();
+
+                var creatorId = taskUsers.FirstOrDefault(tu => tu.Type == "Creator")?.UserId;
+                var assigneeId = taskUsers.FirstOrDefault(tu => tu.Type == "Assignee")?.UserId;
+                var reviewerId = taskUsers.FirstOrDefault(tu => tu.Type == "Reviewer")?.UserId;
 
                 return Ok(ApiResponse<object>.Success(new
                 {
+                    createdTask.Id,
                     createdTask.GroupId,
                     createdTask.Name,
                     createdTask.Description,
                     createdTask.Deadline,
-                    AssignedUserId = dto.AssignedUserId,
-                    ReviewerId = dto.ReviewerId
+                    CreatorId = creatorId,
+                    AssignedUserId = assigneeId,
+                    ReviewerId = reviewerId,
                 }, "Tạo task thành công."));
             }
             catch (ArgumentException ex)
