@@ -103,6 +103,7 @@ namespace Repositories.Student.Implements
                     .Include(t => t.Group)
                     .Include(t => t.Deliverable)
                     .Include(t => t.Comments)
+                     .ThenInclude(c => c.User)
                     .Include(t => t.TaskUsers)
                         .ThenInclude(tu => tu.User)
                     .Where(t => t.GroupId == groupId)
