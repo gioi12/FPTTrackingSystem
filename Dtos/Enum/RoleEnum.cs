@@ -12,7 +12,8 @@ namespace DataTranferObjects.Enum
         Supervior = 2,
         SuperviorHead = 3,
         Staff = 4,
-        StudentLead = 5,
+        StudentLead = 6,
+        Admin = 5,
     }
 
     public enum StatusTask

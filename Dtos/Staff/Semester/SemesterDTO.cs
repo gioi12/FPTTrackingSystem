@@ -12,8 +12,8 @@ namespace DataTranferObjects.Staff.Semester
         public int Id { get; set; }
         public bool? IsActive { get; set; }
         public string Name { get; set; } = string.Empty;
-        public DateTime StartAt { get; set; }
-        public DateTime EndAt { get; set; }
+        public DateTime? StartAt { get; set; }
+        public DateTime? EndAt { get; set; }
         public string? Description { get; set; }
         public List<SemesterWeekDTO> Weeks { get; set; } = new(); 
         public List<SemesterVacationDto> SemesterBreak { get; set; } = new();
