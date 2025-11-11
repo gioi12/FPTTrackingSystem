@@ -418,7 +418,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (startAt == null || endAt == null)
                 throw new Exception("Mock semester must have valid start and end dates.");
 
-            // ✅ Tìm trong DB xem học kỳ này đã có chưa
             var semester = await _context.Semesters
                 .Include(s => s.SemesterWeeks)
                 .FirstOrDefaultAsync(s => s.Name.Trim().ToLower() == semesterName.Trim().ToLower());
@@ -429,7 +428,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             bool hasTimeChange = semester.StartAt != startAt || semester.EndAt != endAt;
             bool hasDescChange = semester.Description?.Trim() != mockSemester.Description?.Trim();
 
-            // ✅ Nếu có thay đổi thì update
             if (hasTimeChange || hasDescChange)
             {
                 semester.StartAt = startAt;
@@ -437,7 +435,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 semester.Description = mockSemester.Description;
                 semester.IsActive = true;
 
-                // Xóa tuần cũ và sinh lại
                 _context.SemesterWeeks.RemoveRange(semester.SemesterWeeks);
 
                 var startDateOnly = DateOnly.FromDateTime(startAt.Value);
