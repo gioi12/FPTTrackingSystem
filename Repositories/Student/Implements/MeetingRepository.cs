@@ -49,7 +49,7 @@ namespace Repositories.Student.Implements
         {
             await _context.SaveChangesAsync();
         }
-        public async Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId)
+        /*public async Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId)
         {
             var data = await _context.GroupUsers
                 .Where(f => f.GroupId == groupId &&
@@ -80,7 +80,7 @@ namespace Repositories.Student.Implements
                 .ToList();
 
             return result;
-        }
+        }*/
 
         public async Task<Meeting?> GetMeetingByGroupIdAsync(int groupId)
         {
@@ -368,6 +368,60 @@ namespace Repositories.Student.Implements
                 .Include(msd => msd.Meeting)
                     .ThenInclude(m => m.Groups)
                 .FirstOrDefaultAsync(msd => msd.Id == id);
+        }
+
+        public async Task<List<UserSlot>> GetUserSlotsAsync(int userId, int groupId)
+        {
+            return await _context.UserSlots
+                .Where(us => us.UserId == userId && us.GroupId == groupId)
+                .ToListAsync();
+        }
+
+        public async System.Threading.Tasks.Task DeleteUserSlotsAsync(List<UserSlot> slots)
+        {
+            _context.UserSlots.RemoveRange(slots);
+            await _context.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task AddUserSlotsAsync(List<UserSlot> slots)
+        {
+            await _context.UserSlots.AddRangeAsync(slots);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<GroupFreeTimeDto> GetFreeTimeSlotsByGroupIdAsync(int groupId)
+        {
+            var group = await _context.Groups
+                .Where(g => g.Id == groupId)
+                .Select(g => new GroupFreeTimeDto
+                {
+                    GroupId = g.Id,
+                    Name = g.Name,
+                    Students = g.GroupUsers
+                        .Where(gu => gu.IsActive)
+                        .Select(gu => new StudentFreeTimeDto
+                        {
+                            StudentId = gu.UserId,
+                            GroupId = g.Id,
+                            FreeTimeSlots = gu.User.UserSlots
+                                .Where(us => us.GroupId == g.Id && us.Slot != null)
+                                .GroupBy(us => us.DayOfWeek)
+                                .Select(gd => new FreeTimeSlotByDayDto
+                                {
+                                    DayOfWeek = gd.Key,
+                                    TimeSlots = gd.Select(us => new TimeSlotDto
+                                    {
+                                        StartAt = us.Slot!.StartAt ?? TimeOnly.MinValue,
+                                        EndAt = us.Slot!.EndAt ?? TimeOnly.MinValue
+                                    }).ToList()
+                                }).ToList()
+                        }).ToList()
+                }).FirstOrDefaultAsync();
+
+            if (group == null)
+                throw new KeyNotFoundException($"Group with id {groupId} not found.");
+
+            return group;
         }
 
 

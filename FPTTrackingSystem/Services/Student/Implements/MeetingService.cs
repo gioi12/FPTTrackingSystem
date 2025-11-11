@@ -104,16 +104,18 @@ namespace FPTTrackingSystem.Services.Student.Implements
             return char.ToUpper(input[0]) + input.Substring(1).ToLower();
         }
 
-        public async Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId)
+        public async Task<GroupFreeTimeDto> GetFreeTimeSlotsByGroupIdAsync(int groupId)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
+            // Kiểm tra role nếu là Student
             if (user.Role == "Student")
             {
                 var isInGroup = await _repo.CheckStudentInGroupAsync(user.Id ?? 0, groupId);
                 if (!isInGroup)
                     throw new UnauthorizedAccessException("You are not a member of this group.");
             }
+
             return await _repo.GetFreeTimeSlotsByGroupIdAsync(groupId);
         }
 
@@ -269,6 +271,32 @@ namespace FPTTrackingSystem.Services.Student.Implements
             }).ToList();
 
             return ApiResponse<List<MeetingScheduleDateDetailDto>>.Success(result, "Lấy danh sách ngày họp thành công.");
+        }
+
+        public async System.Threading.Tasks.Task CreateOrUpdateFreeTimeSlotsAsync(int groupId, List<FreeTimeSlotRequest> requests)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            // 1. Lấy dữ liệu cũ
+            var existing = await _repo.GetUserSlotsAsync(user.Id ?? 0, groupId);
+
+            // 2. Xóa hết dữ liệu cũ
+            if (existing.Any())
+            {
+                await _repo.DeleteUserSlotsAsync(existing);
+            }
+
+            // 3. Tạo danh sách mới
+            var newSlots = requests.Select(r => new UserSlot
+            {
+                UserId = user.Id ?? 0,
+                GroupId = groupId,
+                SlotId = r.SlotId,
+                DayOfWeek = r.DayOfWeek,
+                CreateAt = DateTime.UtcNow
+            }).ToList();
+
+            // 4. Thêm mới
+            await _repo.AddUserSlotsAsync(newSlots);
         }
 
         public async Task<bool> UpdateIsMeetingAsync(int id, bool isMeeting)

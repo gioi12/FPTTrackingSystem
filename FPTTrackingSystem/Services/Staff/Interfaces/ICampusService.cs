@@ -6,7 +6,7 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
     public interface ICampusService
     {
         Task<IEnumerable<CampusDto>> GetAllCampusesAsync();
-        Task<Campus?> GetByIdWithSlotsAsync(int campusId);
+        Task<CampusDto?> GetByIdWithSlotsAsync(int campusId);
         Task<Slot> AddSlotAsync(int campusId, Slot slot);
         Task<List<SlotCampusDto>?> UpdateSlotsAsync(int campusId, List<SlotCampusDto> slots);
         Task<bool> DeleteSlotAsync(int campusId, int slotId);

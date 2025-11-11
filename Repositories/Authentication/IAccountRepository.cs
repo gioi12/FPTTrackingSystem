@@ -18,5 +18,6 @@ namespace Repositories.Authentication
         Task<Semester?> GetSemesterByNow();
         Task<List<Account>> GetAllAsync(Expression<Func<Account, bool>> predicate);
         public Task<List<Account>> CreateUsers(List<Account> accounts);
+        System.Threading.Tasks.Task UpdateAsync(Account account);
     }
 }

@@ -46,4 +46,6 @@ public partial class Group
     public virtual Status? Status { get; set; }
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
+
+    public virtual ICollection<UserSlot> UserSlots { get; set; } = new List<UserSlot>();
 }

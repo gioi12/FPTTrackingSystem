@@ -397,7 +397,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (string.IsNullOrWhiteSpace(semesterName))
                 throw new ArgumentException("Semester name cannot be empty.");
 
-            // ✅ Lấy user hiện tại
             var user = await _authUtils.GetUserInfoFromCookie();
             if (user == null)
                 throw new UnauthorizedAccessException("User authentication failed.");
@@ -405,7 +404,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
                 throw new UnauthorizedAccessException("Only Staff members can sync semesters.");
 
-            // ✅ Tìm trong mock data
             var mockSemester = MockData.AllSemesters
                 .FirstOrDefault(s => string.Equals(s.Name.Trim(), semesterName.Trim(), StringComparison.OrdinalIgnoreCase));
 

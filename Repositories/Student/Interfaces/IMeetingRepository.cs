@@ -14,7 +14,7 @@ namespace Repositories.Student.Interfaces
         Task<GroupUser> CreateFreeTimeSlotAsync(GroupUser entity);
         Task<GroupUser> UpdateFreeTimeSlotAsync(GroupUser entity);
         System.Threading.Tasks.Task SaveChangesAsync();
-        Task<List<StudentFreeTimeDto>> GetFreeTimeSlotsByGroupIdAsync(int groupId);
+        Task<GroupFreeTimeDto> GetFreeTimeSlotsByGroupIdAsync(int groupId);
         Task<Meeting?> GetMeetingByGroupIdAsync(int groupId);
        /* Task<Meeting> FinalizeScheduleAsync(int groupId, FinalMeetingDto dto, int userId);*/
 
@@ -34,7 +34,8 @@ namespace Repositories.Student.Interfaces
         Task<MeetingScheduleDate?> GetByIdWithMeetingAndGroupsAsync(int id);
         Task<bool> CheckStudentInGroupAsync(int studentId, int groupId);
         Task<bool> UpdateAsync(MeetingScheduleDate entity);
-
-
+        Task<List<UserSlot>> GetUserSlotsAsync(int userId, int groupId);
+        System.Threading.Tasks.Task DeleteUserSlotsAsync(List<UserSlot> slots);
+        System.Threading.Tasks.Task AddUserSlotsAsync(List<UserSlot> slots);
     }
 }

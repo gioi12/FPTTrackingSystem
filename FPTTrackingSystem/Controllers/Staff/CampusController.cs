@@ -31,132 +31,15 @@ namespace FPTTrackingSystem.Controllers.Staff
             return Ok(ApiResponse<IEnumerable<CampusDto>>.Success(campuses, "Get all campuses successfully"));
         }
 
-        [HttpPost("{campusId}/slots")]
-        public async Task<ActionResult<ApiResponse<List<SlotCampusDto>>>> CreateSlotsBatch(
-    int campusId,
-    [FromBody] List<SlotCreateDto> slots)
+        [HttpGet("ById/{campusId}")]
+        public async Task<IActionResult> GetCampusByIdAsync(int campusId)
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (user == null || user.Role != RoleEnum.Admin.ToString())
-                return Unauthorized(ApiResponse<string>.Unauthorized("Only Admin can create slots"));
-
             var campus = await _campusService.GetByIdWithSlotsAsync(campusId);
-            if (campus == null)
-                return Ok(ApiResponse<List<SlotCampusDto>>.Success(new List<SlotCampusDto>(), "Campus not found"));
-
-            var createdSlots = new List<SlotCampusDto>();
-
-            foreach (var s in slots)
-            {
-                if (!TimeOnly.TryParse(s.StartAt, out var start))
-                    return BadRequest(ApiResponse<string>.Fail($"Invalid StartAt format: {s.StartAt}"));
-
-                if (!TimeOnly.TryParse(s.EndAt, out var end))
-                    return BadRequest(ApiResponse<string>.Fail($"Invalid EndAt format: {s.EndAt}"));
-
-                if (start >= end)
-                    return BadRequest(ApiResponse<string>.Fail($"StartAt must be earlier than EndAt for slot '{s.NameSlot}'"));
-
-                bool isOverlap = campus.Slots.Any(existing =>
-                    (start < existing.EndAt && end > existing.StartAt) 
-                );
-
-                if (isOverlap)
-                    return BadRequest(ApiResponse<string>.Fail($"Slot '{s.NameSlot}' time overlaps with existing slot"));
-
-                var slot = new Slot
-                {
-                    NameSlot = s.NameSlot,
-                    StartAt = start,
-                    EndAt = end,
-                    CampusId = campusId
-                };
-
-                var added = await _campusService.AddSlotAsync(campusId, slot);
-
-                createdSlots.Add(new SlotCampusDto
-                {
-                    Id = added.Id,
-                    NameSlot = added.NameSlot!,
-                    StartAt = added.StartAt.ToString(),
-                    EndAt = added.EndAt.ToString()
-                });
-
-                campus.Slots.Add(added);
-            }
-
-            return Ok(ApiResponse<List<SlotCampusDto>>.Success(createdSlots, "Slots created successfully"));
-        }
-
-
-        [HttpPut("{campusId}/slots")]
-        public async Task<ActionResult<ApiResponse<List<SlotCampusDto>>>> UpdateSlots(
-    int campusId,
-    [FromBody] List<SlotCampusDto> slots)
-        {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (user == null || user.Role != RoleEnum.Admin.ToString())
-                return Unauthorized(ApiResponse<string>.Unauthorized("Only Admin can update slots"));
-
-            if (slots == null || !slots.Any())
-                return Ok(ApiResponse<List<SlotCampusDto>>.Success(new List<SlotCampusDto>(), "No slots provided."));
-
-            var campus = await _context.Campuses
-                .Include(c => c.Slots)
-                .FirstOrDefaultAsync(c => c.Id == campusId);
 
             if (campus == null)
-                return Ok(ApiResponse<List<SlotCampusDto>>.Success(new List<SlotCampusDto>(), $"Campus with ID {campusId} not found."));
+                return Ok(ApiResponse<CampusDto>.Success(null, $"Campus with ID {campusId} not found."));
 
-            if (campus.Slots.Any())
-            {
-                _context.Slots.RemoveRange(campus.Slots);
-                await _context.SaveChangesAsync();
-            }
-
-            var createdSlots = new List<SlotCampusDto>();
-
-            foreach (var s in slots)
-            {
-                if (!TimeOnly.TryParse(s.StartAt, out var start))
-                    return BadRequest(ApiResponse<string>.Fail($"Invalid StartAt format: {s.StartAt}"));
-
-                if (!TimeOnly.TryParse(s.EndAt, out var end))
-                    return BadRequest(ApiResponse<string>.Fail($"Invalid EndAt format: {s.EndAt}"));
-
-                if (start >= end)
-                    return BadRequest(ApiResponse<string>.Fail($"StartAt must be earlier than EndAt for slot '{s.NameSlot}'"));
-
-                bool overlapInBatch = createdSlots.Any(existing =>
-                {
-                    var existingStart = TimeOnly.Parse(existing.StartAt);
-                    var existingEnd = TimeOnly.Parse(existing.EndAt);
-                    return start < existingEnd && end > existingStart;
-                });
-
-                if (overlapInBatch)
-                    return BadRequest(ApiResponse<string>.Fail($"Slot '{s.NameSlot}' overlaps with another slot in the same batch."));
-                var slot = new Slot
-                {
-                    NameSlot = s.NameSlot,
-                    StartAt = start,
-                    EndAt = end,
-                    CampusId = campusId
-                };
-
-                _context.Slots.Add(slot);
-                await _context.SaveChangesAsync();
-
-                createdSlots.Add(new SlotCampusDto
-                {
-                    Id = slot.Id,
-                    NameSlot = slot.NameSlot!,
-                    StartAt = slot.StartAt.ToString(),
-                    EndAt = slot.EndAt.ToString()
-                });
-            }
-
-            return Ok(ApiResponse<List<SlotCampusDto>>.Success(createdSlots, "Slots updated successfully"));
+            return Ok(ApiResponse<CampusDto>.Success(campus, "Get campus successfully"));
         }
     }
 }

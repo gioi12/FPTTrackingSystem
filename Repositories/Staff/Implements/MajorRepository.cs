@@ -63,6 +63,7 @@ namespace Repositories.Staff.Implements
             existing.Code = majorCategory.Code;
             existing.IsActive = majorCategory.IsActive;
             await _context.SaveChangesAsync();
+            _context.ChangeTracker.Clear();
             return true;
         }
     }

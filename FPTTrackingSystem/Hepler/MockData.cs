@@ -73,6 +73,7 @@ namespace FPTTrackingSystem.Helper
                         Mail = "gioidmhe171512@fpt.edu.vn",
                         Phone = "0909123456",
                         MajorId = 1,
+                        CampusId = 1,
                         CapstoneProject = "FPT Tracking System",
                         Address = "Ha Noi",
                         StatusId = "ACTIVE"
@@ -95,6 +96,7 @@ namespace FPTTrackingSystem.Helper
                         Mail = "haildhe172452@fpt.edu.vn",
                         Phone = "0909888777",
                         MajorId = 1,
+                        CampusId = 1,
                         CapstoneProject = "FPT Tracking System",
                         Address = "Da Nang",
                         StatusId = "ACTIVE"
@@ -117,6 +119,7 @@ namespace FPTTrackingSystem.Helper
                         Mail = "cuonghvhe176362@fpt.edu.vn",
                         Phone = "0911222333",
                         MajorId = 1,
+                        CampusId = 1,
                         CapstoneProject = "FPT Tracking System",
                         Address = "Ho Chi Minh",
                         StatusId = "ACTIVE"
@@ -139,6 +142,7 @@ namespace FPTTrackingSystem.Helper
                         Mail = "handghe170064@fpt.edu.vn",
                         Phone = "0988777666",
                         MajorId = 1,
+                        CampusId = 1,
                         CapstoneProject = "FPT Tracking System",
                         Address = "Ha Noi",
                         StatusId = "ACTIVE"
@@ -161,6 +165,7 @@ namespace FPTTrackingSystem.Helper
                         Mail = "huongtt170064@fpt.edu.vn",
                         Phone = "0988777666",
                         MajorId = 1,
+                        CampusId = 1,
                         CapstoneProject = "FPT Tracking System",
                         Address = "Ha Noi",
                         StatusId = "ACTIVE"
@@ -180,6 +185,8 @@ namespace FPTTrackingSystem.Helper
                         Fullname = "Mentor Phan Truong Lam",
                         Dob = new DateOnly(2001, 4, 5),
                         Gender = true,
+                        MajorId = 1,
+                        CampusId = 1,
                         Mail = "lampt2@gmail.com",
                         Phone = "0988777555",
                         Address = "Ha Noi",
@@ -200,13 +207,15 @@ namespace FPTTrackingSystem.Helper
                         Fullname = "Mentor Ngo Tung Son",
                         Dob = new DateOnly(2001, 4, 5),
                         Gender = true,
+                        MajorId = 1,
+                        CampusId = 1,
                         Mail = "sonnt5@gmail.com",
                         Phone = "0988777444",
                         Address = "Ha Noi",
                         StatusId = "ACTIVE"
                     }
                 }
-            }
+            },
         };
 
         // Lưu ý: Groups không có GroupUsers nữa vì UserId chưa tồn tại

@@ -24,20 +24,25 @@ namespace FPTTrackingSystem.Controllers.Student
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("v1/Student/Meeting/groups/{groupId}/schedule/free-time")]
-        public async Task<IActionResult> CreateOrUpdateFreeTimeSlots(int groupId, [FromBody] FreeTimeSlotsRequest request)
+        public async Task<IActionResult> CreateOrUpdateFreeTimeSlots(int groupId, [FromBody] List<FreeTimeSlotRequest> requests)
         {
             try
             {
-                var result = await _service.CreateOrUpdateFreeTimeSlotsAsync(groupId, request);
-                return StatusCode(200, ApiResponse<object>.Success(result, "Free time slots updated successfully.", 200));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(403, ApiResponse<object>.Fail(ex.Message, 403));
+                await _service.CreateOrUpdateFreeTimeSlotsAsync(groupId, requests);
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Free time slots created/updated successfully."
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<object>.InternalError(ex.Message));
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = ex.Message
+                });
             }
         }
 
@@ -52,6 +57,10 @@ namespace FPTTrackingSystem.Controllers.Student
             catch (UnauthorizedAccessException ex)
             {
                 return StatusCode(403, ApiResponse<object>.Fail(ex.Message, 403));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse<object>.Fail(ex.Message, 404));
             }
             catch (Exception ex)
             {

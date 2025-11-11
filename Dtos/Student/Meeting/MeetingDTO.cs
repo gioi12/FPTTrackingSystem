@@ -18,6 +18,20 @@ namespace DataTranferObjects.Student.Meeting
         public List<DayFreeTimeSlot> TimeSlots { get; set; } = new();
     }
 
+    public class FreeTimeSlotRequest
+    {
+        public int SlotId { get; set; }
+        public string DayOfWeek { get; set; } = string.Empty;
+    }
+
+    public class FreeTimeSlotsDto
+    {
+        public int UserId { get; set; }
+        public int GroupId { get; set; }
+        public List<int> SlotIds { get; set; }
+    }
+
+
     public class FreeTimeSlotsRequest
     {
         public List<FreeTimeSlotDto> FreeTimeSlots { get; set; } = new();
@@ -51,6 +65,13 @@ namespace DataTranferObjects.Student.Meeting
         public DateTime UpdatedAt { get; set; }
     }
 
+    public class GroupFreeTimeDto
+    {
+        public int GroupId { get; set; }
+        public string Name { get; set; }
+        public List<StudentFreeTimeDto> Students { get; set; }
+    }
+
     public class StudentFreeTimeDto
     {
         public int StudentId { get; set; }
@@ -61,8 +82,15 @@ namespace DataTranferObjects.Student.Meeting
     public class FreeTimeSlotByDayDto
     {
         public string DayOfWeek { get; set; }
-        public List<string> TimeSlots { get; set; }
+        public List<TimeSlotDto> TimeSlots { get; set; }
     }
+
+    public class TimeSlotDto
+    {
+        public TimeOnly StartAt { get; set; }
+        public TimeOnly EndAt { get; set; }
+    }
+
 
     public class StudentFreeTimeSlot
     {

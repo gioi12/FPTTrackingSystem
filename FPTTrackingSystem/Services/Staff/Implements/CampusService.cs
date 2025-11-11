@@ -34,8 +34,25 @@ namespace FPTTrackingSystem.Services.Staff.Implements
             return result;
         }
 
-        public async Task<Campus?> GetByIdWithSlotsAsync(int campusId) =>
-            await _campusRepository.GetByIdWithSlotsAsync(campusId);
+        public async Task<CampusDto?> GetByIdWithSlotsAsync(int campusId)
+        {
+            var campus = await _campusRepository.GetByIdWithSlotsAsync(campusId);
+            if (campus == null)
+                return null;
+
+            return new CampusDto
+            {
+                Id = campus.Id,
+                Name = campus.Name,
+                Slots = campus.Slots.Select(s => new SlotCampusDto
+                {
+                    Id = s.Id,
+                    NameSlot = s.NameSlot!,
+                    StartAt = s.StartAt.ToString(),
+                    EndAt = s.EndAt.ToString()
+                }).ToList()
+            };
+        }
 
         public async Task<Slot> AddSlotAsync(int campusId, Slot slot) =>
             await _campusRepository.AddSlotAsync(campusId, slot);

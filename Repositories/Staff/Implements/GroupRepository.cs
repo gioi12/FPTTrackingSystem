@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,6 +34,73 @@ namespace Repositories.Staff.Implements
                     .ThenInclude(a => a.Role)
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
+
+        public async Task<List<Group>> GetAllAsync(Expression<Func<Group, bool>>? filter = null)
+        {
+            IQueryable<Group> query = _context.Groups.Include(g => g.GroupUsers);
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<Group> UpdateAsync(Group updatedGroup)
+        {
+            var existingGroup = await _context.Groups
+                .Include(g => g.GroupUsers)
+                .FirstOrDefaultAsync(g => g.Id == updatedGroup.Id);
+
+            if (existingGroup == null)
+                throw new Exception($"Group with Id {updatedGroup.Id} not found.");
+
+            bool isUpdated = false;
+
+            if (existingGroup.Name != updatedGroup.Name) { existingGroup.Name = updatedGroup.Name; isUpdated = true; }
+            if (existingGroup.SemesterId != updatedGroup.SemesterId) { existingGroup.SemesterId = updatedGroup.SemesterId; isUpdated = true; }
+            if (existingGroup.Profession != updatedGroup.Profession) { existingGroup.Profession = updatedGroup.Profession; isUpdated = true; }
+            if (existingGroup.MajorId != updatedGroup.MajorId) { existingGroup.MajorId = updatedGroup.MajorId; isUpdated = true; }
+            if (existingGroup.Description != updatedGroup.Description) { existingGroup.Description = updatedGroup.Description; isUpdated = true; }
+            if (existingGroup.VietnameseTitle != updatedGroup.VietnameseTitle) { existingGroup.VietnameseTitle = updatedGroup.VietnameseTitle; isUpdated = true; }
+            if (existingGroup.StatusId != updatedGroup.StatusId) { existingGroup.StatusId = updatedGroup.StatusId; isUpdated = true; }
+
+            // Update GroupUsers
+            foreach (var newGU in updatedGroup.GroupUsers)
+            {
+                var existingGU = existingGroup.GroupUsers.FirstOrDefault(gu => gu.UserId == newGU.UserId);
+                if (existingGU == null)
+                {
+                    existingGroup.GroupUsers.Add(newGU);
+                    isUpdated = true;
+                }
+                else
+                {
+                    if (existingGU.Role != newGU.Role) { existingGU.Role = newGU.Role; isUpdated = true; }
+                    if (existingGU.IsActive != newGU.IsActive) { existingGU.IsActive = newGU.IsActive; isUpdated = true; }
+                    if (existingGU.Status != newGU.Status) { existingGU.Status = newGU.Status; isUpdated = true; }
+                    existingGU.UpdateAt = DateTime.Now;
+                }
+            }
+
+            var removeUsers = existingGroup.GroupUsers
+                .Where(gu => !updatedGroup.GroupUsers.Any(u => u.UserId == gu.UserId))
+                .ToList();
+            if (removeUsers.Any())
+            {
+                foreach (var gu in removeUsers)
+                    existingGroup.GroupUsers.Remove(gu);
+                isUpdated = true;
+            }
+
+            if (isUpdated)
+                await _context.SaveChangesAsync();
+
+            return existingGroup;
+        }
+
+
 
         public IQueryable<Group> GetGroupsQuery()
         {

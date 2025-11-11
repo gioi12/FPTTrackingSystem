@@ -67,6 +67,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<UserSlot> UserSlots { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -762,6 +764,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Address)
                 .HasMaxLength(300)
                 .HasColumnName("address");
+            entity.Property(e => e.CampusId).HasColumnName("campus_id");
             entity.Property(e => e.CapstoneProject)
                 .HasMaxLength(200)
                 .HasColumnName("capstone_project");
@@ -788,6 +791,10 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasForeignKey(d => d.AccountId)
                 .HasConstraintName("FK_User_Account");
 
+            entity.HasOne(d => d.Campus).WithMany(p => p.Users)
+                .HasForeignKey(d => d.CampusId)
+                .HasConstraintName("FK_User_Campus");
+
             entity.HasOne(d => d.Major).WithMany(p => p.Users)
                 .HasForeignKey(d => d.MajorId)
                 .HasConstraintName("FK_User_Major_Category");
@@ -795,6 +802,34 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.Status).WithMany(p => p.Users)
                 .HasForeignKey(d => d.StatusId)
                 .HasConstraintName("FK_User_Status");
+        });
+
+        modelBuilder.Entity<UserSlot>(entity =>
+        {
+            entity.ToTable("UserSlot");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("create_at");
+            entity.Property(e => e.DayOfWeek)
+                .HasMaxLength(50)
+                .HasColumnName("day_of_week");
+            entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.SlotId).HasColumnName("slot_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.Group).WithMany(p => p.UserSlots)
+                .HasForeignKey(d => d.GroupId)
+                .HasConstraintName("FK_UserSlot_Group");
+
+            entity.HasOne(d => d.Slot).WithMany(p => p.UserSlots)
+                .HasForeignKey(d => d.SlotId)
+                .HasConstraintName("FK_UserSlot_Slot");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserSlots)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_UserSlot_User");
         });
 
         OnModelCreatingPartial(modelBuilder);

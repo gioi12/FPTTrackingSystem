@@ -29,9 +29,13 @@ public partial class User
 
     public string? StatusId { get; set; }
 
+    public int? CampusId { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+
+    public virtual Campus? Campus { get; set; }
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
@@ -56,4 +60,6 @@ public partial class User
     public virtual Status? Status { get; set; }
 
     public virtual ICollection<TaskUser> TaskUsers { get; set; } = new List<TaskUser>();
+
+    public virtual ICollection<UserSlot> UserSlots { get; set; } = new List<UserSlot>();
 }

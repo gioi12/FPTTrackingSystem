@@ -17,6 +17,8 @@ using Repositories.Common.Interfaces;
 using Repositories.Staff.Implements;
 using Repositories.Staff.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
+using Group = Entities.Models.Group;
 
 
 namespace FPTTrackingSystem.Services.Staff.Implementations
@@ -468,7 +470,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .ToList();
 
             // 3️⃣ Tạo groups với Id kỳ học thật
-            var groups = MockData.GetGroups(13, 1, 2, 3, 4, 5, 6);
+            var groups = MockData.GetGroups(1, 1, 2, 3, 4, 5, 6);
 
             var mockMajors = MockData.MajorCategories;
 
@@ -518,7 +520,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return System.Threading.Tasks.Task.FromResult<object>(result);
         }
 
-        public async Task<object> CreateMockData()
+        /*public async Task<object> CreateMockData()
         {
 
             // 🔹 2. Tạo MajorCategory nếu chưa tồn tại
@@ -579,8 +581,158 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             await _groupRepository.CreateGroups(groups);
 
             return "Create mock data successfully";
-        }
+        }*/
+        public async Task<object> CreateMockData()
+        {
+            var majorCategories = MockData.MajorCategories;
+            foreach (var major in majorCategories)
+            {
+                var existingMajor = await _majorRepository.FindByCodeAsync(major.Code);
+                if (existingMajor == null)
+                {
+                    await _majorRepository.CreateAsync(major);
+                }
+                else
+                {
+                    bool isUpdated = false;
+                    if (existingMajor.IsActive != major.IsActive)
+                    {
+                        existingMajor.IsActive = major.IsActive;
+                        isUpdated = true;
+                    }
+                    if (isUpdated)
+                    {
+                        await _majorRepository.UpdateAsync(existingMajor);
+                    }
+                }
+            }
 
+            var accounts = MockData.Accounts;
+            var usernames = accounts.Select(a => a.Username.ToLower()).ToList();
+            var existingAccounts = await _accountRepository.GetAllAsync(a => usernames.Contains(a.Username.ToLower()));
+
+            var newAccounts = new List<Account>();
+            var updatedAccounts = new List<Account>();
+
+            foreach (var account in accounts)
+            {
+                var existingAccount = existingAccounts.FirstOrDefault(e => e.Username.Equals(account.Username, StringComparison.OrdinalIgnoreCase));
+
+                if (existingAccount == null)
+                {
+                    newAccounts.Add(account);
+                }
+                else
+                {
+                    bool isAccountUpdated = false;
+
+                    if (existingAccount.Password != account.Password)
+                    {
+                        existingAccount.Password = account.Password;
+                        isAccountUpdated = true;
+                    }
+
+                    if (existingAccount.RoleId != account.RoleId)
+                    {
+                        existingAccount.RoleId = account.RoleId;
+                        isAccountUpdated = true;
+                    }
+
+                    var existingUser = existingAccount.Users.FirstOrDefault();
+                    var newUser = account.Users.FirstOrDefault();
+
+                    if (existingUser != null && newUser != null)
+                    {
+                        if (existingUser.RollNumber != newUser.RollNumber) existingUser.RollNumber = newUser.RollNumber;
+                        if (existingUser.Fullname != newUser.Fullname) existingUser.Fullname = newUser.Fullname;
+                        if (existingUser.Dob != newUser.Dob) existingUser.Dob = newUser.Dob;
+                        if (existingUser.Gender != newUser.Gender) existingUser.Gender = newUser.Gender;
+                        if (existingUser.Mail != newUser.Mail) existingUser.Mail = newUser.Mail;
+                        if (existingUser.Phone != newUser.Phone) existingUser.Phone = newUser.Phone;
+                        if (existingUser.MajorId != newUser.MajorId) existingUser.MajorId = newUser.MajorId;
+                        if (existingUser.CampusId != newUser.CampusId) existingUser.CampusId = newUser.CampusId;
+                        if (existingUser.CapstoneProject != newUser.CapstoneProject) existingUser.CapstoneProject = newUser.CapstoneProject;
+                        if (existingUser.Address != newUser.Address) existingUser.Address = newUser.Address;
+                        if (existingUser.StatusId != newUser.StatusId) existingUser.StatusId = newUser.StatusId;
+                    }
+
+                    if (isAccountUpdated || existingUser != null)
+                    {
+                        updatedAccounts.Add(existingAccount);
+                    }
+                }
+            }
+
+            if (newAccounts.Any())
+            {
+                await _accountRepository.CreateUsers(newAccounts);
+            }
+
+            foreach (var updatedAccount in updatedAccounts)
+            {
+                await _accountRepository.UpdateAsync(updatedAccount);
+            }
+
+            var allAccounts = existingAccounts.Concat(newAccounts).ToList();
+            int user1Id = allAccounts.First(a => a.Username == "gioidmhe171512@fpt.edu.vn").Users.First().Id;
+            int user2Id = allAccounts.First(a => a.Username == "haildhe172452@fpt.edu.vn").Users.First().Id;
+            int user3Id = allAccounts.First(a => a.Username == "cuonghvhe176362@fpt.edu.vn").Users.First().Id;
+            int user4Id = allAccounts.First(a => a.Username == "handghe170064@fpt.edu.vn").Users.First().Id;
+            int user5Id = allAccounts.First(a => a.Username == "huongtt170064@fpt.edu.vn").Users.First().Id;
+            int mentor1Id = allAccounts.First(a => a.Username == "lampt2@gmail.com").Users.First().Id;
+
+            var groups = MockData.GetGroups(
+       1,
+       user1Id, user2Id, user3Id, user4Id, user5Id,
+       mentor1Id
+   );
+            var existingGroups = await _groupRepository.GetAllAsync(g => groups.Select(gr => gr.Code).Contains(g.Code));
+
+            foreach (var group in groups)
+            {
+                var existingGroup = existingGroups.FirstOrDefault(g => g.Code == group.Code);
+                if (existingGroup == null)
+                {
+                    await _groupRepository.CreateGroups(new List<Group> { group });
+                }
+                else
+                {
+                    bool isGroupUpdated = false;
+                    if (existingGroup.Name != group.Name) { existingGroup.Name = group.Name; isGroupUpdated = true; }
+                    if (existingGroup.SemesterId != group.SemesterId) { existingGroup.SemesterId = group.SemesterId; isGroupUpdated = true; }
+                    if (existingGroup.Profession != group.Profession) { existingGroup.Profession = group.Profession; isGroupUpdated = true; }
+                    if (existingGroup.MajorId != group.MajorId) { existingGroup.MajorId = group.MajorId; isGroupUpdated = true; }
+                    if (existingGroup.Description != group.Description) { existingGroup.Description = group.Description; isGroupUpdated = true; }
+                    if (existingGroup.VietnameseTitle != group.VietnameseTitle) { existingGroup.VietnameseTitle = group.VietnameseTitle; isGroupUpdated = true; }
+                    if (existingGroup.StatusId != group.StatusId) { existingGroup.StatusId = group.StatusId; isGroupUpdated = true; }
+
+                    // Update GroupUsers
+                    foreach (var newGU in group.GroupUsers)
+                    {
+                        var existingGU = existingGroup.GroupUsers.FirstOrDefault(gu => gu.UserId == newGU.UserId);
+                        if (existingGU == null)
+                        {
+                            existingGroup.GroupUsers.Add(newGU);
+                            isGroupUpdated = true;
+                        }
+                        else
+                        {
+                            if (existingGU.Role != newGU.Role) { existingGU.Role = newGU.Role; isGroupUpdated = true; }
+                            if (existingGU.IsActive != newGU.IsActive) { existingGU.IsActive = newGU.IsActive; isGroupUpdated = true; }
+                            if (existingGU.Status != newGU.Status) { existingGU.Status = newGU.Status; isGroupUpdated = true; }
+                            existingGU.UpdateAt = DateTime.Now;
+                        }
+                    }
+
+                    if (isGroupUpdated)
+                    {
+                        await _groupRepository.UpdateAsync(existingGroup);
+                    }
+                }
+            }
+
+            return "Create mock data successfully";
+        }
     }
 
 }

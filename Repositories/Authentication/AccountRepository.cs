@@ -105,5 +105,39 @@ namespace Repositories.Authentication
 
             return accounts;
         }
+
+        public async System.Threading.Tasks.Task UpdateAsync(Account account)
+        {
+            var existingAccount = await _context.Accounts
+                .Include(a => a.Users)
+                .FirstOrDefaultAsync(a => a.Id == account.Id);
+
+            if (existingAccount == null) return;
+
+            existingAccount.Password = account.Password;
+            existingAccount.RoleId = account.RoleId;
+
+            var existingUser = existingAccount.Users.FirstOrDefault();
+            var newUser = account.Users.FirstOrDefault();
+
+            if (existingUser != null && newUser != null)
+            {
+                existingUser.RollNumber = newUser.RollNumber;
+                existingUser.Fullname = newUser.Fullname;
+                existingUser.Dob = newUser.Dob;
+                existingUser.Gender = newUser.Gender;
+                existingUser.Mail = newUser.Mail;
+                existingUser.Phone = newUser.Phone;
+                existingUser.MajorId = newUser.MajorId;
+                existingUser.CampusId = newUser.CampusId;
+                existingUser.CapstoneProject = newUser.CapstoneProject;
+                existingUser.Address = newUser.Address;
+                existingUser.StatusId = newUser.StatusId;
+            }
+
+            _context.Accounts.Update(existingAccount);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
