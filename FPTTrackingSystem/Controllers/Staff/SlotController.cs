@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FPTTrackingSystem.Controllers.Staff
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class SlotController : ControllerBase
     {
@@ -24,7 +24,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             _context = context;
         }
 
-        [HttpPost("{campusId}")]
+        [HttpPost("v1/slot/{campusId}")]
         public async Task<ActionResult<ApiResponse<List<SlotCampusDto>>>> CreateSlotsBatch(
        int campusId,
        [FromBody] List<SlotCreateDto> slots)
@@ -83,7 +83,7 @@ namespace FPTTrackingSystem.Controllers.Staff
         }
 
 
-        [HttpPut("{campusId}")]
+        [HttpPut("v1/slot/{campusId}")]
         public async Task<ActionResult<ApiResponse<List<SlotCampusDto>>>> UpdateSlots(int campusId,[FromBody] List<SlotCampusDto> slots)
         {
             // ✅ Check permission

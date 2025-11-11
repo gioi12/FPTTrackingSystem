@@ -50,7 +50,9 @@ namespace Repositories.Authentication
             var account = await _context.Accounts
                 .Include(a => a.Role)
                 .Include(a => a.Users)
-                    .ThenInclude(u => u.GroupUsers)
+                    .ThenInclude(u => u.Campus)
+                .Include(a => a.Users)
+                   .ThenInclude(u => u.GroupUsers)
                         .ThenInclude(gu => gu.Group)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
@@ -86,6 +88,7 @@ namespace Repositories.Authentication
                 Name = user.Fullname,
                 Role = account.Role.Name,
                 RoleInGroup = roleInGroup,
+                CampusId = user.CampusId,
                 Groups = groupIds.Any() ? groupIds : new List<int>() 
             };
         }
