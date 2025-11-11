@@ -6,6 +6,7 @@ using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FPTTrackingSystem.Controllers.Staff
 {
@@ -15,16 +16,19 @@ namespace FPTTrackingSystem.Controllers.Staff
     {
         private readonly AuthUtils _authUtils;
         private readonly ICampusService _campusService;
-        public CampusController(ICampusService campusService, AuthUtils authUtils)
+        private readonly FpttrackingSystemContext _context;
+        public CampusController(ICampusService campusService, AuthUtils authUtils, FpttrackingSystemContext context)
         {
             _campusService = campusService;
             _authUtils = authUtils;
+            _context = context;
         }
 
         [HttpGet()]
-        public async Task<IEnumerable<Campus>> GetAllCampusesAsync()
+        public async Task<IActionResult> GetAllCampusesAsync()
         {
-            return await _campusService.GetAllCampusesAsync();
+            var campuses = await _campusService.GetAllCampusesAsync();
+            return Ok(ApiResponse<IEnumerable<CampusDto>>.Success(campuses, "Get all campuses successfully"));
         }
 
         [HttpPost("{campusId}/slots")]
@@ -85,28 +89,74 @@ namespace FPTTrackingSystem.Controllers.Staff
         }
 
 
-        [HttpPut("{campusId}/slots/{slotId}")]
-        public async Task<ActionResult<ApiResponse<Slot>>> UpdateSlot(int campusId, int slotId, Slot slot)
+        [HttpPut("{campusId}/slots")]
+        public async Task<ActionResult<ApiResponse<List<SlotCampusDto>>>> UpdateSlots(
+    int campusId,
+    [FromBody] List<SlotCampusDto> slots)
         {
-            if (slotId != slot.Id)
-                Ok(ApiResponse<Slot>.Success(new Slot(), "Slot ID mismatch"));
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null || user.Role != RoleEnum.Admin.ToString())
+                return Unauthorized(ApiResponse<string>.Unauthorized("Only Admin can update slots"));
 
-            var updated = await _campusService.UpdateSlotAsync(campusId, slot);
+            if (slots == null || !slots.Any())
+                return Ok(ApiResponse<List<SlotCampusDto>>.Success(new List<SlotCampusDto>(), "No slots provided."));
 
-            if (updated == null)
-                return Ok(ApiResponse<Slot>.Success(new Slot(), "Slot not found"));
+            var campus = await _context.Campuses
+                .Include(c => c.Slots)
+                .FirstOrDefaultAsync(c => c.Id == campusId);
 
-            return Ok(ApiResponse<Slot>.Success(updated, "Slot updated successfully"));
-        }
+            if (campus == null)
+                return Ok(ApiResponse<List<SlotCampusDto>>.Success(new List<SlotCampusDto>(), $"Campus with ID {campusId} not found."));
 
-        [HttpDelete("{campusId}/slots/{slotId}")]
-        public async Task<ActionResult<ApiResponse<Slot>>> DeleteSlot(int campusId, int slotId)
-        {
-            var deleted = await _campusService.DeleteSlotAsync(campusId, slotId);
-            if (!deleted)
-                return Ok(ApiResponse<Slot>.Success(new Slot(), "Slot not found"));
+            if (campus.Slots.Any())
+            {
+                _context.Slots.RemoveRange(campus.Slots);
+                await _context.SaveChangesAsync();
+            }
 
-            return Ok(ApiResponse<Slot>.Success(new Slot(), "Slot deleted successfully"));
+            var createdSlots = new List<SlotCampusDto>();
+
+            foreach (var s in slots)
+            {
+                if (!TimeOnly.TryParse(s.StartAt, out var start))
+                    return BadRequest(ApiResponse<string>.Fail($"Invalid StartAt format: {s.StartAt}"));
+
+                if (!TimeOnly.TryParse(s.EndAt, out var end))
+                    return BadRequest(ApiResponse<string>.Fail($"Invalid EndAt format: {s.EndAt}"));
+
+                if (start >= end)
+                    return BadRequest(ApiResponse<string>.Fail($"StartAt must be earlier than EndAt for slot '{s.NameSlot}'"));
+
+                bool overlapInBatch = createdSlots.Any(existing =>
+                {
+                    var existingStart = TimeOnly.Parse(existing.StartAt);
+                    var existingEnd = TimeOnly.Parse(existing.EndAt);
+                    return start < existingEnd && end > existingStart;
+                });
+
+                if (overlapInBatch)
+                    return BadRequest(ApiResponse<string>.Fail($"Slot '{s.NameSlot}' overlaps with another slot in the same batch."));
+                var slot = new Slot
+                {
+                    NameSlot = s.NameSlot,
+                    StartAt = start,
+                    EndAt = end,
+                    CampusId = campusId
+                };
+
+                _context.Slots.Add(slot);
+                await _context.SaveChangesAsync();
+
+                createdSlots.Add(new SlotCampusDto
+                {
+                    Id = slot.Id,
+                    NameSlot = slot.NameSlot!,
+                    StartAt = slot.StartAt.ToString(),
+                    EndAt = slot.EndAt.ToString()
+                });
+            }
+
+            return Ok(ApiResponse<List<SlotCampusDto>>.Success(createdSlots, "Slots updated successfully"));
         }
     }
 }

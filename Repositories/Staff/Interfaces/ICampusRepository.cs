@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Staff.Campus;
+using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Repositories.Staff.Interfaces
         Task<IEnumerable<Campus>> GetAllCampusesAsync();
         Task<Campus?> GetByIdWithSlotsAsync(int id);
         Task<Slot> AddSlotAsync(int campusId, Slot slot);
-        Task<Slot?> UpdateSlotAsync(int campusId, Slot slot);
+        Task<List<SlotCampusDto>?> UpdateSlotsAsync(int campusId, List<SlotCampusDto> slots);
         Task<bool> DeleteSlotAsync(int campusId, int slotId);
     }
 }
