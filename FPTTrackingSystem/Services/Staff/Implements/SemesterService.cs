@@ -410,7 +410,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .FirstOrDefault(s => string.Equals(s.Name.Trim(), semesterName.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (mockSemester == null)
-                return ApiResponse<SemesterDTO>.Success(new SemesterDTO(), $"Mock data for semester '{semesterName}' not found.");
+                return ApiResponse<SemesterDTO>.Fail($"Mock data for semester '{semesterName}' not found", 400);
 
             DateTime? startAt = mockSemester.StartAt;
             DateTime? endAt = mockSemester.EndAt;

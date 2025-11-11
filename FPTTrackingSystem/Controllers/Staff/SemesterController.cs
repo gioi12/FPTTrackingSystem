@@ -126,12 +126,12 @@ namespace FPTTrackingSystem.Controllers.Staff
 
             try
             {
-                var semester = await _semesterService.SyncSemesterByNameAsync(name);
+                var semesterResponse = await _semesterService.SyncSemesterByNameAsync(name);
 
-                if (semester == null)
-                    return Ok(ApiResponse<SemesterDTO>.Success( new SemesterDTO(),$"Mock semester '{name}' not found"));
+                if (semesterResponse.Status != 200)
+                    return BadRequest(semesterResponse);
 
-                return Ok(ApiResponse<SemesterDTO>.Success(semester.Data, $"Semester '{semester.Data.Name}' synchronized successfully"));
+                return Ok(semesterResponse);
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -143,7 +143,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             }
         }
 
-    [HttpGet("v1/Staff/semester/getSemesterByNow")]
+        [HttpGet("v1/Staff/semester/getSemesterByNow")]
         public async Task<IActionResult> GetCurrentSemester()
         {
             try
