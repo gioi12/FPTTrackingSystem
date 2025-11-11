@@ -23,6 +23,6 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<ApiResponse<List<SemesterVacationDto>>> GetBySemesterIdAsync(int semesterId);
 
         Task<ApiResponse<List<SemesterVacationDto>>> GetVacationsBySemesterAsync(int semesterId);
-        Task<SemesterDTO> SyncSemesterByNameAsync(string semesterName);
+        Task<ApiResponse<SemesterDTO>> SyncSemesterByNameAsync(string semesterName);
     }
 }

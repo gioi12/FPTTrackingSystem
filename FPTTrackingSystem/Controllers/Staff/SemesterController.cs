@@ -131,7 +131,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                 if (semester == null)
                     return Ok(ApiResponse<SemesterDTO>.Success( new SemesterDTO(),$"Mock semester '{name}' not found"));
 
-                return Ok(ApiResponse<SemesterDTO>.Success(semester, $"Semester '{semester.Name}' synchronized successfully"));
+                return Ok(ApiResponse<SemesterDTO>.Success(semester.Data, $"Semester '{semester.Data.Name}' synchronized successfully"));
             }
             catch (UnauthorizedAccessException ex)
             {
