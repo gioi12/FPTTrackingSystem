@@ -40,26 +40,16 @@ namespace FPTTrackingSystem.Controllers.Staff
         [HttpPost("v1/Staff/semester/create")]
         public async Task<IActionResult> CreateSemester([FromBody] SemesterCreateRequest request)
         {
-            var format = "dd/MM/yyyy";
-            var provider = CultureInfo.InvariantCulture;
-
-            // ✅ Validate & parse date input
-            if (!DateOnly.TryParseExact(request.StartAt, format, provider, DateTimeStyles.None, out var startAt) ||
-                !DateOnly.TryParseExact(request.EndAt, format, provider, DateTimeStyles.None, out var endAt))
-            {
-                return BadRequest(new ApiResponse<string>(400, "Invalid date format. Expected format is dd/MM/yyyy."));
-            }
-
-            // ✅ Check overlap
+/*            // ✅ Check overlap
             var isOverlap = await _semesterService.IsOverlappingAsync(startAt, endAt);
             if (isOverlap)
             {
                 return BadRequest(new ApiResponse<string>(400, "This semester's time range overlaps with an existing semester."));
             }
-
+*/
             try
             {
-                var result = await _semesterService.CreateSemesterAsync(request, startAt, endAt);
+                var result = await _semesterService.CreateSemesterAsync(request);
 
                 return Ok(new ApiResponse<object>(200, "Semester created successfully!", result));
             }
@@ -128,70 +118,32 @@ namespace FPTTrackingSystem.Controllers.Staff
             }
         }
 
-/*        [HttpPost("v1/Staff/semester/vacation")]
-        public async Task<IActionResult> UpdateVacationWeeks([FromBody] UpdateVacationWeeksRequest request)
+        [HttpPost("v1/Staff/semester/sync")]
+        public async Task<IActionResult> SyncSemester([FromQuery] string name)
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest(ApiResponse<string>.Fail("Semester name is required"));
+
             try
             {
-                if (request == null || request.Weeks == null || request.Weeks.Count == 0)
-                    return BadRequest(ApiResponse<string>.Fail("Dữ liệu cập nhật không hợp lệ"));
-
-                var semester = await _context.Semesters
-                    .Include(s => s.SemesterWeeks)
-                    .FirstOrDefaultAsync(s => s.Id == request.SemesterId);
+                var semester = await _semesterService.SyncSemesterByNameAsync(name);
 
                 if (semester == null)
-                    return Ok(ApiResponse<string>.Fail("Không tìm thấy kỳ học"));
+                    return Ok(ApiResponse<SemesterDTO>.Success( new SemesterDTO(),$"Mock semester '{name}' not found"));
 
-                foreach (var week in semester.SemesterWeeks)
-                {
-                    var updateWeek = request.Weeks.FirstOrDefault(x => x.WeekNumber == week.WeekNumber);
-                    if (updateWeek != null)
-                    {
-                        week.IsVacation = updateWeek.IsVacation;
-                    }
-                }
-
-                int learnWeekCounter = 0;
-                var orderedWeeks = semester.SemesterWeeks.OrderBy(w => w.WeekNumber).ToList();
-
-                foreach (var week in orderedWeeks)
-                {
-                    if (week.IsVacation == true)
-                    {
-                        week.WeekLearn = null;
-                    }
-                    else
-                    {
-                        learnWeekCounter++;
-                        week.WeekLearn = learnWeekCounter;
-                    }
-
-                    _context.Entry(week).State = EntityState.Modified;
-                }
-
-                await _context.SaveChangesAsync();
-                await _logService.AddLogAsync(new Log
-                {
-                    Name = "Cập nhật tuần nghỉ",
-                    EntityName = "Semester",
-                    EntityId = semester.Id,
-                    Action = "UPDATE",
-                    Description = $"Cập nhật tuần nghỉ/học cho kỳ '{semester.Name}' (ID: {semester.Id}) - Tuần nghỉ: {orderedWeeks.Count - learnWeekCounter}",
-                    UserId = user.Id ?? 0,
-                    CreateAt = DateTime.Now
-                });
-
-                return Ok(ApiResponse<string>.Success(null, "Cập nhật tuần nghỉ và tuần học thành công"));
+                return Ok(ApiResponse<SemesterDTO>.Success(semester, $"Semester '{semester.Name}' synchronized successfully"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<string>.Unauthorized(ex.Message));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ApiResponse<string>.InternalError(ex.Message));
             }
-        }*/
+        }
 
-        [HttpGet("v1/Staff/semester/getSemesterByNow")]
+    [HttpGet("v1/Staff/semester/getSemesterByNow")]
         public async Task<IActionResult> GetCurrentSemester()
         {
             try

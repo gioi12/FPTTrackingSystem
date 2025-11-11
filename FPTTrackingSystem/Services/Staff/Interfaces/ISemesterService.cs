@@ -9,7 +9,7 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
     public interface ISemesterService
     {
         Task<ApiResponse<SemesterActiveRes>> GetSemesterActiveAndMajors();
-        Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request, DateOnly startAt, DateOnly endAt);
+        Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request);
         Task<bool> IsOverlappingAsync(DateOnly start, DateOnly end);
         Task<List<SemesterDTO>> GetAllSemestersAsync();
         Task<SemesterDTO?> GetSemesterByIdAsync(int id);
@@ -23,5 +23,6 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<ApiResponse<List<SemesterVacationDto>>> GetBySemesterIdAsync(int semesterId);
 
         Task<ApiResponse<List<SemesterVacationDto>>> GetVacationsBySemesterAsync(int semesterId);
+        Task<SemesterDTO> SyncSemesterByNameAsync(string semesterName);
     }
 }

@@ -2,6 +2,7 @@
 using DataTranferObjects.Common.Response;
 using DataTranferObjects.Enum;
 using DataTranferObjects.Staff.Group;
+using DataTranferObjects.Staff.Request;
 using DataTranferObjects.Staff.Response;
 using Entities.Models;
 using FPTTrackingSystem.Helper;
@@ -22,15 +23,17 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 {
     public class GroupService : IGroupService
     {
+        private readonly IMajorRepository _majorRepository;
         private readonly IGroupRepository _groupRepository;
         private readonly AuthUtils _authUtils;
         private readonly IWebHostEnvironment _env;
         private readonly IAttachmentRepository _attachmentRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISemesterRepository _semesterRepository;
+        private readonly ISemesterService _semesterService;
         private readonly IAccountRepository _accountRepository;
 
-        public GroupService(IGroupRepository groupRepository, AuthUtils authUtils, IWebHostEnvironment env,IAttachmentRepository attachmentRepository, IHttpContextAccessor httpContextAccessor,IAccountRepository accountRepository,ISemesterRepository semesterRepository)
+        public GroupService(IGroupRepository groupRepository,IMajorRepository majorRepository, ISemesterService semesterService,  AuthUtils authUtils, IWebHostEnvironment env,IAttachmentRepository attachmentRepository, IHttpContextAccessor httpContextAccessor,IAccountRepository accountRepository,ISemesterRepository semesterRepository)
         {
             _groupRepository = groupRepository;
             _authUtils = authUtils;
@@ -39,6 +42,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             _httpContextAccessor = httpContextAccessor;
             _accountRepository = accountRepository;
             _semesterRepository = semesterRepository;
+            _majorRepository = majorRepository;
+            _semesterService = semesterService;
         }
 
         public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
@@ -435,20 +440,20 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return allAttachments.Adapt<List<AttachmentRes>>();
         }
 
-        public Task<object> GetMockData()
+        public async Task<object> GetMockData()
         {
-            // Map RollNumber -> UserId giả
+            // 1️⃣ Map RollNumber -> UserId giả
             var userIdMap = new Dictionary<string, int>
-    {
-        {"SE150001", 1},
-        {"SE150002", 2},
-        {"SE150003", 3},
-        {"SE150004", 4},
-        {"ME01", 5},
-        {"ME02", 6}
-    };
+            {
+                {"SE150001", 1},
+                {"SE150002", 2},
+                {"SE150003", 3},
+                {"SE150004", 4},
+                {"SE150005", 5},
+                {"ME01", 6},
+            };
 
-            // Lấy tất cả users từ Accounts với Id giả
+            // 2️⃣ Lấy tất cả users
             var allUsers = MockData.Accounts
                 .Where(a => a.Users != null && a.Users.Any())
                 .SelectMany(a => a.Users)
@@ -462,167 +467,120 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 })
                 .ToList();
 
-            // Tạo groups với IDs tương ứng
+            // 3️⃣ Tạo groups với Id kỳ học thật
             var groups = MockData.GetGroups(1, 1, 2, 3, 4, 5, 6);
 
-            var result = groups.Select(group => new
+            var mockMajors = MockData.MajorCategories;
+
+            // 5️⃣ Lấy danh sách MajorCategory thật trong DB
+            var dbMajors = await _majorRepository.getAllCourse();
+
+            // 6️⃣ So sánh theo Code
+            var existingCodes = dbMajors.Select(m => m.Code?.ToUpper()).ToHashSet();
+            var alreadyExist = mockMajors.Where(m => existingCodes.Contains(m.Code?.ToUpper())).ToList();
+            var notExistYet = mockMajors.Where(m => !existingCodes.Contains(m.Code?.ToUpper())).ToList();
+
+            // 4️⃣ Build kết quả trả về
+            var result = new
             {
-                GroupCode = group.Code,
-                GroupName = group.Name,
-                MajorId = group.MajorId,
-                Profession = group.Profession,
-                VietnameseTitle = group.VietnameseTitle,
-                Description = group.Description,
-                Status = group.StatusId,
-                Members = group.GroupUsers.Select(gu =>
+                MajorCategories = new
                 {
-                    var user = allUsers.FirstOrDefault(u => u.Id == gu.UserId);
-                    return new
+                    AlreadyExist = alreadyExist.Select(m => new { m.Code, m.Name }),
+                    NotExistYet = notExistYet.Select(m => new { m.Code, m.Name})
+                },
+                Groups = groups.Select(group => new
+                {
+                    GroupCode = group.Code,
+                    GroupName = group.Name,
+                    MajorId = group.MajorId,
+                    Profession = group.Profession,
+                    VietnameseTitle = group.VietnameseTitle,
+                    Description = group.Description,
+                    Status = group.StatusId,
+                    Members = group.GroupUsers.Select(gu =>
                     {
-                        UserId = user?.Id,
-                        Fullname = user?.Fullname,
-                        RollNumber = user?.RollNumber,
-                        Email = user?.Mail,
-                        Phone = user?.Phone,
-                        RoleInGroup = gu.Role,
-                        IsActive = gu.IsActive,
-                        Status = gu.Status
-                    };
+                        var user = allUsers.FirstOrDefault(u => u.Id == gu.UserId);
+                        return new
+                        {
+                            UserId = user?.Id,
+                            Fullname = user?.Fullname,
+                            RollNumber = user?.RollNumber,
+                            Email = user?.Mail,
+                            Phone = user?.Phone,
+                            RoleInGroup = gu.Role,
+                            IsActive = gu.IsActive,
+                            Status = gu.Status
+                        };
+                    }).ToList()
                 }).ToList()
-            }).ToList();
+            };
 
             return System.Threading.Tasks.Task.FromResult<object>(result);
         }
 
-
-
         public async Task<object> CreateMockData()
         {
-            var semester = await _semesterRepository.findActive();
-            if (semester == null)
+
+            // 🔹 2. Tạo MajorCategory nếu chưa tồn tại
+            var majorCategories = MockData.MajorCategories;
+            foreach (var major in majorCategories)
             {
-                throw new ValidationException("Chưa có kỳ học active");
+                var existingMajor = await _majorRepository.FindByCodeAsync(major.Code);
+
+                if (existingMajor == null)
+                {
+                    await _majorRepository.CreateAsync(major);
+                }
+                else if (existingMajor.IsActive != null)
+                {
+                    existingMajor.IsActive = true;
+                    await _majorRepository.UpdateAsync(existingMajor);
+                }
             }
 
-            // 1. Lấy mock data
+            // 🔹 3. Xử lý accounts
             var accounts = MockData.Accounts;
-
             var mockUsernames = accounts.Select(a => a.Username.ToLower()).ToList();
 
+            // Lấy các account đã tồn tại
             var existingAccounts = await _accountRepository.GetAllAsync(
-                         a => mockUsernames.Contains(a.Username.ToLower()));
+                a => mockUsernames.Contains(a.Username.ToLower())
+            );
 
-            if (existingAccounts.Any())
+            // Chỉ tạo user mới
+            var newAccounts = accounts
+                .Where(a => !existingAccounts.Any(e => e.Username.Equals(a.Username, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            if (newAccounts.Any())
             {
-                var existingUsernames = string.Join(", ", existingAccounts.Select(a => a.Username));
-                throw new ValidationException($"Các username sau đã tồn tại và đang active: {existingUsernames}. Không thể tạo mock data.");
+                await _accountRepository.CreateUsers(newAccounts);
             }
 
+            // Dùng tất cả accounts (cũ + mới)
+            var allAccounts = existingAccounts.Concat(newAccounts).ToList();
 
-            // 2. Tạo accounts (sau khi SaveChanges, accounts đã có Id rồi!)
-            await _accountRepository.CreateUsers(accounts);
+            // Map users cho tạo group
+            int user1Id = allAccounts.First(a => a.Username == "gioidmhe171512@fpt.edu.vn").Users.First().Id;
+            int user2Id = allAccounts.First(a => a.Username == "haildhe172452@fpt.edu.vn").Users.First().Id;
+            int user3Id = allAccounts.First(a => a.Username == "cuonghvhe176362@fpt.edu.vn").Users.First().Id;
+            int user4Id = allAccounts.First(a => a.Username == "handghe170064@fpt.edu.vn").Users.First().Id;
+            int user5Id = allAccounts.First(a => a.Username == "huongtt170064@fpt.edu.vn").Users.First().Id;
+            int mentor1Id = allAccounts.First(a => a.Username == "lampt2@gmail.com").Users.First().Id;
 
-            // 3. Dùng lại accounts - Id đã được tự động fill
-            var user1 = accounts[0].Users.FirstOrDefault();
-            var user2 = accounts[1].Users.FirstOrDefault();
-            var user3 = accounts[2].Users.FirstOrDefault();
-            var user4 = accounts[3].Users.FirstOrDefault();
-            var mentor1 = accounts[4].Users.FirstOrDefault();
-            var mentor2 = accounts[5].Users.FirstOrDefault();
+            // 5️⃣ Lấy nhóm từ MockData
+            var groups = MockData.GetGroups(
+                1,
+                user1Id, user2Id, user3Id, user4Id, user5Id,
+                mentor1Id
+            );
 
-            // 4. Tạo groups với UserId đã có
-            var groups = new List<Group>
-    {
-        new Group
-        {
-            Code = "G01",
-            Name = "Capstone Team Alpha",
-            SemesterId = semester.Id,
-            CreateAt = DateTime.Now.AddMonths(-2),
-            Profession = "AI Development",
-            MajorId = 1,
-            Description = "Team làm chatbot AI",
-            VietnameseTitle = "Nhóm Alpha",
-            StatusId = "ACTIVE",
-            GroupUsers = new List<GroupUser>
-            {
-                new GroupUser
-                {
-                    UserId = user1.Id,
-                    Role = "Leader",
-                    IsActive = true,
-                    CreateAt = DateTime.Now.AddMonths(-2),
-                    UpdateAt = DateTime.Now,
-                    Status = "Active"
-                },
-                new GroupUser
-                {
-                    UserId = user2.Id,
-                    Role = "Member",
-                    IsActive = true,
-                    CreateAt = DateTime.Now.AddMonths(-2),
-                    UpdateAt = DateTime.Now,
-                    Status = "Active"
-                },
-                new GroupUser
-                {
-                    UserId = mentor1.Id,
-                    Role = "Supervisor",
-                    IsActive = true,
-                    CreateAt = DateTime.Now.AddMonths(-1),
-                    UpdateAt = DateTime.Now,
-                    Status = "Active"
-                }
-            }
-        },
-        new Group
-        {
-            Code = "G02",
-            Name = "Chiến dịch quảng cáo xanh",
-            SemesterId = semester.Id,
-            CreateAt = DateTime.Now.AddMonths(-1),
-            Profession = "Marketing",
-            MajorId = 2,
-            Description = "Team xây dựng plan marketing",
-            VietnameseTitle = "Nhóm Marketing",
-            StatusId = "ACTIVE",
-            GroupUsers = new List<GroupUser>
-            {
-                new GroupUser
-                {
-                    UserId = user3.Id,
-                    Role = "Leader",
-                    IsActive = true,
-                    CreateAt = DateTime.Now.AddMonths(-1),
-                    UpdateAt = DateTime.Now,
-                    Status = "Active"
-                },
-                new GroupUser
-                {
-                    UserId = user4.Id,
-                    Role = "Member",
-                    IsActive = true,
-                    CreateAt = DateTime.Now.AddMonths(-1),
-                    UpdateAt = DateTime.Now,
-                    Status = "Active"
-                },
-                new GroupUser
-                {
-                    UserId = mentor2.Id,
-                    Role = "Supervisor",
-                    IsActive = true,
-                    CreateAt = DateTime.Now.AddMonths(-1),
-                    UpdateAt = DateTime.Now,
-                    Status = "Active"
-                }
-            }
-        }
-    };
-
+            // 6️⃣ Tạo nhóm
             await _groupRepository.CreateGroups(groups);
 
             return "Create mock data successfully";
         }
+
     }
 
 }

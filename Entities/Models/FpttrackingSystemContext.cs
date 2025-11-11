@@ -15,6 +15,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<Attachment> Attachments { get; set; }
 
+    public virtual DbSet<Campus> Campuses { get; set; }
+
     public virtual DbSet<Comment> Comments { get; set; }
 
     public virtual DbSet<Deliverable> Deliverables { get; set; }
@@ -54,6 +56,8 @@ public partial class FpttrackingSystemContext : DbContext
     public virtual DbSet<SemesterVacation> SemesterVacations { get; set; }
 
     public virtual DbSet<SemesterWeek> SemesterWeeks { get; set; }
+
+    public virtual DbSet<Slot> Slots { get; set; }
 
     public virtual DbSet<Status> Statuses { get; set; }
 
@@ -112,6 +116,16 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Attachment_User");
+        });
+
+        modelBuilder.Entity<Campus>(entity =>
+        {
+            entity.ToTable("Campus");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(200)
+                .HasColumnName("name");
         });
 
         modelBuilder.Entity<Comment>(entity =>
@@ -320,9 +334,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.DayOfWeek)
                 .HasMaxLength(50)
                 .HasColumnName("day_of_week");
-            entity.Property(e => e.FreeTime)
-                .HasMaxLength(300)
-                .HasColumnName("free_time");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.Role)
@@ -582,14 +593,14 @@ public partial class FpttrackingSystemContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Description)
-                .HasMaxLength(50)
+                .HasMaxLength(200)
                 .HasColumnName("description");
             entity.Property(e => e.EndAt)
                 .HasColumnType("datetime")
                 .HasColumnName("end_at");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
+                .HasMaxLength(200)
                 .HasColumnName("name");
             entity.Property(e => e.StartAt)
                 .HasColumnType("datetime")
@@ -645,6 +656,23 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.Semester).WithMany(p => p.SemesterWeeks)
                 .HasForeignKey(d => d.SemesterId)
                 .HasConstraintName("FK_Semester_Week_Semester");
+        });
+
+        modelBuilder.Entity<Slot>(entity =>
+        {
+            entity.ToTable("Slot");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CampusId).HasColumnName("campus_id");
+            entity.Property(e => e.EndAt).HasColumnName("end_at");
+            entity.Property(e => e.NameSlot)
+                .HasMaxLength(50)
+                .HasColumnName("name_slot");
+            entity.Property(e => e.StartAt).HasColumnName("start_at");
+
+            entity.HasOne(d => d.Campus).WithMany(p => p.Slots)
+                .HasForeignKey(d => d.CampusId)
+                .HasConstraintName("FK_Slot_Campus");
         });
 
         modelBuilder.Entity<Status>(entity =>

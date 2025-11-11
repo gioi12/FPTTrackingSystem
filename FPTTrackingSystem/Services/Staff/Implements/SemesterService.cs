@@ -5,6 +5,7 @@ using DataTranferObjects.Staff.Request;
 using DataTranferObjects.Staff.Response;
 using DataTranferObjects.Staff.Semester;
 using Entities.Models;
+using FPTTrackingSystem.Helper;
 using FPTTrackingSystem.Hepler;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Services.Staff.Interfaces;
@@ -52,186 +53,184 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return ApiResponse<SemesterActiveRes>.Success(se);
         }
 
-        /*public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(request.Name))
-                throw new ArgumentException("Tên kỳ học không được để trống.");
+        /* public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
+         {
+             if (string.IsNullOrWhiteSpace(request.Name))
+                 throw new ArgumentException("Semester name cannot be empty.");
 
-            if (string.IsNullOrWhiteSpace(request.StartAt))
-                throw new ArgumentException("Ngày bắt đầu không được để trống.");
+             if (request.Name.Length > 100)
+                 throw new ArgumentException("Semester name cannot exceed 100 characters.");
 
-            if (string.IsNullOrWhiteSpace(request.EndAt))
-                throw new ArgumentException("Ngày kết thúc không được để trống.");
+             if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
+                 throw new ArgumentException("Description cannot exceed 500 characters.");
 
-            if (request.Name.Length > 100)
-                throw new ArgumentException("Tên kỳ học không được vượt quá 100 ký tự.");
+             // ✅ Get current user from cookie
+             var user = await _authUtils.GetUserInfoFromCookie();
+             if (user == null)
+                 throw new UnauthorizedAccessException("User authentication failed.");
 
-            if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
-                throw new ArgumentException("Mô tả không được vượt quá 500 ký tự.");
-            var user = await _authUtils.GetUserInfoFromCookie();
+             if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                 throw new UnauthorizedAccessException("Only Staff members can create semesters.");
 
-            if (user == null)
-                throw new UnauthorizedAccessException("Không thể xác thực người dùng.");
+             // ✅ Validate logical date range
+             var mockSemester = MockData.AllSemesters
+                 .FirstOrDefault(s => string.Equals(s.Name.Trim(), request.Name.Trim(), StringComparison.OrdinalIgnoreCase));
 
-            // Nếu không phải Staff thì chặn
-            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
-                throw new UnauthorizedAccessException("Chỉ nhân viên (Staff) mới có quyền tạo kỳ học.");
+             DateTime? startAt = null;
+             DateTime? endAt = null;
 
-            // 1️⃣ Validate ngày
-            if (!DateTime.TryParse(request.StartAt, out var startAtDateTime) ||
-                !DateTime.TryParse(request.EndAt, out var endAtDateTime))
-                throw new ArgumentException("Ngày không hợp lệ. Định dạng phải là yyyy-MM-dd.");
+             if (mockSemester != null)
+             {
+                 startAt = mockSemester.StartAt;
+                 endAt = mockSemester.EndAt;
+             }
 
-            var startAt = DateOnly.FromDateTime(startAtDateTime);
-            var endAt = DateOnly.FromDateTime(endAtDateTime);
-            if (startAt >= endAt)
-                throw new ArgumentException("Ngày bắt đầu phải nhỏ hơn ngày kết thúc.");
+             // ✅ Disable any currently active semester
+             var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
+             if (activeSemester != null)
+             {
+                 activeSemester.IsActive = false;
+                 _context.Semesters.Update(activeSemester);
+             }
 
-            // 2️⃣ Vô hiệu hóa kỳ đang active
-            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
-            if (activeSemester != null)
-            {
-                activeSemester.IsActive = false;
-                _context.Semesters.Update(activeSemester);
-            }
+             // ✅ Create new semester
+             var semester = new Semester
+             {
+                 Name = request.Name.Trim(),
+                 Description = request.Description?.Trim(),
+                 StartAt = startAt,
+                 EndAt = endAt,
+                 IsActive = true
+             };
 
-            // 3️⃣ Tạo kỳ mới
-            var semester = new Semester
-            {
-                Name = request.Name,
-                StartAt = startAtDateTime,
-                EndAt = endAtDateTime,
-                Description = request.Description,
-                IsActive = true
-            };
+             try
+             {
+                 await _context.Semesters.AddAsync(semester);
+                 await _context.SaveChangesAsync();
+             }
+             catch (DbUpdateException dbEx)
+             {
+                 var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+                 _logger.LogError(dbEx, "Database error while saving semester: {Message}", innerMessage);
+                 throw new Exception($"Database error occurred while saving semester: {innerMessage}");
+             }
+             catch (Exception ex)
+             {
+                 _logger.LogError(ex, "Unexpected error while saving semester");
+                 throw new Exception($"Unexpected error occurred while saving semester: {ex.Message}");
+             }
 
-            try
-            {
-                await _context.Semesters.AddAsync(semester);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException dbEx)
-            {
-                // Log lỗi chi tiết của EF Core
-                var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+             // 7️⃣ Log semester creation
+             await _logService.AddLogAsync(new Log
+             {
+                 Name = "Create new semester",
+                 EntityName = "Semester",
+                 EntityId = semester.Id,
+                 Action = "CREATE",
+                 Description = $"Created semester '{semester.Name}' from {semester.StartAt:yyyy-MM-dd} to {semester.EndAt:yyyy-MM-dd}.",
+                 UserId = user.Id ?? 0,
+                 CreateAt = DateTime.Now
+             });
 
-                _logger.LogError(dbEx, "Lỗi khi lưu Semester: {Message}", innerMessage);
+             DateOnly startDateOnly = startAt.HasValue
+     ? DateOnly.FromDateTime(startAt.Value)
+     : default;
 
-                throw new Exception($"Lỗi khi lưu dữ liệu Semester: {innerMessage}");
-            }
-            catch (Exception ex)
-            {
-                // Log các lỗi khác
-                _logger.LogError(ex, "Lỗi không xác định khi lưu Semester");
-                throw new Exception($"Lỗi không xác định khi lưu Semester: {ex.Message}");
-            }
+             DateOnly endDateOnly = endAt.HasValue
+                 ? DateOnly.FromDateTime(endAt.Value)
+                 : default;
 
+             // 8️⃣ Generate semester weeks
+             var weeks = SemesterHelper.GetWeeks(startDateOnly, endDateOnly, semester.Id);
+             int learnWeekCount = 0;
+             foreach (var w in weeks)
+             {
+                 if (w.IsVacation != null)
+                 {
+                     learnWeekCount++;
+                     w.WeekLearn = learnWeekCount;
+                 }
+             }
 
-            // 4️⃣ Log tạo kỳ mới
-            await _logService.AddLogAsync(new Log
-            {
-                Name = "Tạo kỳ học mới",
-                EntityName = "Semester",
-                EntityId = semester.Id,
-                Action = "CREATE",
-                Description = $"Tạo kỳ học {semester.Name} từ {semester.StartAt:yyyy-MM-dd} đến {semester.EndAt:yyyy-MM-dd}",
-                UserId = user.Id ?? 0,
-                CreateAt = DateTime.Now
-            });
+             var semesterWeeks = weeks.Select(w => new SemesterWeek
+             {
+                 SemesterId = semester.Id,
+                 WeekNumber = w.WeekNumber,
+                 StartAt = w.StartAt,
+                 EndAt = w.EndAt,
+                 StartAtLunar = SafeConvertToLunar(w.StartAt ?? DateTime.Now),
+                 EndAtLunar = SafeConvertToLunar(w.EndAt ?? DateTime.Now),
+                 IsVacation = w.IsVacation,
+                 WeekLearn = w.WeekLearn
+             }).ToList();
 
-            // 5️⃣ Sinh tuần học
-            var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
-            int learnWeekCount = 0;
-            foreach (var w in weeks)
-            {
-                if (w.IsVacation != null)
-                {
-                    learnWeekCount++;
-                    w.WeekLearn = learnWeekCount;
-                }
-            }
+             await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
+             await _context.SaveChangesAsync();
 
-            var semesterWeeks = weeks.Select(w => new SemesterWeek
-            {
-                SemesterId = semester.Id,
-                WeekNumber = w.WeekNumber,
-                StartAt = w.StartAt,
-                EndAt = w.EndAt,
-                StartAtLunar = SemesterHelper.ConvertSolarToLunar(w.StartAt ?? DateTime.Now),
-                EndAtLunar = SemesterHelper.ConvertSolarToLunar(w.EndAt ?? DateTime.Now),
-                IsVacation = w.IsVacation,
-                WeekLearn = w.WeekLearn
-            }).ToList();
+             // 9️⃣ Get all active milestones
+             var activeMilestones = await _context.Milestones
+                 .Include(m => m.MilestoneItems)
+                 .Where(m => m.IsActive == true)
+                 .ToListAsync();
 
-            await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
-            await _context.SaveChangesAsync();
+             // 🔟 Create Deliverables and DeliveryItems from active milestones
+             var deliverables = new List<Deliverable>();
+             var deliveryItems = new List<DeliveryItem>();
 
-            // 6️⃣ Lấy toàn bộ Milestone đang active
-            var activeMilestones = await _context.Milestones
-                .Include(m => m.MilestoneItems)
-                .Where(m => m.IsActive == true)
-                .ToListAsync();
+             foreach (var milestone in activeMilestones)
+             {
+                 var deliverable = new Deliverable
+                 {
+                     MilestoneId = milestone.Id,
+                     SemesterId = semester.Id,
+                     Name = milestone.Name,
+                     Description = milestone.Description,
+                     Deadline = milestone.Deadline,
+                     IsActive = true,
+                     MajorId = milestone.MajorId
+                 };
+                 deliverables.Add(deliverable);
 
-            if (activeMilestones == null)
-            {
-                throw new Exception("Milestone không tồn tại vui lòng tạo milestone.");
-            }
+                 foreach (var item in milestone.MilestoneItems)
+                 {
+                     var deliveryItem = new DeliveryItem
+                     {
+                         Name = item.Name,
+                         Description = item.Description,
+                         MilestoneItemId = item.Id,
+                         Deliverable = deliverable
+                     };
+                     deliveryItems.Add(deliveryItem);
+                 }
+             }
 
-            // 7️⃣ Tạo Deliverable & DeliveryItem tương ứng
-            var deliverables = new List<Deliverable>();
-            var deliveryItems = new List<DeliveryItem>();
+             await _context.Deliverables.AddRangeAsync(deliverables);
+             await _context.DeliveryItems.AddRangeAsync(deliveryItems);
+             await _context.SaveChangesAsync();
 
-            foreach (var milestone in activeMilestones)
-            {
-                var deliverable = new Deliverable
-                {
-                    MilestoneId = milestone.Id,
-                    SemesterId = semester.Id,
-                    Name = milestone.Name,
-                    Description = milestone.Description,
-                    Deadline = milestone.Deadline
-                };
-                deliverables.Add(deliverable);
+             // 11️⃣ Log milestone cloning
+             await _logService.AddLogAsync(new Log
+             {
+                 Name = "Clone active milestones to deliverables",
+                 EntityName = "Deliverable",
+                 Action = "CREATE",
+                 Description = $"Automatically generated {deliverables.Count} Deliverables and {deliveryItems.Count} DeliveryItems from active milestones for semester '{semester.Name}'.",
+                 UserId = user.Id ?? 0,
+                 CreateAt = DateTime.Now
+             });
 
-                foreach (var item in milestone.MilestoneItems)
-                {
-                    var deliveryItem = new DeliveryItem
-                    {
-                        Name = item.Name,
-                        Description = item.Description,
-                        MilestoneItemId = item.Id,
-                        Deliverable = deliverable
-                    };
-                    deliveryItems.Add(deliveryItem);
-                }
-            }
-
-            await _context.Deliverables.AddRangeAsync(deliverables);
-            await _context.DeliveryItems.AddRangeAsync(deliveryItems);
-            await _context.SaveChangesAsync();
-
-            // 8️⃣ Log clone milestone active
-            await _logService.AddLogAsync(new Log
-            {
-                Name = "Khởi tạo Deliverable từ Milestone active",
-                EntityName = "Deliverable",
-                Action = "CREATE",
-                Description = $"Tự động sinh {deliverables.Count} Deliverable và {deliveryItems.Count} DeliveryItem từ Milestone active cho kỳ {semester.Name}",
-                UserId = user.Id ?? 0,
-                CreateAt = DateTime.Now
-            });
-
-            // ✅ Return DTO
-            return new SemesterDTO
-            {
-                Name = semester.Name ?? string.Empty,
-                StartAt = semester.StartAt ?? default,
-                EndAt = semester.EndAt ?? default,
-                Description = semester.Description,
-                Weeks = weeks,
-            };
-        }*/
-        public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request, DateOnly startAt, DateOnly endAt)
+             // ✅ 12️⃣ Return response
+             return new SemesterDTO
+             {
+                 IsActive = semester.IsActive,
+                 Name = semester.Name ?? string.Empty,
+                 StartAt = semester.StartAt ?? default,
+                 EndAt = semester.EndAt ?? default,
+                 Description = semester.Description,
+                 Weeks = weeks,
+             };
+         }*/
+        public async Task<SemesterDTO> CreateSemesterAsync(SemesterCreateRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new ArgumentException("Semester name cannot be empty.");
@@ -242,23 +241,184 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
                 throw new ArgumentException("Description cannot exceed 500 characters.");
 
-            // ✅ Get current user from cookie
+            // ✅ Get current user
             var user = await _authUtils.GetUserInfoFromCookie();
             if (user == null)
                 throw new UnauthorizedAccessException("User authentication failed.");
-
             if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
                 throw new UnauthorizedAccessException("Only Staff members can create semesters.");
 
-            // ✅ Validate logical date range
-            if (startAt >= endAt)
-                throw new ArgumentException("Start date must be earlier than end date.");
+            // ✅ Check mock
+            var mockSemester = MockData.AllSemesters
+                .FirstOrDefault(s => string.Equals(s.Name.Trim(), request.Name.Trim(), StringComparison.OrdinalIgnoreCase));
 
-            var startAtDateTime = startAt.ToDateTime(TimeOnly.MinValue);
-            var endAtDateTime = endAt.ToDateTime(TimeOnly.MinValue);
+            DateTime? startAt = mockSemester?.StartAt;
+            DateTime? endAt = mockSemester?.EndAt;
 
-            // ✅ Disable any currently active semester
-            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive == true);
+            // ✅ Disable current active semester
+            if (startAt.HasValue && endAt.HasValue)
+            {
+                var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
+                if (activeSemester != null)
+                {
+                    activeSemester.IsActive = false;
+                    _context.Semesters.Update(activeSemester);
+                }
+            }
+
+            // ✅ Create new semester
+            var semester = new Semester
+            {
+                Name = request.Name.Trim(),
+                Description = request.Description?.Trim(),
+                StartAt = startAt, 
+                EndAt = endAt,
+                IsActive = startAt.HasValue && endAt.HasValue
+            };
+
+            await _context.Semesters.AddAsync(semester);
+            await _context.SaveChangesAsync();
+
+            // ✅ Log semester creation
+            await _logService.AddLogAsync(new Log
+            {
+                Name = "Create new semester",
+                EntityName = "Semester",
+                EntityId = semester.Id,
+                Action = "CREATE",
+                Description = startAt.HasValue && endAt.HasValue
+                    ? $"Created semester '{semester.Name}' from {semester.StartAt:yyyy-MM-dd} to {semester.EndAt:yyyy-MM-dd}."
+                    : $"Created semester '{semester.Name}' without start/end.",
+                UserId = user.Id ?? 0,
+                CreateAt = DateTime.Now
+            });
+
+            // 1️⃣ Nếu start/end có giá trị → generate tuần và clone milestone
+            List<SemesterWeekDTO> weeks = new List<SemesterWeekDTO>();
+            if (startAt.HasValue && endAt.HasValue)
+            {
+                var startDateOnly = DateOnly.FromDateTime(startAt.Value);
+                var endDateOnly = DateOnly.FromDateTime(endAt.Value);
+
+                // ✅ Generate weeks
+                weeks = SemesterHelper.GetWeeks(startDateOnly, endDateOnly, semester.Id);
+
+                int learnWeekCount = 0;
+                foreach (var w in weeks)
+                {
+                    if (w.IsVacation != null)
+                    {
+                        learnWeekCount++;
+                        w.WeekLearn = learnWeekCount;
+                    }
+                }
+
+                var semesterWeeks = weeks.Select(w => new SemesterWeek
+                {
+                    SemesterId = semester.Id,
+                    WeekNumber = w.WeekNumber,
+                    StartAt = w.StartAt,
+                    EndAt = w.EndAt,
+                    StartAtLunar = SafeConvertToLunar(w.StartAt ?? DateTime.Now),
+                    EndAtLunar = SafeConvertToLunar(w.EndAt ?? DateTime.Now),
+                    IsVacation = w.IsVacation,
+                    WeekLearn = w.WeekLearn
+                }).ToList();
+
+                await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
+                await _context.SaveChangesAsync();
+
+                // ✅ Clone active milestones to deliverables & delivery items
+                var activeMilestones = await _context.Milestones
+                    .Include(m => m.MilestoneItems)
+                    .Where(m => m.IsActive ?? false)
+                    .ToListAsync();
+
+                var deliverables = new List<Deliverable>();
+                var deliveryItems = new List<DeliveryItem>();
+
+                foreach (var milestone in activeMilestones)
+                {
+                    var deliverable = new Deliverable
+                    {
+                        MilestoneId = milestone.Id,
+                        SemesterId = semester.Id,
+                        Name = milestone.Name,
+                        Description = milestone.Description,
+                        Deadline = milestone.Deadline,
+                        IsActive = true,
+                        MajorId = milestone.MajorId
+                    };
+                    deliverables.Add(deliverable);
+
+                    foreach (var item in milestone.MilestoneItems)
+                    {
+                        deliveryItems.Add(new DeliveryItem
+                        {
+                            Name = item.Name,
+                            Description = item.Description,
+                            MilestoneItemId = item.Id,
+                            Deliverable = deliverable
+                        });
+                    }
+                }
+
+                await _context.Deliverables.AddRangeAsync(deliverables);
+                await _context.DeliveryItems.AddRangeAsync(deliveryItems);
+                await _context.SaveChangesAsync();
+
+                // ✅ Log milestone cloning
+                await _logService.AddLogAsync(new Log
+                {
+                    Name = "Clone active milestones to deliverables",
+                    EntityName = "Deliverable",
+                    Action = "CREATE",
+                    Description = $"Automatically generated {deliverables.Count} Deliverables and {deliveryItems.Count} DeliveryItems from active milestones for semester '{semester.Name}'.",
+                    UserId = user.Id ?? 0,
+                    CreateAt = DateTime.Now
+                });
+            }
+
+            // ✅ Return DTO
+            return new SemesterDTO
+            {
+                IsActive = semester.IsActive,
+                Name = semester.Name,
+                Description = semester.Description,
+                StartAt = semester.StartAt ?? default,
+                EndAt = semester.EndAt ?? default,
+                Weeks = weeks 
+            };
+        }
+
+
+        public async Task<SemesterDTO> SyncSemesterByNameAsync(string semesterName)
+        {
+            if (string.IsNullOrWhiteSpace(semesterName))
+                throw new ArgumentException("Semester name cannot be empty.");
+
+            // ✅ Get current user
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                throw new UnauthorizedAccessException("User authentication failed.");
+            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Only Staff members can sync semesters.");
+
+            // ✅ Check mock by name
+            var mockSemester = MockData.AllSemesters
+                .FirstOrDefault(s => string.Equals(s.Name.Trim(), semesterName.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (mockSemester == null)
+            {
+                // Nếu không tìm thấy mock → trả về thông báo hoặc tạo inactive semester
+                return null; // hoặc throw new Exception("Mock semester not found");
+            }
+
+            DateTime startAt = mockSemester.StartAt ?? throw new Exception("Mock semester has no start date");
+            DateTime endAt = mockSemester.EndAt ?? throw new Exception("Mock semester has no end date");
+
+            // ✅ Disable current active semester
+            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
             if (activeSemester != null)
             {
                 activeSemester.IsActive = false;
@@ -268,44 +428,33 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             // ✅ Create new semester
             var semester = new Semester
             {
-                Name = request.Name.Trim(),
-                Description = request.Description?.Trim(),
-                StartAt = startAtDateTime,
-                EndAt = endAtDateTime,
+                Name = mockSemester.Name,
+                Description = mockSemester.Description,
+                StartAt = startAt,
+                EndAt = endAt,
                 IsActive = true
             };
 
-            try
-            {
-                await _context.Semesters.AddAsync(semester);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException dbEx)
-            {
-                var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
-                _logger.LogError(dbEx, "Database error while saving semester: {Message}", innerMessage);
-                throw new Exception($"Database error occurred while saving semester: {innerMessage}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error while saving semester");
-                throw new Exception($"Unexpected error occurred while saving semester: {ex.Message}");
-            }
+            await _context.Semesters.AddAsync(semester);
+            await _context.SaveChangesAsync();
 
-            // 7️⃣ Log semester creation
+            // ✅ Log
             await _logService.AddLogAsync(new Log
             {
-                Name = "Create new semester",
+                Name = "Sync semester from mock",
                 EntityName = "Semester",
                 EntityId = semester.Id,
                 Action = "CREATE",
-                Description = $"Created semester '{semester.Name}' from {semester.StartAt:yyyy-MM-dd} to {semester.EndAt:yyyy-MM-dd}.",
+                Description = $"Synchronized semester '{semester.Name}' from mock data: {semester.StartAt:yyyy-MM-dd} to {semester.EndAt:yyyy-MM-dd}.",
                 UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
             });
 
-            // 8️⃣ Generate semester weeks
-            var weeks = SemesterHelper.GetWeeks(startAt, endAt, semester.Id);
+            // ✅ Generate weeks
+            var startDateOnly = DateOnly.FromDateTime(startAt);
+            var endDateOnly = DateOnly.FromDateTime(endAt);
+            var weeks = SemesterHelper.GetWeeks(startDateOnly, endDateOnly, semester.Id);
+
             int learnWeekCount = 0;
             foreach (var w in weeks)
             {
@@ -331,13 +480,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
             await _context.SaveChangesAsync();
 
-            // 9️⃣ Get all active milestones
+            // ✅ Clone active milestones
             var activeMilestones = await _context.Milestones
                 .Include(m => m.MilestoneItems)
-                .Where(m => m.IsActive == true)
+                .Where(m => m.IsActive ?? false)
                 .ToListAsync();
 
-            // 🔟 Create Deliverables and DeliveryItems from active milestones
             var deliverables = new List<Deliverable>();
             var deliveryItems = new List<DeliveryItem>();
 
@@ -357,14 +505,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
                 foreach (var item in milestone.MilestoneItems)
                 {
-                    var deliveryItem = new DeliveryItem
+                    deliveryItems.Add(new DeliveryItem
                     {
                         Name = item.Name,
                         Description = item.Description,
                         MilestoneItemId = item.Id,
                         Deliverable = deliverable
-                    };
-                    deliveryItems.Add(deliveryItem);
+                    });
                 }
             }
 
@@ -372,7 +519,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             await _context.DeliveryItems.AddRangeAsync(deliveryItems);
             await _context.SaveChangesAsync();
 
-            // 11️⃣ Log milestone cloning
+            // ✅ Log milestone cloning
             await _logService.AddLogAsync(new Log
             {
                 Name = "Clone active milestones to deliverables",
@@ -383,16 +530,19 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 CreateAt = DateTime.Now
             });
 
-            // ✅ 12️⃣ Return response
+            // ✅ Return DTO
             return new SemesterDTO
             {
-                Name = semester.Name ?? string.Empty,
+                IsActive = semester.IsActive,
+                Name = semester.Name,
+                Description = semester.Description,
                 StartAt = semester.StartAt ?? default,
                 EndAt = semester.EndAt ?? default,
-                Description = semester.Description,
-                Weeks = weeks,
+                Weeks = weeks
             };
         }
+
+
 
         private DateTime SafeConvertToLunar(DateTime date)
         {

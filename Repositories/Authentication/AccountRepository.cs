@@ -32,7 +32,8 @@ namespace Repositories.Authentication
 
         public async Task<List<Account>> GetAllAsync(Expression<Func<Account, bool>> predicate)
         {
-            return await _context.Accounts.Where(predicate).ToListAsync();
+            return await _context.Accounts.Include(u => u.Users).Where(predicate).ToListAsync();
+
         }
 
 

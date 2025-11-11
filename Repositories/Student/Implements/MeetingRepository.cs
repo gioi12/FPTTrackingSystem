@@ -59,7 +59,6 @@ namespace Repositories.Student.Implements
                     f.UserId,
                     f.GroupId,
                     f.DayOfWeek,
-                    f.FreeTime
                 })
                 .ToListAsync();
 
@@ -70,33 +69,11 @@ namespace Repositories.Student.Implements
                     StudentId = g.Key.UserId,
                     GroupId = g.Key.GroupId,
                     FreeTimeSlots = g
-                        .Where(x => !string.IsNullOrEmpty(x.DayOfWeek) && !string.IsNullOrEmpty(x.FreeTime))
-                        .SelectMany(x =>
-                        {
-                            var days = x.DayOfWeek.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                                   .Select(d => d.Trim()).ToList();
-
-                            List<List<string>>? parsed;
-                            try
-                            {
-                                parsed = JsonSerializer.Deserialize<List<List<string>>>(x.FreeTime);
-                            }
-                            catch
-                            {
-                                parsed = new List<List<string>>();
-                            }
-
-                            return days.Select((day, i) => new FreeTimeSlotByDayDto
-                            {
-                                DayOfWeek = day,
-                                TimeSlots = i < parsed?.Count ? parsed[i] : new List<string>()
-                            });
-                        })
+                        .Where(x => !string.IsNullOrEmpty(x.DayOfWeek))
                         .GroupBy(d => d.DayOfWeek)
                         .Select(d => new FreeTimeSlotByDayDto
                         {
                             DayOfWeek = d.Key,
-                            TimeSlots = d.SelectMany(x => x.TimeSlots).Distinct().ToList()
                         })
                         .ToList()
                 })

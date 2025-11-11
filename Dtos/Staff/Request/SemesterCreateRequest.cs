@@ -9,8 +9,6 @@ namespace DataTranferObjects.Staff.Request
     public class SemesterCreateRequest
     {
         public string Name { get; set; } = string.Empty;
-        public string StartAt { get; set; } = string.Empty;
-        public string EndAt { get; set; } = string.Empty;
         public string? Description { get; set; }
     }
 

@@ -38,6 +38,15 @@ namespace Repositories.Staff.Implements
             return await _context.MajorCategories.FindAsync(id);
         }
 
+        public async Task<MajorCategory?> FindByCodeAsync(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                return null;
+
+            return await _context.MajorCategories
+                .FirstOrDefaultAsync(m => m.Code.ToLower().Trim() == code.ToLower().Trim());
+        }
+
         public async Task<bool> CreateAsync(MajorCategory majorCategory)
         {
             await _context.MajorCategories.AddAsync(majorCategory);

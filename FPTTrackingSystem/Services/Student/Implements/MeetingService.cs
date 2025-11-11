@@ -63,7 +63,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     UserId = studentId,
                     GroupId = groupId,
                     DayOfWeek = joinedDays,
-                    FreeTime = serializedFreeTime,
                     CreateAt = now,
                     UpdateAt = now,
                     IsActive = true,
@@ -75,7 +74,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
             else
             {
                 existing.DayOfWeek = joinedDays;
-                existing.FreeTime = serializedFreeTime;
                 existing.UpdateAt = now;
 
                 await _repo.UpdateFreeTimeSlotAsync(existing);

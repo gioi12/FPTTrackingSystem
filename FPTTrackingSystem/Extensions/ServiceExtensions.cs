@@ -23,6 +23,7 @@ using Repositories.Student.Implements;
 using Repositories.Student.Interfaces;
 using FPTTrackingSystem.Services.Student.Implements;
 using FPTTrackingSystem.Services.Student.Interfaces;
+using FPTTrackingSystem.Services.Staff.Implements;
 namespace FPTTrackingSystem.Extensions
 {
     public static class ServiceExtensions
@@ -42,6 +43,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
             services.AddScoped<IEvaluationRepository, EvaluationRepository>();
             services.AddScoped<IMeetingRepository, MeetingRepository>();
+            services.AddScoped<ICampusRepository, CampusRepository>();
             return services;
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
@@ -61,6 +63,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IEvaluationService, EvaluationService>();
             services.AddScoped<IMeetingService, MeetingService>();
+            services.AddScoped<ICampusService, CampusService>();
             return services;
         }
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)

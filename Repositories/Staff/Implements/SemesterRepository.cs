@@ -80,6 +80,13 @@ namespace Repositories.Staff.Implements
 
             return true;
         }
+        public async Task<Semester?> FindByNameAsync(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+            return await _context.Semesters
+                .FirstOrDefaultAsync(s => s.Name.ToLower().Trim() == name.ToLower().Trim());
+        }
 
         public async Task<bool> UpdateVacationAsync(int id, SemesterUpdateVacationRequestDto dto)
         {

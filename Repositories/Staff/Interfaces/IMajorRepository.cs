@@ -14,6 +14,7 @@ namespace Repositories.Staff.Interfaces
         Task<List<Major>> getAllMajorAndCode();
         Task<List<MajorCategory>> getAllCourse();
         Task<MajorCategory?> GetByIdAsync(int id);
+        Task<MajorCategory?> FindByCodeAsync(string code);
         Task<bool> CreateAsync(MajorCategory majorCategory);
         Task<bool> UpdateAsync(MajorCategory majorCategory);
     }

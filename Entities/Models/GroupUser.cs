@@ -15,8 +15,6 @@ public partial class GroupUser
 
     public string? Role { get; set; }
 
-    public string? FreeTime { get; set; }
-
     public string? DayOfWeek { get; set; }
 
     public DateTime? CreateAt { get; set; }
