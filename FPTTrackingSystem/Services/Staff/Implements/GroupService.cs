@@ -468,7 +468,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .ToList();
 
             // 3️⃣ Tạo groups với Id kỳ học thật
-            var groups = MockData.GetGroups(1, 1, 2, 3, 4, 5, 6);
+            var groups = MockData.GetGroups(13, 1, 2, 3, 4, 5, 6);
 
             var mockMajors = MockData.MajorCategories;
 
