@@ -95,6 +95,8 @@ namespace DataTranferObjects.Student.Meeting
 
     public class TimeSlotDto
     {
+        public int Id { get; set; }
+        public string NameSlot { get; set; } = string.Empty;
         public TimeOnly StartAt { get; set; }
         public TimeOnly EndAt { get; set; }
     }

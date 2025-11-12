@@ -420,8 +420,11 @@ namespace Repositories.Student.Implements
                                 .Select(gd => new FreeTimeSlotByDayDto
                                 {
                                     DayOfWeek = gd.Key,
-                                    TimeSlots = gd.Select(us => new TimeSlotDto
+                                    TimeSlots = gd.OrderBy(us => us.Slot!.StartAt).
+                                    Select(us => new TimeSlotDto
                                     {
+                                        Id = us.Slot.Id,
+                                        NameSlot = us.Slot.NameSlot,
                                         StartAt = us.Slot!.StartAt ?? TimeOnly.MinValue,
                                         EndAt = us.Slot!.EndAt ?? TimeOnly.MinValue
                                     }).ToList()
