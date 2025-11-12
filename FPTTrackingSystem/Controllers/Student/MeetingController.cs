@@ -1,6 +1,7 @@
 ﻿using DataTranferObjects.Student.Meeting;
 using FPTTrackingSystem.Services.Student.Implements;
 using FPTTrackingSystem.Services.Student.Interfaces;
+using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +12,13 @@ namespace FPTTrackingSystem.Controllers.Student
     [ApiController]
     public class MeetingController : ControllerBase
     {
+        private readonly AuthUtils _authUtils;
         private readonly IMeetingService _service;
 
-        public MeetingController(IMeetingService service)
+        public MeetingController(IMeetingService service, AuthUtils authUtils)
         {
             _service = service;
+            _authUtils = authUtils;
         }
         /// <summary>
         ///  /api/v1/Student/Meeting/groups/4/schedule/free-time
@@ -146,5 +149,28 @@ namespace FPTTrackingSystem.Controllers.Student
                 return StatusCode(500, ApiResponse<object>.InternalError(ex.Message));
             }
         }
+
+        [HttpPut("v1/Student/Meeting/schedule/{meetingId}")]
+        public async Task<IActionResult> UpdateMeetingScheduleDate(int meetingId, [FromBody] UpdateMeetingScheduleDateDto dto)
+        {
+            try
+            {
+                var user = await _authUtils.GetUserInfoFromCookie();
+                if (user.RoleInGroup != "Supervisor" && user.RoleInGroup != "Secretary")
+                    throw new UnauthorizedAccessException("Bạn không có quyền cập nhật buổi họp này.");
+
+                var result = await _service.UpdateMeetingScheduleDateAsync(meetingId, dto);
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<object>.Fail(ex.Message, 403));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, ApiResponse<object>.Fail(ex.Message, 400));
+            }
+        }
+
     }
 }

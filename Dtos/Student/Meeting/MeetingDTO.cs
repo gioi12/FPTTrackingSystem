@@ -45,7 +45,7 @@ namespace DataTranferObjects.Student.Meeting
     public class FinalMeetingDto
     {
         public string Day { get; set; } = string.Empty;
-        public string Time { get; set; } = string.Empty;
+        public int SlotId { get; set; }
         public string MeetingLink { get; set; } = string.Empty;
     }
 
@@ -59,10 +59,18 @@ namespace DataTranferObjects.Student.Meeting
         public int Id { get; set; }
         public bool IsFinalized { get; set; }
         public string Day { get; set; } = string.Empty;
-        public string Time { get; set; } = string.Empty;
+        public SlotInfo Slot { get; set; }
         public string MeetingLink { get; set; } = string.Empty;
         public DateTime FinalizedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+    }
+
+    public class SlotInfo
+    {
+        public int Id { get; set; }
+        public string NameSlot { get; set; } = string.Empty;
+        public TimeOnly? StartAt { get; set; }
+        public TimeOnly? EndAt { get; set; }
     }
 
     public class GroupFreeTimeDto
@@ -110,7 +118,7 @@ namespace DataTranferObjects.Student.Meeting
         public bool? IsActive { get; set; }
         public DateTime? CreateAt { get; set; }
         public string? MeetingLink { get; set; }
-        public string? Time { get; set; }
+        public SlotInfo? Slot { get; set; }
         public string? DayOfWeek { get; set; }
         public string? CreatedByName { get; set; }
     }
@@ -123,10 +131,20 @@ namespace DataTranferObjects.Student.Meeting
         public bool? IsMeeting { get; set; }
         public DateTime? CreateAt { get; set; }
         public string? MeetingLink { get; set; }
-        public string? Time { get; set; }
+        public bool? IsActive { get; set; }
+        public SlotInfo SlotInfor { get; set; }
         public string? DayOfWeek { get; set; }
         public bool? IsMinute { get; set; } = false;
 
     }
+
+    public class UpdateMeetingScheduleDateDto
+    {
+        public DateTime? MeetingDate { get; set; }
+        public int? SlotId { get; set; }
+        public bool? IsActive { get; set; }
+        public string? Description { get; set; }
+    }
+
 
 }

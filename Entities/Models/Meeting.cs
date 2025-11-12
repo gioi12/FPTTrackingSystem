@@ -17,13 +17,15 @@ public partial class Meeting
 
     public string? MeetingLink { get; set; }
 
-    public string? Time { get; set; }
-
     public string? DayOfWeek { get; set; }
+
+    public int? SlotId { get; set; }
 
     public virtual User? CreateByNavigation { get; set; }
 
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
     public virtual ICollection<MeetingScheduleDate> MeetingScheduleDates { get; set; } = new List<MeetingScheduleDate>();
+
+    public virtual Slot? Slot { get; set; }
 }

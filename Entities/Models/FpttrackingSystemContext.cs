@@ -333,9 +333,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.CreateAt)
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
-            entity.Property(e => e.DayOfWeek)
-                .HasMaxLength(50)
-                .HasColumnName("day_of_week");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.Role)
@@ -428,9 +425,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.MeetingLink)
                 .HasMaxLength(200)
                 .HasColumnName("meeting_link");
-            entity.Property(e => e.Time)
-                .HasMaxLength(50)
-                .HasColumnName("time");
+            entity.Property(e => e.SlotId).HasColumnName("slot_id");
             entity.Property(e => e.UpdateAt)
                 .HasColumnType("datetime")
                 .HasColumnName("update_at");
@@ -438,6 +433,10 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.Meetings)
                 .HasForeignKey(d => d.CreateBy)
                 .HasConstraintName("FK_Meeting_User");
+
+            entity.HasOne(d => d.Slot).WithMany(p => p.Meetings)
+                .HasForeignKey(d => d.SlotId)
+                .HasConstraintName("FK_Meeting_Slot");
         });
 
         modelBuilder.Entity<MeetingMinute>(entity =>
@@ -489,6 +488,7 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("meeting_date");
             entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
+            entity.Property(e => e.SlotId).HasColumnName("slot_id");
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
@@ -496,6 +496,10 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.Meeting).WithMany(p => p.MeetingScheduleDates)
                 .HasForeignKey(d => d.MeetingId)
                 .HasConstraintName("FK_Meeting_Schedule_Date_Meeting");
+
+            entity.HasOne(d => d.Slot).WithMany(p => p.MeetingScheduleDates)
+                .HasForeignKey(d => d.SlotId)
+                .HasConstraintName("FK_Meeting_Schedule_Date_Slot");
         });
 
         modelBuilder.Entity<Milestone>(entity =>

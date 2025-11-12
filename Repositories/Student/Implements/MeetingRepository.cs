@@ -86,6 +86,10 @@ namespace Repositories.Student.Implements
         {
             return await _context.Groups
                 .Where(g => g.Id == groupId)
+                .Include(g => g.Meeting)
+                    .ThenInclude(m => m.Slot)
+                .Include(g => g.Meeting)
+                    .ThenInclude(m => m.CreateByNavigation)
                 .Select(g => g.Meeting)
                 .FirstOrDefaultAsync();
         }
@@ -165,7 +169,9 @@ namespace Repositories.Student.Implements
             var group = await _context.Groups
                 .Include(g => g.Semester)
                 .Include(g => g.Meeting)
-                .ThenInclude(m => m.MeetingScheduleDates)
+                    .ThenInclude(m => m.MeetingScheduleDates)
+                .Include(g => g.Meeting)
+                    .ThenInclude(m => m.Slot)
                 .FirstOrDefaultAsync(g => g.Id == groupId);
 
             if (group == null)
@@ -179,7 +185,8 @@ namespace Repositories.Student.Implements
                 meeting = new Meeting
                 {
                     DayOfWeek = dto.Day,
-                    Time = dto.Time,
+                    /*Time = dto.Time,*/ // sửa time này bằng slot id và response đầy đủ thông tin của slots
+                    SlotId = dto.SlotId,
                     MeetingLink = dto.MeetingLink,
                     IsActive = true,
                     CreateBy = userId,
@@ -197,6 +204,7 @@ namespace Repositories.Student.Implements
                 {
                     MeetingId = meeting.Id,
                     MeetingDate = date,
+                    SlotId = dto.SlotId,
                     IsActive = true,
                     IsMeeting = false,
                     Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
@@ -342,6 +350,7 @@ namespace Repositories.Student.Implements
             return await _context.MeetingScheduleDates
                 .Include(x=> x.MeetingMinute)
                 .Include(msd => msd.Meeting)
+                .Include(msd => msd.Slot)
                 .Where(msd =>
                     msd.Meeting != null &&
                     msd.Meeting.Groups.Any(g => g.Id == groupId) &&
@@ -352,14 +361,16 @@ namespace Repositories.Student.Implements
 
         public async Task<MeetingScheduleDate?> GetByIdAsync(int id)
         {
-            return await _context.MeetingScheduleDates.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.MeetingScheduleDates
+          .Include(msd => msd.Slot)
+          .Include(msd => msd.Meeting)
+          .FirstOrDefaultAsync(msd => msd.Id == id && msd.IsActive == true);
         }
 
-        public async Task<bool> UpdateAsync(MeetingScheduleDate entity)
+        public async System.Threading.Tasks.Task UpdateAsync(MeetingScheduleDate entity)
         {
             _context.MeetingScheduleDates.Update(entity);
             await _context.SaveChangesAsync();
-            return true;
         }
 
         public async Task<MeetingScheduleDate?> GetByIdWithMeetingAndGroupsAsync(int id)

@@ -17,5 +17,9 @@ public partial class Slot
 
     public virtual Campus? Campus { get; set; }
 
+    public virtual ICollection<MeetingScheduleDate> MeetingScheduleDates { get; set; } = new List<MeetingScheduleDate>();
+
+    public virtual ICollection<Meeting> Meetings { get; set; } = new List<Meeting>();
+
     public virtual ICollection<UserSlot> UserSlots { get; set; } = new List<UserSlot>();
 }

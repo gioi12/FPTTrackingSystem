@@ -33,7 +33,7 @@ namespace Repositories.Student.Interfaces
         Task<MeetingScheduleDate?> GetByIdAsync(int id);
         Task<MeetingScheduleDate?> GetByIdWithMeetingAndGroupsAsync(int id);
         Task<bool> CheckStudentInGroupAsync(int studentId, int groupId);
-        Task<bool> UpdateAsync(MeetingScheduleDate entity);
+        System.Threading.Tasks.Task UpdateAsync(MeetingScheduleDate entity);
         Task<List<UserSlot>> GetUserSlotsAsync(int userId, int groupId);
         System.Threading.Tasks.Task DeleteUserSlotsAsync(List<UserSlot> slots);
         System.Threading.Tasks.Task AddUserSlotsAsync(List<UserSlot> slots);

@@ -5,9 +5,11 @@ using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Student.Implements;
 using Repositories.Student.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Text.Json;
 
 namespace FPTTrackingSystem.Services.Student.Implements
@@ -16,11 +18,13 @@ namespace FPTTrackingSystem.Services.Student.Implements
     {
         private readonly IMeetingRepository _repo;
         private readonly AuthUtils _authUtils;
+        private readonly FpttrackingSystemContext _context;
 
-        public MeetingService(IMeetingRepository repo, AuthUtils authUtils)
+        public MeetingService(IMeetingRepository repo, AuthUtils authUtils, FpttrackingSystemContext context)
         {
             _repo = repo;
             _authUtils = authUtils;
+            _context = context;
         }
 
         public async Task<object> CreateOrUpdateFreeTimeSlotsAsync(int groupId, FreeTimeSlotsRequest request)
@@ -62,7 +66,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 {
                     UserId = studentId,
                     GroupId = groupId,
-                    DayOfWeek = joinedDays,
+                 /*   DayOfWeek = joinedDays,*/
                     CreateAt = now,
                     UpdateAt = now,
                     IsActive = true,
@@ -73,7 +77,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             }
             else
             {
-                existing.DayOfWeek = joinedDays;
+             /*   existing.DayOfWeek = joinedDays;*/
                 existing.UpdateAt = now;
 
                 await _repo.UpdateFreeTimeSlotAsync(existing);
@@ -131,6 +135,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 throw new UnauthorizedAccessException("You are not the mentor of this group.");
             var meeting = await _repo.FinalizeOrUpdateScheduleAsync(groupId, dto.FinalMeeting, user.Id ?? 0);
 
+            var slot = meeting.Slot ?? await _context.Slots.FindAsync(meeting.SlotId);
             return new FinalizeScheduleResponseDto
             {
                 FinalMeeting = new FinalMeetingInfo
@@ -138,10 +143,17 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     Id = meeting.Id,
                     IsFinalized = meeting.IsActive ?? false,
                     Day = meeting.DayOfWeek ?? string.Empty,
-                    Time = meeting.Time ?? string.Empty,
+                    /*Time = meeting.Time ?? string.Empty,*/  // sửa time này bằng slot id và response đầy đủ thông tin của slots
                     MeetingLink = meeting.MeetingLink ?? string.Empty,
                     FinalizedAt = meeting.CreateAt ?? DateTime.UtcNow,
-                    UpdatedAt = meeting.UpdateAt ?? DateTime.UtcNow
+                    UpdatedAt = meeting.UpdateAt ?? DateTime.UtcNow,
+                     Slot = new SlotInfo
+                     {
+                         Id = slot?.Id ?? 0,
+                         NameSlot = slot?.NameSlot ?? string.Empty,
+                         StartAt = slot?.StartAt,
+                         EndAt = slot?.EndAt
+                     }
                 }
             };
         }
@@ -230,9 +242,15 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 IsActive = meeting.IsActive,
                 CreateAt = meeting.CreateAt,
                 MeetingLink = meeting.MeetingLink,
-                Time = meeting.Time,
                 DayOfWeek = meeting.DayOfWeek,
-                CreatedByName = meeting.CreateByNavigation?.Fullname
+                CreatedByName = meeting.CreateByNavigation?.Fullname,
+                Slot = meeting.Slot == null ? null : new SlotInfo
+                {
+                    Id = meeting.Slot.Id,
+                    NameSlot = meeting.Slot.NameSlot,
+                    StartAt = meeting.Slot.StartAt,
+                    EndAt = meeting.Slot.EndAt,
+                }
             };
         }
 
@@ -265,12 +283,75 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 CreateAt = msd.Meeting?.CreateAt,
                 MeetingLink = msd.Meeting?.MeetingLink,
                 IsMeeting = msd.IsMeeting,
-                Time = msd.Meeting?.Time,
+                SlotInfor = new SlotInfo
+                {
+                    Id = msd.Slot.Id,
+                   NameSlot = msd.Slot.NameSlot,
+                   StartAt = msd.Slot.StartAt,
+                   EndAt = msd.Slot.EndAt
+                },
                 DayOfWeek = msd.Meeting?.DayOfWeek,
                 IsMinute = msd.MeetingMinute != null ? true : false
             }).ToList();
 
             return ApiResponse<List<MeetingScheduleDateDetailDto>>.Success(result, "Lấy danh sách ngày họp thành công.");
+        }
+
+        public async Task<ApiResponse<MeetingScheduleDateDetailDto>> UpdateMeetingScheduleDateAsync(int id, UpdateMeetingScheduleDateDto dto)
+        {
+            var msd = await _repo.GetByIdAsync(id);
+            if (msd == null)
+                throw new Exception("Buổi họp không tồn tại hoặc đã bị xóa.");
+
+            var now = DateTime.Now;
+
+            if (msd.MeetingDate <= now)
+                throw new Exception("Bạn không thể cập nhật buổi họp đã diễn ra.");
+
+            if (dto.MeetingDate.HasValue)
+            {
+                var newDate = dto.MeetingDate.Value;
+
+                if (newDate <= now)
+                    throw new Exception("Ngày mới phải lớn hơn hiện tại.");
+
+                var oldWeek = ISOWeek.GetWeekOfYear(msd.MeetingDate ?? now);
+                var newWeek = ISOWeek.GetWeekOfYear(newDate);
+                var oldYear = (msd.MeetingDate ?? now).Year;
+                var newYear = newDate.Year;
+
+                if (oldWeek != newWeek || oldYear != newYear)
+                    throw new Exception("Ngày họp phải nằm trong cùng tuần với ngày hiện tại.");
+            }
+            msd.MeetingDate = dto.MeetingDate ?? msd.MeetingDate;
+            msd.SlotId = dto.SlotId ?? msd.SlotId;
+            msd.IsActive = dto.IsActive ?? msd.IsActive;
+            msd.Description = dto.Description ?? msd.Description;
+            msd.UpdatedAt = DateTime.UtcNow;
+
+            await _repo.UpdateAsync(msd);
+
+            var result = new MeetingScheduleDateDetailDto
+            {
+                Id = msd.Id,
+                MeetingDate = msd.MeetingDate,
+                Description = msd.Description,
+                CreateAt = msd.Meeting?.CreateAt,
+                MeetingLink = msd.Meeting?.MeetingLink,
+                DayOfWeek = msd.Meeting?.DayOfWeek,
+                IsMeeting = msd.IsMeeting,
+                IsActive = msd.IsActive,
+                IsMinute = msd.MeetingMinute != null,
+                SlotInfor = msd.Slot == null ? null : new SlotInfo
+                {
+                    Id = msd.Slot.Id,
+                    NameSlot = msd.Slot.NameSlot,
+                    StartAt = msd.Slot.StartAt,
+                    EndAt = msd.Slot.EndAt
+                }
+            };
+
+            return ApiResponse<MeetingScheduleDateDetailDto>.Success(result, "Cập nhật buổi họp thành công.");
         }
 
         public async System.Threading.Tasks.Task CreateOrUpdateFreeTimeSlotsAsync(int groupId, List<FreeTimeSlotRequest> requests)
@@ -309,6 +390,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
             var schedule = await _repo.GetByIdWithMeetingAndGroupsAsync(id);
             if (schedule == null)
                 throw new ValidationException("Meeting schedule not found.");
+
+            if (schedule.MeetingDate <= DateTime.Now)
+                throw new ValidationException("You cannot update the status of a meeting that has already occurred.");
 
             var mentorId = user.Id ?? 0;
             var mentorGroupIds = schedule.Meeting?.Groups?.Select(g => g.Id).ToList() ?? new List<int>();
