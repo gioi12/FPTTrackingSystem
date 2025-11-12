@@ -21,7 +21,7 @@ namespace Repositories.Staff.Implements
         public async Task<IEnumerable<Campus>> GetAllCampusesAsync()
         {
             return await _context.Campuses
-                                 .Include(c => c.Slots)
+/*                                 .Include(c => c.Slots)*/
                                  .ToListAsync();
         }
 

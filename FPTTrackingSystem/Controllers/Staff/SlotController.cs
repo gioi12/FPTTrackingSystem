@@ -82,6 +82,17 @@ namespace FPTTrackingSystem.Controllers.Staff
             return Ok(ApiResponse<List<SlotCampusDto>>.Success(createdSlots, "Slots created successfully"));
         }
 
+        [HttpGet("v1/slot/ById/{campusId}")]
+        public async Task<IActionResult> GetCampusByIdAsync(int campusId)
+        {
+            var campus = await _campusService.GetByIdWithSlotsAsync(campusId);
+
+            if (campus == null)
+                return Ok(ApiResponse<CampusDto>.Success(null, $"Campus with ID {campusId} not found."));
+
+            return Ok(ApiResponse<CampusDto>.Success(campus, "Get campus successfully"));
+        }
+
 
         [HttpPut("v1/slot/{campusId}")]
         public async Task<ActionResult<ApiResponse<List<SlotCampusDto>>>> UpdateSlots(int campusId,[FromBody] List<SlotCampusDto> slots)

@@ -28,9 +28,9 @@ namespace FPTTrackingSystem.Controllers.Staff
         public async Task<IActionResult> GetAllCampusesAsync()
         {
             var campuses = await _campusService.GetAllCampusesAsync();
-            return Ok(ApiResponse<IEnumerable<CampusDto>>.Success(campuses, "Get all campuses successfully"));
+            return Ok(ApiResponse<IEnumerable<CampusAllDto>>.Success(campuses, "Get all campuses successfully"));
         }
-
+/*
         [HttpGet("ById/{campusId}")]
         public async Task<IActionResult> GetCampusByIdAsync(int campusId)
         {
@@ -40,6 +40,6 @@ namespace FPTTrackingSystem.Controllers.Staff
                 return Ok(ApiResponse<CampusDto>.Success(null, $"Campus with ID {campusId} not found."));
 
             return Ok(ApiResponse<CampusDto>.Success(campus, "Get campus successfully"));
-        }
+        }*/
     }
 }

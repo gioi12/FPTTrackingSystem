@@ -14,21 +14,21 @@ namespace FPTTrackingSystem.Services.Staff.Implements
         {
             _campusRepository = campusRepository;
         }
-        public async Task<IEnumerable<CampusDto>> GetAllCampusesAsync()
+        public async Task<IEnumerable<CampusAllDto>> GetAllCampusesAsync()
         {
             var campuses = await _campusRepository.GetAllCampusesAsync();
 
-            var result = campuses.Select(c => new CampusDto
+            var result = campuses.Select(c => new CampusAllDto
             {
                 Id = c.Id,
                 Name = c.Name,
-                Slots = c.Slots.Select(s => new SlotCampusDto
+/*                Slots = c.Slots.Select(s => new SlotCampusDto
                 {
                     Id = s.Id,
                     NameSlot = s.NameSlot!,
                     StartAt = s.StartAt.ToString(),
                     EndAt = s.EndAt.ToString()
-                }).ToList()
+                }).ToList()*/
             });
 
             return result;

@@ -25,6 +25,13 @@ namespace DataTranferObjects.Staff.Campus
         public List<SlotCampusDto> Slots { get; set; } = new();
     }
 
+    public class CampusAllDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+     /*   public List<SlotCampusDto> Slots { get; set; } = new();*/
+    }
+
     public class SlotCreateDto
     {
         public string NameSlot { get; set; } = null!;
