@@ -134,7 +134,8 @@ namespace DataTranferObjects.Student.Meeting
         public DateTime? CreateAt { get; set; }
         public string? MeetingLink { get; set; }
         public bool? IsActive { get; set; }
-        public SlotInfo SlotInfor { get; set; }
+        public TimeOnly? StartAt { get; set; }
+        public TimeOnly? EndAt { get; set; }
         public string? DayOfWeek { get; set; }
         public bool? IsMinute { get; set; } = false;
 
@@ -143,7 +144,8 @@ namespace DataTranferObjects.Student.Meeting
     public class UpdateMeetingScheduleDateDto
     {
         public DateTime? MeetingDate { get; set; }
-        public int? SlotId { get; set; }
+        public string? StartAt { get; set; }       
+        public string? EndAt { get; set; }
         public bool? IsActive { get; set; }
         public string? Description { get; set; }
     }

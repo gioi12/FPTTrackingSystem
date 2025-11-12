@@ -21,13 +21,13 @@ public partial class MeetingScheduleDate
 
     public bool? IsMeeting { get; set; }
 
-    public int? SlotId { get; set; }
+    public TimeOnly? StartAt { get; set; }
+
+    public TimeOnly? EndAt { get; set; }
 
     public virtual Meeting? Meeting { get; set; }
 
     public virtual MeetingMinute? MeetingMinute { get; set; }
-
-    public virtual Slot? Slot { get; set; }
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }

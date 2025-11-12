@@ -166,19 +166,17 @@ namespace FPTTrackingSystem.Controllers.Staff
                 }*/
 
         [HttpPost("v1/slot/{campusId}")]
-        public async Task<ActionResult<ApiResponse<List<SlotCampusDto>>>> CreateOrUpdateSlots(
-    int campusId,
-    [FromBody] List<SlotCreateDto> slots)
+        public async Task<ActionResult<ApiResponse<List<SlotCampusDto>>>> CreateSlots(int campusId,[FromBody] List<SlotCreateDto> slots)
         {
             // ✅ Check permission
             var user = await _authUtils.GetUserInfoFromCookie();
             if (user == null || user.Role != RoleEnum.Admin.ToString())
-                return Unauthorized(ApiResponse<string>.Unauthorized("Only Admin can manage slots"));
+                return Unauthorized(ApiResponse<string>.Unauthorized("Only Admin can create slots"));
 
             if (slots == null || !slots.Any())
                 return BadRequest(ApiResponse<string>.Fail("No slots provided."));
 
-            // ✅ Get campus and existing slots
+            // ✅ Get campus
             var campus = await _context.Campuses
                 .Include(c => c.Slots)
                 .FirstOrDefaultAsync(c => c.Id == campusId);
@@ -186,7 +184,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             if (campus == null)
                 return BadRequest(ApiResponse<string>.Fail($"Campus with ID {campusId} not found."));
 
-            // ✅ Validate all slots before changing DB
+            // ✅ Validate slot data
             var validatedSlots = new List<(string Name, TimeOnly Start, TimeOnly End)>();
 
             foreach (var s in slots)
@@ -200,6 +198,13 @@ namespace FPTTrackingSystem.Controllers.Staff
                 if (start >= end)
                     return BadRequest(ApiResponse<string>.Fail($"StartAt must be earlier than EndAt for slot '{s.NameSlot}'"));
 
+                // Check overlap with existing campus slots
+                bool overlapExisting = campus.Slots.Any(existing =>
+                    start < existing.EndAt && end > existing.StartAt);
+
+                if (overlapExisting)
+                    return BadRequest(ApiResponse<string>.Fail($"Slot '{s.NameSlot}' overlaps with existing slot in campus."));
+
                 // Check overlap within batch
                 bool overlapInBatch = validatedSlots.Any(existing =>
                     start < existing.End && end > existing.Start);
@@ -210,14 +215,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                 validatedSlots.Add((s.NameSlot, start, end));
             }
 
-            // ✅ Remove existing slots (update behavior)
-            if (campus.Slots.Any())
-            {
-                _context.Slots.RemoveRange(campus.Slots);
-                await _context.SaveChangesAsync();
-            }
-
-            // ✅ Add new slots
+            // ✅ Create new slots
             var createdSlots = new List<SlotCampusDto>();
             foreach (var (name, start, end) in validatedSlots)
             {
@@ -226,26 +224,24 @@ namespace FPTTrackingSystem.Controllers.Staff
                     NameSlot = name,
                     StartAt = start,
                     EndAt = end,
+                    IsActive = true,
                     CampusId = campusId
                 };
 
                 _context.Slots.Add(slot);
-                await _context.SaveChangesAsync();
-
                 createdSlots.Add(new SlotCampusDto
                 {
-                    Id = slot.Id,
                     NameSlot = slot.NameSlot!,
                     StartAt = slot.StartAt.ToString(),
-                    EndAt = slot.EndAt.ToString()
+                    EndAt = slot.EndAt.ToString(),
                 });
             }
 
+            await _context.SaveChangesAsync();
+
             return Ok(ApiResponse<List<SlotCampusDto>>.Success(
                 createdSlots,
-                campus.Slots.Any()
-                    ? "Slots updated successfully"
-                    : "Slots created successfully"
+                $"Created {createdSlots.Count} new slot(s) successfully."
             ));
         }
 

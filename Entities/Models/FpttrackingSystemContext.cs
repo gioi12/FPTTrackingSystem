@@ -482,13 +482,14 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
             entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.EndAt).HasColumnName("end_at");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.IsMeeting).HasColumnName("is_Meeting");
             entity.Property(e => e.MeetingDate)
                 .HasColumnType("datetime")
                 .HasColumnName("meeting_date");
             entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
-            entity.Property(e => e.SlotId).HasColumnName("slot_id");
+            entity.Property(e => e.StartAt).HasColumnName("start_at");
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
@@ -496,10 +497,6 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.Meeting).WithMany(p => p.MeetingScheduleDates)
                 .HasForeignKey(d => d.MeetingId)
                 .HasConstraintName("FK_Meeting_Schedule_Date_Meeting");
-
-            entity.HasOne(d => d.Slot).WithMany(p => p.MeetingScheduleDates)
-                .HasForeignKey(d => d.SlotId)
-                .HasConstraintName("FK_Meeting_Schedule_Date_Slot");
         });
 
         modelBuilder.Entity<Milestone>(entity =>
@@ -671,6 +668,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CampusId).HasColumnName("campus_id");
             entity.Property(e => e.EndAt).HasColumnName("end_at");
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.NameSlot)
                 .HasMaxLength(50)
                 .HasColumnName("name_slot");

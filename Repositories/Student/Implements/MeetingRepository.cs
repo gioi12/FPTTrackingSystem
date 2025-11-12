@@ -185,7 +185,6 @@ namespace Repositories.Student.Implements
                 meeting = new Meeting
                 {
                     DayOfWeek = dto.Day,
-                    /*Time = dto.Time,*/ // sửa time này bằng slot id và response đầy đủ thông tin của slots
                     SlotId = dto.SlotId,
                     MeetingLink = dto.MeetingLink,
                     IsActive = true,
@@ -204,7 +203,8 @@ namespace Repositories.Student.Implements
                 {
                     MeetingId = meeting.Id,
                     MeetingDate = date,
-                    SlotId = dto.SlotId,
+                    StartAt = meeting.Slot.StartAt,
+                    EndAt = meeting.Slot.EndAt,
                     IsActive = true,
                     IsMeeting = false,
                     Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
@@ -350,7 +350,6 @@ namespace Repositories.Student.Implements
             return await _context.MeetingScheduleDates
                 .Include(x=> x.MeetingMinute)
                 .Include(msd => msd.Meeting)
-                .Include(msd => msd.Slot)
                 .Where(msd =>
                     msd.Meeting != null &&
                     msd.Meeting.Groups.Any(g => g.Id == groupId) &&
@@ -362,7 +361,6 @@ namespace Repositories.Student.Implements
         public async Task<MeetingScheduleDate?> GetByIdAsync(int id)
         {
             return await _context.MeetingScheduleDates
-          .Include(msd => msd.Slot)
           .Include(msd => msd.Meeting)
           .FirstOrDefaultAsync(msd => msd.Id == id && msd.IsActive == true);
         }
