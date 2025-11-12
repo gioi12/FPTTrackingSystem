@@ -357,26 +357,33 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async System.Threading.Tasks.Task CreateOrUpdateFreeTimeSlotsAsync(int groupId, List<FreeTimeSlotRequest> requests)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
-            // 1. Lấy dữ liệu cũ
-            var existing = await _repo.GetUserSlotsAsync(user.Id ?? 0, groupId);
+            int userId = user.Id ?? 0;
 
-            // 2. Xóa hết dữ liệu cũ
+            // 1️⃣ Lấy dữ liệu cũ
+            var existing = await _repo.GetUserSlotsAsync(userId, groupId);
+
+            // 2️⃣ Xóa dữ liệu cũ
             if (existing.Any())
             {
                 await _repo.DeleteUserSlotsAsync(existing);
             }
 
-            // 3. Tạo danh sách mới
-            var newSlots = requests.Select(r => new UserSlot
-            {
-                UserId = user.Id ?? 0,
-                GroupId = groupId,
-                SlotId = r.SlotId,
-                DayOfWeek = r.DayOfWeek,
-                CreateAt = DateTime.UtcNow
-            }).ToList();
+            // 3️⃣ Chuyển đổi dữ liệu mới
+            var newSlots = requests
+                .SelectMany(
+                    day => day.Slots.Select(slotId => new UserSlot
+                    {
+                        UserId = user.Id ?? 0,
+                        GroupId = groupId,
+                        SlotId = slotId,
+                        DayOfWeek = day.DayOfWeek,
+                        CreateAt = DateTime.UtcNow
+                    })
+                )
+                .ToList();
 
-            // 4. Thêm mới
+
+            // 4️⃣ Thêm mới vào DB
             await _repo.AddUserSlotsAsync(newSlots);
         }
 

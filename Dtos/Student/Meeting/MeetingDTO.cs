@@ -20,7 +20,7 @@ namespace DataTranferObjects.Student.Meeting
 
     public class FreeTimeSlotRequest
     {
-        public int SlotId { get; set; }
+        public List<int> Slots { get; set; } = new();
         public string DayOfWeek { get; set; } = string.Empty;
     }
 
