@@ -55,6 +55,58 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (pageSize <= 0) pageSize = 10;
 
             var query = _groupRepository.GetGroupsQuery();
+
+            if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
+            {
+                if (user.Groups == null || !user.Groups.Any())
+                {
+                    return new PagedResponse<GroupDto>
+                    {
+                        Status = 200,
+                        Message = "Không có nhóm nào thuộc quyền của bạn.",
+                        Data = new PagedData<GroupDto> { Items = new List<GroupDto>(), Total = 0 }
+                    };
+                }
+
+                var userGroupIds = user.Groups.ToList();
+                query = query.Where(g => userGroupIds.Contains(int.Parse(g.Id)));
+            }
+
+            var total = await query.CountAsync();
+
+            // ✅ Lúc này EF chỉ lấy đúng page bạn cần
+            var groups = await query
+                .OrderBy(g => g.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // ✅ Convert Supervisor sang List<string> nếu EF trả về IEnumerable
+            foreach (var g in groups)
+            {
+                g.Supervisor = g.Supervisor?.ToList() ?? new List<string>();
+            }
+
+            return new PagedResponse<GroupDto>
+            {
+                Status = 200,
+                Message = "Lấy thành công",
+                Data = new PagedData<GroupDto>
+                {
+                    Items = groups,
+                    Total = total
+                }
+            };
+        }
+
+
+        /*public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var query = _groupRepository.GetGroupsQuery().AsNoTracking();
             if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
             {
                 if (user.Groups == null || !user.Groups.Any())
@@ -86,7 +138,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         .Select(gu => gu.User.Fullname)
                         .ToList(),
                      SubmittedDocs = false,
-                 })
+                 }).AsNoTracking()
                   .ToListAsync();
 
             return new PagedResponse<GroupDto>
@@ -99,7 +151,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     Total = total
                 }
             };
-        }
+        }*/
 
         public async Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int id)
         {

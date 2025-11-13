@@ -11,7 +11,7 @@ namespace Repositories.Staff.Interfaces
 {
     public interface IGroupRepository
     {
-        public IQueryable<Group> GetGroupsQuery();
+        public IQueryable<GroupDto> GetGroupsQuery();
         public Task<int> CountAsync(IQueryable<Group> query);
         public Task<Group> GetByIdAsync(int id);
         public Task<List<DashBoardGroupDto>> GetMajorGroupTotalsAsync();
