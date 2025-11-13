@@ -144,16 +144,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 SemesterId = group.SemesterId,
                 Supervisors = group.GroupUsers
                     .Where(gu => gu.User != null
-                              && gu.User.Account != null
-                              && (gu.User.Account.RoleId == (int)RoleEnum.Supervior
-                               || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead))
+                              && gu.Role == "Supervisor" || gu.Role == "SuperviorHead")
                     .Select(gu => gu.User.Fullname)
                     .ToList(),
                 SupervisorsInfor = group.GroupUsers
                     .Where(gu => gu.User != null
-                              && gu.User.Account != null
-                              && (gu.User.Account.RoleId == (int)RoleEnum.Supervior
-                               || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead))
+                              && (gu.Role == "Supervisor" || gu.Role == "SuperviorHead"))
                     .Select(gu => new SuperviorDto
                     {
                         Id = gu.User.Id,
@@ -166,12 +162,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Risk = "Low",
                 Students = group.GroupUsers
                     .Where(gu => gu.User != null
-                              && gu.User.Account != null
-                              && gu.User.Account.RoleId == (int)RoleEnum.Student)
+                              && gu.Role == "Student" || gu.Role == "Leader" || gu.Role == "Secretary")
                     .Select(gu => new StudentDto
                     {
                         Id = gu.User.Id,
-                        RollNumber = gu.User.RollNumber,
+                        RollNumber = gu.Role,
                         Name = gu.User.Fullname,
                         Email = gu.User.Mail,
                         Role = gu.Role

@@ -30,8 +30,8 @@ namespace Repositories.Staff.Implements
                 .Include(g => g.Status)
                 .Include(g => g.GroupUsers)
                     .ThenInclude(gu => gu.User)
-                    .ThenInclude(u => u.Account)
-                    .ThenInclude(a => a.Role)
+/*                    .ThenInclude(u => u.Account)
+                    .ThenInclude(a => a.Role)*/
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
