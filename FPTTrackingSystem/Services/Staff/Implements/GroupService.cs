@@ -80,9 +80,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                      GroupCode = g.Code,
                      Term = g.Semester != null ? g.Semester.Name : "",
                      Major = g.Major != null ? g.Major.Name : "",
-                     StudentCount = g.GroupUsers.Count(gu => gu.User.Account.RoleId == (int)RoleEnum.Student),
+                     StudentCount = g.GroupUsers.Count(gu => gu.Role == RoleEnum.Student.ToString() || gu.Role == "Leader" || gu.Role == "Secretary"),
                      Supervisor = g.GroupUsers
-                        .Where(gu => gu.User.Account.RoleId == (int)RoleEnum.Supervior || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead)
+                        .Where(gu => gu.Role == "Supervisor" || gu.Role == "SuperviorHead")
                         .Select(gu => gu.User.Fullname)
                         .ToList(),
                      SubmittedDocs = false,

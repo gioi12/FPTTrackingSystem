@@ -105,13 +105,13 @@ namespace Repositories.Staff.Implements
         public IQueryable<Group> GetGroupsQuery()
         {
             return _context.Groups
-               .Include(g => g.Major)
-               .Include(g => g.Semester)
-               .Include(g => g.Tasks)
+/*               .Include(g => g.Major)
+               *//*               .Include(g => g.Semester)*/
+               /*.Include(g => g.Tasks)*/
                .Include(g => g.GroupUsers)
                    .ThenInclude(gu => gu.User)
-                   .ThenInclude(u => u.Account)
-                   .ThenInclude(a => a.Role)
+/*                   .ThenInclude(u => u.Account)
+                   .ThenInclude(a => a.Role)*/
                .AsQueryable();
         }
 
