@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using DataTranferObjects.Login;
+using Entities.Models;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -21,7 +23,7 @@ namespace FPTTrackingSystem.Services.Token
             _expiryMinutes = int.Parse(jwtSettings["ExpiryMinutes"]!);
         }
 
-        public string GenerateToken(string userId, string role)
+        public string GenerateToken(string userId, string role,string seId,string seName,string start,string end)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -30,7 +32,11 @@ namespace FPTTrackingSystem.Services.Token
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userId),
                 new Claim(ClaimTypes.Role, role),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("semesterId", seId.ToString()),
+                new Claim("semesterName", seName),
+                new Claim("start_Time", start),
+                new Claim("end_Time", end)
             };
 
             var token = new JwtSecurityToken(
@@ -76,6 +82,19 @@ namespace FPTTrackingSystem.Services.Token
         {
             var principal = ValidateToken(token);
             return principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        public SemesterInfo GetSemesterFromToken(string token)
+        {
+            var principal = ValidateToken(token);
+            return new SemesterInfo
+            {
+                SemesterId = principal?.FindFirst("semesterId")?.Value,
+                SemesterName = principal?.FindFirst("semesterName")?.Value,
+                Start_Time = principal?.FindFirst("start_Time")?.Value,
+                End_Time = principal?.FindFirst("end_Time")?.Value,
+                UserId = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            };
         }
 
         public bool IsTokenExpired(string token)

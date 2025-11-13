@@ -32,34 +32,33 @@ namespace Repositories.Authentication
 
         public async Task<List<Account>> GetAllAsync(Expression<Func<Account, bool>> predicate)
         {
-            return await _context.Accounts.Include(u => u.Users).Where(predicate).ToListAsync();
+            return await _context.Accounts.Include(u => u.User).Where(predicate).ToListAsync();
 
         }
 
 
-        public async Task<UserInfo?> UserInfo(int id)
+        public async Task<UserInfo?> UserInfo(SemesterInfo info)
         {
-            var semesterIdCookie = _httpContextAccessor.HttpContext?.Request.Cookies["semesterId"];
             int? currentSemesterId = null;
 
-            if (!string.IsNullOrWhiteSpace(semesterIdCookie) && int.TryParse(semesterIdCookie, out int semesterIdValue))
+            if (!string.IsNullOrWhiteSpace(info.SemesterId) && int.TryParse(info.SemesterId, out int semesterIdValue))
             {
                 currentSemesterId = semesterIdValue;
             }
 
             var account = await _context.Accounts
                 .Include(a => a.Role)
-                .Include(a => a.Users)
+                .Include(a => a.User)
                     .ThenInclude(u => u.Campus)
-                .Include(a => a.Users)
+                .Include(a => a.User)
                    .ThenInclude(u => u.GroupUsers)
                         .ThenInclude(gu => gu.Group)
-                .FirstOrDefaultAsync(a => a.Id == id);
+                .FirstOrDefaultAsync(a => a.Id == int.Parse(info.UserId));
 
             if (account == null)
                 return null;
 
-            var user = account.Users.FirstOrDefault();
+            var user = account.User;
             if (user == null)
                 return null;
 
@@ -112,7 +111,7 @@ namespace Repositories.Authentication
         public async System.Threading.Tasks.Task UpdateAsync(Account account)
         {
             var existingAccount = await _context.Accounts
-                .Include(a => a.Users)
+                .Include(a => a.User)
                 .FirstOrDefaultAsync(a => a.Id == account.Id);
 
             if (existingAccount == null) return;
@@ -120,8 +119,8 @@ namespace Repositories.Authentication
             existingAccount.Password = account.Password;
             existingAccount.RoleId = account.RoleId;
 
-            var existingUser = existingAccount.Users.FirstOrDefault();
-            var newUser = account.Users.FirstOrDefault();
+            var existingUser = existingAccount.User;
+            var newUser = account.User;
 
             if (existingUser != null && newUser != null)
             {

@@ -27,9 +27,9 @@ namespace FPTTrackingSystem.Utilities
 
             var token = httpContext.Request.Cookies["token"];
             if (string.IsNullOrEmpty(token)) throw new Exception("Not found information in cookie");
-            var userId = _jwtService.GetUserIdFromToken(token);
-            if (userId == null) throw new Exception("Not found user information in cookie");
-            return _accountService.GetUserInfo(int.Parse(userId));
+            var info = _jwtService.GetSemesterFromToken(token);
+            if (info.UserId == null) throw new Exception("Not found user information in cookie");
+            return _accountService.GetUserInfo(info);
            
         }
     }

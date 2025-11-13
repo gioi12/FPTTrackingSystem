@@ -15,5 +15,5 @@ public partial class Account
 
     public virtual Role? Role { get; set; }
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual User? User { get; set; }
 }

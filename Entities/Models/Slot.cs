@@ -15,9 +15,9 @@ public partial class Slot
 
     public int? CampusId { get; set; }
 
-    public virtual Campus? Campus { get; set; }
+    public bool? IsActive { get; set; }
 
-    public virtual ICollection<MeetingScheduleDate> MeetingScheduleDates { get; set; } = new List<MeetingScheduleDate>();
+    public virtual Campus? Campus { get; set; }
 
     public virtual ICollection<Meeting> Meetings { get; set; } = new List<Meeting>();
 

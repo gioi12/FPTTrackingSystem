@@ -64,7 +64,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         Message = "Không có nhóm nào thuộc quyền của bạn.",
                         Data = new PagedData<GroupDto> { Items = new List<GroupDto>(), Total = 0 }
                     };
-
                 query = query.Where(g => user.Groups.Contains(g.Id));
             }
             var total = await _groupRepository.CountAsync(query);
@@ -96,7 +95,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Data = new PagedData<GroupDto>
                 {
                     Items = groups,
-                    Total = total
+                    Total = 0
                 }
             };
         }

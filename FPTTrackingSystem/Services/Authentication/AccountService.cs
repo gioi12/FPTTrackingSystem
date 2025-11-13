@@ -1,8 +1,10 @@
-﻿using DataTranferObjects.Login;
+﻿using Azure;
+using DataTranferObjects.Login;
 using Entities.Models;
 using FPTTrackingSystem.Services.Login;
 using FPTTrackingSystem.Services.Token;
 using FPTTrackingSystem.Wrappers;
+using Microsoft.AspNetCore.Http;
 using Repositories.Authentication;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
@@ -20,22 +22,25 @@ namespace FPTTrackingSystem.Services.Authentication
             _accountRepository = accountRepository;
             _jwtService = jwtService;
         }
-        public async Task<(string token, Semester? semester)> LoginAsync(LoginDTO req)
+        public async Task<string> LoginAsync(LoginDTO req)
         {
             Account? acc = await _accountRepository.LoginAsync(req);
             if (acc == null)
                 throw new ValidationException("Invalid username or password");
 
             var semester = await _accountRepository.GetSemesterByNow();
-
-            string token = _jwtService.GenerateToken(acc.Id.ToString(), acc.Role.Name);
-            return (token, semester);
+            var seId = semester?.Id.ToString() ?? "";
+            var seName = semester?.Name ?? "No Active Semester";
+            var startAt = semester?.StartAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+            var endAt = semester?.EndAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+            string token = _jwtService.GenerateToken(acc.Id.ToString(), acc.Role.Name,seId,seName,startAt,endAt);
+            return token;
         }
 
 
-        public Task<UserInfo?> GetUserInfo(int id)
+        public Task<UserInfo?> GetUserInfo(SemesterInfo info)
         {
-            return _accountRepository.UserInfo(id);
+            return _accountRepository.UserInfo(info);
         }
     }
 }
