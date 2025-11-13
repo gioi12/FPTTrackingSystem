@@ -295,6 +295,25 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             return await _taskRepository.GetMeetingScheduleWithTasksAsync(meetingScheduleId);
         }
+        public async Task<List<TaskResponsesDto>> GetAllActiveMeetingTasksAsync()
+        {
+            var tasks = await _taskRepository.GetAllActiveMeetingTasksAsync();
+
+            return tasks.Select(t => new TaskResponsesDto
+            {
+                Id = t.Id,
+                GroupId = t.GroupId,
+                Name = t.Name,
+                Description = t.Description,
+                Deadline = t.Deadline,
+                Type = t.Type,
+                Status = t.Status,
+                CreatedAt = t.CreatedAt,
+                Priority = t.Priority,
+                IsActive = t.IsActive
+            }).ToList();
+        }
+
 
         public async Task<string> UploadFileTask(IFormFile file, int groupId, int taskId)
         {

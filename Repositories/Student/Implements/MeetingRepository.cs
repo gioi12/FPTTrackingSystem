@@ -199,20 +199,24 @@ namespace Repositories.Student.Implements
 
                 var allDates = calculator.GetAllDatesForDayOfWeek(semester.StartAt!.Value,semester.EndAt!.Value,dto.Day);
 
-                var scheduleDates = allDates.Select(date => new MeetingScheduleDate
-                {
-                    MeetingId = meeting.Id,
-                    MeetingDate = date,
-                    StartAt = meeting.Slot.StartAt,
-                    EndAt = meeting.Slot.EndAt,
-                    IsActive = true,
-                    IsMeeting = false,
-                    Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                }).ToList();
+            var slot = await _context.Slots.FindAsync(dto.SlotId);
+            if (slot == null)
+                throw new Exception("Không tìm thấy slot.");
 
-                _context.MeetingScheduleDates.AddRange(scheduleDates);
+            var scheduleDates = allDates.Select(date => new MeetingScheduleDate
+            {
+                MeetingId = meeting.Id,
+                MeetingDate = date,
+                StartAt = slot.StartAt,
+                EndAt = slot.EndAt,
+                IsActive = true,
+                IsMeeting = false,
+                Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            }).ToList();
+
+            _context.MeetingScheduleDates.AddRange(scheduleDates);
 /*            else
             {
                 bool dayChanged = !string.Equals(meeting.DayOfWeek, dto.Day, StringComparison.OrdinalIgnoreCase);
