@@ -166,7 +166,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     .Select(gu => new StudentDto
                     {
                         Id = gu.User.Id,
-                        RollNumber = gu.Role,
+                        RollNumber = gu.User.RollNumber,
                         Name = gu.User.Fullname,
                         Email = gu.User.Mail,
                         Role = gu.Role
