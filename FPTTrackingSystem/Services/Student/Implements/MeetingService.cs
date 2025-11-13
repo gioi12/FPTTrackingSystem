@@ -143,7 +143,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     Id = meeting.Id,
                     IsFinalized = meeting.IsActive ?? false,
                     Day = meeting.DayOfWeek ?? string.Empty,
-                    /*Time = meeting.Time ?? string.Empty,*/  // sửa time này bằng slot id và response đầy đủ thông tin của slots
                     MeetingLink = meeting.MeetingLink ?? string.Empty,
                     FinalizedAt = meeting.CreateAt ?? DateTime.UtcNow,
                     UpdatedAt = meeting.UpdateAt ?? DateTime.UtcNow,
@@ -283,13 +282,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 CreateAt = msd.Meeting?.CreateAt,
                 MeetingLink = msd.Meeting?.MeetingLink,
                 IsMeeting = msd.IsMeeting,
-                SlotInfor = new SlotInfo
-                {
-                    Id = msd.Slot.Id,
-                   NameSlot = msd.Slot.NameSlot,
-                   StartAt = msd.Slot.StartAt,
-                   EndAt = msd.Slot.EndAt
-                },
+                IsActive = msd.IsActive,
+                StartAt = msd.StartAt,
+                EndAt = msd.EndAt,
                 DayOfWeek = msd.Meeting?.DayOfWeek,
                 IsMinute = msd.MeetingMinute != null ? true : false
             }).ToList();
@@ -301,19 +296,19 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             var msd = await _repo.GetByIdAsync(id);
             if (msd == null)
-                throw new Exception("Buổi họp không tồn tại hoặc đã bị xóa.");
+                throw new Exception("The meeting schedule does not exist or has been deleted.");
 
             var now = DateTime.Now;
 
             if (msd.MeetingDate <= now)
-                throw new Exception("Bạn không thể cập nhật buổi họp đã diễn ra.");
+                throw new Exception("You cannot update a meeting that has already occurred.");
 
+            // ✅ Validate MeetingDate
             if (dto.MeetingDate.HasValue)
             {
                 var newDate = dto.MeetingDate.Value;
-
                 if (newDate <= now)
-                    throw new Exception("Ngày mới phải lớn hơn hiện tại.");
+                    throw new Exception("The new date must be later than the current time.");
 
                 var oldWeek = ISOWeek.GetWeekOfYear(msd.MeetingDate ?? now);
                 var newWeek = ISOWeek.GetWeekOfYear(newDate);
@@ -321,10 +316,31 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 var newYear = newDate.Year;
 
                 if (oldWeek != newWeek || oldYear != newYear)
-                    throw new Exception("Ngày họp phải nằm trong cùng tuần với ngày hiện tại.");
+                    throw new Exception("The meeting date must be within the same week as the current date.");
+
+                msd.MeetingDate = newDate;
             }
-            msd.MeetingDate = dto.MeetingDate ?? msd.MeetingDate;
-            msd.SlotId = dto.SlotId ?? msd.SlotId;
+
+            // ✅ Validate StartAt & EndAt (string → TimeOnly)
+            if (!string.IsNullOrWhiteSpace(dto.StartAt))
+            {
+                if (!TimeOnly.TryParse(dto.StartAt, out var start))
+                    throw new Exception($"Invalid StartAt format: {dto.StartAt}");
+                msd.StartAt = start;
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.EndAt))
+            {
+                if (!TimeOnly.TryParse(dto.EndAt, out var end))
+                    throw new Exception($"Invalid EndAt format: {dto.EndAt}");
+                msd.EndAt = end;
+            }
+
+            // ✅ Optional: validate time range
+            if (msd.StartAt != null && msd.EndAt != null && msd.StartAt >= msd.EndAt)
+                throw new Exception("Start time must be earlier than end time.");
+
+            // ✅ Update other fields
             msd.IsActive = dto.IsActive ?? msd.IsActive;
             msd.Description = dto.Description ?? msd.Description;
             msd.UpdatedAt = DateTime.UtcNow;
@@ -340,19 +356,15 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 MeetingLink = msd.Meeting?.MeetingLink,
                 DayOfWeek = msd.Meeting?.DayOfWeek,
                 IsMeeting = msd.IsMeeting,
+                StartAt = msd.StartAt,
+                EndAt = msd.EndAt,
                 IsActive = msd.IsActive,
                 IsMinute = msd.MeetingMinute != null,
-                SlotInfor = msd.Slot == null ? null : new SlotInfo
-                {
-                    Id = msd.Slot.Id,
-                    NameSlot = msd.Slot.NameSlot,
-                    StartAt = msd.Slot.StartAt,
-                    EndAt = msd.Slot.EndAt
-                }
             };
 
-            return ApiResponse<MeetingScheduleDateDetailDto>.Success(result, "Cập nhật buổi họp thành công.");
+            return ApiResponse<MeetingScheduleDateDetailDto>.Success(result, "Meeting schedule updated successfully.");
         }
+
 
         public async System.Threading.Tasks.Task CreateOrUpdateFreeTimeSlotsAsync(int groupId, List<FreeTimeSlotRequest> requests)
         {

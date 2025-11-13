@@ -55,6 +55,58 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (pageSize <= 0) pageSize = 10;
 
             var query = _groupRepository.GetGroupsQuery();
+
+            if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
+            {
+                if (user.Groups == null || !user.Groups.Any())
+                {
+                    return new PagedResponse<GroupDto>
+                    {
+                        Status = 200,
+                        Message = "Không có nhóm nào thuộc quyền của bạn.",
+                        Data = new PagedData<GroupDto> { Items = new List<GroupDto>(), Total = 0 }
+                    };
+                }
+
+                var userGroupIds = user.Groups.ToList();
+                query = query.Where(g => userGroupIds.Contains(int.Parse(g.Id)));
+            }
+
+            var total = await query.CountAsync();
+
+            // ✅ Lúc này EF chỉ lấy đúng page bạn cần
+            var groups = await query
+                .OrderBy(g => g.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // ✅ Convert Supervisor sang List<string> nếu EF trả về IEnumerable
+            foreach (var g in groups)
+            {
+                g.Supervisor = g.Supervisor?.ToList() ?? new List<string>();
+            }
+
+            return new PagedResponse<GroupDto>
+            {
+                Status = 200,
+                Message = "Lấy thành công",
+                Data = new PagedData<GroupDto>
+                {
+                    Items = groups,
+                    Total = total
+                }
+            };
+        }
+
+
+        /*public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var query = _groupRepository.GetGroupsQuery().AsNoTracking();
             if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
             {
                 if (user.Groups == null || !user.Groups.Any())
@@ -79,13 +131,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                      GroupCode = g.Code,
                      Term = g.Semester != null ? g.Semester.Name : "",
                      Major = g.Major != null ? g.Major.Name : "",
-                     StudentCount = g.GroupUsers.Count(gu => gu.User.Account.RoleId == (int)RoleEnum.Student),
+                     StudentCount = g.GroupUsers.Count(gu => gu.Role == RoleEnum.Student.ToString() || gu.Role == "Leader" || gu.Role == "Secretary"),
                      Supervisor = g.GroupUsers
-                        .Where(gu => gu.User.Account.RoleId == (int)RoleEnum.Supervior || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead)
+                        .Where(gu => gu.Role == "Supervisor" || gu.Role == "SuperviorHead")
                         .Select(gu => gu.User.Fullname)
                         .ToList(),
                      SubmittedDocs = false,
-                 })
+                 }).AsNoTracking()
                   .ToListAsync();
 
             return new PagedResponse<GroupDto>
@@ -98,7 +150,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     Total = 0
                 }
             };
-        }
+        }*/
 
         public async Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int id)
         {
@@ -143,16 +195,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 SemesterId = group.SemesterId,
                 Supervisors = group.GroupUsers
                     .Where(gu => gu.User != null
-                              && gu.User.Account != null
-                              && (gu.User.Account.RoleId == (int)RoleEnum.Supervior
-                               || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead))
+                              && gu.Role == "Supervisor" || gu.Role == "SuperviorHead")
                     .Select(gu => gu.User.Fullname)
                     .ToList(),
                 SupervisorsInfor = group.GroupUsers
                     .Where(gu => gu.User != null
-                              && gu.User.Account != null
-                              && (gu.User.Account.RoleId == (int)RoleEnum.Supervior
-                               || gu.User.Account.RoleId == (int)RoleEnum.SuperviorHead))
+                              && (gu.Role == "Supervisor" || gu.Role == "SuperviorHead"))
                     .Select(gu => new SuperviorDto
                     {
                         Id = gu.User.Id,
@@ -165,8 +213,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Risk = "Low",
                 Students = group.GroupUsers
                     .Where(gu => gu.User != null
-                              && gu.User.Account != null
-                              && gu.User.Account.RoleId == (int)RoleEnum.Student)
+                              && gu.Role == "Student" || gu.Role == "Leader" || gu.Role == "Secretary")
                     .Select(gu => new StudentDto
                     {
                         Id = gu.User.Id,
@@ -452,24 +499,29 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 {"SE150004", 4},
                 {"SE150005", 5},
                 {"ME01", 6},
+                {"SE150006", 7},
+                {"SE150007", 8},
+                {"SE150008", 9},
+                {"SE150009", 10},
+                {"SE150010", 11},
+                {"ME03", 12}
             };
 
             // 2️⃣ Lấy tất cả users
             var allUsers = MockData.Accounts
-                .Where(a => a.Users != null && a.Users.Any())
-                .SelectMany(a => a.Users)
+                .Where(a => a.User != null)
                 .Select(u => new
                 {
-                    Id = userIdMap.ContainsKey(u.RollNumber) ? userIdMap[u.RollNumber] : 0,
-                    u.Fullname,
-                    u.RollNumber,
-                    u.Mail,
-                    u.Phone
+                    Id = userIdMap.ContainsKey(u.User.RollNumber) ? userIdMap[u.User.RollNumber] : 0,
+                    u.User.Fullname,
+                    u.User.RollNumber,
+                    u.User.Mail,
+                    u.User.Phone
                 })
                 .ToList();
 
             // 3️⃣ Tạo groups với Id kỳ học thật
-            var groups = MockData.GetGroups(1, 1, 2, 3, 4, 5, 6);
+            var groups = MockData.GetGroups(1, 1, 2, 3, 4, 5, 6, 7,8,9,10,11,12);
 
             var mockMajors = MockData.MajorCategories;
 
@@ -616,7 +668,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             foreach (var account in accounts)
             {
                 var existingAccount = existingAccounts.FirstOrDefault(e => e.Username.Equals(account.Username, StringComparison.OrdinalIgnoreCase));
-
                 if (existingAccount == null)
                 {
                     newAccounts.Add(account);
@@ -624,22 +675,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 else
                 {
                     bool isAccountUpdated = false;
+                    if (existingAccount.Password != account.Password) { existingAccount.Password = account.Password; isAccountUpdated = true; }
+                    if (existingAccount.RoleId != account.RoleId) { existingAccount.RoleId = account.RoleId; isAccountUpdated = true; }
 
-                    if (existingAccount.Password != account.Password)
-                    {
-                        existingAccount.Password = account.Password;
-                        isAccountUpdated = true;
-                    }
-
-                    if (existingAccount.RoleId != account.RoleId)
-                    {
-                        existingAccount.RoleId = account.RoleId;
-                        isAccountUpdated = true;
-                    }
-
-                    var existingUser = existingAccount.Users.FirstOrDefault();
-                    var newUser = account.Users.FirstOrDefault();
-
+                    var existingUser = existingAccount.User;
+                    var newUser = account.User;
                     if (existingUser != null && newUser != null)
                     {
                         if (existingUser.RollNumber != newUser.RollNumber) existingUser.RollNumber = newUser.RollNumber;
@@ -655,36 +695,42 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         if (existingUser.StatusId != newUser.StatusId) existingUser.StatusId = newUser.StatusId;
                     }
 
-                    if (isAccountUpdated || existingUser != null)
-                    {
-                        updatedAccounts.Add(existingAccount);
-                    }
+                    if (isAccountUpdated || existingUser != null) updatedAccounts.Add(existingAccount);
                 }
             }
 
             if (newAccounts.Any())
-            {
                 await _accountRepository.CreateUsers(newAccounts);
-            }
 
             foreach (var updatedAccount in updatedAccounts)
-            {
                 await _accountRepository.UpdateAsync(updatedAccount);
-            }
 
             var allAccounts = existingAccounts.Concat(newAccounts).ToList();
-            int user1Id = allAccounts.First(a => a.Username == "gioidmhe171512@fpt.edu.vn").Users.First().Id;
-            int user2Id = allAccounts.First(a => a.Username == "haildhe172452@fpt.edu.vn").Users.First().Id;
-            int user3Id = allAccounts.First(a => a.Username == "cuonghvhe176362@fpt.edu.vn").Users.First().Id;
-            int user4Id = allAccounts.First(a => a.Username == "handghe170064@fpt.edu.vn").Users.First().Id;
-            int user5Id = allAccounts.First(a => a.Username == "huongtt170064@fpt.edu.vn").Users.First().Id;
-            int mentor1Id = allAccounts.First(a => a.Username == "lampt2@gmail.com").Users.First().Id;
 
+            // User IDs for G01
+            int user1Id = allAccounts.First(a => a.Username == "gioidmhe171512@fpt.edu.vn").User.Id;
+            int user2Id = allAccounts.First(a => a.Username == "haildhe172452@fpt.edu.vn").User.Id;
+            int user3Id = allAccounts.First(a => a.Username == "cuonghvhe176362@fpt.edu.vn").User.Id;
+            int user4Id = allAccounts.First(a => a.Username == "handghe170064@fpt.edu.vn").User.Id;
+            int user5Id = allAccounts.First(a => a.Username == "huongtt170064@fpt.edu.vn").User.Id;
+            int mentor1Id = allAccounts.First(a => a.Username == "lampt2@gmail.com").User.Id;
+
+            // User IDs for G02
+            int user6Id = allAccounts.First(a => a.Username == "namnthe172123@fpt.edu.vn").User.Id;
+            int user7Id = allAccounts.First(a => a.Username == "minhpthe171234@fpt.edu.vn").User.Id;
+            int user8Id = allAccounts.First(a => a.Username == "anhtthe173456@fpt.edu.vn").User.Id;
+            int user9Id = allAccounts.First(a => a.Username == "quangnmhe175678@fpt.edu.vn").User.Id;
+            int user10Id = allAccounts.First(a => a.Username == "linhnthe176789@fpt.edu.vn").User.Id;
+            int mentor2Id = allAccounts.First(a => a.Username == "thanhbv@gmail.com").User.Id;
+
+
+            // Lấy tất cả groups
             var groups = MockData.GetGroups(
-       1,
-       user1Id, user2Id, user3Id, user4Id, user5Id,
-       mentor1Id
-   );
+                1,
+                user1Id, user2Id, user3Id, user4Id, user5Id, mentor1Id,
+                user6Id, user7Id, user8Id, user9Id, user10Id, mentor2Id
+            );
+
             var existingGroups = await _groupRepository.GetAllAsync(g => groups.Select(gr => gr.Code).Contains(g.Code));
 
             foreach (var group in groups)
@@ -705,7 +751,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     if (existingGroup.VietnameseTitle != group.VietnameseTitle) { existingGroup.VietnameseTitle = group.VietnameseTitle; isGroupUpdated = true; }
                     if (existingGroup.StatusId != group.StatusId) { existingGroup.StatusId = group.StatusId; isGroupUpdated = true; }
 
-                    // Update GroupUsers
                     foreach (var newGU in group.GroupUsers)
                     {
                         var existingGU = existingGroup.GroupUsers.FirstOrDefault(gu => gu.UserId == newGU.UserId);
@@ -724,14 +769,48 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     }
 
                     if (isGroupUpdated)
-                    {
                         await _groupRepository.UpdateAsync(existingGroup);
-                    }
                 }
             }
 
-            return "Create mock data successfully";
+            // Lấy riêng G02 nếu cần
+            var groupG02 = groups.FirstOrDefault(g => g.Code == "G02");
+
+            var userDict = allAccounts.ToDictionary(a => a.User.Id, a => a.User);
+
+            var groupG02Dto = new
+            {
+                GroupCode = groupG02?.Code,
+                GroupName = groupG02?.Name,
+                MajorId = groupG02?.MajorId,
+                Profession = groupG02?.Profession,
+                VietnameseTitle = groupG02?.VietnameseTitle,
+                Description = groupG02?.Description,
+                Status = groupG02?.StatusId,
+                Members = groupG02?.GroupUsers.Select(gu =>
+                {
+                    userDict.TryGetValue(gu.UserId, out var user);
+                    return new
+                    {
+                        UserId = gu.UserId,
+                        Fullname = user?.Fullname,
+                        RollNumber = user?.RollNumber,
+                        Email = user?.Mail,
+                        Phone = user?.Phone,
+                        RoleInGroup = gu.Role,
+                        IsActive = gu.IsActive,
+                        Status = gu.Status
+                    };
+                }).ToList()
+            };
+
+            return new
+            {
+                Message = "Create mock data successfully",
+                GroupG02 = groupG02Dto
+            };
         }
+
     }
 
 }

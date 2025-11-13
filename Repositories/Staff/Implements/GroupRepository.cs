@@ -1,4 +1,5 @@
-﻿using DataTranferObjects.Staff.Group;
+﻿using DataTranferObjects.Enum;
+using DataTranferObjects.Staff.Group;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Staff.Interfaces;
@@ -30,8 +31,8 @@ namespace Repositories.Staff.Implements
                 .Include(g => g.Status)
                 .Include(g => g.GroupUsers)
                     .ThenInclude(gu => gu.User)
-                    .ThenInclude(u => u.Account)
-                    .ThenInclude(a => a.Role)
+/*                    .ThenInclude(u => u.Account)
+                    .ThenInclude(a => a.Role)*/
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
@@ -100,17 +101,31 @@ namespace Repositories.Staff.Implements
             return existingGroup;
         }
 
-
-
-        public IQueryable<Group> GetGroupsQuery()
+        public IQueryable<GroupDto> GetGroupsQuery()
         {
             return _context.Groups
-               .Include(g => g.Major)
-               .Include(g => g.Semester)
-               .Include(g => g.GroupUsers)
-                   .ThenInclude(gu => gu.User)
-                   .ThenInclude(u => u.Account)
-               .AsNoTracking();
+                .AsNoTracking()
+                .Select(g => new GroupDto
+                {
+                    Id = g.Id.ToString(),
+                    CourseCode = g.Major != null ? g.Major.Code : "",
+                    GroupCode = g.Code,
+                    Term = g.Semester != null ? g.Semester.Name : "",
+                    Major = g.Major != null ? g.Major.Name : "",
+
+                    // ✅ Count được tính trong SQL
+                    StudentCount = g.GroupUsers.Count(gu =>
+                        gu.Role == RoleEnum.Student.ToString() ||
+                        gu.Role == "Leader" ||
+                        gu.Role == "Secretary"),
+
+                    // ✅ KHÔNG DÙNG .ToList() ở đây
+                    Supervisor = g.GroupUsers
+                        .Where(gu => gu.Role == "Supervisor" || gu.Role == "SupervisorHead")
+                        .Select(gu => gu.User.Fullname),
+
+                    SubmittedDocs = false
+                });
         }
 
         public async Task<List<DashBoardGroupDto>> GetMajorGroupTotalsAsync()
