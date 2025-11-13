@@ -453,6 +453,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 {"SE150004", 4},
                 {"SE150005", 5},
                 {"ME01", 6},
+                {"SE150006", 7},
+                {"SE150007", 8},
+                {"SE150008", 9},
+                {"SE150009", 10},
+                {"SE150010", 11},
+                {"ME03", 12}
             };
 
             // 2️⃣ Lấy tất cả users
@@ -470,7 +476,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .ToList();
 
             // 3️⃣ Tạo groups với Id kỳ học thật
-            var groups = MockData.GetGroups(1, 1, 2, 3, 4, 5, 6);
+            var groups = MockData.GetGroups(1, 1, 2, 3, 4, 5, 6, 7,8,9,10,11,12);
 
             var mockMajors = MockData.MajorCategories;
 
@@ -617,7 +623,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             foreach (var account in accounts)
             {
                 var existingAccount = existingAccounts.FirstOrDefault(e => e.Username.Equals(account.Username, StringComparison.OrdinalIgnoreCase));
-
                 if (existingAccount == null)
                 {
                     newAccounts.Add(account);
@@ -625,22 +630,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 else
                 {
                     bool isAccountUpdated = false;
-
-                    if (existingAccount.Password != account.Password)
-                    {
-                        existingAccount.Password = account.Password;
-                        isAccountUpdated = true;
-                    }
-
-                    if (existingAccount.RoleId != account.RoleId)
-                    {
-                        existingAccount.RoleId = account.RoleId;
-                        isAccountUpdated = true;
-                    }
+                    if (existingAccount.Password != account.Password) { existingAccount.Password = account.Password; isAccountUpdated = true; }
+                    if (existingAccount.RoleId != account.RoleId) { existingAccount.RoleId = account.RoleId; isAccountUpdated = true; }
 
                     var existingUser = existingAccount.Users.FirstOrDefault();
                     var newUser = account.Users.FirstOrDefault();
-
                     if (existingUser != null && newUser != null)
                     {
                         if (existingUser.RollNumber != newUser.RollNumber) existingUser.RollNumber = newUser.RollNumber;
@@ -656,24 +650,19 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         if (existingUser.StatusId != newUser.StatusId) existingUser.StatusId = newUser.StatusId;
                     }
 
-                    if (isAccountUpdated || existingUser != null)
-                    {
-                        updatedAccounts.Add(existingAccount);
-                    }
+                    if (isAccountUpdated || existingUser != null) updatedAccounts.Add(existingAccount);
                 }
             }
 
             if (newAccounts.Any())
-            {
                 await _accountRepository.CreateUsers(newAccounts);
-            }
 
             foreach (var updatedAccount in updatedAccounts)
-            {
                 await _accountRepository.UpdateAsync(updatedAccount);
-            }
 
             var allAccounts = existingAccounts.Concat(newAccounts).ToList();
+
+            // User IDs for G01
             int user1Id = allAccounts.First(a => a.Username == "gioidmhe171512@fpt.edu.vn").Users.First().Id;
             int user2Id = allAccounts.First(a => a.Username == "haildhe172452@fpt.edu.vn").Users.First().Id;
             int user3Id = allAccounts.First(a => a.Username == "cuonghvhe176362@fpt.edu.vn").Users.First().Id;
@@ -681,11 +670,22 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             int user5Id = allAccounts.First(a => a.Username == "huongtt170064@fpt.edu.vn").Users.First().Id;
             int mentor1Id = allAccounts.First(a => a.Username == "lampt2@gmail.com").Users.First().Id;
 
+            // User IDs for G02
+            int user6Id = allAccounts.First(a => a.Username == "namnthe172123@fpt.edu.vn").Users.First().Id;
+            int user7Id = allAccounts.First(a => a.Username == "minhpthe171234@fpt.edu.vn").Users.First().Id;
+            int user8Id = allAccounts.First(a => a.Username == "anhtthe173456@fpt.edu.vn").Users.First().Id;
+            int user9Id = allAccounts.First(a => a.Username == "quangnmhe175678@fpt.edu.vn").Users.First().Id;
+            int user10Id = allAccounts.First(a => a.Username == "linhnthe176789@fpt.edu.vn").Users.First().Id;
+            int mentor2Id = allAccounts.First(a => a.Username == "thanhbv@gmail.com").Users.First().Id;
+
+
+            // Lấy tất cả groups
             var groups = MockData.GetGroups(
-       1,
-       user1Id, user2Id, user3Id, user4Id, user5Id,
-       mentor1Id
-   );
+                1,
+                user1Id, user2Id, user3Id, user4Id, user5Id, mentor1Id,
+                user6Id, user7Id, user8Id, user9Id, user10Id, mentor2Id
+            );
+
             var existingGroups = await _groupRepository.GetAllAsync(g => groups.Select(gr => gr.Code).Contains(g.Code));
 
             foreach (var group in groups)
@@ -706,7 +706,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     if (existingGroup.VietnameseTitle != group.VietnameseTitle) { existingGroup.VietnameseTitle = group.VietnameseTitle; isGroupUpdated = true; }
                     if (existingGroup.StatusId != group.StatusId) { existingGroup.StatusId = group.StatusId; isGroupUpdated = true; }
 
-                    // Update GroupUsers
                     foreach (var newGU in group.GroupUsers)
                     {
                         var existingGU = existingGroup.GroupUsers.FirstOrDefault(gu => gu.UserId == newGU.UserId);
@@ -725,14 +724,50 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     }
 
                     if (isGroupUpdated)
-                    {
                         await _groupRepository.UpdateAsync(existingGroup);
-                    }
                 }
             }
 
-            return "Create mock data successfully";
+            // Lấy riêng G02 nếu cần
+            var groupG02 = groups.FirstOrDefault(g => g.Code == "G02");
+
+            var groupG02Dto = new
+            {
+                GroupCode = groupG02?.Code,
+                GroupName = groupG02?.Name,
+                MajorId = groupG02?.MajorId,
+                Profession = groupG02?.Profession,
+                VietnameseTitle = groupG02?.VietnameseTitle,
+                Description = groupG02?.Description,
+                Status = groupG02?.StatusId,
+                Members = groupG02?.GroupUsers.Select(gu => new
+                {
+                    UserId = gu.UserId,
+                    Fullname = allAccounts
+                        .SelectMany(a => a.Users)
+                        .FirstOrDefault(u => u.Id == gu.UserId)?.Fullname,
+                    RollNumber = allAccounts
+                        .SelectMany(a => a.Users)
+                        .FirstOrDefault(u => u.Id == gu.UserId)?.RollNumber,
+                    Email = allAccounts
+                        .SelectMany(a => a.Users)
+                        .FirstOrDefault(u => u.Id == gu.UserId)?.Mail,
+                    Phone = allAccounts
+                        .SelectMany(a => a.Users)
+                        .FirstOrDefault(u => u.Id == gu.UserId)?.Phone,
+                    RoleInGroup = gu.Role,
+                    IsActive = gu.IsActive,
+                    Status = gu.Status
+                }).ToList()
+            };
+
+            return new
+            {
+                Message = "Create mock data successfully",
+                GroupG02 = groupG02Dto
+            };
         }
+
     }
 
 }
