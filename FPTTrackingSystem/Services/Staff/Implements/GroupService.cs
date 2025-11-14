@@ -724,7 +724,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     {
                         GroupCode = group.Code,
                         GroupName = group.Name,
-                        MajorId = group.MajorId,
                         Profession = group.Profession,
                         VietnameseTitle = group.VietnameseTitle,
                         Description = group.Description,
@@ -775,7 +774,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return result;
         }
-
 
         /*public async Task<object> CreateMockData()
         {
