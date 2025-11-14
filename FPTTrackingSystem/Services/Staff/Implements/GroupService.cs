@@ -208,18 +208,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int id)
         {
-            // Lấy thông tin user từ JWT trong cookie/token
+            // Lấy thông tin user từ JWT
             var user = await _authUtils.GetUserInfoFromCookie();
-
-            // SemesterId trong UserInfo giờ là int?
-            int? semesterIdValue = user.SemesterId;
-
-            if (semesterIdValue == null || semesterIdValue == 0)
-            {
-                return new ApiResponse<GroupDetailDto>(400, "Current semester information not found.", null);
-            }
-
-            int currentSemesterId = semesterIdValue.Value;
 
             // Lấy group theo ID
             var group = await _groupRepository.GetByIdAsync(id);
@@ -229,18 +219,31 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 return new ApiResponse<GroupDetailDto>(200, "Group not found.", null);
             }
 
-            // ❗ CHECK: Nhóm không thuộc kỳ hiện tại (trừ Staff)
-            if (group.SemesterId != currentSemesterId && user.Role != RoleEnum.Staff.ToString())
+            // STAFF: bỏ toàn bộ check kỳ + check thuộc nhóm
+            if (user.Role != RoleEnum.Staff.ToString())
             {
-                return new ApiResponse<GroupDetailDto>(200, "This group does not belong to the current semester.", null);
-            }
+                // --- CHECK KỲ ---
+                int? semesterIdValue = user.SemesterId;
 
-            // ❗ CHECK: Student / Supervisor chỉ được xem nhóm mình thuộc
-            if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
-            {
-                if (user.Groups == null || !user.Groups.Contains(id))
+                if (semesterIdValue == null || semesterIdValue == 0)
                 {
-                    return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền truy cập nhóm này.", new GroupDetailDto());
+                    return new ApiResponse<GroupDetailDto>(400, "Current semester information not found.", null);
+                }
+
+                int currentSemesterId = semesterIdValue.Value;
+
+                if (group.SemesterId != currentSemesterId)
+                {
+                    return new ApiResponse<GroupDetailDto>(200, "This group does not belong to the current semester.", null);
+                }
+
+                // --- CHECK THÀNH VIÊN NHÓM ---
+                if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
+                {
+                    if (user.Groups == null || !user.Groups.Contains(id))
+                    {
+                        return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền truy cập nhóm này.", new GroupDetailDto());
+                    }
                 }
             }
 
@@ -252,7 +255,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 GroupCode = group.Code,
                 SemesterId = group.SemesterId,
 
-                // Danh sách Supervisor
                 Supervisors = group.GroupUsers
                     .Where(gu => gu.User != null && (gu.Role == "Supervisor" || gu.Role == "SupervisorHead"))
                     .Select(gu => gu.User.Fullname)
@@ -271,7 +273,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Status = group.Status?.Name,
                 Risk = "Low",
 
-                // Danh sách Student
                 Students = group.GroupUsers
                     .Where(gu => gu.User != null &&
                                 (gu.Role == "Student" || gu.Role == "Leader" || gu.Role == "Secretary"))
@@ -288,12 +289,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 ActivityLog = null
             };
 
-            return new ApiResponse<GroupDetailDto>
-            {
-                Status = 200,
-                Message = "Lấy thành công",
-                Data = dto
-            };
+            return new ApiResponse<GroupDetailDto>(200, "Lấy thành công", dto);
         }
 
         public async Task<ApiResponse<List<DashBoardGroupDto>>> GetMajorGroupTotalsAsync()
