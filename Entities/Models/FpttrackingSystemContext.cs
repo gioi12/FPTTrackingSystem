@@ -33,6 +33,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<Log> Logs { get; set; }
 
+    public virtual DbSet<MailSetting> MailSettings { get; set; }
+
     public virtual DbSet<Major> Majors { get; set; }
 
     public virtual DbSet<MajorCategory> MajorCategories { get; set; }
@@ -382,6 +384,24 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasConstraintName("FK_Log_User");
         });
 
+        modelBuilder.Entity<MailSetting>(entity =>
+        {
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.DisplayName)
+                .HasMaxLength(100)
+                .HasColumnName("display_name");
+            entity.Property(e => e.Host)
+                .HasMaxLength(200)
+                .HasColumnName("host");
+            entity.Property(e => e.Mail)
+                .HasMaxLength(200)
+                .HasColumnName("mail");
+            entity.Property(e => e.Password)
+                .HasMaxLength(100)
+                .HasColumnName("password");
+            entity.Property(e => e.Port).HasColumnName("port");
+        });
+
         modelBuilder.Entity<Major>(entity =>
         {
             entity.ToTable("Major");
@@ -707,9 +727,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.MeetingScheduleDateId).HasColumnName("meeting_schedule_date_id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(100)
-                .HasColumnName("name");
+            entity.Property(e => e.Name).HasColumnName("name");
             entity.Property(e => e.Priority)
                 .HasMaxLength(50)
                 .HasColumnName("priority");
