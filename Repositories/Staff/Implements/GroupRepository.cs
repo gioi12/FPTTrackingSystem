@@ -107,7 +107,7 @@ namespace Repositories.Staff.Implements
                 .AsNoTracking()
                 .Select(g => new GroupDto
                 {
-                    Id = g.Id.ToString(),
+                    Id = g.Id,
                     CourseCode = g.Major != null ? g.Major.Code : "",
                     GroupCode = g.Code,
                     Term = g.Semester != null ? g.Semester.Name : "",

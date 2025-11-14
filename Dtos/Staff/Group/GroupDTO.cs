@@ -8,7 +8,7 @@ namespace DataTranferObjects.Staff.Group
 {
     public class GroupDto
     {
-        public string? Id { get; set; } = string.Empty;
+        public int? Id { get; set; }
         public string? GroupCode { get; set; } = string.Empty;
         public string? CourseCode { get; set; } = string.Empty;
         public string? Term { get; set; } = string.Empty;
