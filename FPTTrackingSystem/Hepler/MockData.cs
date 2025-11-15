@@ -9,8 +9,8 @@ namespace FPTTrackingSystem.Helper
             Name = "Spring 2026",
             IsActive = true,
             Description = "Spring semester for Capstone projects, from Jan to April 2026",
-            StartAt = new DateTime(2026, 1, 1),
-            EndAt = new DateTime(2026, 4, 30)
+            StartAt = new DateTime(2026, 1, 5),
+            EndAt = new DateTime(2026, 4, 5)
         };
 
         public static readonly Semester SemesterSummer2026 = new Semester
