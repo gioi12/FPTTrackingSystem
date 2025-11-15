@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using DataTranferObjects.Student.Meeting;
 using System.Text.Json;
 using Repositories.Helper;
+using DataTranferObjects.Enum;
 
 namespace Repositories.Student.Implements
 {
@@ -312,6 +313,7 @@ namespace Repositories.Student.Implements
         {
             return await _context.MeetingMinutes
                           .Include(x => x.CreateByNavigation)
+                          .Include(x => x.Tasks)
                           .FirstOrDefaultAsync(m => m.Id == id);
         }
 
@@ -324,6 +326,16 @@ namespace Repositories.Student.Implements
 
         public async System.Threading.Tasks.Task DeleteMeetingMinute(MeetingMinute entity)
         {
+            if(entity.Tasks != null && entity.Tasks.Count != 0)
+            {
+                foreach (var item in entity.Tasks)
+                {
+                    item.Status = StatusTask.InActive.ToString();
+                    item.MeetingMinuteId = null;
+                }
+                _context.Tasks.UpdateRange(entity.Tasks);
+            }
+           
             _context.MeetingMinutes.Remove(entity);
             await _context.SaveChangesAsync();
         }

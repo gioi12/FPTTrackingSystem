@@ -28,4 +28,6 @@ public partial class MeetingMinute
     public virtual User? CreateByNavigation { get; set; }
 
     public virtual MeetingScheduleDate? MeetingScheduleDate { get; set; }
+
+    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }
