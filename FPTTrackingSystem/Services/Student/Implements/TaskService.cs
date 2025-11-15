@@ -213,23 +213,69 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             try
             {
-
                 var user = await _authUtils.GetUserInfoFromCookie();
                 var existingTask = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == dto.Id);
-                var taskCreator = await _context.TaskUsers
-                        .FirstOrDefaultAsync(tu => tu.TaskId == dto.Id && tu.Type == "Creator");
+
                 if (existingTask == null)
                     return new ApiResponse<TaskResponseUpdateDto>(200, "Không tìm thấy task", null);
 
+                // Lấy quan hệ user-task
+                var userTaskRelation = await _context.TaskUsers
+                    .FirstOrDefaultAsync(tu => tu.TaskId == dto.Id && tu.UserId == user.Id);
+
+                var taskCreator = await _context.TaskUsers
+                    .FirstOrDefaultAsync(tu => tu.TaskId == dto.Id && tu.Type == "Creator");
+
+                // =========================
+                // QUYỀN: ROLE STUDENT
+                // =========================
                 if (user.Role == "Student")
                 {
+                    // Không thuộc group -> cấm
                     if (user.Groups == null || !user.Groups.Contains(existingTask.GroupId))
                         return new ApiResponse<TaskResponseUpdateDto>(403, "Bạn không có quyền sửa task của nhóm khác.", null);
 
-                    if (taskCreator == null || taskCreator.UserId != user.Id)
-                        return new ApiResponse<TaskResponseUpdateDto>(403, "Bạn chỉ được sửa task do chính mình tạo.", null);
+                    // Không tham gia task -> cấm
+                    if (userTaskRelation == null)
+                        return new ApiResponse<TaskResponseUpdateDto>(403, "Bạn không tham gia task này.", null);
+
+                    // Reviewer -> cấm
+                    if (userTaskRelation.Type == "Reviewer")
+                        return new ApiResponse<TaskResponseUpdateDto>(403, "Reviewer không thể sửa task.", null);
+
+                    // Assignee -> chỉ được sửa STATUS
+                    if (userTaskRelation.Type == "Assignee")
+                    {
+                        // LẤY USER ASSIGNEE
+                        var assignee = await _context.TaskUsers
+                            .FirstOrDefaultAsync(tu => tu.TaskId == dto.Id && tu.Type == "Assignee");
+
+                        // LẤY USER REVIEWER
+                        var reviewer = await _context.TaskUsers
+                            .FirstOrDefaultAsync(tu => tu.TaskId == dto.Id && tu.Type == "Reviewer");
+
+                        dto.GroupId = existingTask.GroupId;
+                        dto.Name = existingTask.Name;
+                        dto.Description = existingTask.Description;
+                        dto.PriorityId = existingTask.Priority;
+                        dto.DeliverableId = existingTask.DeliverableId;
+                        dto.MeetingId = existingTask.MeetingScheduleDateId;
+
+                        // GÁN LẠI USER
+                        dto.AssignedUserId = assignee?.UserId ?? 0;
+                        dto.ReviewerId = reviewer?.UserId ?? 0;
+
+                        // GIỮ NGUYÊN DEADLINE
+                        dto.EndAt = existingTask.Deadline;
+                    }
+
+
+                    // Creator -> full quyền, không chặn gì
                 }
 
+                // =========================
+                // VALIDATE INPUT
+                // =========================
                 if (dto.GroupId <= 0)
                     throw new ArgumentException("GroupId không hợp lệ.");
 
@@ -248,32 +294,37 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 if (dto.AssignedUserId <= 0)
                     throw new ArgumentException("AssignedUserId không hợp lệ.");
 
+                if (dto.ReviewerId <= 0)
+                    throw new ArgumentException("ReviewerId không hợp lệ.");
+
                 var status = dto.StatusId.Trim().ToLower();
                 var priority = dto.PriorityId.Trim().ToLower();
 
-                if (dto.ReviewerId <= 0)
-                    throw new ArgumentException("ReviewerId không hợp lệ.");
                 var validTaskTypes = new[] { "todo", "inprogress", "done" };
-                if (string.IsNullOrWhiteSpace(dto.StatusId) ||
-                    !validTaskTypes.Contains(dto.StatusId.Trim().ToLower()))
+                if (!validTaskTypes.Contains(status))
                     throw new ArgumentException("Invalid TaskType. Allowed values: ToDo, InProgress, Done.");
 
                 var validPriorities = new[] { "high", "medium", "low" };
-                if (string.IsNullOrWhiteSpace(priority) ||
-                    !validPriorities.Contains(priority.Trim().ToLower()))
+                if (!validPriorities.Contains(priority))
                     return ApiResponse<TaskResponseUpdateDto>.Fail("Độ ưu tiên không hợp lệ.", 400);
+
+                // =========================
+                // UPDATE
+                // =========================
                 var updatedTask = await _taskRepository.UpdateTaskAsync(dto, user.Id ?? 0);
+
                 string Capitalize(string s) =>
-                string.IsNullOrWhiteSpace(s) ? s : char.ToUpper(s[0]) + s.Substring(1).ToLower();
+                    string.IsNullOrWhiteSpace(s) ? s : char.ToUpper(s[0]) + s.Substring(1).ToLower();
 
                 dto.StatusId = Capitalize(status);
                 dto.PriorityId = Capitalize(priority);
 
                 var assignedUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);
-                var reviewerUser = dto.ReviewerId != null
-                    ? await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.ReviewerId)
-                    : null;
+                var reviewerUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.ReviewerId);
 
+                // =========================
+                // RESPONSE
+                // =========================
                 var responseDto = new TaskResponseUpdateDto
                 {
                     Id = updatedTask.Id,
@@ -299,6 +350,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 return new ApiResponse<TaskResponseUpdateDto>(500, "Lỗi khi cập nhật task: " + ex.Message);
             }
         }
+
 
         public async Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId)
         {
