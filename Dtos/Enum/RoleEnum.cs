@@ -20,7 +20,7 @@ namespace DataTranferObjects.Enum
     {
         ToDo = 1,
         InProgress = 2,
-        Done = 3
+        Done = 3,
     }
 
     public enum TaskPriority

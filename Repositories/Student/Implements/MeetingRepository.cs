@@ -330,7 +330,7 @@ namespace Repositories.Student.Implements
             {
                 foreach (var item in entity.Tasks)
                 {
-                    item.Status = StatusTask.InActive.ToString();
+                    item.IsActive = false;
                     item.MeetingMinuteId = null;
                 }
                 _context.Tasks.UpdateRange(entity.Tasks);
