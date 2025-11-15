@@ -689,7 +689,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             // 3️⃣ Tạo groups với Id kỳ học thật
             var groups = MockData.GetGroups(
-                1,
+                7,
                 1, 2, 3, 4, 5, 6,
                 7, 8, 9, 10, 11, 12
             );
@@ -930,7 +930,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             // Lấy tất cả groups
             var groups = MockData.GetGroups(
-                1,
+                7,
                 user1Id, user2Id, user3Id, user4Id, user5Id, mentor1Id,
                 user6Id, user7Id, user8Id, user9Id, user10Id, mentor2Id
             );
