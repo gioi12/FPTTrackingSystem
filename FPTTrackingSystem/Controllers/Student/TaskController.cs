@@ -19,12 +19,12 @@ namespace FPTTrackingSystem.Controllers.Student
             _context = context;
         }
 
-        [HttpGet("v1/Student/Task/Incomplete")]
-        public async Task<IActionResult> GetAllActiveMeetingTasks()
+        [HttpGet("v1/Student/Task/Incomplete/{groupId}")]
+        public async Task<IActionResult> GetAllActiveMeetingTasks(int groupId)
         {
             try
             {
-                var tasks = await _taskService.GetAllActiveMeetingTasksAsync();
+                var tasks = await _taskService.GetAllActiveMeetingTasksAsync(groupId);
                 return Ok(ApiResponse<List<TaskResponsesDto>>.Success(tasks, "Retrieved meeting tasks successfully.", 200));
             }
             catch (Exception ex)

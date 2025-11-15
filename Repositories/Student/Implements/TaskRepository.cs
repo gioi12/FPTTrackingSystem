@@ -21,10 +21,11 @@ namespace Repositories.Student.Implements
             _context = context;
             _logger = logger;
         }
-        public async Task<List<Entities.Models.Task>> GetAllActiveMeetingTasksAsync()
+        public async Task<List<Entities.Models.Task>> GetAllActiveMeetingTasksAsync(int groupId)
         {
             return await _context.Tasks
-                .Where(t => t.Type == "Meeting"
+                .Where(t => t.GroupId == groupId &&
+                t.Type == "Meeting"
                             && (t.Status == "Todo" || t.Status == "InProgress")
                             && t.IsActive == true)
                 .OrderBy(t => t.Deadline)
