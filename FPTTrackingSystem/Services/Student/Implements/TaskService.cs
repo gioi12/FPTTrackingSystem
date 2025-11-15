@@ -3,6 +3,7 @@ using DataTranferObjects.Enum;
 using DataTranferObjects.Staff.Task;
 using Entities.Models;
 using FPTTrackingSystem.Services.Student.Interfaces;
+using FPTTrackingSystem.Services.Token;
 using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Mapster;
@@ -24,7 +25,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
         private readonly IWebHostEnvironment _env;
         private readonly IAttachmentRepository _attachmentRepository;
         private readonly IGroupRepository _groupRepository;
-        public TaskService(ITaskRepository taskRepository, AuthUtils authUtils, FpttrackingSystemContext context, IHttpContextAccessor httpContextAccessor,IAttachmentRepository attachmentRepository,IWebHostEnvironment env,IGroupRepository groupRepository)
+        private readonly IJwtService _jwtService;
+        public TaskService(ITaskRepository taskRepository, IJwtService jwtService,
+ AuthUtils authUtils, FpttrackingSystemContext context, IHttpContextAccessor httpContextAccessor,IAttachmentRepository attachmentRepository,IWebHostEnvironment env,IGroupRepository groupRepository)
         {
             _taskRepository = taskRepository;
             _authUtils = authUtils;
@@ -32,13 +35,30 @@ namespace FPTTrackingSystem.Services.Student.Implements
             _httpContextAccessor = httpContextAccessor;
             _attachmentRepository = attachmentRepository;
             _env = env;
+            _jwtService = jwtService;
             _groupRepository = groupRepository;
         }
 
         public async Task<Entities.Models.Task> CreateTaskAsync(CreateTaskDTO dto)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
-            var endTimeCookie = _httpContextAccessor.HttpContext?.Request.Cookies["end_Time"];
+
+            var token = _httpContextAccessor.HttpContext?.Request.Cookies["token"];
+            if (string.IsNullOrEmpty(token))
+                throw new InvalidOperationException("Token not found in cookie.");
+
+            // Giải mã token lấy thông tin semester
+            var semesterInfo = _jwtService.GetSemesterFromToken(token);
+            if (string.IsNullOrEmpty(semesterInfo.End_Time) || !DateTime.TryParse(semesterInfo.End_Time, out DateTime semesterEndTime))
+                throw new InvalidOperationException("Semester end time not found or invalid in token.");
+
+            // Kiểm tra deadline task
+            if (dto.EndAt <= DateTime.Now)
+                throw new ArgumentException("Task deadline must be greater than the current time.");
+
+            if (dto.EndAt > semesterEndTime)
+                throw new ArgumentException("Task deadline cannot exceed the semester end date.");
+
             if (user.Role == "Student" && (user.Groups == null || !user.Groups.Contains(dto.GroupId)))
                 throw new UnauthorizedAccessException("Bạn không có quyền tạo task trong nhóm này.");
 
@@ -59,18 +79,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
             if (dto.EndAt == default)
                 throw new ArgumentException("EndAt không được để trống.");
-            if (!string.IsNullOrWhiteSpace(endTimeCookie) && DateTime.TryParse(endTimeCookie, out DateTime semesterEndTime))
-            {
-                if (dto.EndAt <= DateTime.Now)
-                    throw new ArgumentException("Task deadline must be greater than the current time.");
 
-                if (dto.EndAt > semesterEndTime)
-                    throw new ArgumentException("Task deadline cannot exceed the semester end date.");
-            }
-            else
-            {
-                throw new InvalidOperationException("Semester end time cookie not found or invalid.");
-            }
             if (dto.AssignedUserId <= 0)
                 throw new ArgumentException("AssignedUserId không hợp lệ.");
 
@@ -295,6 +304,25 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             return await _taskRepository.GetMeetingScheduleWithTasksAsync(meetingScheduleId);
         }
+        public async Task<List<TaskResponsesDto>> GetAllActiveMeetingTasksAsync()
+        {
+            var tasks = await _taskRepository.GetAllActiveMeetingTasksAsync();
+
+            return tasks.Select(t => new TaskResponsesDto
+            {
+                Id = t.Id,
+                GroupId = t.GroupId,
+                Name = t.Name,
+                Description = t.Description,
+                Deadline = t.Deadline,
+                Type = t.Type,
+                Status = t.Status,
+                CreatedAt = t.CreatedAt,
+                Priority = t.Priority,
+                IsActive = t.IsActive
+            }).ToList();
+        }
+
 
         public async Task<string> UploadFileTask(IFormFile file, int groupId, int taskId)
         {

@@ -21,6 +21,15 @@ namespace Repositories.Student.Implements
             _context = context;
             _logger = logger;
         }
+        public async Task<List<Entities.Models.Task>> GetAllActiveMeetingTasksAsync()
+        {
+            return await _context.Tasks
+                .Where(t => t.Type == "Meeting"
+                            && (t.Status == "Todo" || t.Status == "InProgress")
+                            && t.IsActive == true)
+                .OrderBy(t => t.Deadline)
+                .ToListAsync();
+        }
 
         public async Task<Entities.Models.Task> CreateTaskAsync(Entities.Models.Task task, int assignedUserId,int createdBy,int? reviewerId = null)
         {
@@ -404,7 +413,8 @@ namespace Repositories.Student.Implements
                             t.Name,
                             t.Description,
                             t.Deadline,
-                            t.IsActive
+                            t.IsActive,
+                            t.Status
                         }).ToList()
                 })
                 .FirstOrDefaultAsync();

@@ -727,9 +727,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.GroupId).HasColumnName("group_id");
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.MeetingScheduleDateId).HasColumnName("meeting_schedule_date_id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(100)
-                .HasColumnName("name");
+            entity.Property(e => e.Name).HasColumnName("name");
             entity.Property(e => e.Priority)
                 .HasMaxLength(50)
                 .HasColumnName("priority");

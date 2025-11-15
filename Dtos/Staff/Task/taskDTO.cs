@@ -107,6 +107,28 @@ namespace DataTranferObjects.Staff.Task
 
         public List<HistoryDto>? History { get; set; }
     }
+    public class TaskResponsesDto
+    {
+        public int Id { get; set; }
+
+        public int GroupId { get; set; }
+
+        public string Name { get; set; } = null!;
+
+        public string? Description { get; set; }
+
+        public DateTime Deadline { get; set; }
+
+        public string? Type { get; set; }
+
+        public string Status { get; set; } = null!;
+
+        public DateTime? CreatedAt { get; set; }
+
+        public string? Priority { get; set; }
+
+        public bool? IsActive { get; set; }
+    }
 
 
     public class GroupTaskDto

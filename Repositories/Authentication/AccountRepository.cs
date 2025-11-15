@@ -78,12 +78,18 @@ namespace Repositories.Authentication
                     .ToList();
             }
 
+            var semesterId = user.GroupUsers
+                    .Where(gu => gu.Group != null)
+                    .Select(gu => gu.Group.SemesterId)
+                    .FirstOrDefault();
+
             var groupUser = user.GroupUsers.FirstOrDefault();
             var roleInGroup = groupUser?.Role;
 
             return new UserInfo
             {
                 Id = user.Id,
+                SemesterId = semesterId,
                 Name = user.Fullname,
                 Role = account.Role.Name,
                 RoleInGroup = roleInGroup,

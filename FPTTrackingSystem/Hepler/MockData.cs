@@ -331,82 +331,36 @@ namespace FPTTrackingSystem.Helper
 
         // Lưu ý: Groups không có GroupUsers nữa vì UserId chưa tồn tại
         // Bạn cần tạo Groups sau khi tạo Users xong
-        public static List<Group> GetGroups(int semesterId, int user1Id, int user2Id, int user3Id, int user4Id,int user5Id, int mentor1Id,
-            int user6Id, int user7Id, int user8Id, int user9Id, int user10Id, int mentor2Id)
+        public static List<Group> GetGroups(int semesterId,
+     int user1Id, int user2Id, int user3Id, int user4Id, int user5Id, int mentor1Id,
+     int user6Id, int user7Id, int user8Id, int user9Id, int user10Id, int mentor2Id)
         {
-            return new List<Group>
+            var groups = new List<Group>
+    {
+        // --- 2 nhóm chính ---
+        new Group
+        {
+            Code = "G01",
+            Name = "Capstone Team Alpha",
+            SemesterId = semesterId,
+            CreateAt = DateTime.Now.AddMonths(-2),
+            Profession = "AI Development",
+            MajorId = 1,
+            Description = "Team làm chatbot AI",
+            VietnameseTitle = "Nhóm Alpha",
+            StatusId = "ACTIVE",
+            MeetingId = null,
+            GroupUsers = new List<GroupUser>
             {
-                new Group
-                {
-                    Code = "G01",
-                    Name = "Capstone Team Alpha",
-                    SemesterId = semesterId,
-                    CreateAt = DateTime.Now.AddMonths(-2),
-                    Profession = "AI Development",
-                    MajorId = 1,
-                    Description = "Team làm chatbot AI",
-                    VietnameseTitle = "Nhóm Alpha",
-                    StatusId = "ACTIVE",
-                    MeetingId = null,
-                    GroupUsers = new List<GroupUser>
-                    {
-                        new GroupUser
-                        {
-                            UserId = user1Id,
-                            Role = "Leader",
-                            IsActive = true,
-                            CreateAt = DateTime.Now.AddMonths(-2),
-                            UpdateAt = DateTime.Now,
-                            Status = "Active"
-                        },
-                        new GroupUser
-                        {
-                            UserId = user2Id,
-                            Role = "Student",
-                            IsActive = true,
-                            CreateAt = DateTime.Now.AddMonths(-2),
-                            UpdateAt = DateTime.Now,
-                            Status = "Active"
-                        },
-                         new GroupUser
-                        {
-                            UserId = user3Id,
-                            Role = "Student",
-                            IsActive = true,
-                            CreateAt = DateTime.Now.AddMonths(-2),
-                            UpdateAt = DateTime.Now,
-                            Status = "Active"
-                        },
-                         new GroupUser
-                        {
-                            UserId = user4Id,
-                            Role = "Student",
-                            IsActive = true,
-                            CreateAt = DateTime.Now.AddMonths(-2),
-                            UpdateAt = DateTime.Now,
-                            Status = "Active"
-                        },
-                           new GroupUser
-                        {
-                            UserId = user5Id,
-                            Role = "Student",
-                            IsActive = true,
-                            CreateAt = DateTime.Now.AddMonths(-2),
-                            UpdateAt = DateTime.Now,
-                            Status = "Active"
-                        },
-                        new GroupUser
-                        {
-                            UserId = mentor1Id,
-                            Role = "Supervisor",
-                            IsActive = true,
-                            CreateAt = DateTime.Now.AddMonths(-1),
-                            UpdateAt = DateTime.Now,
-                            Status = "Active"
-                        }
-                    }
-                },
-                  new Group
+                new GroupUser { UserId = user1Id, Role = "Leader", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = user2Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = user3Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = user4Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = user5Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = mentor1Id, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" }
+            }
+        },
+        new Group
         {
             Code = "G02",
             Name = "Capstone Team Beta",
@@ -428,7 +382,65 @@ namespace FPTTrackingSystem.Helper
                 new GroupUser { UserId = mentor2Id, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" }
             }
         }
-            };
+    };
+
+            // --- 48 group auto tạo cùng user/account ---
+            int startUserId = 11; // giả lập id bắt đầu
+            for (int i = 3; i <= 50; i++)
+            {
+                // Tạo account và user student
+                var studentAcc = new Account
+                {
+                    Username = $"auto_stu_{i}",
+                    Password = "123456",
+                    RoleId = 3
+                };
+                var studentUser = new User
+                {
+                    Fullname = $"Auto Student {i}",
+                    RollNumber = $"AUTO_STU_{i}",
+                    Mail = $"student{i}@fpt.edu.vn",
+                    Account = studentAcc
+                };
+
+                // Tạo account và user supervisor
+                var supervisorAcc = new Account
+                {
+                    Username = $"auto_sup_{i}",
+                    Password = "123456",
+                    RoleId = 2
+                };
+                var supervisorUser = new User
+                {
+                    Fullname = $"Auto Supervisor {i}",
+                    RollNumber = $"AUTO_SUP_{i}",
+                    Mail = $"supervisor{i}@fpt.edu.vn",
+                    Account = supervisorAcc
+                };
+
+                // Group auto
+                var group = new Group
+                {
+                    Code = $"G{i:D2}",
+                    Name = $"Auto Group {i}",
+                    SemesterId = semesterId,
+                    CreateAt = DateTime.Now,
+                    Description = $"Auto generated group {i}",
+                    VietnameseTitle = $"Nhóm Auto {i}",
+                    StatusId = "ACTIVE",
+                    GroupUsers = new List<GroupUser>
+            {
+                new GroupUser { User = studentUser, Role = "Student", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { User = supervisorUser, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" }
+            }
+                };
+
+                groups.Add(group);
+            }
+
+            return groups;
         }
+
+
     }
 }
