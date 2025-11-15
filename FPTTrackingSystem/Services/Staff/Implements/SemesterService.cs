@@ -241,22 +241,31 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
                 throw new ArgumentException("Description cannot exceed 500 characters.");
 
-            // ✅ Get current user
+            // Lấy user
             var user = await _authUtils.GetUserInfoFromCookie();
             if (user == null)
                 throw new UnauthorizedAccessException("User authentication failed.");
-            if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
+            if (!user.Role.Equals(RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
                 throw new UnauthorizedAccessException("Only Staff members can create semesters.");
 
-            // ✅ Check mock
+            string name = request.Name.Trim();
+
+            // 1️⃣ CHECK DB TRƯỚC
+            var existingSemester = await _context.Semesters
+                .FirstOrDefaultAsync(s => s.Name.Trim().ToLower() == name.ToLower());
+
+            // 2️⃣ CHECK MOCKDATA (chỉ dùng nếu có)
             var mockSemester = MockData.AllSemesters
-                .FirstOrDefault(s => string.Equals(s.Name.Trim(), request.Name.Trim(), StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(s => s.Name.Trim().Equals(name, StringComparison.OrdinalIgnoreCase));
 
             DateTime? startAt = mockSemester?.StartAt;
             DateTime? endAt = mockSemester?.EndAt;
 
-            // ✅ Disable current active semester
-            if (startAt.HasValue && endAt.HasValue)
+            // Nếu có mock → semester đó auto active
+            bool isActivate = startAt.HasValue && endAt.HasValue;
+
+            // 3️⃣ Nếu mock có thời gian → disable semester đang active
+            if (isActivate)
             {
                 var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
                 if (activeSemester != null)
@@ -266,41 +275,61 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 }
             }
 
-            // ✅ Create new semester
-            var semester = new Semester
-            {
-                Name = request.Name.Trim(),
-                Description = request.Description?.Trim(),
-                StartAt = startAt, 
-                EndAt = endAt,
-                IsActive = startAt.HasValue && endAt.HasValue
-            };
+            Semester semester;
 
-            await _context.Semesters.AddAsync(semester);
+            // 4️⃣ ĐÃ TỒN TẠI TRONG DB → UPDATE
+            if (existingSemester != null)
+            {
+                existingSemester.Description = request.Description?.Trim();
+                if (mockSemester != null)
+                {
+                    existingSemester.StartAt = startAt;
+                    existingSemester.EndAt = endAt;
+                    existingSemester.IsActive = isActivate;
+                }
+
+                _context.Semesters.Update(existingSemester);
+                semester = existingSemester;
+            }
+            else
+            {
+                // 5️⃣ CHƯA TỒN TẠI → TẠO MỚI
+                semester = new Semester
+                {
+                    Name = name,
+                    Description = request.Description?.Trim(),
+                    StartAt = startAt,
+                    EndAt = endAt,
+                    IsActive = isActivate
+                };
+
+                await _context.Semesters.AddAsync(semester);
+            }
+
             await _context.SaveChangesAsync();
 
-            // ✅ Log semester creation
+            // Log
             await _logService.AddLogAsync(new Log
             {
-                Name = "Create new semester",
+                Name = existingSemester != null ? "Update semester" : "Create new semester",
                 EntityName = "Semester",
                 EntityId = semester.Id,
-                Action = "CREATE",
-                Description = startAt.HasValue && endAt.HasValue
-                    ? $"Created semester '{semester.Name}' from {semester.StartAt:yyyy-MM-dd} to {semester.EndAt:yyyy-MM-dd}."
-                    : $"Created semester '{semester.Name}' without start/end.",
+                Action = existingSemester != null ? "UPDATE" : "CREATE",
+                Description = isActivate
+                    ? $"Semester '{semester.Name}' active from {semester.StartAt:yyyy-MM-dd} to {semester.EndAt:yyyy-MM-dd}."
+                    : $"Semester '{semester.Name}' saved without dates.",
                 UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
             });
 
-            // 1️⃣ Nếu start/end có giá trị → generate tuần và clone milestone
+            // 6️⃣ Nếu có start/end → Generate weeks + clone milestone
             List<SemesterWeekDTO> weeks = new List<SemesterWeekDTO>();
-            if (startAt.HasValue && endAt.HasValue)
+
+            if (isActivate)
             {
                 var startDateOnly = DateOnly.FromDateTime(startAt.Value);
                 var endDateOnly = DateOnly.FromDateTime(endAt.Value);
 
-                // ✅ Generate weeks
                 weeks = SemesterHelper.GetWeeks(startDateOnly, endDateOnly, semester.Id);
 
                 int learnWeekCount = 0;
@@ -328,11 +357,10 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 await _context.SemesterWeeks.AddRangeAsync(semesterWeeks);
                 await _context.SaveChangesAsync();
 
-                // ✅ Clone active milestones to deliverables & delivery items
                 var activeMilestones = await _context.Milestones
-                    .Include(m => m.MilestoneItems)
-                    .Where(m => m.IsActive ?? false)
-                    .ToListAsync();
+                     .Include(m => m.MilestoneItems)
+                     .Where(m => m.IsActive ?? false)
+                     .ToListAsync();
 
                 var deliverables = new List<Deliverable>();
                 var deliveryItems = new List<DeliveryItem>();
@@ -366,20 +394,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 await _context.Deliverables.AddRangeAsync(deliverables);
                 await _context.DeliveryItems.AddRangeAsync(deliveryItems);
                 await _context.SaveChangesAsync();
-
-                // ✅ Log milestone cloning
-                await _logService.AddLogAsync(new Log
-                {
-                    Name = "Clone active milestones to deliverables",
-                    EntityName = "Deliverable",
-                    Action = "CREATE",
-                    Description = $"Automatically generated {deliverables.Count} Deliverables and {deliveryItems.Count} DeliveryItems from active milestones for semester '{semester.Name}'.",
-                    UserId = user.Id ?? 0,
-                    CreateAt = DateTime.Now
-                });
             }
 
-            // ✅ Return DTO
             return new SemesterDTO
             {
                 IsActive = semester.IsActive,
@@ -387,10 +403,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Description = semester.Description,
                 StartAt = semester.StartAt,
                 EndAt = semester.EndAt,
-                Weeks = weeks 
+                Weeks = weeks
             };
         }
-
 
         public async Task<ApiResponse<SemesterDTO>> SyncSemesterByNameAsync(string semesterName)
         {
