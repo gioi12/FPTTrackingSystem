@@ -10,7 +10,7 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
         Task<ApiResponse<List<TaskDto>>> GetTasksByGroupIdAsync(int groupId);
         Task<ApiResponse<TaskDto>> GetTaskByIdAsync(int taskId);
         Task<ApiResponse<TaskResponseUpdateDto>> UpdateTaskAsync(UpdateTaskDTO dto);
-        Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId);
+    /*    Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId);*/
         Task<List<TaskDto>> GetTasksByAssigneeAsync();
         Task<List<TaskResponsesDto>> GetAllActiveMeetingTasksAsync();
         Task<string> UploadFileTask(IFormFile file, int groupId,int taskId);

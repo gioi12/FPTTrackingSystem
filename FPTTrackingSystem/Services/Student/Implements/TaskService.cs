@@ -114,7 +114,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 Type = Capitalize(taskType),
                 CreatedAt = DateTime.Now,
                 IsActive = true,
-                MeetingScheduleDateId = dto.MeetingId > 0 ? dto.MeetingId : null
+                MeetingMinuteId = dto.MeetingId > 0 ? dto.MeetingId : null
             };
 
             return await _taskRepository.CreateTaskAsync(
@@ -178,8 +178,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 var assignee = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Assignee");
                 var reviewer = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
 
-                bool isMeetingTask = task.MeetingScheduleDateId.HasValue;
-                int meetingId = isMeetingTask ? task.MeetingScheduleDateId.Value : 0;
+                bool isMeetingTask = task.MeetingMinuteId.HasValue;
+                int meetingId = isMeetingTask ? task.MeetingMinuteId.Value : 0;
 
                 return new TaskDto
                 {
@@ -259,7 +259,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                         dto.Description = existingTask.Description;
                         dto.PriorityId = existingTask.Priority;
                         dto.DeliverableId = existingTask.DeliverableId;
-                        dto.MeetingId = existingTask.MeetingScheduleDateId;
+                        dto.MeetingId = existingTask.MeetingMinuteId;
 
                         // GÁN LẠI USER
                         dto.AssignedUserId = assignee?.UserId ?? 0;
@@ -352,10 +352,10 @@ namespace FPTTrackingSystem.Services.Student.Implements
         }
 
 
-        public async Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId)
+/*        public async Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId)
         {
             return await _taskRepository.GetMeetingScheduleWithTasksAsync(meetingScheduleId);
-        }
+        }*/
         public async Task<List<TaskResponsesDto>> GetAllActiveMeetingTasksAsync()
         {
             var tasks = await _taskRepository.GetAllActiveMeetingTasksAsync();

@@ -142,7 +142,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
-        [HttpGet("v1/Student/Task/meeting-tasks/{meetingScheduleId}")]
+/*        [HttpGet("v1/Student/Task/meeting-tasks/{meetingScheduleId}")]
         public async Task<IActionResult> GetTasksByMeetingScheduleId(int meetingScheduleId)
         {
             var tasks = await _taskService.GetMeetingScheduleWithTasksAsync(meetingScheduleId);
@@ -153,7 +153,7 @@ namespace FPTTrackingSystem.Controllers.Student
             }
 
             return Ok(new { success = 200, data = tasks });
-        }
+        }*/
 
         [Authorize]
         [HttpPost("v1/upload/task")]
