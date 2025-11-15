@@ -352,10 +352,10 @@ namespace FPTTrackingSystem.Services.Student.Implements
         }
 
 
-/*        public async Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId)
+        public async Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId)
         {
             return await _taskRepository.GetMeetingScheduleWithTasksAsync(meetingScheduleId);
-        }*/
+        }
         public async Task<List<TaskResponsesDto>> GetAllActiveMeetingTasksAsync()
         {
             var tasks = await _taskRepository.GetAllActiveMeetingTasksAsync();
