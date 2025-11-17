@@ -18,6 +18,12 @@ namespace DataTranferObjects.Staff.Group
         public bool SubmittedDocs { get; set; }
     }
 
+    public class UpdateExpireDateRequest
+    {
+        public DateTime ExpireDate { get; set; }
+    }
+
+
     public class PagedResponse<T>
     {
         public int Status { get; set; }

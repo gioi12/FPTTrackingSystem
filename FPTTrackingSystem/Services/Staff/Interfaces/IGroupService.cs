@@ -1,6 +1,7 @@
 ﻿using DataTranferObjects.Common.Response;
 using DataTranferObjects.Staff.Group;
 using DataTranferObjects.Staff.Response;
+using Entities.Models;
 using FPTTrackingSystem.Wrappers;
 
 namespace FPTTrackingSystem.Services.Staff.Interfaces
@@ -14,11 +15,12 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<ApiResponse<List<GroupMentorDto>>> GetGroupsByUserIdAsync(int userId);
         Task<ApiResponse<string>> UpdateRoleInGroupAsync(int groupId, int userId, string newRole);
         Task<string> UploadFileGroup(IFormFile file, int groupId);
-        Task DeleteFileGroup(int attachmentId);
+        System.Threading.Tasks.Task DeleteFileGroup(int attachmentId);
         Task<List<AttachmentRes>> GetFilesGroup(int groupId);
 
         Task<object> GetMockData();
         Task<object> CreateMockData();
+        Task<Group> UpdateExpireDateAsync(int groupId, DateTime newExpireDate, string userRole);
 
     }
 }

@@ -728,6 +728,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         VietnameseTitle = group.VietnameseTitle,
                         Description = group.Description,
                         Status = group.StatusId,
+                        ExpireDate = group.ExpireDate,
                         Members = group.GroupUsers.Select(gu =>
                         {
                             var user = allUsers.FirstOrDefault(u => u.Id == gu.UserId);
@@ -753,6 +754,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         VietnameseTitle = group.VietnameseTitle,
                         Description = group.Description,
                         Status = group.StatusId,
+                        ExpireDate = group.ExpireDate,
                         Members = group.GroupUsers.Select(gu =>
                         {
                             var user = allUsers.FirstOrDefault(u => u.Id == gu.UserId);
@@ -774,6 +776,22 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return result;
         }
+
+        public async Task<Group> UpdateExpireDateAsync(int groupId, DateTime newExpireDate, string userRole)
+    {
+        if (userRole != "Supervisor")
+            throw new UnauthorizedAccessException("Only Supervisors can update ExpireDate.");
+
+        var group = await _groupRepository.GetByIdAsync(groupId);
+        if (group == null)
+            throw new KeyNotFoundException($"Group with Id {groupId} not found.");
+
+        group.ExpireDate = newExpireDate;
+
+        await _groupRepository.UpdateAsync(group);
+
+        return group;
+    }
 
         /*public async Task<object> CreateMockData()
         {
@@ -942,10 +960,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 var existingGroup = existingGroups.FirstOrDefault(g => g.Code == group.Code);
                 if (existingGroup == null)
                 {
+                    var semester = await _semesterRepository.GetSemesterByIdAsync(group.SemesterId ?? 0);
+                    group.ExpireDate = semester.EndAt;
                     await _groupRepository.CreateGroups(new List<Group> { group });
                 }
                 else
                 {
+
                     bool isGroupUpdated = false;
                     if (existingGroup.Name != group.Name) { existingGroup.Name = group.Name; isGroupUpdated = true; }
                     if (existingGroup.SemesterId != group.SemesterId) { existingGroup.SemesterId = group.SemesterId; isGroupUpdated = true; }
@@ -954,7 +975,19 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     if (existingGroup.Description != group.Description) { existingGroup.Description = group.Description; isGroupUpdated = true; }
                     if (existingGroup.VietnameseTitle != group.VietnameseTitle) { existingGroup.VietnameseTitle = group.VietnameseTitle; isGroupUpdated = true; }
                     if (existingGroup.StatusId != group.StatusId) { existingGroup.StatusId = group.StatusId; isGroupUpdated = true; }
+                    if (existingGroup.SemesterId != group.SemesterId)
+                    {
+                        existingGroup.SemesterId = group.SemesterId;
+                        isGroupUpdated = true;
+                    }
 
+                    var semester = await _semesterRepository.GetSemesterByIdAsync(existingGroup.SemesterId ?? 0);
+
+                    if (existingGroup.ExpireDate != semester?.EndAt)
+                    {
+                        existingGroup.ExpireDate = semester?.EndAt;
+                        isGroupUpdated = true;
+                    }
                     foreach (var newGU in group.GroupUsers)
                     {
                         var existingGU = existingGroup.GroupUsers.FirstOrDefault(gu => gu.UserId == newGU.UserId);
@@ -973,7 +1006,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     }
 
                     if (isGroupUpdated)
-                        await _groupRepository.UpdateAsync(existingGroup);
+                        existingGroup.ExpireDate = semester?.EndAt;
+                    await _groupRepository.UpdateAsync(existingGroup);
                 }
             }
 

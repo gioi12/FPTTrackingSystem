@@ -17,6 +17,7 @@ namespace Repositories.Staff.Interfaces
         public Task<List<DashBoardGroupDto>> GetMajorGroupTotalsAsync();
         Task<List<Group>> GetAllAsync(Expression<Func<Group, bool>>? filter = null);
         public Task<List<Group>> GetGroupsActiveSesmester();
+        System.Threading.Tasks.Task UpdateGroupAsync(Group group);
         public Task<Group?> GetGroupWithMembersAsync(int groupId);
         public Task<List<Milestone>> GetMilestonesByMajorAsync(int majorId);
         Task<List<Group>> GetGroupsByUserIdAsync(int userId);

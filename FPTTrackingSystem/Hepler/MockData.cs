@@ -350,6 +350,7 @@ namespace FPTTrackingSystem.Helper
             VietnameseTitle = "Nhóm Alpha",
             StatusId = "ACTIVE",
             MeetingId = null,
+            ExpireDate = SemesterSpring2026.EndAt,
             GroupUsers = new List<GroupUser>
             {
                 new GroupUser { UserId = user1Id, Role = "Leader", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
@@ -372,6 +373,7 @@ namespace FPTTrackingSystem.Helper
             VietnameseTitle = "Nhóm Beta",
             StatusId = "ACTIVE",
             MeetingId = null,
+            ExpireDate = SemesterSpring2026.EndAt,
             GroupUsers = new List<GroupUser>
             {
                 new GroupUser { UserId = user6Id, Role = "Leader", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
@@ -428,6 +430,7 @@ namespace FPTTrackingSystem.Helper
                     Description = $"Auto generated group {i}",
                     VietnameseTitle = $"Nhóm Auto {i}",
                     StatusId = "ACTIVE",
+                    ExpireDate = SemesterSpring2026.EndAt,
                     GroupUsers = new List<GroupUser>
             {
                 new GroupUser { User = studentUser, Role = "Student", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" },

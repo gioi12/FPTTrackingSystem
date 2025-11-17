@@ -27,6 +27,8 @@ public partial class Group
 
     public int? MeetingId { get; set; }
 
+    public DateTime? ExpireDate { get; set; }
+
     public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();

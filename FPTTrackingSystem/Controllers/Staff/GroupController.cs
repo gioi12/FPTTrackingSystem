@@ -1,5 +1,8 @@
-﻿using FPTTrackingSystem.Services.Staff.Implementations;
+﻿using DataTranferObjects.Staff.Group;
+using Entities.Models;
+using FPTTrackingSystem.Services.Staff.Implementations;
 using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,10 +15,12 @@ namespace FPTTrackingSystem.Controllers.Staff
     public class GroupController : ControllerBase
     {
         private readonly IGroupService _groupService;
+        private readonly AuthUtils _authUtils;
 
-        public GroupController(IGroupService groupService)
+        public GroupController(IGroupService groupService, AuthUtils authUtils)
         {
             _groupService = groupService;
+            _authUtils = authUtils;
         }
 
         [HttpGet("v1/Staff/capstone-groups")]
@@ -133,6 +138,37 @@ namespace FPTTrackingSystem.Controllers.Staff
         {
             var message = await _groupService.CreateMockData();
             return Ok(ApiResponse<object>.Success(message, "Upload Successfully"));
+        }
+
+        [HttpPut("v1/group/{groupId}/expire-date")]
+        [Authorize(Roles = "Supervisor")] // optional: double check in service
+        public async Task<IActionResult> UpdateExpireDate(int groupId, [FromBody] UpdateExpireDateRequest request)
+        {
+            try
+            {
+                var user = await _authUtils.GetUserInfoFromCookie();
+
+                var updatedGroup = await _groupService.UpdateExpireDateAsync(groupId, request.ExpireDate, user.Role);
+
+                return Ok(new
+                {
+                    Message = "ExpireDate updated successfully",
+                    GroupId = updatedGroup.Id,
+                    ExpireDate = updatedGroup.ExpireDate
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

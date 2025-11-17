@@ -36,6 +36,12 @@ namespace Repositories.Staff.Implements
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
+        public async System.Threading.Tasks.Task UpdateGroupAsync(Group group)
+        {
+            _context.Groups.Update(group);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<List<Group>> GetAllAsync(Expression<Func<Group, bool>>? filter = null)
         {
             IQueryable<Group> query = _context.Groups.Include(g => g.GroupUsers);
@@ -57,6 +63,7 @@ namespace Repositories.Staff.Implements
             if (existingGroup == null)
                 throw new Exception($"Group with Id {updatedGroup.Id} not found.");
 
+            existingGroup.ExpireDate = updatedGroup.ExpireDate;
             bool isUpdated = false;
 
             if (existingGroup.Name != updatedGroup.Name) { existingGroup.Name = updatedGroup.Name; isUpdated = true; }
@@ -95,8 +102,7 @@ namespace Repositories.Staff.Implements
                 isUpdated = true;
             }
 
-            if (isUpdated)
-                await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return existingGroup;
         }

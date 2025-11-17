@@ -91,6 +91,7 @@ namespace Repositories.Authentication
                 Id = user.Id,
                 SemesterId = semesterId,
                 Name = user.Fullname,
+                ExpireDate = groupUser.Group.ExpireDate,
                 Role = account.Role.Name,
                 RoleInGroup = roleInGroup,
                 CampusId = user.CampusId,

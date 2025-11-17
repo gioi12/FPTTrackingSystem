@@ -294,6 +294,9 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
             entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.ExpireDate)
+                .HasColumnType("datetime")
+                .HasColumnName("expire_date");
             entity.Property(e => e.MajorId).HasColumnName("major_id");
             entity.Property(e => e.MeetingId).HasColumnName("meeting_id");
             entity.Property(e => e.Name)
