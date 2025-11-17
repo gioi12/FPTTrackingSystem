@@ -204,7 +204,12 @@ namespace Repositories.Student.Implements
             if (slot == null)
                 throw new Exception("Không tìm thấy slot.");
 
-            var scheduleDates = allDates.Select(date => new MeetingScheduleDate
+
+            var vacations = await _context.SemesterVacations
+                            .Where(v => v.SemesterId == semester.Id)
+                            .ToListAsync();
+
+            /*var scheduleDates = allDates.Select(date => new MeetingScheduleDate
             {
                 MeetingId = meeting.Id,
                 MeetingDate = date,
@@ -215,7 +220,30 @@ namespace Repositories.Student.Implements
                 Description = $"Buổi họp {dto.Day} tuần {calculator.GetWeekNumberInSemester(semester.StartAt.Value, date)}",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
-            }).ToList();
+            }).ToList();*/
+            var scheduleDates = new List<MeetingScheduleDate>();
+
+            foreach (var date in allDates)
+            {
+                // Bù ngày nếu trùng vacation
+                var adjustedDate = GetAdjustedDate(date, vacations);
+
+                var weekNumber = calculator.GetWeekNumberInSemester(
+                    semester.StartAt.Value, adjustedDate);
+
+                scheduleDates.Add(new MeetingScheduleDate
+                {
+                    MeetingId = meeting.Id,
+                    MeetingDate = adjustedDate,
+                    StartAt = slot.StartAt,
+                    EndAt = slot.EndAt,
+                    IsActive = true,
+                    IsMeeting = false,
+                    Description = $"Buổi họp {dto.Day} tuần {weekNumber}",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
 
             _context.MeetingScheduleDates.AddRange(scheduleDates);
 /*            else
@@ -294,6 +322,24 @@ namespace Repositories.Student.Implements
             return meeting;
         }
 
+        public bool IsVacationDate(DateTime date, List<SemesterVacation> vacations)
+        {
+            return vacations.Any(v =>
+                v.StartAt.HasValue &&
+                v.EndAt.HasValue &&
+                date.Date >= v.StartAt.Value.Date &&
+                date.Date <= v.EndAt.Value.Date);
+        }
+
+        public DateTime GetAdjustedDate(DateTime date, List<SemesterVacation> vacations)
+        {
+            var adjusted = date;
+            while (IsVacationDate(adjusted, vacations))
+            {
+                adjusted = adjusted.AddDays(1);
+            }
+            return adjusted;
+        }
 
         public async Task<MeetingMinute> CreateMeetingMinute(MeetingMinute entity)
         {
