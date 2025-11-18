@@ -253,7 +253,7 @@ namespace FPTTrackingSystem.Controllers.Staff
             return StatusCode(response.Status, response);
         }
 
-        [HttpGet("v1/Staff/semesters/supervisor")]
+        [HttpGet("v1/semesters/supervisor")]
         public async Task<IActionResult> GetSemestersBySupervisor()
         {
             var user = await _authUtils.GetUserInfoFromCookie();
