@@ -13,7 +13,7 @@ namespace Repositories.Staff.Interfaces
         Task<IEnumerable<Campus>> GetAllCampusesAsync();
         Task<Campus?> GetByIdWithSlotsAsync(int id);
         Task<Slot> AddSlotAsync(int campusId, Slot slot);
-        Task<List<SlotCampusDto>?> UpdateSlotsAsync(int campusId, List<SlotCampusDto> slots);
-        Task<bool> DeleteSlotAsync(int campusId, int slotId);
+        Task<Slot?> GetByIdAsync(int id);
+        System.Threading.Tasks.Task UpdateAsync(Slot slot);
     }
 }

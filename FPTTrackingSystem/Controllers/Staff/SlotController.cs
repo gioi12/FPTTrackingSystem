@@ -199,7 +199,7 @@ namespace FPTTrackingSystem.Controllers.Staff
                     return BadRequest(ApiResponse<string>.Fail($"StartAt must be earlier than EndAt for slot '{s.NameSlot}'"));
 
                 // Check overlap with existing campus slots
-                bool overlapExisting = campus.Slots.Any(existing =>
+                bool overlapExisting = campus.Slots.Where(existing => existing.IsActive == true).Any(existing =>
                     start < existing.EndAt && end > existing.StartAt);
 
                 if (overlapExisting)
@@ -243,6 +243,22 @@ namespace FPTTrackingSystem.Controllers.Staff
                 createdSlots,
                 $"Created {createdSlots.Count} new slot(s) successfully."
             ));
+        }
+
+
+        [HttpPut("v1/slot/{slotId}/active")]
+        public async Task<IActionResult> UpdateSlotActiveStatus(int slotId, [FromBody] UpdateSlotActiveRequest request)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null || user.Role != RoleEnum.Admin.ToString())
+                return Unauthorized(ApiResponse<string>.Unauthorized("Only Admin can update slot status"));
+
+            var result = await _campusService.UpdateIsActiveAsync(slotId, request.IsActive);
+
+            if (result.Status != 200)
+                return BadRequest(ApiResponse<string>.Fail(result.Message));
+
+            return Ok(ApiResponse<object>.Success(result.Data!, result.Message));
         }
 
     }

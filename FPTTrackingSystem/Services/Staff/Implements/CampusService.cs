@@ -1,6 +1,7 @@
 ﻿using DataTranferObjects.Staff.Campus;
 using Entities.Models;
 using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Wrappers;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Staff.Implements;
 using Repositories.Staff.Interfaces;
@@ -56,14 +57,20 @@ namespace FPTTrackingSystem.Services.Staff.Implements
 
         public async Task<Slot> AddSlotAsync(int campusId, Slot slot) =>
             await _campusRepository.AddSlotAsync(campusId, slot);
-
-        public async Task<List<SlotCampusDto>?> UpdateSlotsAsync(int campusId, List<SlotCampusDto> slots)
+        public async Task<ApiResponse<string>> UpdateIsActiveAsync(int slotId, bool isActive)
         {
-            return await _campusRepository.UpdateSlotsAsync(campusId, slots);
+            var slot = await _campusRepository.GetByIdAsync(slotId);
+
+            if (slot == null)
+                return ApiResponse<string>.Fail($"Slot with ID {slotId} not found.");
+
+            slot.IsActive = isActive;
+
+            await _campusRepository.UpdateAsync(slot);
+
+            string statusText = isActive ? "activated" : "deactivated";
+
+            return ApiResponse<string>.Success($"Slot {statusText} successfully.");
         }
-
-
-        public async Task<bool> DeleteSlotAsync(int campusId, int slotId) =>
-            await _campusRepository.DeleteSlotAsync(campusId, slotId);
     }
 }

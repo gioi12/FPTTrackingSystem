@@ -1,5 +1,6 @@
 ﻿using DataTranferObjects.Staff.Campus;
 using Entities.Models;
+using FPTTrackingSystem.Wrappers;
 
 namespace FPTTrackingSystem.Services.Staff.Interfaces
 {
@@ -8,7 +9,6 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<IEnumerable<CampusAllDto>> GetAllCampusesAsync();
         Task<CampusDto?> GetByIdWithSlotsAsync(int campusId);
         Task<Slot> AddSlotAsync(int campusId, Slot slot);
-        Task<List<SlotCampusDto>?> UpdateSlotsAsync(int campusId, List<SlotCampusDto> slots);
-        Task<bool> DeleteSlotAsync(int campusId, int slotId);
+        Task<ApiResponse<string>> UpdateIsActiveAsync(int slotId, bool isActive);
     }
 }

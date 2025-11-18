@@ -32,6 +32,12 @@ namespace DataTranferObjects.Staff.Campus
      /*   public List<SlotCampusDto> Slots { get; set; } = new();*/
     }
 
+    public class UpdateSlotActiveRequest
+    {
+        public bool IsActive { get; set; }
+    }
+
+
     public class SlotCreateDto
     {
         public string NameSlot { get; set; } = null!;

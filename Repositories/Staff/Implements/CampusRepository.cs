@@ -27,7 +27,7 @@ namespace Repositories.Staff.Implements
 
         public async Task<Campus?> GetByIdWithSlotsAsync(int id)
         {
-            return await _context.Campuses.Include(c => c.Slots)
+            return await _context.Campuses.Include(c => c.Slots.Where(s => s.IsActive == true))
                                         .FirstOrDefaultAsync(c => c.Id == id);
         }
 
@@ -41,66 +41,16 @@ namespace Repositories.Staff.Implements
             return slot;
         }
 
-        public async Task<List<SlotCampusDto>?> UpdateSlotsAsync(int campusId, List<SlotCampusDto> slots)
+        public async Task<Slot?> GetByIdAsync(int id)
         {
-            var campus = await _context.Campuses
-                .Include(c => c.Slots)
-                .FirstOrDefaultAsync(c => c.Id == campusId);
-
-            if (campus == null)
-                return null;
-
-            // ❌ Xóa toàn bộ slot cũ
-            _context.Slots.RemoveRange(campus.Slots);
-
-            // ✅ Thêm mới lại danh sách slot
-            var newSlots = new List<Slot>();
-
-            foreach (var s in slots)
-            {
-                if (string.IsNullOrWhiteSpace(s.StartAt) || string.IsNullOrWhiteSpace(s.EndAt))
-                    continue;
-
-                var startTime = TimeOnly.Parse(s.StartAt);
-                var endTime = TimeOnly.Parse(s.EndAt);
-
-                if (startTime >= endTime)
-                    throw new Exception($"Invalid time range for slot '{s.NameSlot}'. StartAt must be earlier than EndAt.");
-
-                newSlots.Add(new Slot
-                {
-                    NameSlot = s.NameSlot,
-                    StartAt = startTime,
-                    EndAt = endTime,
-                    CampusId = campusId
-                });
-            }
-
-            await _context.Slots.AddRangeAsync(newSlots);
-            await _context.SaveChangesAsync();
-
-            // ✅ Trả về DTO
-            return newSlots.Select(s => new SlotCampusDto
-            {
-                Id = s.Id,
-                NameSlot = s.NameSlot,
-                StartAt = s.StartAt.ToString(),
-                EndAt = s.EndAt.ToString()
-            }).ToList();
+            return await _context.Slots.FirstOrDefaultAsync(s => s.Id == id);
         }
 
-
-        public async Task<bool> DeleteSlotAsync(int campusId, int slotId)
+        public async System.Threading.Tasks.Task UpdateAsync(Slot slot)
         {
-            var campus = await GetByIdWithSlotsAsync(campusId);
-            if (campus == null) return false;
-
-            var slot = campus.Slots.FirstOrDefault(s => s.Id == slotId);
-            if (slot == null) return false;
-
-            _context.Slots.Remove(slot);
+            _context.Slots.Update(slot);
             await _context.SaveChangesAsync();
-            return true;
         }
+
     }
 }
