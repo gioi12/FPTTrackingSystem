@@ -22,5 +22,6 @@ namespace Repositories.Staff.Interfaces
         Task<List<SemesterVacationDto>> GetBySemesterIdAsync(int semesterId);
         Task<List<SemesterVacation>> GetVacationsBySemesterAsync(int semesterId);
         Task<Semester?> FindByNameAsync(string name);
+        Task<List<SemesterInfoDto>> GetSemestersBySupervisorAsync(int supervisorUserId);
     }
 }

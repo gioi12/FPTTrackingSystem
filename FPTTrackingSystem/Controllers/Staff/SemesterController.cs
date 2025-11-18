@@ -252,5 +252,34 @@ namespace FPTTrackingSystem.Controllers.Staff
             var response = await _semesterService.GetVacationsBySemesterAsync(semesterId);
             return StatusCode(response.Status, response);
         }
+
+        [HttpGet("v1/Staff/semesters/supervisor")]
+        public async Task<IActionResult> GetSemestersBySupervisor()
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "You must be logged in to access this resource." });
+            }
+
+            var semesters = await _semesterService.GetSemestersBySupervisorAsync(user.Id ?? 0);
+
+            if (semesters == null || !semesters.Any())
+            {
+                return Ok(new
+                {
+                    message = "No semesters found for this supervisor.",
+                    data = new List<object>()
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Semesters retrieved successfully.",
+                data = semesters
+            });
+        }
+
     }
 }

@@ -103,6 +103,25 @@ namespace Repositories.Staff.Implements
             return true;
         }
 
+        public async Task<List<SemesterInfoDto>> GetSemestersBySupervisorAsync(int supervisorUserId)
+        {
+            var semesters = await _context.GroupUsers
+                .Where(gu => gu.UserId == supervisorUserId && gu.Role == "Supervisor")
+                .Select(gu => gu.Group!.Semester)
+                .Distinct()
+                .Select(s => new SemesterInfoDto
+                {
+                    Name = s.Name,
+                    IsActive = s.IsActive,
+                    Description = s.Description,
+                    StartAt = s.StartAt,
+                    EndAt = s.EndAt
+                })
+                .ToListAsync();
+
+            return semesters;
+        }
+
         public async Task<List<SemesterVacationDto>> GetBySemesterIdAsync(int semesterId)
         {
             var vacations = await _context.SemesterVacations

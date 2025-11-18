@@ -260,8 +260,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             DateTime? startAt = mockSemester?.StartAt;
             DateTime? endAt = mockSemester?.EndAt;
+            var active = mockSemester.IsActive;
 
-            // Nếu có mock → semester đó auto active
+/*            // Nếu có mock → semester đó auto active
             bool isActivate = startAt.HasValue && endAt.HasValue;
 
             // 3️⃣ Nếu mock có thời gian → disable semester đang active
@@ -273,7 +274,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     activeSemester.IsActive = false;
                     _context.Semesters.Update(activeSemester);
                 }
-            }
+            }*/
 
             Semester semester;
 
@@ -285,7 +286,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 {
                     existingSemester.StartAt = startAt;
                     existingSemester.EndAt = endAt;
-                    existingSemester.IsActive = isActivate;
+                    existingSemester.IsActive = active;
                 }
 
                 _context.Semesters.Update(existingSemester);
@@ -300,7 +301,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     Description = request.Description?.Trim(),
                     StartAt = startAt,
                     EndAt = endAt,
-                    IsActive = isActivate
+                    IsActive = active
                 };
 
                 await _context.Semesters.AddAsync(semester);
@@ -315,9 +316,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 EntityName = "Semester",
                 EntityId = semester.Id,
                 Action = existingSemester != null ? "UPDATE" : "CREATE",
-                Description = isActivate
+/*                Description = isActivate
                     ? $"Semester '{semester.Name}' active from {semester.StartAt:yyyy-MM-dd} to {semester.EndAt:yyyy-MM-dd}."
-                    : $"Semester '{semester.Name}' saved without dates.",
+                    : $"Semester '{semester.Name}' saved without dates.",*/
                 UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
             });
@@ -325,7 +326,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             // 6️⃣ Nếu có start/end → Generate weeks + clone milestone
             List<SemesterWeekDTO> weeks = new List<SemesterWeekDTO>();
 
-            if (isActivate)
+            if (startAt.HasValue && endAt.HasValue)
             {
                 var startDateOnly = DateOnly.FromDateTime(startAt.Value);
                 var endDateOnly = DateOnly.FromDateTime(endAt.Value);
@@ -394,7 +395,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 await _context.Deliverables.AddRangeAsync(deliverables);
                 await _context.DeliveryItems.AddRangeAsync(deliveryItems);
                 await _context.SaveChangesAsync();
-            }
+        }
 
             return new SemesterDTO
             {
@@ -405,6 +406,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 EndAt = semester.EndAt,
                 Weeks = weeks
             };
+        }
+
+        public async Task<List<SemesterInfoDto>> GetSemestersBySupervisorAsync(int supervisorUserId)
+        {
+            return await _semesterRepository.GetSemestersBySupervisorAsync(supervisorUserId);
         }
 
         public async Task<ApiResponse<SemesterDTO>> SyncSemesterByNameAsync(string semesterName)

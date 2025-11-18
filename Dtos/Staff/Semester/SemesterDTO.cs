@@ -19,6 +19,16 @@ namespace DataTranferObjects.Staff.Semester
         public List<SemesterVacationDto> SemesterBreak { get; set; } = new();
     }
 
+    public class SemesterInfoDto
+    {
+        public string? Name { get; set; }
+        public bool? IsActive { get; set; }
+        public string? Description { get; set; }
+        public DateTime? StartAt { get; set; }
+        public DateTime? EndAt { get; set; }
+    }
+
+
     public class SemesterWeekDTO
     {
         public int? WeekNumber { get; set; }

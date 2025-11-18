@@ -545,7 +545,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return allAttachments.Adapt<List<AttachmentRes>>();
         }
 
-        public static List<Group> GetGroups(
+/*        public static List<Group> GetGroups(
             int semesterId,
             int user1Id, int user2Id, int user3Id, int user4Id, int user5Id, int mentor1Id,
             int user6Id, int user7Id, int user8Id, int user9Id, int user10Id, int mentor2Id,
@@ -651,11 +651,26 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             }
 
             return groups;
-        }
+        }*/
 
         public async Task<object> GetMockData()
         {
             var mentorsArray = Enumerable.Range(13, 50).ToArray();
+/*            var userIdMap = new Dictionary<string, int>
+    {
+        {"SE140001", 1},
+        {"SE140002", 2},
+        {"SE140003", 3},
+        {"SE140004", 4},
+        {"SE140005", 5},
+        {"ME01", 6},
+        {"SE140006", 7},
+        {"SE140007", 8},
+        {"SE140008", 9},
+        {"SE140009", 10},
+        {"SE140010", 11},
+        {"ME03", 12}
+    };*/
 
             // 1️⃣ Map RollNumber -> UserId giả
             var userIdMap = new Dictionary<string, int>
@@ -689,7 +704,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             // 3️⃣ Tạo groups với Id kỳ học thật
             var groups = MockData.GetGroups(
-                7,
+                8,
                 1, 2, 3, 4, 5, 6,
                 7, 8, 9, 10, 11, 12
             );
@@ -945,10 +960,25 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             int user10Id = allAccounts.First(a => a.Username == "linhnthe176789@fpt.edu.vn").User.Id;
             int mentor2Id = allAccounts.First(a => a.Username == "thanhbv@gmail.com").User.Id;
 
+            /*            int user1Id = allAccounts.First(a => a.Username == "gioidmhe171512").User.Id;
+                        int user2Id = allAccounts.First(a => a.Username == "haildhe172452").User.Id;
+                        int user3Id = allAccounts.First(a => a.Username == "cuonghvhe176362").User.Id;
+                        int user4Id = allAccounts.First(a => a.Username == "handghe170064").User.Id;
+                        int user5Id = allAccounts.First(a => a.Username == "huongtt170064").User.Id;
+                        int mentor1Id = allAccounts.First(a => a.Username == "lampt2@gmail.com").User.Id;
+
+                        int user6Id = allAccounts.First(a => a.Username == "namnthe172123").User.Id;
+                        int user7Id = allAccounts.First(a => a.Username == "minhpthe171234").User.Id;
+                        int user8Id = allAccounts.First(a => a.Username == "anhtthe173456").User.Id;
+                        int user9Id = allAccounts.First(a => a.Username == "quangnmhe175678").User.Id;
+                        int user10Id = allAccounts.First(a => a.Username == "linhnthe176789").User.Id;
+                        int mentor2Id = allAccounts.First(a => a.Username == "thanhbv@gmail.com").User.Id;*/
+
+
 
             // Lấy tất cả groups
             var groups = MockData.GetGroups(
-                7,
+                8,
                 user1Id, user2Id, user3Id, user4Id, user5Id, mentor1Id,
                 user6Id, user7Id, user8Id, user9Id, user10Id, mentor2Id
             );
