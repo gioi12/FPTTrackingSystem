@@ -41,5 +41,22 @@ namespace FPTTrackingSystem.Controllers.Mentor
             }
         }
 
+        [HttpGet("expired-groups")]
+        public async Task<IActionResult> GetExpiredGroups([FromQuery] int semesterId)
+        {
+            // Lấy thông tin user từ token
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            if (user == null)
+                return Unauthorized(new { message = "User not found!" });
+
+            if (user.Role != "Supervisor" && user.Role != "SupervisorHead")
+                return Forbid("Only supervisors can access this!");
+
+            var result = await _groupService.GetExpiredGroupsBySupervisorAsync(user.Id ?? 0, semesterId);
+
+            return Ok(result);
+        }
+
     }
 }

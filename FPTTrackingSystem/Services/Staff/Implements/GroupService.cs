@@ -206,45 +206,37 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             };
         }*/
 
-        public async Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int id)
+        public async Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int groupId)
         {
-            // Lấy thông tin user từ JWT
+            // Lấy user
             var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+            {
+                return new ApiResponse<GroupDetailDto>(401, "User not authenticated.", null);
+            }
 
-            // Lấy group theo ID
-            var group = await _groupRepository.GetByIdAsync(id);
+            // Lấy tất cả nhóm user được truy cập -> DÙNG HÀM NÀY
+            var groupsResponse = await GetGroupsByUserIdAsync(user.Id ?? 0);
+
+            if (groupsResponse.Data == null)
+            {
+                return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền xem nhóm này.", null);
+            }
+
+            // Kiểm tra groupId có trong danh sách quyền không
+            bool hasAccess = groupsResponse.Data.Any(g => g.Id == groupId);
+
+            if (!hasAccess)
+            {
+                return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền truy cập nhóm này.", null);
+            }
+
+            // Lấy group từ DB
+            var group = await _groupRepository.GetByIdAsync(groupId);
 
             if (group == null)
             {
-                return new ApiResponse<GroupDetailDto>(200, "Group not found.", null);
-            }
-
-            // STAFF: bỏ toàn bộ check kỳ + check thuộc nhóm
-            if (user.Role != RoleEnum.Staff.ToString())
-            {
-                // --- CHECK KỲ ---
-                int? semesterIdValue = user.SemesterId;
-
-                if (semesterIdValue == null || semesterIdValue == 0)
-                {
-                    return new ApiResponse<GroupDetailDto>(400, "Current semester information not found.", null);
-                }
-/*
-                int currentSemesterId = semesterIdValue.Value;
-
-                if (group.SemesterId != currentSemesterId)
-                {
-                    return new ApiResponse<GroupDetailDto>(200, "This group does not belong to the current semester.", null);
-                }*/
-
-                // --- CHECK THÀNH VIÊN NHÓM ---
-                if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
-                {
-                    if (user.Groups == null || !user.Groups.Contains(id))
-                    {
-                        return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền truy cập nhóm này.", new GroupDetailDto());
-                    }
-                }
+                return new ApiResponse<GroupDetailDto>(404, "Group not found.", null);
             }
 
             // Map DTO
@@ -256,12 +248,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 SemesterId = group.SemesterId,
 
                 Supervisors = group.GroupUsers
-                    .Where(gu => gu.User != null && (gu.Role == "Supervisor" || gu.Role == "SupervisorHead"))
+                    .Where(gu => gu.User != null &&
+                        (gu.Role == "Supervisor" || gu.Role == "SupervisorHead"))
                     .Select(gu => gu.User.Fullname)
                     .ToList(),
 
                 SupervisorsInfor = group.GroupUsers
-                    .Where(gu => gu.User != null && (gu.Role == "Supervisor" || gu.Role == "SupervisorHead"))
+                    .Where(gu => gu.User != null &&
+                        (gu.Role == "Supervisor" || gu.Role == "SupervisorHead"))
                     .Select(gu => new SuperviorDto
                     {
                         Id = gu.User.Id,
@@ -275,7 +269,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
                 Students = group.GroupUsers
                     .Where(gu => gu.User != null &&
-                                (gu.Role == "Student" || gu.Role == "Leader" || gu.Role == "Secretary"))
+                        (gu.Role == "Student" || gu.Role == "Leader" || gu.Role == "Secretary"))
                     .Select(gu => new StudentDto
                     {
                         Id = gu.User.Id,
@@ -290,6 +284,18 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             };
 
             return new ApiResponse<GroupDetailDto>(200, "Lấy thành công", dto);
+        }
+
+        public async Task<ApiResponse<List<Group>>> GetExpiredGroupsBySupervisorAsync(int supervisorId, int semesterId)
+        {
+            var groups = await _groupRepository.GetExpiredGroupsByUserIdAsync(supervisorId, semesterId);
+
+            if (groups == null || !groups.Any())
+            {
+                return new ApiResponse<List<Group>>(200, "No expired groups found.", new List<Group>());
+            }
+
+            return new ApiResponse<List<Group>>(200, "Lấy danh sách nhóm hết hạn thành công", groups);
         }
 
         public async Task<ApiResponse<List<DashBoardGroupDto>>> GetMajorGroupTotalsAsync()

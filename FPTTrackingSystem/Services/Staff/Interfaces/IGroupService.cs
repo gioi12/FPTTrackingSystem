@@ -17,7 +17,7 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<string> UploadFileGroup(IFormFile file, int groupId);
         System.Threading.Tasks.Task DeleteFileGroup(int attachmentId);
         Task<List<AttachmentRes>> GetFilesGroup(int groupId);
-
+        Task<ApiResponse<List<Group>>> GetExpiredGroupsBySupervisorAsync(int supervisorId, int semesterId);
         Task<object> GetMockData();
         Task<object> CreateMockData();
         Task<Group> UpdateExpireDateAsync(int groupId, DateTime newExpireDate, string userRole);

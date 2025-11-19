@@ -36,6 +36,25 @@ namespace Repositories.Staff.Implements
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
+        public async Task<List<Group>> GetExpiredGroupsByUserIdAsync(int userId, int semesterId)
+        {
+            return await _context.GroupUsers
+                .Include(gu => gu.Group)
+                    .ThenInclude(g => g.GroupUsers)
+                        .ThenInclude(gu2 => gu2.User)
+                .Where(gu =>
+                    gu.UserId == userId &&
+                    gu.IsActive &&
+                    gu.Group.SemesterId == semesterId &&
+                    gu.Group.ExpireDate.HasValue &&
+                    gu.Group.ExpireDate < DateTime.UtcNow // nhóm đã hết hạn
+                )
+                .Select(gu => gu.Group)
+                .ToListAsync();
+        }
+
+
+
         public async System.Threading.Tasks.Task UpdateGroupAsync(Group group)
         {
             _context.Groups.Update(group);
@@ -182,7 +201,7 @@ namespace Repositories.Staff.Implements
         .Include(gu => gu.Group)
             .ThenInclude(g => g.GroupUsers)
                 .ThenInclude(gu2 => gu2.User)
-        .Where(gu => gu.UserId == userId && gu.Role == "Supervisor" && gu.IsActive)
+        .Where(gu => gu.UserId == userId && gu.Role == "Supervisor" && gu.IsActive && (gu.Group.ExpireDate == null || gu.Group.ExpireDate >= DateTime.UtcNow))
         .Select(gu => gu.Group)
         .ToListAsync();
         }
