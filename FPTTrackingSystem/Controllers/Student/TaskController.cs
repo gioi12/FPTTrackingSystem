@@ -1,6 +1,7 @@
 ﻿using DataTranferObjects.Staff.Task;
 using Entities.Models;
 using FPTTrackingSystem.Services.Student.Interfaces;
+using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +12,14 @@ namespace FPTTrackingSystem.Controllers.Student
     [Route("api/")]
     public class TaskController : Controller
     {
+        private readonly AuthUtils _authUtils;
         private readonly ITaskService _taskService;
         private readonly FpttrackingSystemContext _context;
-        public TaskController(ITaskService taskService, FpttrackingSystemContext context)
+        public TaskController(ITaskService taskService, AuthUtils authUtils, FpttrackingSystemContext context)
         {
             _taskService = taskService;
             _context = context;
+            _authUtils = authUtils;
         }
 
         [HttpGet("v1/Student/Task/Incomplete/{groupId}")]
@@ -93,6 +96,26 @@ namespace FPTTrackingSystem.Controllers.Student
                 });
             }
         }
+
+        [HttpGet("v1/Tasks/reviewer")]
+        public async Task<IActionResult> GetTasksByReviewer([FromQuery] int groupId)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+            {
+                return Unauthorized(new { message = "User not logged in." });
+            }
+
+            var tasks = await _taskService.GetReviewerTasksAsync(user.Id ?? 0, groupId);
+
+            if (tasks == null || !tasks.Any())
+            {
+                return NotFound(new { message = "No reviewer tasks found in this group." });
+            }
+
+            return Ok(tasks);
+        }
+
 
         [HttpGet("v1/Student/Task/assignee")]
         public async Task<IActionResult> GetTasksByAssignee()

@@ -32,6 +32,20 @@ namespace Repositories.Student.Implements
                 .ToListAsync();
         }
 
+        public async Task<List<Entities.Models.Task>> GetTasksByReviewerAsync(int userId, int groupId)
+        {
+            return await _context.Tasks
+                .Include(t => t.TaskUsers)
+                .Where(t =>
+                    t.GroupId == groupId &&
+                    t.TaskUsers.Any(tu =>
+                        tu.UserId == userId &&
+                        tu.Type == "Reviewer"
+                    )
+                )
+                .ToListAsync();
+        }
+
         public async Task<Entities.Models.Task> CreateTaskAsync(Entities.Models.Task task, int assignedUserId,int createdBy,int? reviewerId = null)
         {
             try

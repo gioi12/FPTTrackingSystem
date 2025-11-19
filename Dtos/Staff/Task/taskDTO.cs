@@ -42,6 +42,18 @@ namespace DataTranferObjects.Staff.Task
         public int? ReviewerId { get; set; }
     }
 
+    public class TaskReviewerDTO
+    {
+        public string Name { get; set; } = null!;
+        public string? Description { get; set; }
+        public DateTime Deadline { get; set; }
+        public string? Type { get; set; }
+        public string Status { get; set; } = null!;
+        public DateTime? CreatedAt { get; set; }
+        public string? Priority { get; set; }
+    }
+
+
 
     public class TaskResponseDto
     {

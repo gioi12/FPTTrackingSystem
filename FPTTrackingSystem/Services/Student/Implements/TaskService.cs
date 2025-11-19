@@ -376,6 +376,22 @@ namespace FPTTrackingSystem.Services.Student.Implements
         }
 
 
+        public async Task<List<TaskReviewerDTO>> GetReviewerTasksAsync(int userId, int groupId)
+        {
+            var tasks = await _taskRepository.GetTasksByReviewerAsync(userId, groupId);
+
+            return tasks.Select(t => new TaskReviewerDTO
+            {
+                Name = t.Name,
+                Description = t.Description,
+                Deadline = t.Deadline,
+                Type = t.Type,
+                Status = t.Status,
+                CreatedAt = t.CreatedAt,
+                Priority = t.Priority
+            }).ToList();
+        }
+
         public async Task<string> UploadFileTask(IFormFile file, int groupId, int taskId)
         {
             var user = await _authUtils.GetUserInfoFromCookie();

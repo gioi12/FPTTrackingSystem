@@ -16,5 +16,6 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
         Task<string> UploadFileTask(IFormFile file, int groupId,int taskId);
         Task DeleteFileTask(int attachmentId);
         Task<List<AttachmentRes>> GetFilesTask(int groupId, int taskId);
+        Task<List<TaskReviewerDTO>> GetReviewerTasksAsync(int userId, int groupId);
     }
 }
