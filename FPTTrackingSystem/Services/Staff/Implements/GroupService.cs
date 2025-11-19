@@ -229,13 +229,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 {
                     return new ApiResponse<GroupDetailDto>(400, "Current semester information not found.", null);
                 }
-
+/*
                 int currentSemesterId = semesterIdValue.Value;
 
                 if (group.SemesterId != currentSemesterId)
                 {
                     return new ApiResponse<GroupDetailDto>(200, "This group does not belong to the current semester.", null);
-                }
+                }*/
 
                 // --- CHECK THÀNH VIÊN NHÓM ---
                 if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
