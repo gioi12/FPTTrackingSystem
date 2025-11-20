@@ -224,10 +224,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
            .GroupBy(g => g.Id)
            .Select(g => g.First())
            .ToList();
-            if (!accessibleGroups.Any(g => g.Id == groupId))
+            bool inAccessibleGroups = accessibleGroups.Any(g => g.Id == groupId);
+            bool inUserGroups = user.Groups?.Contains(groupId) ?? false;
+
+            if (!inAccessibleGroups && !inUserGroups)
             {
                 return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền xem nhóm này.", null);
             }
+
 
             // Lấy group từ DB
             var group = await _groupRepository.GetByIdAsync(groupId);
@@ -237,14 +241,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 return new ApiResponse<GroupDetailDto>(404, "Group not found.", null);
             }
 
-            // Map DTO
             var dto = new GroupDetailDto
             {
                 Id = group.Id.ToString(),
                 ProjectName = group.Name,
                 GroupCode = group.Code,
                 SemesterId = group.SemesterId,
-                IsExpired = group.ExpireDate != null && g.ExpireDate < DateTime.UtcNow,
+                IsExpired = group.ExpireDate != null && group.ExpireDate < DateTime.UtcNow,
                 Supervisors = group.GroupUsers
                     .Where(gu => gu.User != null &&
                         (gu.Role == "Supervisor" || gu.Role == "SupervisorHead"))
