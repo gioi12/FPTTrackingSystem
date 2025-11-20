@@ -57,12 +57,15 @@ namespace FPTTrackingSystem.Services.Staff.Implements
 
         public async Task<Slot> AddSlotAsync(int campusId, Slot slot) =>
             await _campusRepository.AddSlotAsync(campusId, slot);
-        public async Task<ApiResponse<string>> UpdateIsActiveAsync(int slotId, bool isActive)
+        public async Task<ApiResponse<string>> UpdateIsActiveAsync(int campusId, int slotId, bool isActive)
         {
             var slot = await _campusRepository.GetByIdAsync(slotId);
 
             if (slot == null)
                 return ApiResponse<string>.Fail($"Slot with ID {slotId} not found.");
+
+            if (slot.CampusId != campusId)
+                return ApiResponse<string>.Fail("This slot does not belong to the specified campus.");
 
             slot.IsActive = isActive;
 

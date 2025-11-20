@@ -9,6 +9,6 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<IEnumerable<CampusAllDto>> GetAllCampusesAsync();
         Task<CampusDto?> GetByIdWithSlotsAsync(int campusId);
         Task<Slot> AddSlotAsync(int campusId, Slot slot);
-        Task<ApiResponse<string>> UpdateIsActiveAsync(int slotId, bool isActive);
+        Task<ApiResponse<string>> UpdateIsActiveAsync(int campusId, int slotId, bool isActive);
     }
 }
