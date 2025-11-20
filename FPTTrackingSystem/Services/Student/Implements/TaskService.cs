@@ -1,7 +1,9 @@
 ﻿using DataTranferObjects.Common.Response;
 using DataTranferObjects.Enum;
+using DataTranferObjects.Staff.Group;
 using DataTranferObjects.Staff.Task;
 using Entities.Models;
+using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Services.Token;
 using FPTTrackingSystem.Utilities;
@@ -25,8 +27,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
         private readonly IWebHostEnvironment _env;
         private readonly IAttachmentRepository _attachmentRepository;
         private readonly IGroupRepository _groupRepository;
+        private readonly IGroupService _groupService;
         private readonly IJwtService _jwtService;
-        public TaskService(ITaskRepository taskRepository, IJwtService jwtService,
+        public TaskService(ITaskRepository taskRepository, IJwtService jwtService, IGroupService groupService,
  AuthUtils authUtils, FpttrackingSystemContext context, IHttpContextAccessor httpContextAccessor,IAttachmentRepository attachmentRepository,IWebHostEnvironment env,IGroupRepository groupRepository)
         {
             _taskRepository = taskRepository;
@@ -37,6 +40,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             _env = env;
             _jwtService = jwtService;
             _groupRepository = groupRepository;
+            _groupService = groupService;
         }
 
         public async Task<Entities.Models.Task> CreateTaskAsync(CreateTaskDTO dto)
@@ -128,32 +132,50 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async Task<ApiResponse<List<TaskDto>>> GetTasksByGroupIdAsync(int groupId)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                return new ApiResponse<List<TaskDto>>(401, "User not authenticated.", null);
 
-            var groupsResponse = await _groupRepository.GetGroupsByUserIdAsync(user.Id ?? 0);
+            List<GroupMentorDto> accessibleGroups = new List<GroupMentorDto>();
 
-            if (groupsResponse == null || groupsResponse.Count == null)
+            if (user.Role == "Student")
             {
-                return new ApiResponse<List<TaskDto>>(403, "Không thể xác định danh sách nhóm của bạn.", null);
+                // Lấy nhóm active
+                var groupsResponse = await _groupService.GetGroupsByUserIdAsync(user.Id ?? 0);
+                accessibleGroups = groupsResponse?.Data ?? new List<GroupMentorDto>();
+            }
+            else
+            {
+                // Lấy nhóm active từ service
+                var activeResponse = await _groupService.GetGroupsByUserIdAsync(user.Id ?? 0);
+                var activeGroups = activeResponse?.Data ?? new List<GroupMentorDto>();
+
+                // Lấy nhóm expired từ repository
+                var expiredGroups = await _groupRepository.GetExpiredGroupsByUserIdAsync(user.Id ?? 0) ?? new List<GroupMentorDto>();
+
+                // đảm bảo Students không null để tránh lỗi
+                activeGroups.ForEach(g => g.students ??= new List<StudentGroupDTO>());
+                expiredGroups.ForEach(g => g.students ??= new List<StudentGroupDTO>());
+
+                // Gộp active + expired
+                accessibleGroups = activeGroups
+                    .Concat(expiredGroups)
+                    .GroupBy(g => g.Id)
+                    .Select(g => g.First())
+                    .ToList();
             }
 
-            var userGroupIds = groupsResponse.Select(g => g.Id).ToList();
+            var userGroupIds = accessibleGroups.Select(g => g.Id).ToList();
 
-            if (user.Role == "Student" || user.Role == "Supervisor")
+            if ((user.Role == "Student" || user.Role == "Supervisor") && !userGroupIds.Contains(groupId))
             {
-                if (!userGroupIds.Contains(groupId))
-                {
-                    return new ApiResponse<List<TaskDto>>(403, "Bạn không có quyền xem task của nhóm này.", null);
-                }
+                return new ApiResponse<List<TaskDto>>(403, "Bạn không có quyền xem task của nhóm này.", null);
             }
 
-            var tasks = await _taskRepository.GetTasksByGroupIdAsync(groupId);
+            var tasks = await _taskRepository.GetTasksByGroupIdAsync(groupId) ?? new List<TaskDto>();
 
-            if (tasks == null || !tasks.Any())
-            {
-                return new ApiResponse<List<TaskDto>>(200, "Không tìm thấy task nào trong nhóm này.", new List<TaskDto>());
-            }
-
-            return new ApiResponse<List<TaskDto>>(200, "Lấy danh sách task thành công.", tasks);
+            return tasks.Any()
+                ? new ApiResponse<List<TaskDto>>(200, "Lấy danh sách task thành công.", tasks)
+                : new ApiResponse<List<TaskDto>>(200, "Không tìm thấy task nào trong nhóm này.", tasks);
         }
 
         public async Task<ApiResponse<TaskDto>> GetTaskByIdAsync(int taskId)
