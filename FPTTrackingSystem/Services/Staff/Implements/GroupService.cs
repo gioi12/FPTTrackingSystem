@@ -286,16 +286,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return new ApiResponse<GroupDetailDto>(200, "Lấy thành công", dto);
         }
 
-        public async Task<ApiResponse<List<Group>>> GetExpiredGroupsBySupervisorAsync(int supervisorId)
+        public async Task<ApiResponse<List<GroupMentorDto>>> GetExpiredGroupsBySupervisorAsync(int supervisorId)
         {
             var groups = await _groupRepository.GetExpiredGroupsByUserIdAsync(supervisorId);
 
             if (groups == null || !groups.Any())
-            {
-                return new ApiResponse<List<Group>>(200, "No expired groups found.", new List<Group>());
-            }
+                return new ApiResponse<List<GroupMentorDto>>(200, "No expired groups found.", new List<GroupMentorDto>());
 
-            return new ApiResponse<List<Group>>(200, "Lấy danh sách nhóm hết hạn thành công", groups);
+            return new ApiResponse<List<GroupMentorDto>>(200, "Lấy danh sách nhóm hết hạn thành công", groups);
         }
 
         public async Task<ApiResponse<List<DashBoardGroupDto>>> GetMajorGroupTotalsAsync()
@@ -447,6 +445,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 GroupCode = g.Code,
                 Name = g.Name,
                 status = g.Status != null ? g.Status.Name : "active",
+                IsExpired = g.ExpireDate != null && g.ExpireDate < DateTime.UtcNow,
                 students = g.GroupUsers
                     .Where(gu => gu.Role == StringEnum.Student || gu.Role == StringEnum.Secretary || gu.Role == StringEnum.Leader && gu.IsActive)
                     .Select(s => new StudentGroupDTO

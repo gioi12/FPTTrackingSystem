@@ -18,6 +18,17 @@ namespace DataTranferObjects.Staff.Group
         public bool SubmittedDocs { get; set; }
     }
 
+    public class GroupExpireDateDto
+    {
+        public int Id { get; set; }
+        public string? Code { get; set; }
+        public string? Name { get; set; }
+        public DateTime? CreateAt { get; set; }
+        public string? Profession { get; set; }
+        public string? Description { get; set; }
+        public string? VietnameseTitle { get; set; }
+    }
+
     public class UpdateExpireDateRequest
     {
         public DateTime ExpireDate { get; set; }
@@ -43,6 +54,7 @@ namespace DataTranferObjects.Staff.Group
         public string? GroupCode { get; set; }
         public string? status { get; set; }
         public string? Name { get; set; }
+        public bool IsExpired { get; set; }
         public List<StudentGroupDTO> students { get; set; } = new();
     }
 

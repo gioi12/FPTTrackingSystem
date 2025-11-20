@@ -36,19 +36,41 @@ namespace Repositories.Staff.Implements
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
-        public async Task<List<Group>> GetExpiredGroupsByUserIdAsync(int userId)
+        public async Task<List<GroupMentorDto>> GetExpiredGroupsByUserIdAsync(int userId)
         {
-            return await _context.GroupUsers
+            var groups = await _context.GroupUsers
                 .Include(gu => gu.Group)
                     .ThenInclude(g => g.GroupUsers)
                         .ThenInclude(gu2 => gu2.User)
                 .Where(gu =>
                     gu.UserId == userId &&
                     gu.Group.ExpireDate.HasValue &&
-                    gu.Group.ExpireDate < DateTime.UtcNow 
+                    gu.Group.ExpireDate < DateTime.UtcNow
                 )
                 .Select(gu => gu.Group)
+                .Distinct()
                 .ToListAsync();
+
+            var result = groups.Select(g => new GroupMentorDto
+            {
+                Id = g.Id,
+                GroupCode = g.Code,
+                Name = g.Name,
+                status = g.Status != null ? g.Status.Name : "active",
+                IsExpired = g.ExpireDate != null && g.ExpireDate < DateTime.UtcNow,
+                students = g.GroupUsers
+                    .Where(gu => (gu.Role == StringEnum.Student || gu.Role == StringEnum.Secretary || gu.Role == StringEnum.Leader) && gu.IsActive)
+                    .Select(s => new StudentGroupDTO
+                    {
+                        Id = s.User.Id,
+                        Name = s.User.Fullname,
+                        Email = s.User.Mail,
+                        RollNumber = s.User.RollNumber
+                    })
+                    .ToList()
+            }).ToList();
+
+            return result;
         }
 
         public async System.Threading.Tasks.Task UpdateGroupAsync(Group group)
