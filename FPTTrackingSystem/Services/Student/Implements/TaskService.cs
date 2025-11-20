@@ -182,14 +182,42 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             var user = await _authUtils.GetUserInfoFromCookie();
             var task = await _taskRepository.GetTaskByIdAsync(taskId);
+            List<GroupMentorDto> accessibleGroups = new List<GroupMentorDto>();
 
+            if (user.Role == "Student")
+            {
+                // Lấy nhóm active
+                var groupsResponse = await _groupService.GetGroupsByUserIdAsync(user.Id ?? 0);
+                accessibleGroups = groupsResponse?.Data ?? new List<GroupMentorDto>();
+            }
+            else
+            {
+                // Lấy nhóm active từ service
+                var activeResponse = await _groupService.GetGroupsByUserIdAsync(user.Id ?? 0);
+                var activeGroups = activeResponse?.Data ?? new List<GroupMentorDto>();
+
+                // Lấy nhóm expired từ repository
+                var expiredGroups = await _groupRepository.GetExpiredGroupsByUserIdAsync(user.Id ?? 0) ?? new List<GroupMentorDto>();
+
+                // đảm bảo Students không null để tránh lỗi
+                activeGroups.ForEach(g => g.students ??= new List<StudentGroupDTO>());
+                expiredGroups.ForEach(g => g.students ??= new List<StudentGroupDTO>());
+
+                // Gộp active + expired
+                accessibleGroups = activeGroups
+                    .Concat(expiredGroups)
+                    .GroupBy(g => g.Id)
+                    .Select(g => g.First())
+                    .ToList();
+            }
+            var userGroupIds = accessibleGroups.Select(g => g.Id).ToList();
             if (task == null)
             {
                 return new ApiResponse<TaskDto>(200, "Không tìm thấy task với ID này.", new TaskDto());
             }
 
             if ((user.Role == "Student" || user.Role == "Supervisor") &&
-                (user.Groups == null || !user.Groups.Contains(task.Group.Id)))
+                (user.Groups == null || !userGroupIds.Contains(task.Group.Id)))
             {
                 return new ApiResponse<TaskDto>(403, "Bạn không có quyền xem task này.", null);
             }
