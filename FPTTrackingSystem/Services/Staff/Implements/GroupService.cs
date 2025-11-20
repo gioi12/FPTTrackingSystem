@@ -214,21 +214,19 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 return new ApiResponse<GroupDetailDto>(401, "User not authenticated.", null);
             }
-
+            List<GroupMentorDto> accessibleGroups;
             // Lấy tất cả nhóm user được truy cập -> DÙNG HÀM NÀY
-            var groupsResponse = await GetGroupsByUserIdAsync(user.Id ?? 0);
+            var activeGroups = (await GetGroupsByUserIdAsync(user.Id ?? 0)).Data ?? new List<GroupMentorDto>();
+            var expiredGroups = await _groupRepository.GetExpiredGroupsByUserIdAsync(user.Id ?? 0);
 
-            if (groupsResponse.Data == null)
+            accessibleGroups = activeGroups
+           .Concat(expiredGroups)
+           .GroupBy(g => g.Id)
+           .Select(g => g.First())
+           .ToList();
+            if (!accessibleGroups.Any(g => g.Id == groupId))
             {
                 return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền xem nhóm này.", null);
-            }
-
-            // Kiểm tra groupId có trong danh sách quyền không
-            bool hasAccess = groupsResponse.Data.Any(g => g.Id == groupId);
-
-            if (!hasAccess)
-            {
-                return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền truy cập nhóm này.", null);
             }
 
             // Lấy group từ DB
