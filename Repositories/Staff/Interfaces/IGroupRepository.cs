@@ -24,6 +24,6 @@ namespace Repositories.Staff.Interfaces
         Task<bool> UpdateRoleInGroupAsync(int groupId, int userId, string newRole);
         System.Threading.Tasks.Task CreateGroups(List<Group> groups);
         Task<Group> UpdateAsync(Group updatedGroup);
-        Task<List<Group>> GetExpiredGroupsByUserIdAsync(int userId, int semesterId);
+        Task<List<Group>> GetExpiredGroupsByUserIdAsync(int userId);
     }
 }

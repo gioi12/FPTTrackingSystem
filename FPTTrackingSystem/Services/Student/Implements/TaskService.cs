@@ -129,9 +129,18 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             var user = await _authUtils.GetUserInfoFromCookie();
 
+            var groupsResponse = await _groupRepository.GetGroupsByUserIdAsync(user.Id ?? 0);
+
+            if (groupsResponse == null || groupsResponse.Count == null)
+            {
+                return new ApiResponse<List<TaskDto>>(403, "Không thể xác định danh sách nhóm của bạn.", null);
+            }
+
+            var userGroupIds = groupsResponse.Select(g => g.Id).ToList();
+
             if (user.Role == "Student" || user.Role == "Supervisor")
             {
-                if (user.Groups == null || !user.Groups.Contains(groupId))
+                if (!userGroupIds.Contains(groupId))
                 {
                     return new ApiResponse<List<TaskDto>>(403, "Bạn không có quyền xem task của nhóm này.", null);
                 }

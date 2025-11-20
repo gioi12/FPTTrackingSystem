@@ -286,9 +286,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return new ApiResponse<GroupDetailDto>(200, "Lấy thành công", dto);
         }
 
-        public async Task<ApiResponse<List<Group>>> GetExpiredGroupsBySupervisorAsync(int supervisorId, int semesterId)
+        public async Task<ApiResponse<List<Group>>> GetExpiredGroupsBySupervisorAsync(int supervisorId)
         {
-            var groups = await _groupRepository.GetExpiredGroupsByUserIdAsync(supervisorId, semesterId);
+            var groups = await _groupRepository.GetExpiredGroupsByUserIdAsync(supervisorId);
 
             if (groups == null || !groups.Any())
             {

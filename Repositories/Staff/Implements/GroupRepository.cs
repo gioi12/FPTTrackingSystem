@@ -36,7 +36,7 @@ namespace Repositories.Staff.Implements
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
-        public async Task<List<Group>> GetExpiredGroupsByUserIdAsync(int userId, int semesterId)
+        public async Task<List<Group>> GetExpiredGroupsByUserIdAsync(int userId)
         {
             return await _context.GroupUsers
                 .Include(gu => gu.Group)
@@ -44,16 +44,12 @@ namespace Repositories.Staff.Implements
                         .ThenInclude(gu2 => gu2.User)
                 .Where(gu =>
                     gu.UserId == userId &&
-                    gu.IsActive &&
-                    gu.Group.SemesterId == semesterId &&
                     gu.Group.ExpireDate.HasValue &&
-                    gu.Group.ExpireDate < DateTime.UtcNow // nhóm đã hết hạn
+                    gu.Group.ExpireDate < DateTime.UtcNow 
                 )
                 .Select(gu => gu.Group)
                 .ToListAsync();
         }
-
-
 
         public async System.Threading.Tasks.Task UpdateGroupAsync(Group group)
         {
