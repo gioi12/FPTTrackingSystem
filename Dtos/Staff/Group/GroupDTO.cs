@@ -65,6 +65,7 @@ namespace DataTranferObjects.Staff.Group
         public string? GroupCode { get; set; }
         public string? ProjectName { get; set; }
         public int? SemesterId { get; set; }
+        public bool IsExpired { get; set; }
         public List<string> Supervisors { get; set; } = new();
         public List<SuperviorDto> SupervisorsInfor { get; set; } = new();
         public string? Status { get; set; }
