@@ -27,7 +27,7 @@ namespace Repositories.Staff.Implements
 
         public async Task<Campus?> GetByIdWithSlotsAsync(int id)
         {
-            return await _context.Campuses.Include(c => c.Slots.Where(s => s.IsActive == true))
+            return await _context.Campuses.Include(c => c.Slots.Where(s => s.IsActive == true).OrderBy(s => s.StartAt))
                                         .FirstOrDefaultAsync(c => c.Id == id);
         }
 

@@ -350,7 +350,7 @@ namespace FPTTrackingSystem.Controllers.Staff
         }
 
 
-        [HttpPut("v1/campus/{campusId}slot/{slotId}/active")]
+        [HttpPut("v1/campus/{campusId}/slot/{slotId}/active")]
         public async Task<IActionResult> UpdateSlotActiveStatus(int campusId, int slotId, [FromBody] UpdateSlotActiveRequest request)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
