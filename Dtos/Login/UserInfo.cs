@@ -16,5 +16,6 @@ namespace DataTranferObjects.Login
         public int? CampusId { get; set; }
         public DateTime? ExpireDate { get; set; }
         public List<int>? Groups { get; set; }
+        public List<GroupInfo>? GroupsInfo { get; set; }
     }
 }

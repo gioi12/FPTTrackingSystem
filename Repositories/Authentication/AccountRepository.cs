@@ -98,6 +98,18 @@ namespace Repositories.Authentication
 
             var roleInGroup = groupUser?.Role;
 
+            // lay group
+            var groups = user.GroupUsers
+                .Where(gu => gu.Group != null)
+                .Select(gu => new GroupInfo
+                {
+                    Id = gu.Group.Id,
+                    Name = gu.Group.Name,
+                    Code = gu.Group.Code,
+                    IsExpired = CheckNow(gu.Group.ExpireDate),
+                })
+                .ToList();
+
             return new UserInfo
             {
                 Id = user.Id,
@@ -107,7 +119,8 @@ namespace Repositories.Authentication
                 Role = account.Role.Name,
                 RoleInGroup = roleInGroup,
                 CampusId = user.CampusId,
-                Groups = groupIds.Any() ? groupIds : new List<int>() 
+                Groups = groupIds.Any() ? groupIds : new List<int>(),
+                GroupsInfo = groups
             };
         }
 
@@ -159,6 +172,13 @@ namespace Repositories.Authentication
             _context.Accounts.Update(existingAccount);
             await _context.SaveChangesAsync();
         }
-
+        public bool CheckNow(DateTime? dateCheck)
+        {
+            if (dateCheck < DateTime.Now)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }
