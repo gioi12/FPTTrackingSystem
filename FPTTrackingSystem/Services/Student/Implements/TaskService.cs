@@ -231,6 +231,25 @@ namespace FPTTrackingSystem.Services.Student.Implements
             return new ApiResponse<TaskDto>(200, "Lấy thông tin task thành công.", task);
         }
 
+        public async Task<TaskStatisticResponse> GetTaskStatisticByAssigneeAsync(int userId)
+        {
+            var tasks = await _taskRepository.GetTasksByAssigneeStatisticalAsync(userId);
+
+            int total = tasks.Count;
+            int completed = tasks.Count(t =>
+                t.Status.Equals("done", StringComparison.OrdinalIgnoreCase));
+
+            int uncompleted = tasks.Count(t =>
+                t.Status.Equals("todo", StringComparison.OrdinalIgnoreCase) ||
+                t.Status.Equals("inprogress", StringComparison.OrdinalIgnoreCase));
+
+            return new TaskStatisticResponse
+            {
+                TotalTasks = total,
+                CompletedTasks = completed,
+                UncompletedTasks = uncompleted
+            };
+        }
 
         public async Task<List<TaskDto>> GetTasksByAssigneeAsync()
         {

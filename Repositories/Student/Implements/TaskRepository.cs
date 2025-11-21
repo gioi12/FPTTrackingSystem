@@ -119,6 +119,14 @@ namespace Repositories.Student.Implements
                 .ToListAsync();
         }
 
+        public async Task<List<Entities.Models.Task>> GetTasksByAssigneeStatisticalAsync(int userId)
+        {
+            return await _context.Tasks
+                        .Include(t => t.TaskUsers)
+                        .Where(t => t.TaskUsers.Any(tu => tu.UserId == userId && tu.Type == "Assignee"))
+                        .ToListAsync();
+        }
+
         public async Task<List<TaskDto>> GetTasksByGroupIdAsync(int groupId)
         {
             try

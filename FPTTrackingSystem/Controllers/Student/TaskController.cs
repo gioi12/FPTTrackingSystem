@@ -116,6 +116,17 @@ namespace FPTTrackingSystem.Controllers.Student
             return Ok(tasks);
         }
 
+        [HttpGet("v1/task/statistic/assignee")]
+        public async Task<IActionResult> GetTaskStatisticByAssignee()
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+            if (user == null)
+                return Unauthorized("User not logged in");
+
+            var result = await _taskService.GetTaskStatisticByAssigneeAsync(user.Id ?? 0);
+
+            return Ok(result);
+        }
 
         [HttpGet("v1/Student/Task/assignee")]
         public async Task<IActionResult> GetTasksByAssignee()

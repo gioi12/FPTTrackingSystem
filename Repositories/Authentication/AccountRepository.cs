@@ -83,7 +83,19 @@ namespace Repositories.Authentication
                     .Select(gu => gu.Group.SemesterId)
                     .FirstOrDefault();
 
-            var groupUser = user.GroupUsers.FirstOrDefault();
+            GroupUser? groupUser = null;
+
+            if (currentSemesterId.HasValue)
+            {
+                groupUser = user.GroupUsers
+                    .Where(gu => gu.Group != null && gu.Group.SemesterId == currentSemesterId.Value)
+                    .FirstOrDefault();
+            }
+            else
+            {
+                groupUser = user.GroupUsers.FirstOrDefault();
+            }
+
             var roleInGroup = groupUser?.Role;
 
             return new UserInfo

@@ -219,7 +219,7 @@ namespace Repositories.Staff.Implements
         .Include(gu => gu.Group)
             .ThenInclude(g => g.GroupUsers)
                 .ThenInclude(gu2 => gu2.User)
-        .Where(gu => gu.UserId == userId && gu.Role == "Supervisor" && gu.IsActive && (gu.Group.ExpireDate == null || gu.Group.ExpireDate >= DateTime.UtcNow))
+        .Where(gu => gu.UserId == userId && gu.IsActive && (gu.Group.ExpireDate == null || gu.Group.ExpireDate >= DateTime.UtcNow))
         .Select(gu => gu.Group)
         .ToListAsync();
         }

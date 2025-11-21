@@ -26,6 +26,14 @@ namespace DataTranferObjects.Staff.Task
         public int? ReviewerId { get; set; }
     }
 
+    public class TaskStatisticResponse
+    {
+        public int TotalTasks { get; set; }
+        public int CompletedTasks { get; set; }
+        public int UncompletedTasks { get; set; }
+    }
+
+
     public class UpdateTaskDTO
     {
         public int Id { get; set; }
