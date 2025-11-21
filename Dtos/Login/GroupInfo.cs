@@ -11,6 +11,8 @@ namespace DataTranferObjects.Login
         public int Id { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
+        public int SemesterId { get; set; }
+        public string SesesterName { get; set; }
         public bool IsExpired { get; set; }
     }
 }

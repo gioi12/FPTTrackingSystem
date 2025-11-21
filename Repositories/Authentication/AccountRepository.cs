@@ -53,6 +53,7 @@ namespace Repositories.Authentication
                 .Include(a => a.User)
                    .ThenInclude(u => u.GroupUsers)
                         .ThenInclude(gu => gu.Group)
+                            .ThenInclude(sem => sem.Semester)
                 .FirstOrDefaultAsync(a => a.Id == int.Parse(info.UserId));
 
             if (account == null)
@@ -107,6 +108,8 @@ namespace Repositories.Authentication
                     Name = gu.Group.Name,
                     Code = gu.Group.Code,
                     IsExpired = CheckNow(gu.Group.ExpireDate),
+                    SemesterId = (int)gu.Group.SemesterId,
+                    SesesterName = gu.Group.Semester != null ? gu.Group.Semester.Name : string.Empty
                 })
                 .ToList();
 
