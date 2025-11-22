@@ -60,8 +60,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
             //if (dto.EndAt <= DateTime.Now)
             //    throw new ArgumentException("Task deadline must be greater than the current time.");
 
-            if (dto.EndAt > semesterEndTime)
-                throw new ArgumentException("Task deadline cannot exceed the semester end date.");
+            //if (dto.EndAt > semesterEndTime)
+            //    throw new ArgumentException("Task deadline cannot exceed the semester end date.");
 
             if (user.Role == "Student" && (user.Groups == null || !user.Groups.Contains(dto.GroupId)))
                 throw new UnauthorizedAccessException("Bạn không có quyền tạo task trong nhóm này.");

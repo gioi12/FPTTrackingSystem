@@ -59,11 +59,11 @@ namespace FPTTrackingSystem.Helper
                         Fullname = "Nguyễn Văn An",
                         Dob = new DateOnly(2000, 2, 14),
                         Gender = true,
-                        Mail = "user1@fpt.edu.vn",
+                        Mail = "gioidmhe171512@fpt.edu.vn",
                         Phone = "0909123456",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Hà Nội",
                         StatusId = "ACTIVE"
                     }
@@ -80,11 +80,11 @@ namespace FPTTrackingSystem.Helper
                         Fullname = "Lê Thị Bích",
                         Dob = new DateOnly(2001, 6, 10),
                         Gender = true,
-                        Mail = "user2@fpt.edu.vn",
+                        Mail = "huongtthe172436@fpt.edu.vn",
                         Phone = "0909888777",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Đà Nẵng",
                         StatusId = "ACTIVE"
                     }
@@ -101,11 +101,11 @@ namespace FPTTrackingSystem.Helper
                         Fullname = "Trần Hoàng Cường",
                         Dob = new DateOnly(2001, 9, 21),
                         Gender = true,
-                        Mail = "user3@fpt.edu.vn",
+                        Mail = "haildhe172452@fpt.edu.vn",
                         Phone = "0911222333",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Hồ Chí Minh",
                         StatusId = "ACTIVE"
                     }
@@ -122,11 +122,11 @@ namespace FPTTrackingSystem.Helper
                         Fullname = "Phạm Gia Hân",
                         Dob = new DateOnly(2001, 4, 5),
                         Gender = true,
-                        Mail = "user4@fpt.edu.vn",
+                        Mail = "handghe170064@fpt.edu.vn",
                         Phone = "0988777666",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Hà Nội",
                         StatusId = "ACTIVE"
                     }
@@ -143,11 +143,11 @@ namespace FPTTrackingSystem.Helper
                         Fullname = "Trịnh Thiên Hương",
                         Dob = new DateOnly(2001, 4, 5),
                         Gender = false,
-                        Mail = "user5@fpt.edu.vn",
+                        Mail = "cuonghvhe176362@fpt.edu.vn",
                         Phone = "0988777666",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Hà Nội",
                         StatusId = "ACTIVE"
                     }
@@ -326,105 +326,105 @@ namespace FPTTrackingSystem.Helper
         {
             new Account
             {
-                Username = "user1@fpt.edu.vn",
+                Username = "gioidmhe171512@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 1,
                 User =
                     new User
                     {
-                        RollNumber = "SE150001",
-                        Fullname = "user1",
+                        RollNumber = "SE170001",
+                        Fullname = "Doan Manh Gioi",
                         Dob = new DateOnly(2000, 2, 14),
                         Gender = true,
-                        Mail = "user1@fpt.edu.vn",
+                        Mail = "gioidmhe171512@fpt.edu.vn",
                         Phone = "0909123456",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Ha Noi",
                         StatusId = "ACTIVE"
                     }
             },
             new Account
             {
-                Username = "user2@fpt.edu.vn",
+                Username = "huongtthe172436@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 1,
                 User =
                     new User
                     {
-                        RollNumber = "SE150002",
-                        Fullname = "user2",
+                        RollNumber = "SE170002",
+                        Fullname = "TT Huong",
                         Dob = new DateOnly(2001, 6, 10),
                         Gender = true,
-                        Mail = "user2@fpt.edu.vn",
+                        Mail = "huongtthe172436@fpt.edu.vn",
                         Phone = "0909888777",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Da Nang",
                         StatusId = "ACTIVE"
                     }
             },
             new Account
             {
-                Username = "user3@fpt.edu.vn",
+                Username = "haildhe172452@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 1,
                 User =
                     new User
                     {
-                        RollNumber = "SE150003",
-                        Fullname = "user3",
+                        RollNumber = "SE170003",
+                        Fullname = "Le Duy Hai",
                         Dob = new DateOnly(2001, 9, 21),
                         Gender = true,
-                        Mail = "user3@fpt.edu.vn",
+                        Mail = "haildhe172452@fpt.edu.vn",
                         Phone = "0911222333",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Ho Chi Minh",
                         StatusId = "ACTIVE"
                     }
             },
             new Account
             {
-                Username = "user4@fpt.edu.vn",
+                Username = "handghe170064@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 1,
                 User =
                     new User
                     {
-                        RollNumber = "SE150004",
-                        Fullname = "user4",
+                        RollNumber = "SE170004",
+                        Fullname = "Dinh Gia Han",
                         Dob = new DateOnly(2001, 4, 5),
                         Gender = true,
-                        Mail = "user4@fpt.edu.vn",
+                        Mail = "handghe170064@fpt.edu.vn",
                         Phone = "0988777666",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Ha Noi",
                         StatusId = "ACTIVE"
                     }
             },
             new Account
             {
-                Username = "user5@fpt.edu.vn",
+                Username = "cuonghvhe176362@fpt.edu.vn",
                 Password = "123456",
                 RoleId = 1,
                 User =
                     new User
                     {
-                        RollNumber = "SE150005",
-                        Fullname = "user5",
+                        RollNumber = "SE170005",
+                        Fullname = "Ha Van Cuong",
                         Dob = new DateOnly(2001, 4, 5),
                         Gender = true,
-                        Mail = "user5@fpt.edu.vn",
+                        Mail = "cuonghvhe176362@fpt.edu.vn",
                         Phone = "0988777666",
                         MajorId = 1,
                         CampusId = 1,
-                        CapstoneProject = "Capstone Project 1",
+                        CapstoneProject = "FPT Tracking System",
                         Address = "Ha Noi",
                         StatusId = "ACTIVE"
                     }
@@ -468,131 +468,7 @@ namespace FPTTrackingSystem.Helper
                         Address = "Ha Noi",
                         StatusId = "ACTIVE"
                     }
-            },
-                new Account{
-                    Username = "namnthe172123@fpt.edu.vn",
-                    Password = "123456",
-                    RoleId = 1,
-                    User =
-                        new User
-                        {
-                            RollNumber = "SE150006",
-                            Fullname = "Nguyen Thanh Nam",
-                            Dob = new DateOnly(2001, 7, 12),
-                            Gender = true,
-                            Mail = "user1@fpt.edu.vn",
-                            Phone = "0909111222",
-                            MajorId = 1,
-                            CampusId = 1,
-                            CapstoneProject = "IoT Device Management System",
-                            Address = "Ha Noi",
-                            StatusId = "ACTIVE"
-                    }
-                },
-                new Account
-                {
-                    Username = "minhpthe171234@fpt.edu.vn",
-                    Password = "123456",
-                    RoleId = 1,
-                    User =
-                        new User
-                        {
-                            RollNumber = "SE150007",
-                            Fullname = "Pham Tien Minh",
-                            Dob = new DateOnly(2001, 10, 8),
-                            Gender = true,
-                            Mail = "user2@fpt.edu.vn",
-                            Phone = "0909222333",
-                            MajorId = 1,
-                            CampusId = 1,
-                            CapstoneProject = "IoT Device Management System",
-                            Address = "Ha Noi",
-                            StatusId = "ACTIVE"
-                    }
-                },
-                new Account
-                {
-                    Username = "anhtthe173456@fpt.edu.vn",
-                    Password = "123456",
-                    RoleId = 1,
-                    User =
-                        new User
-                        {
-                            RollNumber = "SE150008",
-                            Fullname = "Tran Thi Anh",
-                            Dob = new DateOnly(2002, 1, 25),
-                            Gender = false,
-                            Mail = "user3@fpt.edu.vn",
-                            Phone = "0909333444",
-                            MajorId = 1,
-                            CampusId = 1,
-                            CapstoneProject = "IoT Device Management System",
-                            Address = "Ha Noi",
-                            StatusId = "ACTIVE"
-                    }
-                },
-                new Account
-                {
-                    Username = "quangnmhe175678@fpt.edu.vn",
-                    Password = "123456",
-                    RoleId = 1,
-                    User =
-                        new User
-                        {
-                            RollNumber = "SE150009",
-                            Fullname = "Nguyen Minh Quang",
-                            Dob = new DateOnly(2002, 3, 5),
-                            Gender = true,
-                            Mail = "user4@fpt.edu.vn",
-                            Phone = "0909444555",
-                            MajorId = 1,
-                            CampusId = 1,
-                            CapstoneProject = "IoT Device Management System",
-                            Address = "Ha Noi",
-                            StatusId = "ACTIVE"
-                        }
-                },
-                new Account
-                {
-                    Username = "linhnthe176789@fpt.edu.vn",
-                    Password = "123456",
-                    RoleId = 1,
-                    User =
-                        new User
-                        {
-                            RollNumber = "SE150010",
-                            Fullname = "Nguyen Thi Linh",
-                            Dob = new DateOnly(2002, 5, 18),
-                            Gender = false,
-                            Mail = "user5@fpt.edu.vn",
-                            Phone = "0909555666",
-                            MajorId = 1,
-                            CampusId = 1,
-                            CapstoneProject = "IoT Device Management System",
-                            Address = "Ha Noi",
-                            StatusId = "ACTIVE"
-                        }
-                },
-                new Account
-                {
-                    Username = "thanhbv@gmail.com",
-                    Password = "123456",
-                    RoleId = 2,
-                    User =
-                        new User
-                        {
-                            RollNumber = "ME03",
-                            Fullname = "Mentor Bui Van Thanh",
-                            Dob = new DateOnly(1998, 8, 15),
-                            Gender = true,
-                            MajorId = 1,
-                            CampusId = 1,
-                            Mail = "thanhbv@gmail.com",
-                            Phone = "0909666777",
-                            Address = "Ha Noi",
-                            StatusId = "ACTIVE"
-                        }
-                },
+            },           
 
         };
 
@@ -741,86 +617,86 @@ namespace FPTTrackingSystem.Helper
             new GroupUser { UserId = user5Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
             new GroupUser { UserId = mentor1Id, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" }
         }
-    },
-    new Group
-    {
-        Code = "G02",
-        Name = "Capstone Team Horizon",
-        SemesterId = semesterId,
-        CreateAt = DateTime.Now.AddMonths(-1),
-        Profession = "IoT Development",
-        MajorId = 1,
-        Description = "Team phát triển hệ thống IoT",
-        VietnameseTitle = "Nhóm Chân Trời",
-        StatusId = "ACTIVE",
-        MeetingId = null,
-        ExpireDate = SemesterSummer2025.EndAt,
-        GroupUsers = new List<GroupUser>
-        {
-            new GroupUser { UserId = user6Id, Role = "Leader", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
-            new GroupUser { UserId = user7Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
-            new GroupUser { UserId = user8Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
-            new GroupUser { UserId = user9Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
-            new GroupUser { UserId = user10Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
-            new GroupUser { UserId = mentor2Id, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" }
-        }
-    }
-};
+    } };
+//    new Group
+//    {
+//        Code = "G02",
+//        Name = "Capstone Team Horizon",
+//        SemesterId = semesterId,
+//        CreateAt = DateTime.Now.AddMonths(-1),
+//        Profession = "IoT Development",
+//        MajorId = 1,
+//        Description = "Team phát triển hệ thống IoT",
+//        VietnameseTitle = "Nhóm Chân Trời",
+//        StatusId = "ACTIVE",
+//        MeetingId = null,
+//        ExpireDate = SemesterSummer2025.EndAt,
+//        GroupUsers = new List<GroupUser>
+//        {
+//            new GroupUser { UserId = user6Id, Role = "Leader", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
+//            new GroupUser { UserId = user7Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
+//            new GroupUser { UserId = user8Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
+//            new GroupUser { UserId = user9Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
+//            new GroupUser { UserId = user10Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" },
+//            new GroupUser { UserId = mentor2Id, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" }
+//        }
+//    }
+//};
 
-            // --- 48 group auto tạo cùng user/account ---
-            int startUserId = 11; // giả lập id bắt đầu
-            for (int i = 3; i <= 10; i++)
-            {
-                // Tạo account và user student
-                var studentAcc = new Account
-                {
-                    Username = $"auto_stu_{i}",
-                    Password = "123456",
-                    RoleId = 3
-                };
-                var studentUser = new User
-                {
-                    Fullname = $"Auto Student {i}",
-                    RollNumber = $"AUTO_STU_{i}",
-                    Mail = $"student{i}@fpt.edu.vn",
-                    Account = studentAcc
-                };
+                //            // --- 48 group auto tạo cùng user/account ---
+                //            int startUserId = 11; // giả lập id bắt đầu
+                //            for (int i = 3; i <= 10; i++)
+                //            {
+                //                // Tạo account và user student
+                //                var studentAcc = new Account
+                //                {
+                //                    Username = $"auto_stu_{i}",
+                //                    Password = "123456",
+                //                    RoleId = 3
+                //                };
+                //                var studentUser = new User
+                //                {
+                //                    Fullname = $"Auto Student {i}",
+                //                    RollNumber = $"AUTO_STU_{i}",
+                //                    Mail = $"student{i}@fpt.edu.vn",
+                //                    Account = studentAcc
+                //                };
 
-                // Tạo account và user supervisor
-                var supervisorAcc = new Account
-                {
-                    Username = $"auto_sup_{i}",
-                    Password = "123456",
-                    RoleId = 2
-                };
-                var supervisorUser = new User
-                {
-                    Fullname = $"Auto Supervisor {i}",
-                    RollNumber = $"AUTO_SUP_{i}",
-                    Mail = $"supervisor{i}@fpt.edu.vn",
-                    Account = supervisorAcc
-                };
+                //                // Tạo account và user supervisor
+                //                var supervisorAcc = new Account
+                //                {
+                //                    Username = $"auto_sup_{i}",
+                //                    Password = "123456",
+                //                    RoleId = 2
+                //                };
+                //                var supervisorUser = new User
+                //                {
+                //                    Fullname = $"Auto Supervisor {i}",
+                //                    RollNumber = $"AUTO_SUP_{i}",
+                //                    Mail = $"supervisor{i}@fpt.edu.vn",
+                //                    Account = supervisorAcc
+                //                };
 
-                // Group auto
-                var group = new Group
-                {
-                    Code = $"G{i:D2}",
-                    Name = $"Auto Group {i}",
-                    SemesterId = semesterId,
-                    CreateAt = DateTime.Now,
-                    Description = $"Auto generated group {i}",
-                    VietnameseTitle = $"Nhóm Auto {i}",
-                    StatusId = "ACTIVE",
-                    ExpireDate = SemesterSummer2025.EndAt,
-                    GroupUsers = new List<GroupUser>
-            {
-                new GroupUser { User = studentUser, Role = "Student", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" },
-                new GroupUser { User = supervisorUser, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" }
-            }
-                };
+                //                // Group auto
+                //                var group = new Group
+                //                {
+                //                    Code = $"G{i:D2}",
+                //                    Name = $"Auto Group {i}",
+                //                    SemesterId = semesterId,
+                //                    CreateAt = DateTime.Now,
+                //                    Description = $"Auto generated group {i}",
+                //                    VietnameseTitle = $"Nhóm Auto {i}",
+                //                    StatusId = "ACTIVE",
+                //                    ExpireDate = SemesterSummer2025.EndAt,
+                //                    GroupUsers = new List<GroupUser>
+                //            {
+                //                new GroupUser { User = studentUser, Role = "Student", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" },
+                //                new GroupUser { User = supervisorUser, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" }
+                //            }
+                //                };
 
-                groups.Add(group);
-            }
+                //                groups.Add(group);
+                //            }
 
             return groups;
         }
