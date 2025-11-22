@@ -57,8 +57,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 throw new InvalidOperationException("Semester end time not found or invalid in token.");
 
             // Kiểm tra deadline task
-            if (dto.EndAt <= DateTime.Now)
-                throw new ArgumentException("Task deadline must be greater than the current time.");
+            //if (dto.EndAt <= DateTime.Now)
+            //    throw new ArgumentException("Task deadline must be greater than the current time.");
 
             if (dto.EndAt > semesterEndTime)
                 throw new ArgumentException("Task deadline cannot exceed the semester end date.");
