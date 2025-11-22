@@ -589,22 +589,21 @@ namespace FPTTrackingSystem.Helper
 
 
         public static List<Group> GetGroups(int semesterId,
- int user1Id, int user2Id, int user3Id, int user4Id, int user5Id, int mentor1Id,
- int user6Id, int user7Id, int user8Id, int user9Id, int user10Id, int mentor2Id)
+ int user1Id, int user2Id, int user3Id, int user4Id, int user5Id, int mentor1Id)
         {
             var groups = new List<Group>
 {
     // --- 2 nhóm chính đã đổi tên ---
     new Group
     {
-        Code = "G01",
-        Name = "Capstone Team Vanguard",
+        Code = "G11",
+        Name = "FPT Tracking System",
         SemesterId = semesterId,
         CreateAt = DateTime.Now.AddMonths(-2),
-        Profession = "AI Development",
+        Profession = "Software Engineer",
         MajorId = 1,
-        Description = "Team phát triển hệ thống AI",
-        VietnameseTitle = "Nhóm Tiên Phong",
+        Description = "System Tracking Capstone Group",
+        VietnameseTitle = "He thong theo doi do an",
         StatusId = "ACTIVE",
         MeetingId = null,
         ExpireDate = SemesterSummer2025.EndAt,

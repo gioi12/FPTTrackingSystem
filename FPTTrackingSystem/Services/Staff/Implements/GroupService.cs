@@ -711,8 +711,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             // 3️⃣ Tạo groups với Id kỳ học thật
             var groups = MockData.GetGroups(
                 2,
-                1, 2, 3, 4, 5, 6,
-                7, 8, 9, 10, 11, 12
+                1, 2, 3, 4, 5, 6
             );
 
             // 4️⃣ Lấy danh sách group hiện có trong DB
@@ -958,13 +957,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             int user5Id = allAccounts.First(a => a.Username == "cuonghvhe176362@fpt.edu.vn").User.Id;
             int mentor1Id = allAccounts.First(a => a.Username == "lampt2@gmail.com").User.Id;
 
-            // User IDs for G02
-            int user6Id = allAccounts.First(a => a.Username == "namnthe172123@fpt.edu.vn").User.Id;
-            int user7Id = allAccounts.First(a => a.Username == "minhpthe171234@fpt.edu.vn").User.Id;
-            int user8Id = allAccounts.First(a => a.Username == "anhtthe173456@fpt.edu.vn").User.Id;
-            int user9Id = allAccounts.First(a => a.Username == "quangnmhe175678@fpt.edu.vn").User.Id;
-            int user10Id = allAccounts.First(a => a.Username == "linhnthe176789@fpt.edu.vn").User.Id;
-            int mentor2Id = allAccounts.First(a => a.Username == "thanhbv@gmail.com").User.Id;
+            
 
             /*            int user1Id = allAccounts.First(a => a.Username == "gioidmhe171512").User.Id;
                         int user2Id = allAccounts.First(a => a.Username == "haildhe172452").User.Id;
@@ -985,8 +978,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             // Lấy tất cả groups
             var groups = MockData.GetGroups(
                 2,
-                user1Id, user2Id, user3Id, user4Id, user5Id, mentor1Id,
-                user6Id, user7Id, user8Id, user9Id, user10Id, mentor2Id
+                user1Id, user2Id, user3Id, user4Id, user5Id, mentor1Id
             );
 
             var existingGroups = await _groupRepository.GetAllAsync(g => groups.Select(gr => gr.Code).Contains(g.Code));
