@@ -710,7 +710,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             // 3️⃣ Tạo groups với Id kỳ học thật
             var groups = MockData.GetGroups(
-                8,
+                1,
                 1, 2, 3, 4, 5, 6,
                 7, 8, 9, 10, 11, 12
             );
@@ -951,11 +951,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var allAccounts = existingAccounts.Concat(newAccounts).ToList();
 
             // User IDs for G01
-            int user1Id = allAccounts.First(a => a.Username == "gioidmhe171512@fpt.edu.vn").User.Id;
-            int user2Id = allAccounts.First(a => a.Username == "haildhe172452@fpt.edu.vn").User.Id;
-            int user3Id = allAccounts.First(a => a.Username == "cuonghvhe176362@fpt.edu.vn").User.Id;
-            int user4Id = allAccounts.First(a => a.Username == "handghe170064@fpt.edu.vn").User.Id;
-            int user5Id = allAccounts.First(a => a.Username == "huongtt170064@fpt.edu.vn").User.Id;
+            int user1Id = allAccounts.First(a => a.Username == "user1@fpt.edu.vn").User.Id;
+            int user2Id = allAccounts.First(a => a.Username == "user2@fpt.edu.vn").User.Id;
+            int user3Id = allAccounts.First(a => a.Username == "user3@fpt.edu.vn").User.Id;
+            int user4Id = allAccounts.First(a => a.Username == "user4@fpt.edu.vn").User.Id;
+            int user5Id = allAccounts.First(a => a.Username == "user5@fpt.edu.vn").User.Id;
             int mentor1Id = allAccounts.First(a => a.Username == "lampt2@gmail.com").User.Id;
 
             // User IDs for G02
@@ -984,7 +984,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             // Lấy tất cả groups
             var groups = MockData.GetGroups(
-                8,
+                1,
                 user1Id, user2Id, user3Id, user4Id, user5Id, mentor1Id,
                 user6Id, user7Id, user8Id, user9Id, user10Id, mentor2Id
             );
