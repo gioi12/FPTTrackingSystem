@@ -53,6 +53,7 @@ namespace Repositories.Authentication
                 .Include(a => a.User)
                    .ThenInclude(u => u.GroupUsers)
                         .ThenInclude(gu => gu.Group)
+                            .ThenInclude(sem => sem.Semester)
                 .FirstOrDefaultAsync(a => a.Id == int.Parse(info.UserId));
 
             if (account == null)
@@ -98,6 +99,20 @@ namespace Repositories.Authentication
 
             var roleInGroup = groupUser?.Role;
 
+            // lay group
+            var groups = user.GroupUsers
+                .Where(gu => gu.Group != null)
+                .Select(gu => new GroupInfo
+                {
+                    Id = gu.Group.Id,
+                    Name = gu.Group.Name,
+                    Code = gu.Group.Code,
+                    IsExpired = CheckNow(gu.Group.ExpireDate),
+                    SemesterId = (int)gu.Group.SemesterId,
+                    SesesterName = gu.Group.Semester != null ? gu.Group.Semester.Name : string.Empty
+                })
+                .ToList();
+
             return new UserInfo
             {
                 Id = user.Id,
@@ -107,7 +122,8 @@ namespace Repositories.Authentication
                 Role = account.Role.Name,
                 RoleInGroup = roleInGroup,
                 CampusId = user.CampusId,
-                Groups = groupIds.Any() ? groupIds : new List<int>() 
+                Groups = groupIds.Any() ? groupIds : new List<int>(),
+                GroupsInfo = groups
             };
         }
 
@@ -159,6 +175,13 @@ namespace Repositories.Authentication
             _context.Accounts.Update(existingAccount);
             await _context.SaveChangesAsync();
         }
-
+        public bool CheckNow(DateTime? dateCheck)
+        {
+            if (dateCheck < DateTime.Now)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

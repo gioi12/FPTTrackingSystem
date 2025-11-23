@@ -65,6 +65,10 @@ namespace FPTTrackingSystem.Controllers
         public async Task<object> Info()
         {
             var info = await _authUtils.GetUserInfoFromCookie();
+            if (info == null)
+            {
+                return ApiResponse<object>.Fail("Cannot get group",400);
+             }
             return ApiResponse<object>.Success(
              info, "User information", 200);
         }
