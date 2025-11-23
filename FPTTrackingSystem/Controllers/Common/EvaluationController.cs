@@ -84,7 +84,7 @@ namespace FPTTrackingSystem.Controllers.Common
             var cards = await _evaluationService.GetCardsByMentorIdAsync(mentor.Id ?? 0);
 
             if (cards == null || !cards.Any())
-                return NotFound(new { message = "Không tìm thấy thẻ phạt nào cho mentor này." });
+                return Ok(new { Status = 200, message = "Không tìm thấy thẻ phạt nào cho mentor này.", Data = new List<EvaluationResponseDto>() });
 
             return Ok(cards);
         }
@@ -96,19 +96,13 @@ namespace FPTTrackingSystem.Controllers.Common
             var result = await _evaluationService.GetEvaluationsByDeliverableIdAsync(user.Id ?? 0);
 
             if (result == null || !result.Any())
-                return NotFound(new { Message = "Không có đánh giá nào cho deliverable này." });
+                return Ok(new
+                {
+                    Status = 200,
+                    Message = "Không có đánh giá nào cho deliverable này.",
+                    Data = new List<EvaluationResponseDto>()
+                });
 
-            return Ok(result);
-        }
-
-        [HttpGet("getEvaluationByMentorDeliverable")]
-        public async Task<IActionResult> GetByDeliverableMentor()
-        {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            var result = await _evaluationService.GetEvaluationsByMentorDeliverableIdAsync(user.Id ?? 0);
-
-            if (result == null || !result.Any())
-                return NotFound(new { Message = "Không có đánh giá nào cho deliverable này." });
 
             return Ok(result);
         }
@@ -120,7 +114,7 @@ namespace FPTTrackingSystem.Controllers.Common
             var result = await _evaluationService.GetGeneralPenaltyCardsByStudentIdAsync(user.Id ?? 0);
 
             if (result == null || !result.Any())
-                return NotFound(new { Message = "Không có thẻ phạt General nào cho sinh viên này." });
+                return Ok(new { Status = 200, Message = "Không có thẻ phạt General nào cho sinh viên này.", Data = new List<EvaluationResponseDto>() });
 
             return Ok(result);
         }
@@ -132,7 +126,7 @@ namespace FPTTrackingSystem.Controllers.Common
             {
                 var result = await _evaluationService.UpdatePenaltyCardAsync(id, dto);
                 if (result == null)
-                    return NotFound(ApiResponse<string>.Fail("Penalty card not found", 404));
+                    return Ok(new { Status = 200, Message =  "Penalty card not found" ,Data = new List<EvaluationResponseDto>() });
 
                 return Ok(ApiResponse<object>.Success(new
                 {
@@ -165,7 +159,7 @@ namespace FPTTrackingSystem.Controllers.Common
             {
                 var result = await _evaluationService.UpdateEvaluationAsync(id, dto);
                 if (result == null)
-                    return NotFound(ApiResponse<string>.Fail("Evaluation not found", 404));
+                    return Ok(new { Status = 200, mesage ="Evaluation not found", Data = new List<EvaluationResponseDto>() });
 
                 return Ok(ApiResponse<object>.Success(new
                 {
