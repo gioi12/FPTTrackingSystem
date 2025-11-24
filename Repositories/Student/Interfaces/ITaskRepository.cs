@@ -20,5 +20,6 @@ namespace Repositories.Student.Interfaces
         Task<Entities.Models.Task?> UpdateTaskAsync(UpdateTaskDTO dto, int updatedBy);
         Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId);
         Task<List<Entities.Models.Task>> GetTasksByReviewerAsync(int userId, int groupId);
+        Task<List<Entities.Models.Task>> GetTaskTypeIssueAsync(int groupId);
     }
 }

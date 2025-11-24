@@ -4,11 +4,9 @@ namespace FPTTrackingSystem.Helper
 {
     public static class MockData
     {
-<<<<<<< HEAD
-            /*        // Summer 2025
-                    Bắt đầu: Thứ Hai, 28/04/2025
-            Kết thúc: Chủ Nhật, 17/08/2025
-            (16 tuần)*/
+        // Summer 2025
+        // Bắt đầu: Thứ Hai, 28/04/2025
+        // Kết thúc: Chủ Nhật, 17/08/2025 (16 tuần)
         public static readonly Semester SemesterSummer2025 = new Semester
         {
             Name = "Summer 2025",
@@ -18,15 +16,9 @@ namespace FPTTrackingSystem.Helper
             EndAt = new DateTime(2025, 8, 17)
         };
 
-            /*        Fall 2025
-            Bắt đầu: Thứ Hai, 18/08/2025
-            Kết thúc: Chủ Nhật, 07/12/2025
-            (16 tuần)
-
-            Spring 2026
-            Bắt đầu: Thứ Hai, 05/01/2026
-            Kết thúc: Chủ Nhật, 26/04/2026*/
-
+        // Fall 2025
+        // Bắt đầu: Thứ Hai, 18/08/2025
+        // Kết thúc: Chủ Nhật, 07/12/2025 (16 tuần)
         public static readonly Semester SemesterFall2025 = new Semester
         {
             Name = "Fall 2025",
@@ -36,6 +28,9 @@ namespace FPTTrackingSystem.Helper
             EndAt = new DateTime(2025, 12, 7)
         };
 
+        // Spring 2026
+        // Bắt đầu: Thứ Hai, 05/01/2026
+        // Kết thúc: Chủ Nhật, 26/04/2026
         public static readonly Semester SemesterSpring2026 = new Semester
         {
             Name = "Spring 2026",
@@ -43,36 +38,16 @@ namespace FPTTrackingSystem.Helper
             Description = "Spring semester for Capstone projects 2026",
             StartAt = new DateTime(2026, 1, 5),
             EndAt = new DateTime(2026, 4, 26)
-=======
-        public static readonly Semester SemesterSummer2025 = new Semester
-        {
-            Name = "Summer 2025",
-            IsActive = true,
-            Description = "Summer semester for Capstone projects, from May to August 2025",
-            StartAt = new DateTime(2025, 4, 28),
-            EndAt = new DateTime(2025, 8, 17)
         };
 
-        public static readonly Semester SemesterFall2025 = new Semester
-        {
-            Name = "Fall 2025",
-            IsActive = false,
-            Description = "Fall semester for Capstone projects, from September to December 2025",
-            StartAt = new DateTime(2025, 8, 18),
-            EndAt = new DateTime(2025, 12, 7)
->>>>>>> 9d49ead6b171e8892149ddde3e5be81a9cd5cfe2
-        };
-
+        // Danh sách tất cả các semester
         public static readonly List<Semester> AllSemesters = new List<Semester>
-        {   
+        {
             SemesterSummer2025,
-<<<<<<< HEAD
             SemesterFall2025,
             SemesterSpring2026
-=======
-            SemesterFall2025
->>>>>>> 9d49ead6b171e8892149ddde3e5be81a9cd5cfe2
         };
+
 
         public static readonly List<MajorCategory> MajorCategories = new()
 {
@@ -634,7 +609,7 @@ namespace FPTTrackingSystem.Helper
         //    }
 
 
-        public static List<Group> GetGroups(int semesterId,
+       /* public static List<Group> GetGroups(int semesterId,
 <<<<<<< HEAD
      int user1Id, int user2Id, int user3Id, int user4Id, int user5Id, int mentor1Id,
      int user6Id, int user7Id, int user8Id, int user9Id, int user10Id, int mentor2Id)
@@ -664,7 +639,7 @@ namespace FPTTrackingSystem.Helper
                         new GroupUser { UserId = user5Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
                         new GroupUser { UserId = mentor1Id, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" }
                     }
-                } }
+                } }*/
 /*                new Group
                 {
                     Code = "P02",
@@ -688,7 +663,7 @@ namespace FPTTrackingSystem.Helper
                         new GroupUser { UserId = mentor2Id, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now, UpdateAt = DateTime.Now, Status = "Active" }
                     }
                 }
-            }*/;
+  *//*          }*//*;
 
             int startUserId = 11;
             for (int i = 3; i <= 5; i++)
@@ -746,7 +721,7 @@ namespace FPTTrackingSystem.Helper
 
             return groups;
         }
-
+*/
 
         /*        public static List<Group> GetGroups(int semesterId,
          int user1Id, int user2Id, int user3Id, int user4Id, int user5Id, int mentor1Id,
@@ -859,7 +834,7 @@ namespace FPTTrackingSystem.Helper
                     }
 
                     return groups;
-                }*/
+                }*//*
 =======
  int user1Id, int user2Id, int user3Id, int user4Id, int user5Id, int mentor1Id)
         {
@@ -971,7 +946,41 @@ namespace FPTTrackingSystem.Helper
 
             return groups;
         }
->>>>>>> 9d49ead6b171e8892149ddde3e5be81a9cd5cfe2
+>>>>>>> 9d49ead6b171e8892149ddde3e5be81a9cd5cfe2*/
+        public static List<Group> GetGroups(
+    int semesterId,
+    int user1Id, int user2Id, int user3Id, int user4Id, int user5Id, int mentor1Id)
+        {
+            var groups = new List<Group>
+    {
+        new Group
+        {
+            Code = "G11",
+            Name = "FPT Tracking System",
+            SemesterId = semesterId,
+            CreateAt = DateTime.Now.AddMonths(-2),
+            Profession = "Software Engineer",
+            MajorId = 1,
+            Description = "System Tracking Capstone Group",
+            VietnameseTitle = "He thong theo doi do an",
+            StatusId = "ACTIVE",
+            MeetingId = null,
+            ExpireDate = SemesterSummer2025.EndAt,
+            GroupUsers = new List<GroupUser>
+            {
+                new GroupUser { UserId = user1Id, Role = "Leader", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = user2Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = user3Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = user4Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = user5Id, Role = "Student", IsActive = true, CreateAt = DateTime.Now.AddMonths(-2), UpdateAt = DateTime.Now, Status = "Active" },
+                new GroupUser { UserId = mentor1Id, Role = "Supervisor", IsActive = true, CreateAt = DateTime.Now.AddMonths(-1), UpdateAt = DateTime.Now, Status = "Active" }
+            }
+        }
+    };
+
+            return groups;
+        }
+
 
     }
 }

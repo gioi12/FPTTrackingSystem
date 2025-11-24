@@ -116,6 +116,20 @@ namespace FPTTrackingSystem.Controllers.Student
             return Ok(tasks);
         }
 
+
+        [HttpGet("v1/task/taskTypeIssue/{groupId}")]
+        public async Task<IActionResult> GetTaskTypeIssue(int groupId)
+        {
+            var result = await _taskService.GetTaskTypeIssueByGroupIdAsync(groupId);
+
+            return Ok(new
+            {
+                Code = 200,
+                Message = "Danh sách task type = 'issue'",
+                Data = result
+            });
+        }
+
         [HttpGet("v1/task/statistic/assignee")]
         public async Task<IActionResult> GetTaskStatisticByAssignee()
         {

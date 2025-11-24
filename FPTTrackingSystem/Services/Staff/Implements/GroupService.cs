@@ -711,12 +711,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             // 3️⃣ Tạo groups với Id kỳ học thật
             var groups = MockData.GetGroups(
                 2,
-<<<<<<< HEAD
-                1, 2, 3, 4, 5, 6,
-                7, 8, 9, 10, 11, 12
-=======
                 1, 2, 3, 4, 5, 6
->>>>>>> 9d49ead6b171e8892149ddde3e5be81a9cd5cfe2
             );
 
             // 4️⃣ Lấy danh sách group hiện có trong DB
@@ -983,12 +978,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             // Lấy tất cả groups
             var groups = MockData.GetGroups(
                 2,
-<<<<<<< HEAD
-                user1Id, user2Id, user3Id, user4Id, user5Id, mentor1Id,
-                user6Id, user7Id, user8Id, user9Id, user10Id, mentor2Id
-=======
                 user1Id, user2Id, user3Id, user4Id, user5Id, mentor1Id
->>>>>>> 9d49ead6b171e8892149ddde3e5be81a9cd5cfe2
             );
 
             var existingGroups = await _groupRepository.GetAllAsync(g => groups.Select(gr => gr.Code).Contains(g.Code));

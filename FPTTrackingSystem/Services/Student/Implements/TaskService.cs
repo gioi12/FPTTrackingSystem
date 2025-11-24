@@ -521,5 +521,21 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
             return allAttachments.Adapt<List<AttachmentRes>>();
         }
+
+        public async Task<List<TaskReviewerDTO>> GetTaskTypeIssueByGroupIdAsync(int groupId)
+        {
+            var list = await _taskRepository.GetTaskTypeIssueAsync(groupId);
+
+            return list.Select(t => new TaskReviewerDTO
+            {
+                Name = t.Name,
+                Description = t.Description,
+                Deadline = t.Deadline,
+                Type = t.Type,
+                Status = t.Status,
+                CreatedAt = t.CreatedAt,
+                Priority = t.Priority
+            }).ToList();
+        }
     }
 }

@@ -127,6 +127,13 @@ namespace Repositories.Student.Implements
                         .ToListAsync();
         }
 
+        public async Task<List<Entities.Models.Task>> GetTaskTypeIssueAsync(int groupId)
+        {
+            return await _context.Tasks
+                .Where(t => t.GroupId == groupId && t.Type == "Meeting")
+                .ToListAsync();
+        }
+
         public async Task<List<TaskDto>> GetTasksByGroupIdAsync(int groupId)
         {
             try
