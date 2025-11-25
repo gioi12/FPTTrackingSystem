@@ -51,17 +51,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
             if (string.IsNullOrEmpty(token))
                 throw new InvalidOperationException("Token not found in cookie.");
 
-            // Giải mã token lấy thông tin semester
             var semesterInfo = _jwtService.GetSemesterFromToken(token);
             if (string.IsNullOrEmpty(semesterInfo.End_Time) || !DateTime.TryParse(semesterInfo.End_Time, out DateTime semesterEndTime))
                 throw new InvalidOperationException("Semester end time not found or invalid in token.");
-
-            // Kiểm tra deadline task
-            //if (dto.EndAt <= DateTime.Now)
-            //    throw new ArgumentException("Task deadline must be greater than the current time.");
-
-            //if (dto.EndAt > semesterEndTime)
-            //    throw new ArgumentException("Task deadline cannot exceed the semester end date.");
 
             if (user.Role == "Student" && (user.Groups == null || !user.Groups.Contains(dto.GroupId)))
                 throw new UnauthorizedAccessException("Bạn không có quyền tạo task trong nhóm này.");
@@ -91,16 +83,11 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 throw new ArgumentException("ReviewerId không hợp lệ.");
 
             var validTaskTypes = new[] { "todo", "progress", "done" };
-            if (string.IsNullOrWhiteSpace(dto.Status) ||
-                !validTaskTypes.Contains(dto.Status.Trim().ToLower()))
+            if (!validTaskTypes.Contains(dto.Status.Trim().ToLower()))
                 throw new ArgumentException("Invalid TaskType. Allowed values: ToDo, Progress, Done.");
-            var taskType = dto.TaskType.Trim().ToLower();
-            var status = dto.Status.Trim().ToLower();
-            var priority = dto.Priority.Trim().ToLower();
 
             var validPriorities = new[] { "high", "medium", "low" };
-            if (string.IsNullOrWhiteSpace(dto.Priority) ||
-                !validPriorities.Contains(dto.Priority.Trim().ToLower()))
+            if (!validPriorities.Contains(dto.Priority.Trim().ToLower()))
                 throw new ArgumentException("Invalid Priority. Allowed values: High, Medium, Low.");
 
             string Capitalize(string s) =>
@@ -110,24 +97,46 @@ namespace FPTTrackingSystem.Services.Student.Implements
             {
                 GroupId = dto.GroupId,
                 Name = dto.Name,
-                Priority = Capitalize(priority),
+                Priority = Capitalize(dto.Priority),
                 Description = dto.Description,
                 Deadline = dto.EndAt,
-                Status = Capitalize(status),
+                Status = Capitalize(dto.Status),
                 DeliverableId = dto.DeliverableId > 0 ? dto.DeliverableId : null,
-                Type = Capitalize(taskType),
+                Type = Capitalize(dto.TaskType),
                 CreatedAt = DateTime.Now,
                 IsActive = true,
                 MeetingMinuteId = dto.MeetingId > 0 ? dto.MeetingId : null
             };
 
-            return await _taskRepository.CreateTaskAsync(
+            // Tạo task
+            var createdTask = await _taskRepository.CreateTaskAsync(
                 newTask,
                 dto.AssignedUserId ?? 0,
                 user.Id ?? 0,
                 dto.ReviewerId
             );
+
+            // =========================
+            // GHI LOG
+            // =========================
+            var now = DateTime.Now;
+            var log = new Log
+            {
+                Name = $"Tạo Task {createdTask.Name}",
+                EntityName = "Task",
+                EntityId = createdTask.Id,
+                Action = "Create",
+                Description = $"Task '{createdTask.Name}' được tạo bởi user {user.Name} (ID={user.Id}) vào lúc {now:yyyy-MM-dd HH:mm:ss}",
+                UserId = user.Id ?? 0,
+                CreateAt = now
+            };
+
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
+
+            return createdTask;
         }
+
 
         public async Task<ApiResponse<List<TaskDto>>> GetTasksByGroupIdAsync(int groupId)
         {
@@ -429,7 +438,18 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
                 var assignedUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);
                 var reviewerUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.ReviewerId);
+                var now = DateTime.Now;
 
+                var log = new Log
+                {
+                    Name = $"Cập nhật Task {updatedTask.Name}",
+                    EntityName = "Task",
+                    EntityId = updatedTask.Id,
+                    Action = "Update",
+                    Description = $"Task '{updatedTask.Name}' được cập nhật bởi user {user.Name} (ID={user.Id}) vào lúc {now:yyyy-MM-dd HH:mm:ss}",
+                    UserId = user.Id ?? 0,
+                    CreateAt = now
+                };
                 // =========================
                 // RESPONSE
                 // =========================
