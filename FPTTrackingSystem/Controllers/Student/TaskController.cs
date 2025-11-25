@@ -221,9 +221,9 @@ namespace FPTTrackingSystem.Controllers.Student
         }
         [Authorize]
         [HttpDelete("v1/upload/task")]
-        public async Task<object> DeleteTask(int attachmentId)
+        public async Task<object> DeleteTask(int attachmentId, int taskId)
         {
-            await _taskService.DeleteFileTask(attachmentId);
+            await _taskService.DeleteFileTask(attachmentId, taskId);
             return Ok(ApiResponse<object>.Success(null, "Delete attachment successfully."));
         }
         [Authorize]

@@ -89,7 +89,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             var validPriorities = new[] { "high", "medium", "low" };
             if (!validPriorities.Contains(dto.Priority.Trim().ToLower()))
                 throw new ArgumentException("Invalid Priority. Allowed values: High, Medium, Low.");
-
+            string entityName = FileUploadUtils.GetEntityName((int)FileEnum.Task);
             string Capitalize(string s) =>
                 string.IsNullOrWhiteSpace(s) ? s : char.ToUpper(s[0]) + s.Substring(1).ToLower();
 
@@ -123,9 +123,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
             var log = new Log
             {
                 Name = $"Tạo Task {createdTask.Name}",
-                EntityName = "Task",
-                EntityId = 1,
-                Action = "CREATE",
+                EntityName = entityName,
+                EntityId = newTask.Id,
+                Action = StringEnum.Create,
                 Description = $"Task '{createdTask.Name}' được tạo bởi {user.RollNumber}",
                 UserId = user.Id ?? 0,
                 CreateAt = now
@@ -438,13 +438,13 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 var assignedUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);
                 var reviewerUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.ReviewerId);
                 var now = DateTime.Now;
-
+                string entityName = FileUploadUtils.GetEntityName((int)FileEnum.Task);
                 var log = new Log
                 {
                     Name = $"Cập nhật Task {updatedTask.Name}",
-                    EntityName = "Task",
-                    EntityId = 1,
-                    Action = "UPDATE",
+                    EntityName = entityName,
+                    EntityId = updatedTask.Id,
+                    Action = StringEnum.Update,
                     Description = $"Task '{updatedTask.Name}' được cập nhật bởi {user.RollNumber}",
                     UserId = user.Id ?? 0,
                     CreateAt = now
@@ -549,9 +549,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
             var log = new Log
             {
                 Name = $"Upload file {file.FileName}",
-                EntityName = "Task", 
-                EntityId = 1,        
-                Action = "UPDATE",
+                EntityName = entityName, 
+                EntityId = task.Id,        
+                Action = StringEnum.Delete,
                 Description = $"{user.RollNumber} upload file '{file.FileName}'",
                 UserId = (int)user.Id,
                 CreateAt = now
@@ -562,18 +562,19 @@ namespace FPTTrackingSystem.Services.Student.Implements
             return path;
         }
 
-        public async System.Threading.Tasks.Task DeleteFileTask(int attachmentId)
+        public async System.Threading.Tasks.Task DeleteFileTask(int attachmentId, int taskId)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+            string entityName = FileUploadUtils.GetEntityName((int)FileEnum.Task);
             var attachment = await _attachmentRepository.GetAttachmentById(attachmentId);
             if (attachment == null) throw new ValidationException("Not found attachment");
             var now = DateTime.Now;
             var log = new Log
             {
                 Name = $"Delete file {attachment.FileName}",
-                EntityName = "Task",
-                EntityId = 1,        
-                Action = "DeleteFile",
+                EntityName = entityName,
+                EntityId = taskId,        
+                Action = StringEnum.Delete,
                 Description = $"User {user.RollNumber} xóa file '{attachment.FileName}'",
                 UserId = user.Id ?? 0,
                 CreateAt = now
