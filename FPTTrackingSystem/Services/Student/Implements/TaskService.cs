@@ -125,8 +125,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 Name = $"Tạo Task {createdTask.Name}",
                 EntityName = "Task",
                 EntityId = createdTask.Id,
-                Action = "Create",
-                Description = $"Task '{createdTask.Name}' được tạo bởi user {user.Name} (ID={user.Id}) vào lúc {now:yyyy-MM-dd HH:mm:ss}",
+                Action = "CREATE",
+                Description = $"Task '{createdTask.Name}' được tạo bởi {user.RollNumber}",
                 UserId = user.Id ?? 0,
                 CreateAt = now
             };
@@ -230,7 +230,6 @@ namespace FPTTrackingSystem.Services.Student.Implements
             bool inAccessibleGroups = accessibleGroups.Any(g => g.Id == groupId);
             bool inUserGroups = user.Groups?.Contains(groupId) ?? false;
 
-            // Student + Supervisor chỉ cần thỏa mãn MỘT điều kiện
             if ((user.Role == "Student" || user.Role == "Supervisor")
                 && !inAccessibleGroups && !inUserGroups)
             {
@@ -445,8 +444,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     Name = $"Cập nhật Task {updatedTask.Name}",
                     EntityName = "Task",
                     EntityId = updatedTask.Id,
-                    Action = "Update",
-                    Description = $"Task '{updatedTask.Name}' được cập nhật bởi user {user.Name} (ID={user.Id}) vào lúc {now:yyyy-MM-dd HH:mm:ss}",
+                    Action = "UPDATE",
+                    Description = $"Task '{updatedTask.Name}' được cập nhật bởi {user.RollNumber}",
                     UserId = user.Id ?? 0,
                     CreateAt = now
                 };

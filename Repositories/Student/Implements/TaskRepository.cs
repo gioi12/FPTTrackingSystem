@@ -111,23 +111,6 @@ namespace Repositories.Student.Implements
 
                 await _context.TaskUsers.AddRangeAsync(taskUsers);
                 await _context.SaveChangesAsync();
-
-                var log = new Log
-                {
-                    Name = "Create Task",
-                    EntityName = "task",
-                    EntityId = task.Id,
-                    Action = "CREATE",
-                    Description = $"Người dùng ID {createdBy} đã tạo task \"{task.Name}\" " +
-              $"và giao cho user ID {assignedUserId}" +
-              $"{(reviewerId.HasValue && reviewerId.Value > 0 ? $" (reviewer ID {reviewerId.Value})" : "")}.",
-                    UserId = createdBy,
-                    CreateAt = DateTime.Now
-                };
-
-                await _context.Logs.AddAsync(log);
-                await _context.SaveChangesAsync();
-
                 return task;
             }
             catch (Exception ex)
@@ -435,21 +418,6 @@ namespace Repositories.Student.Implements
             }
 
             await _context.SaveChangesAsync();
-
-            var log = new Log
-            {
-                Name = $"Cập nhật Task: {task.Name}",
-                EntityName = "Task",
-                EntityId = task.Id,
-                Action = "UPDATE",
-                Description = $"Người dùng ID {updatedBy} đã cập nhật task '{task.Name}'",
-                UserId = updatedBy,
-                CreateAt = DateTime.Now
-            };
-
-            await _context.Logs.AddAsync(log);
-            await _context.SaveChangesAsync();
-
             return task;
         }
 
