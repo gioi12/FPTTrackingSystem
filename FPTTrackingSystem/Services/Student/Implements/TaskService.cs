@@ -124,7 +124,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             {
                 Name = $"Tạo Task {createdTask.Name}",
                 EntityName = "Task",
-                EntityId = createdTask.Id,
+                EntityId = 1,
                 Action = "CREATE",
                 Description = $"Task '{createdTask.Name}' được tạo bởi {user.RollNumber}",
                 UserId = user.Id ?? 0,
@@ -443,7 +443,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 {
                     Name = $"Cập nhật Task {updatedTask.Name}",
                     EntityName = "Task",
-                    EntityId = updatedTask.Id,
+                    EntityId = 1,
                     Action = "UPDATE",
                     Description = $"Task '{updatedTask.Name}' được cập nhật bởi {user.RollNumber}",
                     UserId = user.Id ?? 0,
@@ -544,13 +544,40 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 IsDownload = false
             };
             await _attachmentRepository.AddAttachment(attachment);
+
+            var now = DateTime.Now;
+            var log = new Log
+            {
+                Name = $"Upload file {file.FileName}",
+                EntityName = "Task", 
+                EntityId = 1,        
+                Action = "UPDATE",
+                Description = $"{user.RollNumber} upload file '{file.FileName}'",
+                UserId = (int)user.Id,
+                CreateAt = now
+            };
+
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
             return path;
         }
 
         public async System.Threading.Tasks.Task DeleteFileTask(int attachmentId)
         {
+            var user = await _authUtils.GetUserInfoFromCookie();
             var attachment = await _attachmentRepository.GetAttachmentById(attachmentId);
             if (attachment == null) throw new ValidationException("Not found attachment");
+            var now = DateTime.Now;
+            var log = new Log
+            {
+                Name = $"Delete file {attachment.FileName}",
+                EntityName = "Task",
+                EntityId = 1,        
+                Action = "DeleteFile",
+                Description = $"User {user.RollNumber} xóa file '{attachment.FileName}'",
+                UserId = user.Id ?? 0,
+                CreateAt = now
+            };
             await _attachmentRepository.DeleteAttachment(attachment);
         }
 
