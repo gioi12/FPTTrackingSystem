@@ -19,5 +19,6 @@ namespace FPTTrackingSystem.Services.Student.Interfaces
         Task<List<TaskReviewerDTO>> GetReviewerTasksAsync(int userId, int groupId);
         Task<TaskStatisticResponse> GetTaskStatisticByAssigneeAsync(int userId);
         Task<List<TaskReviewerDTO>> GetTaskTypeIssueByGroupIdAsync(int groupId);
+        Task<ApiResponse<string>> DeleteTaskAsync(int taskId);
     }
 }

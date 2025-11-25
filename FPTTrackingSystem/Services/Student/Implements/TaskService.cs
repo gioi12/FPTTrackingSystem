@@ -251,6 +251,29 @@ namespace FPTTrackingSystem.Services.Student.Implements
             };
         }
 
+        public async Task<ApiResponse<string>> DeleteTaskAsync(int taskId)
+        {
+            var task = await _taskRepository.GetByIdAsync(taskId);
+
+            if (task == null)
+            {
+                return new ApiResponse<string>
+                {
+                    Status = 200,
+                    Message = "Task does not exist."
+                };
+            }
+
+            await _taskRepository.DeleteWithRelationAsync(task);
+
+            return new ApiResponse<string>
+            {
+                Status = 200,
+                Message = "Task is deleted successfully."
+            };
+        }
+
+
         public async Task<List<TaskDto>> GetTasksByAssigneeAsync()
         {
             var user = await _authUtils.GetUserInfoFromCookie();

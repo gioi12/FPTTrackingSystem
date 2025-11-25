@@ -97,6 +97,15 @@ namespace FPTTrackingSystem.Controllers.Student
             }
         }
 
+        [HttpDelete("v1/Task/delete/{taskId}")]
+        public async Task<IActionResult> DeletesTask(int taskId)
+        {
+            var result = await _taskService.DeleteTaskAsync(taskId);
+
+            return StatusCode(result.Status, result);
+        }
+
+
         [HttpGet("v1/Tasks/reviewer")]
         public async Task<IActionResult> GetTasksByReviewer([FromQuery] int groupId)
         {

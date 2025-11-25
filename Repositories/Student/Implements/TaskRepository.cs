@@ -32,6 +32,37 @@ namespace Repositories.Student.Implements
                 .ToListAsync();
         }
 
+        public async Task<Entities.Models.Task?> GetByIdAsync(int taskId)
+        {
+            return await _context.Tasks
+                .Include(t => t.TaskUsers)
+                .Include(t => t.Comments)
+                .Include(t => t.MeetingMinute)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+        }
+
+        public async System.Threading.Tasks.Task DeleteWithRelationAsync(Entities.Models.Task task)
+        {
+            // Xóa TaskUsers
+            if (task.TaskUsers.Any())
+                _context.TaskUsers.RemoveRange(task.TaskUsers);
+
+            // Xóa Comments
+            if (task.Comments.Any())
+                _context.Comments.RemoveRange(task.Comments);
+
+            // Xóa liên kết MeetingMinute
+            if (task.MeetingMinute != null)
+            {
+                task.MeetingMinute.Tasks.Remove(task);
+            }
+
+            // Xóa Task
+            _context.Tasks.Remove(task);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<List<Entities.Models.Task>> GetTasksByReviewerAsync(int userId, int groupId)
         {
             return await _context.Tasks
@@ -176,7 +207,7 @@ namespace Repositories.Student.Implements
                         TaskType = task.Type,
                         isMeetingTask = isMeetingTask,
                         meetingId = isMeetingTask ? meetingId : 0,
-                        isActive = task.IsActive ?? false,
+                        isActive = task.Deliverable?.IsActive ?? false,
                         Group = task.Group != null
                             ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
                             : null,
@@ -275,7 +306,7 @@ namespace Repositories.Student.Implements
                     ReviewerName = reviewer?.User?.Fullname,
                     isMeetingTask = isMeetingTask,
                     meetingId = isMeetingTask ? meetingId : 0,
-                    isActive = task.IsActive ?? false,
+                    isActive = task.Deliverable?.IsActive ?? false,
                     Group = task.Group != null
                         ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
                         : null,

@@ -21,5 +21,8 @@ namespace Repositories.Student.Interfaces
         Task<object?> GetMeetingScheduleWithTasksAsync(int meetingScheduleId);
         Task<List<Entities.Models.Task>> GetTasksByReviewerAsync(int userId, int groupId);
         Task<List<Entities.Models.Task>> GetTaskTypeIssueAsync(int groupId);
+        Task<Entities.Models.Task?> GetByIdAsync(int taskId);
+        System.Threading.Tasks.Task DeleteWithRelationAsync(Entities.Models.Task task);
+
     }
 }

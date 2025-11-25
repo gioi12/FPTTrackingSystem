@@ -3,6 +3,7 @@ using DataTranferObjects.Staff.Group;
 using DataTranferObjects.Staff.Response;
 using Entities.Models;
 using FPTTrackingSystem.Wrappers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Services.Staff.Interfaces
 {
@@ -18,8 +19,8 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         System.Threading.Tasks.Task DeleteFileGroup(int attachmentId);
         Task<List<AttachmentRes>> GetFilesGroup(int groupId);
         Task<ApiResponse<List<GroupMentorDto>>> GetExpiredGroupsBySupervisorAsync(int supervisorId);
-        Task<object> GetMockData();
-        Task<object> CreateMockData();
+        Task<object> GetMockData(int semesterId);
+        Task<object> CreateMockData(int semesterId);
         Task<Group> UpdateExpireDateAsync(int groupId, DateTime newExpireDate, string userRole);
 
     }
