@@ -10,5 +10,7 @@ namespace Repositories.Common.Interfaces
     public interface  ICommentRepository
     {
         Task<Comment> CreateCommentAsync(Comment comment);
+        Task<Comment?> GetCommentByIdAsync(int commentId);
+        System.Threading.Tasks.Task DeleteCommentAsync(Comment comment);
     }
 }

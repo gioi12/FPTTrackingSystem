@@ -565,6 +565,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
         public async System.Threading.Tasks.Task DeleteFileTask(int attachmentId, int taskId)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
+            var task = await _taskRepository.GetTaskByIdAsync(taskId);
+            if (task == null)
+                throw new ValidationException("Not found task");
             string entityName = FileUploadUtils.GetEntityName((int)FileEnum.Task);
             var attachment = await _attachmentRepository.GetAttachmentById(attachmentId);
             if (attachment == null) throw new ValidationException("Not found attachment");

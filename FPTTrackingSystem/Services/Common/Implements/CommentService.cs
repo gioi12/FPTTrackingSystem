@@ -4,6 +4,9 @@ using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Repositories.Common.Interfaces;
+using Repositories.Student.Implements;
+using Repositories.Student.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace FPTTrackingSystem.Services.Common.Implements
 {
@@ -11,11 +14,13 @@ namespace FPTTrackingSystem.Services.Common.Implements
     {
         private readonly ICommentRepository _commentRepository;
         private readonly AuthUtils _authUtils;
+        private readonly ITaskRepository _taskRepository;
 
-        public CommentService(ICommentRepository commentRepository, AuthUtils authUtils)
+        public CommentService(ICommentRepository commentRepository, TaskRepository taskRepository, AuthUtils authUtils)
         {
             _commentRepository = commentRepository;
             _authUtils = authUtils;
+            _taskRepository = taskRepository;
         }
 
         public async Task<ApiResponse<CommentDTO>> CreateCommentAsync(CreateCommentDto dto)
@@ -65,6 +70,34 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 Console.WriteLine($"[CreateCommentAsync] Error: {ex.Message}");
                 return new ApiResponse<CommentDTO>(500, "An error occurred while creating the comment.");
             }
+        }
+
+        public async System.Threading.Tasks.Task DeleteCommentAsync(int taskId, int commentId)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            var comment = await _commentRepository.GetCommentByIdAsync(commentId);
+            if (comment == null)
+                throw new ValidationException("Comment not found");
+
+            if (comment.TaskId != taskId)
+                throw new ValidationException("Comment does not belong to this task");
+
+            var task = await _taskRepository.GetTaskByIdAsync(taskId);
+            if (task == null)
+                throw new ValidationException("Task not found");
+
+            bool isCommentOwner = comment.UserId == user.Id;
+            bool isTaskOwner = task.CreatedBy == user.Id;   
+            bool isSecretary = user.RoleInGroup == "Secretary";
+            bool isSupervisor = user.RoleInGroup == "Supervisor";
+
+            bool canDelete = isCommentOwner || isTaskOwner || isSecretary || isSupervisor;
+
+            if (!canDelete)
+                throw new ValidationException("You do not have permission to delete this comment");
+
+            await _commentRepository.DeleteCommentAsync(comment);
         }
 
     }

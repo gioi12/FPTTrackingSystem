@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Controllers.Student
 {
-    [Route("api/v1/Student/Comment")]
+    [Route("api/v1/")]
     [ApiController]
     public class CommentController : ControllerBase
     {
@@ -16,11 +16,24 @@ namespace FPTTrackingSystem.Controllers.Student
             _commentService = commentService;
         }
 
-        [HttpPost("create")]
+        [HttpPost("Student/Comment/create")]
         public async Task<IActionResult> CreateComment([FromBody] CreateCommentDto dto)
         {
             var response = await _commentService.CreateCommentAsync(dto);
             return StatusCode(response.Status, response);
         }
+
+        [HttpDelete("/Student/Comment/task/{taskId}/comment/{commentId}")]
+        public async Task<IActionResult> DeleteComment(int taskId, int commentId)
+        {
+            await _commentService.DeleteCommentAsync(taskId, commentId);
+
+            return Ok(new
+            {
+                Status = 200,
+                Message = "Deleted comment successfully"
+            });
+        }
+
     }
 }
