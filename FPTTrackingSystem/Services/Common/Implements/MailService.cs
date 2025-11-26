@@ -1,27 +1,35 @@
 ﻿using DataTranferObjects.Common.Request;
+using DataTranferObjects.Common.Response;
+using Entities.Models;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Services.Common.MQ;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Repositories.Common.Interfaces;
+
 namespace FPTTrackingSystem.Services.Common.Implements
 {
     public class MailService : IMailService
     {
-        private readonly MailSettings _settings;
         private readonly RabbitMQProducer _rabbitMQProducer;
-        public MailService(IOptions<MailSettings> settings,RabbitMQProducer rabbitMQProducer) { 
-            _settings = settings.Value;
+        private readonly IMailSettingCache _mailCache;
+        private readonly IMailRepository _mailRepository;
+        private MailSettings _settings => _mailCache.Settings;
+
+        public MailService(IMailSettingCache mailCache, RabbitMQProducer rabbitMQProducer,IMailRepository mailRepository) { 
             _rabbitMQProducer = rabbitMQProducer;
+            _mailCache= mailCache;
+            _mailRepository = mailRepository;
         }
 
-        public async Task SendAnnounceMail(MailRequest request)
+        public async System.Threading.Tasks.Task SendAnnounceMail(MailRequest request)
         {
             await _rabbitMQProducer.SendMessage(new List<MailRequest> { request});
         }
 
-        public async Task SendEmailAsync(List<MailRequest> request)
+        public async System.Threading.Tasks.Task SendEmailAsync(List<MailRequest> request)
         {
             if (request == null || !request.Any())
                 return;
@@ -71,7 +79,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
                         retryCount++;
                         if (retryCount < 2)
                         {
-                            await Task.Delay(2000); 
+                            await System.Threading.Tasks.Task.Delay(2000); 
                         }
                     }
                 }
@@ -80,5 +88,40 @@ namespace FPTTrackingSystem.Services.Common.Implements
             await smtp.DisconnectAsync(true);
         }
 
+        public MailSettingsRes GetMailSettings()
+        {
+            return new MailSettingsRes
+            {
+                Mail = _settings.Mail,
+                DisplayName = _settings.DisplayName,
+                Host = _settings.Host,
+                Port = _settings.Port
+            };
+        }
+
+        public async Task<MailSettingsRes> NewMailSettingsAsync(MailSettings request)
+        {
+            var mail = new MailSetting
+            {
+                Mail = request.Mail,
+                DisplayName = request.DisplayName,
+                Password = request.Password,
+                Host = request.Host,
+                Port = request.Port,
+                IsActive = true
+            };
+
+            await _mailRepository.NewMailSetting(mail);
+
+            await _mailCache.ReloadAsync();
+
+            return new MailSettingsRes
+            {
+                Mail = mail.Mail,
+                DisplayName = mail.DisplayName,
+                Host = mail.Host,
+                Port = (int)mail.Port
+            };
+        }
     }
 }

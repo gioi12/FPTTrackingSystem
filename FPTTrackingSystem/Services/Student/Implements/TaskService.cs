@@ -519,7 +519,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             }).ToList();
         }
 
-        public async Task<string> UploadFileTask(IFormFile file, int groupId, int taskId)
+        public async Task<string> UploadFileTask(IFormFile file, int groupId, int taskId,string semester)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
             var group = await _groupRepository.GetByIdAsync(groupId);
@@ -529,7 +529,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
             if (group == null)
                 throw new ValidationException("Not found group");
 
-            string path = await FileUploadUtils.UploadFileAsync(file, (int)FileEnum.Task, _env);
+            string path = await FileUploadUtils.UploadFileAsync(file, (int)FileEnum.Task, _env, semester, "Group" + groupId);
             // 1. Milestone(Deliverable) , 2 Task , 3 Groups (Documents)
             string entityName = FileUploadUtils.GetEntityName((int)FileEnum.Task);
             Entities.Models.Attachment attachment = new Entities.Models.Attachment()

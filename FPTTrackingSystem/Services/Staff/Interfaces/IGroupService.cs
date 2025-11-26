@@ -15,7 +15,7 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         public Task<ApiResponse<GroupTrackingResponseDto>> GetGroupTrackingAsync(int groupId, DateTime startDate, DateTime endDate);
         Task<ApiResponse<List<GroupMentorDto>>> GetGroupsByUserIdAsync(int userId);
         Task<ApiResponse<string>> UpdateRoleInGroupAsync(int groupId, int userId, string newRole);
-        Task<string> UploadFileGroup(IFormFile file, int groupId);
+        Task<string> UploadFileGroup(IFormFile file, int groupId, string semester);
         System.Threading.Tasks.Task DeleteFileGroup(int attachmentId);
         Task<List<AttachmentRes>> GetFilesGroup(int groupId);
         Task<ApiResponse<List<GroupMentorDto>>> GetExpiredGroupsBySupervisorAsync(int supervisorId);

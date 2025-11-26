@@ -69,7 +69,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return res;
         }
 
-        public async Task<string> UploadFileMilestoneItem([Required]IFormFile file,int groupId,int deliveryItemId)
+        public async Task<string> UploadFileMilestoneItem([Required]IFormFile file,int groupId,int deliveryItemId,string semester)
         {
             var itemDeli = await _deliverableRepository.GetItemByItemId(deliveryItemId);
             var user = await _authUtils.GetUserInfoFromCookie();
@@ -78,7 +78,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 throw new ValidationException("Not found group");
             if (itemDeli == null) throw new ValidationException("Not found delivery");
            
-            string path = await FileUploadUtils.UploadFileAsync(file, (int)FileEnum.DeliverableItem, _env);
+            string path = await FileUploadUtils.UploadFileAsync(file, (int)FileEnum.DeliverableItem, _env,semester,"Group"+groupId);
             // 1. Milestone(Deliverable) , 2 Task , 3 Groups (Documents)
             string entityName = FileUploadUtils.GetEntityName((int)FileEnum.DeliverableItem);
             Entities.Models.Attachment attachment = new Entities.Models.Attachment()

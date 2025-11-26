@@ -1,9 +1,10 @@
 ﻿using DataTranferObjects.Common.Request;
 using FPTTrackingSystem.Extensions;
-using FPTTrackingSystem.Middlewares;
 using FPTTrackingSystem.Services.Common.MQ;
 using FPTTrackingSystem.Services.Common.Schedules;
+using Microsoft.Extensions.FileProviders;
 using Quartz;
+using Repositories.Common.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseWebRoot("wwwroot");
@@ -55,19 +56,29 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 var app = builder.Build();
+var env = app.Environment;
+
+using (var scope = app.Services.CreateScope())
+{
+    var cache = scope.ServiceProvider.GetRequiredService<IMailSettingCache>();
+    await cache.ReloadAsync();
+}
 app.UseCors("AllowFE");
-// cho phep tat ca ip tai ve
 app.UseStaticFiles(new StaticFileOptions
 {
+    FileProvider = new PhysicalFileProvider(Path.Combine(env.WebRootPath, "uploads")),
+    RequestPath = "/uploads",
     OnPrepareResponse = ctx =>
     {
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
     }
 });
-// xoa sau khi deploy,fix ci cd 2
+app.UseFileFallback(env.WebRootPath);
+
+// xoa sau khi deploy
 app.UseSwagger();
 app.UseSwaggerUI();
-//cors
+
 app.UseRouting();
 app.UseGlobalErrorHandler();
 app.UseHttpsRedirection();

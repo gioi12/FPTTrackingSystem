@@ -23,5 +23,19 @@ namespace FPTTrackingSystem.Controllers.Common
             await _mailService.SendAnnounceMail(request);
             return Ok(ApiResponse<object>.Success(null, "Send mail successfully."));
         }
+        [Authorize]
+        [HttpGet("v1/Mail/mail-settings")]
+        public async Task<object> GetMailSettings()
+        {
+            var settings =  _mailService.GetMailSettings();
+            return Ok(ApiResponse<object>.Success(settings, "get mail settings successfully."));
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("v1/Mail/mail-settings")]
+        public async Task<object> NewMailSettings([FromBody]MailSettings req)
+        {
+            var settings = await _mailService.NewMailSettingsAsync(req);
+            return Ok(ApiResponse<object>.Success(settings, "new mail settings successfully."));
+        }
     }
 }
