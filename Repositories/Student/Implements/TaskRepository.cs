@@ -289,7 +289,7 @@ namespace Repositories.Student.Implements
                     ReviewerName = reviewer?.User?.Fullname,
                     isMeetingTask = isMeetingTask,
                     meetingId = isMeetingTask ? meetingId : 0,
-                    isActive = task.Deliverable?.IsActive ?? false,
+                    isActive = task.IsActive ?? false,
                     Group = task.Group != null
                         ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
                         : null,
