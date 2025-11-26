@@ -28,9 +28,9 @@ namespace FPTTrackingSystem.Controllers.Staff
         }
         [Authorize]
         [HttpPost("v1/upload/milestone")]
-        public async Task<object> UploadMilestone(IFormFile file, int groupId, int deliveryItemId)
+        public async Task<object> UploadMilestone(IFormFile file, int groupId, int deliveryItemId, string semester)
         {
-            return Ok(await _deliverableSevice.UploadFileMilestoneItem(file, groupId, deliveryItemId));
+            return Ok(await _deliverableSevice.UploadFileMilestoneItem(file, groupId, deliveryItemId, semester));
         }
         [Authorize]
         [HttpGet("v1/deliverables/group/{id}")]

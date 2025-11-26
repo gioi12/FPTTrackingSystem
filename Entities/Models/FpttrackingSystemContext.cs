@@ -389,6 +389,10 @@ public partial class FpttrackingSystemContext : DbContext
 
         modelBuilder.Entity<MailSetting>(entity =>
         {
+            entity.HasIndex(e => e.IsActive, "UX_MailSettings_IsDefault")
+                .IsUnique()
+                .HasFilter("([isActive]=(1))");
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.DisplayName)
                 .HasMaxLength(100)
@@ -396,6 +400,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Host)
                 .HasMaxLength(200)
                 .HasColumnName("host");
+            entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.Mail)
                 .HasMaxLength(200)
                 .HasColumnName("mail");

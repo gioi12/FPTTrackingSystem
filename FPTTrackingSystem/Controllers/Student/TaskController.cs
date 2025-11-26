@@ -214,16 +214,16 @@ namespace FPTTrackingSystem.Controllers.Student
 
         [Authorize]
         [HttpPost("v1/upload/task")]
-        public async Task<object> UploadMTask(IFormFile file, int groupId,int taskId)
+        public async Task<object> UploadMTask(IFormFile file, int groupId,int taskId,string semester)
         {
-            var message = await _taskService.UploadFileTask(file, groupId,taskId);
+            var message = await _taskService.UploadFileTask(file, groupId,taskId, semester);
             return Ok(ApiResponse<object>.Success(message, "Upload Successfully"));
         }
         [Authorize]
         [HttpDelete("v1/upload/task")]
-        public async Task<object> DeleteTask(int attachmentId, int taskId)
+        public async Task<object> DeleteTask(int attachmentId)
         {
-            await _taskService.DeleteFileTask(attachmentId, taskId);
+            await _taskService.DeleteFileTask(attachmentId);
             return Ok(ApiResponse<object>.Success(null, "Delete attachment successfully."));
         }
         [Authorize]

@@ -1,29 +1,31 @@
-﻿using Microsoft.OpenApi.Models;
-using Repositories.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Entities.Models;
-using Microsoft.EntityFrameworkCore;
-using FPTTrackingSystem.Services.Token;
-using FPTTrackingSystem.Services.Login;
-using FPTTrackingSystem.Services.Authentication;
-using FPTTrackingSystem.Utilities;
-using Mapster;
+﻿using Entities.Models;
 using FPTTrackingSystem.Mappers;
-using FPTTrackingSystem.Services.Staff.Interfaces;
-using FPTTrackingSystem.Services.Staff.Implementations;
-using Repositories.Staff.Interfaces;
-using Repositories.Staff.Implements;
-using FPTTrackingSystem.Services.Common.Interfaces;
+using FPTTrackingSystem.Middlewares;
+using FPTTrackingSystem.Services.Admin;
+using FPTTrackingSystem.Services.Authentication;
 using FPTTrackingSystem.Services.Common.Implements;
-using Repositories.Common.Interfaces;
-using Repositories.Common.Implements;
-using Repositories.Student.Implements;
-using Repositories.Student.Interfaces;
+using FPTTrackingSystem.Services.Common.Interfaces;
+using FPTTrackingSystem.Services.Login;
+using FPTTrackingSystem.Services.Staff.Implementations;
+using FPTTrackingSystem.Services.Staff.Implements;
+using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Services.Student.Implements;
 using FPTTrackingSystem.Services.Student.Interfaces;
-using FPTTrackingSystem.Services.Staff.Implements;
+using FPTTrackingSystem.Services.Token;
+using FPTTrackingSystem.Utilities;
+using Mapster;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Repositories.Authentication;
+using Repositories.Common.Implements;
+using Repositories.Common.Interfaces;
+using Repositories.Staff.Implements;
+using Repositories.Staff.Interfaces;
+using Repositories.Student.Implements;
+using Repositories.Student.Interfaces;
+using System.Text;
 namespace FPTTrackingSystem.Extensions
 {
     public static class ServiceExtensions
@@ -44,6 +46,8 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IEvaluationRepository, EvaluationRepository>();
             services.AddScoped<IMeetingRepository, MeetingRepository>();
             services.AddScoped<ICampusRepository, CampusRepository>();
+            services.AddSingleton<IMailSettingCache, MailSettingCache>();
+            services.AddScoped<IMailRepository,MailRepository>();
             return services;
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
@@ -64,6 +68,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IEvaluationService, EvaluationService>();
             services.AddScoped<IMeetingService, MeetingService>();
             services.AddScoped<ICampusService, CampusService>();
+            services.AddScoped<IStorageService, StorageService>();
             return services;
         }
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)
@@ -154,6 +159,17 @@ namespace FPTTrackingSystem.Extensions
             DeliverableMapper.ToDeliverableResponse();
             MeetingMinuteMapper.ToMeetingMinuteResponse();
             AttachmentMapper.ToAttachmentResponse();
+            return services;
+        }
+
+        public static IApplicationBuilder UseGlobalErrorHandler(this IApplicationBuilder services)
+        {
+            return services.UseMiddleware<GlobalErrorMiddleware>();
+        }
+        public static IApplicationBuilder UseFileFallback(this IApplicationBuilder services, string webRoot)
+        {
+            var uploadsRoot = Path.Combine(webRoot, "uploads");
+            services.UseMiddleware<ZipFallbackMiddleware>(uploadsRoot);
             return services;
         }
     }
