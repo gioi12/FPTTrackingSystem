@@ -14,6 +14,7 @@ namespace DataTranferObjects.Staff.Group
         public string? Term { get; set; } = string.Empty;
         public string? Major { get; set; } = string.Empty;
         public int StudentCount { get; set; }
+        public DateTime? ate { get; set; }
         public bool IsExpired { get; set; }
         public IEnumerable<string>? Supervisor { get; set; }
         public bool SubmittedDocs { get; set; }
@@ -67,6 +68,7 @@ namespace DataTranferObjects.Staff.Group
         public string? ProjectName { get; set; }
         public int? SemesterId { get; set; }
         public bool IsExpired { get; set; }
+        public DateTime? ExpireDate { get; set; }
         public List<string> Supervisors { get; set; } = new();
         public List<SuperviorDto> SupervisorsInfor { get; set; } = new();
         public string? Status { get; set; }

@@ -190,7 +190,7 @@ namespace Repositories.Student.Implements
                         TaskType = task.Type,
                         isMeetingTask = isMeetingTask,
                         meetingId = isMeetingTask ? meetingId : 0,
-                        isActive = task.Deliverable?.IsActive ?? false,
+                        isActive = task.IsActive ?? false,
                         Group = task.Group != null
                             ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
                             : null,

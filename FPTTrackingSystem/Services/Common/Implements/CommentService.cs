@@ -16,7 +16,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
         private readonly AuthUtils _authUtils;
         private readonly ITaskRepository _taskRepository;
 
-        public CommentService(ICommentRepository commentRepository, TaskRepository taskRepository, AuthUtils authUtils)
+        public CommentService(ICommentRepository commentRepository, ITaskRepository taskRepository, AuthUtils authUtils)
         {
             _commentRepository = commentRepository;
             _authUtils = authUtils;

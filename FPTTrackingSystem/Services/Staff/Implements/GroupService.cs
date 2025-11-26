@@ -249,6 +249,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 GroupCode = group.Code,
                 SemesterId = group.SemesterId,
                 IsExpired = group.ExpireDate != null && group.ExpireDate < DateTime.UtcNow,
+                Expired = group.ExpireDate,
                 Supervisors = group.GroupUsers
                     .Where(gu => gu.User != null &&
                         (gu.Role == "Supervisor" || gu.Role == "SupervisorHead"))

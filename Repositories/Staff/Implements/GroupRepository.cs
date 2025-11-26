@@ -156,6 +156,7 @@ namespace Repositories.Staff.Implements
                     Term = g.Semester != null ? g.Semester.Name : "",
                     Major = g.Major != null ? g.Major.Name : "",
                     IsExpired = g.ExpireDate != null && g.ExpireDate < DateTime.UtcNow,
+                    ExpireDate = g.ExpireDate,
                     // ✅ Count được tính trong SQL
                     StudentCount = g.GroupUsers.Count(gu =>
                         gu.Role == RoleEnum.Student.ToString() ||
