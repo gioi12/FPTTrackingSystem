@@ -157,17 +157,14 @@ namespace Repositories.Staff.Implements
                     Major = g.Major != null ? g.Major.Name : "",
                     IsExpired = g.ExpireDate != null && g.ExpireDate < DateTime.UtcNow,
                     ExpireDate = g.ExpireDate,
-                    // ✅ Count được tính trong SQL
                     StudentCount = g.GroupUsers.Count(gu =>
                         gu.Role == RoleEnum.Student.ToString() ||
                         gu.Role == "Leader" ||
                         gu.Role == "Secretary"),
 
-                    // ✅ KHÔNG DÙNG .ToList() ở đây
                     Supervisor = g.GroupUsers
                         .Where(gu => gu.Role == "Supervisor" || gu.Role == "SupervisorHead")
                         .Select(gu => gu.User.Fullname),
-
                     SubmittedDocs = false
                 });
         }
