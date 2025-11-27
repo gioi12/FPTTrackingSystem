@@ -66,6 +66,7 @@ namespace DataTranferObjects.Staff.Group
         public string Id { get; set; } = string.Empty;
         public string? GroupCode { get; set; }
         public string? ProjectName { get; set; }
+        public string? SemesterName { get; set; }
         public int? SemesterId { get; set; }
         public bool IsExpired { get; set; }
         public DateTime? ExpireDate { get; set; }

@@ -246,6 +246,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 Id = group.Id.ToString(),
                 ProjectName = group.Name,
+                SemesterName = group.Semester.Name,
                 GroupCode = group.Code,
                 SemesterId = group.SemesterId,
                 IsExpired = group.ExpireDate != null && group.ExpireDate < DateTime.UtcNow,
