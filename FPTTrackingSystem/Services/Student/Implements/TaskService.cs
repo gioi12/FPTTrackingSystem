@@ -449,6 +449,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
                     UserId = user.Id ?? 0,
                     CreateAt = now
                 };
+
+                _context.Logs.Add(log);
+                await _context.SaveChangesAsync();
                 // =========================
                 // RESPONSE
                 // =========================
