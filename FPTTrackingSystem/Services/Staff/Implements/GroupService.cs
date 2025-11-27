@@ -7,6 +7,7 @@ using DataTranferObjects.Staff.Response;
 using Entities.Models;
 using FPTTrackingSystem.Helper;
 using FPTTrackingSystem.Services.Staff.Interfaces;
+using FPTTrackingSystem.Services.Token;
 using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Mapster;
@@ -35,8 +36,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         private readonly ISemesterRepository _semesterRepository;
         private readonly ISemesterService _semesterService;
         private readonly IAccountRepository _accountRepository;
+        private readonly IJwtService _jwtService;
 
-        public GroupService(IGroupRepository groupRepository,IMajorRepository majorRepository, ISemesterService semesterService,  AuthUtils authUtils, IWebHostEnvironment env,IAttachmentRepository attachmentRepository, IHttpContextAccessor httpContextAccessor,IAccountRepository accountRepository,ISemesterRepository semesterRepository)
+        public GroupService(IGroupRepository groupRepository, IJwtService jwtService,IMajorRepository majorRepository, ISemesterService semesterService,  AuthUtils authUtils, IWebHostEnvironment env,IAttachmentRepository attachmentRepository, IHttpContextAccessor httpContextAccessor,IAccountRepository accountRepository,ISemesterRepository semesterRepository)
         {
             _groupRepository = groupRepository;
             _authUtils = authUtils;
@@ -46,6 +48,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             _accountRepository = accountRepository;
             _semesterRepository = semesterRepository;
             _majorRepository = majorRepository;
+            _jwtService = jwtService;
             _semesterService = semesterService;
         }
         public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
@@ -665,7 +668,25 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
         if (group == null)
             throw new KeyNotFoundException($"Group with Id {groupId} not found.");
 
-        group.ExpireDate = newExpireDate;
+        var token = _httpContextAccessor.HttpContext?.Request.Cookies["token"];
+        if (string.IsNullOrEmpty(token))
+             throw new InvalidOperationException("Token not found in cookie.");
+
+         var semesterInfo = _jwtService.GetSemesterFromToken(token);
+
+            if (string.IsNullOrEmpty(semesterInfo.End_Time) ||
+            !DateTime.TryParse(semesterInfo.End_Time, out DateTime semesterEndDate))
+            {
+                throw new InvalidOperationException("Semester End_Time is invalid.");
+            }
+
+            if (newExpireDate < semesterEndDate)
+            {
+                throw new ArgumentException(
+                    $"ExpireDate must be greater than or equal to semester end date ({semesterEndDate:dd/MM/yyyy})."
+                );
+            }
+            group.ExpireDate = newExpireDate;
 
         await _groupRepository.UpdateAsync(group);
 
