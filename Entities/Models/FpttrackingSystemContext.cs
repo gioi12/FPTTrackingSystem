@@ -99,6 +99,9 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.CreateAt)
                 .HasColumnType("datetime")
                 .HasColumnName("create_at");
+            entity.Property(e => e.Description)
+                .HasMaxLength(200)
+                .HasColumnName("description");
             entity.Property(e => e.EntityId).HasColumnName("entity_id");
             entity.Property(e => e.EntityName)
                 .HasMaxLength(50)

@@ -515,7 +515,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             }
         }
 
-        public async Task<string> UploadFileGroup(IFormFile file, int groupId,string semester)
+        public async Task<string> UploadFileGroup(IFormFile file, int groupId,string semester, string? description)
         {
             var user = await _authUtils.GetUserInfoFromCookie();
             var group = await _groupRepository.GetByIdAsync(groupId);
@@ -534,7 +534,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 EntityId = groupId,
                 GroupId = groupId,
                 UserId = (int)user.Id,
-                IsDownload = false
+                IsDownload = false,
+                Description = description
             };
             await _attachmentRepository.AddAttachment(attachment);
             return path;
