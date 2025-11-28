@@ -23,7 +23,7 @@ namespace FPTTrackingSystem.Controllers.Student
             return StatusCode(response.Status, response);
         }
 
-        [HttpDelete("/Student/Comment/task/{taskId}/comment/{commentId}")]
+        [HttpDelete("Student/Comment/task/{taskId}/comment/{commentId}")]
         public async Task<IActionResult> DeleteComment(int taskId, int commentId)
         {
             await _commentService.DeleteCommentAsync(taskId, commentId);
@@ -35,7 +35,7 @@ namespace FPTTrackingSystem.Controllers.Student
             });
         }
 
-        [HttpPut("/Student/Comment/task/{taskId}/comment/{commentId}")]
+        [HttpPut("Student/Comment/task/{taskId}/comment/{commentId}")]
         public async Task<IActionResult> UpdateComment(int taskId, int commentId, [FromBody] UpdateCommentDto dto)
         {
             var response = await _commentService.UpdateCommentAsync(taskId, commentId, dto);
