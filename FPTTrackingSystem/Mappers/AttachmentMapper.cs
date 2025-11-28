@@ -13,7 +13,8 @@ namespace FPTTrackingSystem.Mappers
               .Map(dest => dest.FileName, src => src.FileName)
               .Map(dest => dest.Path, src => src.FilePath)
               .Map(dest => dest.UserName, src => src.User.Fullname)
-              .Map(dest => dest.CreateAt, src => src.CreateAt);
+              .Map(dest => dest.CreateAt, src => src.CreateAt)
+              .Map(dest => dest.Description, src => src.Description);
         }
     }
 }

@@ -106,10 +106,10 @@ namespace FPTTrackingSystem.Controllers.Staff
 
         [Authorize(Roles = "Supervisor")]
         [HttpPost("v1/upload/group")]
-        public async Task<object> UploadMilestone(IFormFile file, int groupId, string semester)
+        public async Task<object> UploadMilestone(IFormFile file, int groupId, string semester,string? description)
         {
-            var message = await _groupService.UploadFileGroup(file, groupId,semester);
-            return Ok(ApiResponse<object>.Success(message,"Upload Successfully"));
+            var message = await _groupService.UploadFileGroup(file, groupId,semester,description);
+            return Ok(ApiResponse<object>.Success(new { path = message, description = description },"Upload Successfully"));
         }
         [Authorize(Roles = "Supervisor")]
         [HttpDelete("v1/upload/group")]
