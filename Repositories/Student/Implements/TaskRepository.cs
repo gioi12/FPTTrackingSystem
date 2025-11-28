@@ -152,77 +152,112 @@ namespace Repositories.Student.Implements
         {
             try
             {
+                // 1️⃣ Lấy task cơ bản
                 var tasks = await _context.Tasks
-                    .Include(t => t.Group)
-                    .Include(t => t.Deliverable)
-                    .Include(t => t.Comments)
-                     .ThenInclude(c => c.User)
-                    .Include(t => t.TaskUsers)
-                        .ThenInclude(tu => tu.User)
                     .Where(t => t.GroupId == groupId)
                     .OrderBy(t => t.Deadline)
+                    .Select(t => new
+                    {
+                        t.Id,
+                        t.Name,
+                        t.Description,
+                        t.Deadline,
+                        t.CreatedAt,
+                        t.Priority,
+                        t.Status,
+                        t.Type,
+                        t.IsActive,
+                        t.MeetingMinuteId,
+                        Group = new { t.Group.Id, t.Group.Name },
+                        Milestone = t.Deliverable == null ? null : new
+                        {
+                            t.Deliverable.Id,
+                            t.Deliverable.Name,
+                            t.Deliverable.Description,
+                            t.Deliverable.IsActive
+                        }
+                    })
                     .ToListAsync();
 
-                var result = tasks.Select(task =>
-                {
-                    var createdByUser = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Creator");
-                    var assignee = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Assignee");
-                    var reviewer = task.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
+                if (!tasks.Any()) return new List<TaskDto>();
 
-                    bool isMeetingTask = task.MeetingMinuteId.HasValue;
-                    int meetingId = isMeetingTask ? task.MeetingMinuteId.Value : 0;
+                var taskIds = tasks.Select(t => t.Id).ToList();
+
+                // 2️⃣ Lấy TaskUsers
+                var taskUsers = await _context.TaskUsers
+                    .Include(tu => tu.User)
+                    .Where(tu => taskIds.Contains(tu.TaskId))
+                    .ToListAsync();
+
+                // 3️⃣ Lấy Comments
+                var comments = await _context.Comments
+                    .Include(c => c.User)
+                    .Where(c => taskIds.Contains(c.TaskId ?? 0))
+                    .ToListAsync();
+
+                // 4️⃣ Lấy Logs
+                var logs = await _context.Logs
+                    .Include(l => l.User)
+                    .Where(l => l.EntityName == "task" && taskIds.Contains(l.EntityId))
+                    .ToListAsync();
+
+                // 5️⃣ Map result
+                var result = tasks.Select(t =>
+                {
+                    var taskUserList = taskUsers.Where(u => u.TaskId == t.Id);
+                    var createdBy = taskUserList.FirstOrDefault(u => u.Type == "Creator");
+                    var assignee = taskUserList.FirstOrDefault(u => u.Type == "Assignee");
+                    var reviewer = taskUserList.FirstOrDefault(u => u.Type == "Reviewer");
 
                     return new TaskDto
                     {
-                        Id = task.Id,
-                        Title = task.Name,
-                        Description = task.Description,
-                        Deadline = task.Deadline,
-                        CreatedAt = task.CreatedAt,
-                        CreatedBy = createdByUser?.User.Id,
-                        CreatedByName = createdByUser?.User.Fullname,
-                        Priority = task.Priority,
-                        Status = task.Status,
-                        AssigneeId = assignee?.User.Id,
-                        AssigneeName = assignee?.User.Fullname,
+                        Id = t.Id,
+                        Title = t.Name,
+                        Description = t.Description,
+                        Deadline = t.Deadline,
+                        CreatedAt = t.CreatedAt,
+                        Priority = t.Priority,
+                        Status = t.Status,
+                        TaskType = t.Type,
+                        isActive = t.IsActive ?? false,
+                        CreatedBy = createdBy?.User?.Id,
+                        CreatedByName = createdBy?.User?.Fullname,
+                        AssigneeId = assignee?.User?.Id,
+                        AssigneeName = assignee?.User?.Fullname,
+
                         ReviewerId = reviewer?.User?.Id,
                         ReviewerName = reviewer?.User?.Fullname,
-                        TaskType = task.Type,
-                        isMeetingTask = isMeetingTask,
-                        meetingId = isMeetingTask ? meetingId : 0,
-                        isActive = task.IsActive ?? false,
-                        Group = task.Group != null
-                            ? new GroupTaskDto { Id = task.Group.Id, Name = task.Group.Name }
-                            : null,
-                        Milestone = task.Deliverable != null
-                            ? new MilestonesDto
-                            {
-                                Id = task.Deliverable.Id,
-                                Name = task.Deliverable.Name,
-                                isActive = task.Deliverable.IsActive,
-                                Description = task.Deliverable.Description
-                            }
-                            : null,
-                        /*                        Attachments = _context.Attachments?
-                                                    .Where(a => a.EntityName.Equals("task") && a.EntityId == task.Id)
-                                                    .Select(a => new AttachmentDto
-                                                    {
-                                                        Id = a.Id,
-                                                        FileName = a.FileName,
-                                                        FileUrl = a.FilePath
-                                                    }).ToList() ?? new List<AttachmentDto>(),*/
-                        Comments = task.Comments?
-                                    .Select(c => new CommentDto
-                                    {
-                                        Id = c.Id,
-                                        Author = c.User.RollNumber ?? "",
-                                        AuthorName = c.User.Fullname,
-                                        Content = c.Feedback ?? "",
-                                        Timestamp = c.CreateAt
-                                    }).ToList() ?? new List<CommentDto>(),
 
-                        History = _context.Logs
-                            .Where(h => h.EntityName.Equals("task") && h.EntityId == task.Id)
+                        isMeetingTask = t.MeetingMinuteId.HasValue,
+                        meetingId = t.MeetingMinuteId ?? 0,
+
+                        Group = t.Group == null ? null : new GroupTaskDto
+                        {
+                            Id = t.Group.Id,
+                            Name = t.Group.Name
+                        },
+
+                        Milestone = t.Milestone == null ? null : new MilestonesDto
+                        {
+                            Id = t.Milestone.Id,
+                            Name = t.Milestone.Name,
+                            Description = t.Milestone.Description,
+                            isActive = t.Milestone.IsActive
+                        },
+
+                        Comments = comments
+                            .Where(c => c.TaskId == t.Id)
+                            .Select(c => new CommentDto
+                            {
+                                Id = c.Id,
+                                Author = c.User.RollNumber,
+                                AuthorName = c.User.Fullname,
+                                Content = c.Feedback,
+                                Timestamp = c.CreateAt
+                            }).ToList(),
+
+                        History = logs
+                            .Where(h => h.EntityId == t.Id)
                             .Select(h => new HistoryDto
                             {
                                 Id = h.Id,
@@ -238,13 +273,10 @@ namespace Repositories.Student.Implements
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[GetTasksByGroupIdAsync] Error: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine(ex);
                 return new List<TaskDto>();
             }
         }
-
-
 
         public async Task<TaskDto?> GetTaskByIdAsync(int taskId)
         {
