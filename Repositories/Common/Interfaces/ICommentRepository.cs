@@ -12,5 +12,7 @@ namespace Repositories.Common.Interfaces
         Task<Comment> CreateCommentAsync(Comment comment);
         Task<Comment?> GetCommentByIdAsync(int commentId);
         System.Threading.Tasks.Task DeleteCommentAsync(Comment comment);
+        Task<Comment?> GetCommentAsync(int taskId, int commentId);
+        System.Threading.Tasks.Task UpdateCommentAsync(Comment comment);
     }
 }

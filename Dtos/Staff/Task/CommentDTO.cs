@@ -15,6 +15,12 @@ namespace DataTranferObjects.Staff.Task
         public int GroupId { get; set; }
     }
 
+    public class UpdateCommentDto
+    {
+        public string Feedback { get; set; } = null!;
+    }
+
+
     public class CreateCommentDto
     {
         public int TaskId { get; set; }

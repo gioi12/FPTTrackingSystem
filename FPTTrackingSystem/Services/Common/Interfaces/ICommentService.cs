@@ -7,5 +7,6 @@ namespace FPTTrackingSystem.Services.Common.Interfaces
     {
         Task<ApiResponse<CommentDTO>> CreateCommentAsync(CreateCommentDto dto);
         Task DeleteCommentAsync(int taskId, int commentId);
+        Task<ApiResponse<object>> UpdateCommentAsync(int taskId, int commentId, UpdateCommentDto dto);
     }
 }

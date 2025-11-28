@@ -35,5 +35,13 @@ namespace FPTTrackingSystem.Controllers.Student
             });
         }
 
+        [HttpPut("/Student/Comment/task/{taskId}/comment/{commentId}")]
+        public async Task<IActionResult> UpdateComment(int taskId, int commentId, [FromBody] UpdateCommentDto dto)
+        {
+            var response = await _commentService.UpdateCommentAsync(taskId, commentId, dto);
+            return StatusCode(response.Status, response);
+        }
+
+
     }
 }

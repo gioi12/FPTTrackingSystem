@@ -122,11 +122,11 @@ namespace FPTTrackingSystem.Services.Student.Implements
             var now = DateTime.Now;
             var log = new Log
             {
-                Name = $"Tạo Task {createdTask.Name}",
+                Name = $"Created Task {createdTask.Name}",
                 EntityName = entityName,
                 EntityId = newTask.Id,
                 Action = StringEnum.Create,
-                Description = $"Task '{createdTask.Name}' được tạo bởi {user.RollNumber}",
+                Description = $"Created '{createdTask.Name} is created'",
                 UserId = user.Id ?? 0,
                 CreateAt = now
             };
@@ -437,15 +437,43 @@ namespace FPTTrackingSystem.Services.Student.Implements
 
                 var assignedUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.AssignedUserId);
                 var reviewerUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.ReviewerId);
+
+                List<string> changes = new List<string>();
+
+                if (existingTask.Name != updatedTask.Name)
+                    changes.Add($"Name changed from '{existingTask.Name}' to '{updatedTask.Name}'");
+
+                if (existingTask.Description != updatedTask.Description)
+                    changes.Add($"Description changed");
+
+                if (existingTask.Deadline != updatedTask.Deadline)
+                    changes.Add($"Deadline changed from '{existingTask.Deadline:dd/MM/yyyy HH:mm}' to '{updatedTask.Deadline:dd/MM/yyyy HH:mm}'");
+
+                if (existingTask.Status != updatedTask.Status)
+                    changes.Add($"Status changed from '{existingTask.Status}' to '{updatedTask.Status}'");
+
+                if (existingTask.Priority != updatedTask.Priority)
+                    changes.Add($"Priority changed from '{existingTask.Priority}' to '{updatedTask.Priority}'");
+
+                if (existingTask.DeliverableId != updatedTask.DeliverableId)
+                    changes.Add($"Milestone changed from '{existingTask.DeliverableId}' to '{updatedTask.DeliverableId}'");
+
+                if (existingTask.MeetingMinuteId != updatedTask.MeetingMinuteId)
+                    changes.Add($"Meeting changed from '{existingTask.MeetingMinuteId}' to '{updatedTask.MeetingMinuteId}'");
+
+                // Nếu không có gì thay đổi thì không ghi log
+                string changeDescription = changes.Count > 0
+                    ? string.Join("; ", changes)
+                    : "No changes detected.";
                 var now = DateTime.Now;
                 string entityName = FileUploadUtils.GetEntityName((int)FileEnum.Task);
                 var log = new Log
                 {
-                    Name = $"Cập nhật Task {updatedTask.Name}",
+                    Name = $"Update Task {updatedTask.Name}",
                     EntityName = entityName,
                     EntityId = updatedTask.Id,
                     Action = StringEnum.Update,
-                    Description = $"Task '{updatedTask.Name}' được cập nhật bởi {user.RollNumber}",
+                    Description = changeDescription,
                     UserId = user.Id ?? 0,
                     CreateAt = now
                 };
@@ -554,8 +582,8 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 Name = $"Upload file {file.FileName}",
                 EntityName = entityName, 
                 EntityId = task.Id,        
-                Action = StringEnum.Delete,
-                Description = $"{user.RollNumber} upload file '{file.FileName}'",
+                Action = StringEnum.Create,
+                Description = $"Upload file '{file.FileName}'",
                 UserId = (int)user.Id,
                 CreateAt = now
             };
@@ -577,7 +605,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 EntityName = attachment.EntityName,
                 EntityId = attachment.EntityId,        
                 Action = StringEnum.Delete,
-                Description = $"User {user.RollNumber} xóa file '{attachment.FileName}'",
+                Description = $"Delete file '{attachment.FileName}'",
                 UserId = user.Id ?? 0,
                 CreateAt = now
             };

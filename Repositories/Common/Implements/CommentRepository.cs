@@ -36,5 +36,17 @@ namespace Repositories.Common.Implements
             _context.Comments.Remove(comment);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Comment?> GetCommentAsync(int taskId, int commentId)
+        {
+            return await _context.Comments
+                .FirstOrDefaultAsync(c => c.Id == commentId && c.TaskId == taskId);
+        }
+
+        public async System.Threading.Tasks.Task UpdateCommentAsync(Comment comment)
+        {
+            _context.Comments.Update(comment);
+            await _context.SaveChangesAsync();
+        }
     }
 }

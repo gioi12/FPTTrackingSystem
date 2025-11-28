@@ -100,5 +100,28 @@ namespace FPTTrackingSystem.Services.Common.Implements
             await _commentRepository.DeleteCommentAsync(comment);
         }
 
+        public async Task<ApiResponse<object>> UpdateCommentAsync(int taskId, int commentId, UpdateCommentDto dto)
+        {
+            var user = await _authUtils.GetUserInfoFromCookie();
+
+            var comment = await _commentRepository.GetCommentAsync(taskId, commentId);
+            if (comment == null)
+                return ApiResponse<object>.Fail("Comment not found", 404);
+
+            if (comment.UserId != user.Id)
+                return ApiResponse<object>.Fail("You do not have permission to edit this comment", 403);
+
+            if (string.IsNullOrWhiteSpace(dto.Feedback))
+                return ApiResponse<object>.Fail("Feedback cannot be empty", 400);
+
+            comment.Feedback = dto.Feedback;
+            comment.CreateAt = DateTime.Now;
+
+            await _commentRepository.UpdateCommentAsync(comment);
+
+            return ApiResponse<object>.Success("Comment updated successfully");
+        }
+
+
     }
 }
