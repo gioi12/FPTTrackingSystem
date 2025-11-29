@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FPTTrackingSystem.Controllers.Admin
 {
     [ApiController]
-    [Route("api/admin/storage")]
+    [Route("api/v1/admin/storage")]
     //[Authorize(Roles = "Admin")] 
     public class StorageController : ControllerBase
     {
