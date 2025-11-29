@@ -18,6 +18,18 @@ namespace DataTranferObjects.Staff.Campus
         public string? EndAt { get; set; }
     }
 
+    public class CreateCampusDto
+    {
+        public string Name { get; set; } = null!;
+    }
+
+    public class UpdateCampusDto
+    {
+        public string Name { get; set; } = null!;
+        public bool IsActive { get; set; }
+    }
+
+
     public class CampusDto
     {
         public int Id { get; set; }

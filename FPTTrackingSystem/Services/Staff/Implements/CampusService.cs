@@ -75,5 +75,30 @@ namespace FPTTrackingSystem.Services.Staff.Implements
 
             return ApiResponse<string>.Success($"Slot {statusText} successfully.");
         }
+
+        public async Task<Campus> CreateCampusAsync(CreateCampusDto dto)
+        {
+            var campus = new Campus
+            {
+                Name = dto.Name,
+                IsActive = true
+            };
+
+            return await _campusRepository.AddCampusAsync(campus);
+        }
+
+        public async Task<Campus> UpdateCampusAsync(int id, UpdateCampusDto dto)
+        {
+            var campus = await _campusRepository.GetCampusByIdAsync(id);
+
+            if (campus == null)
+                throw new KeyNotFoundException("Campus not found");
+
+            campus.Name = dto.Name;
+            campus.IsActive = dto.IsActive;
+
+            await _campusRepository.UpdateCampusAsync(campus);
+            return campus;
+        }
     }
 }

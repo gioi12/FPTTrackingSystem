@@ -152,7 +152,7 @@ namespace Repositories.Student.Implements
         {
             try
             {
-                // 1️⃣ Lấy task cơ bản
+                // 1️ Lấy task cơ bản
                 var tasks = await _context.Tasks
                     .Where(t => t.GroupId == groupId)
                     .OrderBy(t => t.Deadline)
@@ -183,25 +183,25 @@ namespace Repositories.Student.Implements
 
                 var taskIds = tasks.Select(t => t.Id).ToList();
 
-                // 2️⃣ Lấy TaskUsers
+                // 2️ Lấy TaskUsers
                 var taskUsers = await _context.TaskUsers
                     .Include(tu => tu.User)
                     .Where(tu => taskIds.Contains(tu.TaskId))
                     .ToListAsync();
 
-                // 3️⃣ Lấy Comments
+                // 3️ Lấy Comments
                 var comments = await _context.Comments
                     .Include(c => c.User)
                     .Where(c => taskIds.Contains(c.TaskId ?? 0))
                     .ToListAsync();
 
-                // 4️⃣ Lấy Logs
+                // 4️ Lấy Logs
                 var logs = await _context.Logs
                     .Include(l => l.User)
                     .Where(l => l.EntityName == "task" && taskIds.Contains(l.EntityId))
                     .ToListAsync();
 
-                // 5️⃣ Map result
+                // 5️ Map result
                 var result = tasks.Select(t =>
                 {
                     var taskUserList = taskUsers.Where(u => u.TaskId == t.Id);

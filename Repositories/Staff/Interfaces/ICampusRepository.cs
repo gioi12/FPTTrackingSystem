@@ -15,5 +15,8 @@ namespace Repositories.Staff.Interfaces
         Task<Slot> AddSlotAsync(int campusId, Slot slot);
         Task<Slot?> GetByIdAsync(int id);
         System.Threading.Tasks.Task UpdateAsync(Slot slot);
+        Task<Campus> AddCampusAsync(Campus campus);
+        Task<Campus?> GetCampusByIdAsync(int id);
+        System.Threading.Tasks.Task UpdateCampusAsync(Campus campus);
     }
 }

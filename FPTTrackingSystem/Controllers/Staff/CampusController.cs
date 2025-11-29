@@ -30,16 +30,30 @@ namespace FPTTrackingSystem.Controllers.Staff
             var campuses = await _campusService.GetAllCampusesAsync();
             return Ok(ApiResponse<IEnumerable<CampusAllDto>>.Success(campuses, "Get all campuses successfully"));
         }
-/*
-        [HttpGet("ById/{campusId}")]
-        public async Task<IActionResult> GetCampusByIdAsync(int campusId)
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCampus([FromBody] CreateCampusDto dto)
         {
-            var campus = await _campusService.GetByIdWithSlotsAsync(campusId);
+            var campus = await _campusService.CreateCampusAsync(dto);
+            return Ok(campus);
+        }
 
-            if (campus == null)
-                return Ok(ApiResponse<CampusDto>.Success(null, $"Campus with ID {campusId} not found."));
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCampus(int id, [FromBody] UpdateCampusDto dto)
+        {
+            var campus = await _campusService.UpdateCampusAsync(id, dto);
+            return Ok(campus);
+        }
+        /*
+                [HttpGet("ById/{campusId}")]
+                public async Task<IActionResult> GetCampusByIdAsync(int campusId)
+                {
+                    var campus = await _campusService.GetByIdWithSlotsAsync(campusId);
 
-            return Ok(ApiResponse<CampusDto>.Success(campus, "Get campus successfully"));
-        }*/
+                    if (campus == null)
+                        return Ok(ApiResponse<CampusDto>.Success(null, $"Campus with ID {campusId} not found."));
+
+                    return Ok(ApiResponse<CampusDto>.Success(campus, "Get campus successfully"));
+                }*/
     }
 }

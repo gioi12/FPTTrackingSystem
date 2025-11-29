@@ -20,7 +20,7 @@ namespace Repositories.Staff.Implements
         }
         public async Task<IEnumerable<Campus>> GetAllCampusesAsync()
         {
-            return await _context.Campuses
+            return await _context.Campuses.Where(c => c.IsActive == true)
 /*                                 .Include(c => c.Slots)*/
                                  .ToListAsync();
         }
@@ -49,6 +49,24 @@ namespace Repositories.Staff.Implements
         public async System.Threading.Tasks.Task UpdateAsync(Slot slot)
         {
             _context.Slots.Update(slot);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Campus> AddCampusAsync(Campus campus)
+        {
+            _context.Campuses.Add(campus);
+            await _context.SaveChangesAsync();
+            return campus;
+        }
+
+        public async Task<Campus?> GetCampusByIdAsync(int id)
+        {
+            return await _context.Campuses.FindAsync(id);
+        }
+
+        public async System.Threading.Tasks.Task UpdateCampusAsync(Campus campus)
+        {
+            _context.Campuses.Update(campus);
             await _context.SaveChangesAsync();
         }
 

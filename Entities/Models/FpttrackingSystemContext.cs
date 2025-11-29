@@ -130,6 +130,7 @@ public partial class FpttrackingSystemContext : DbContext
             entity.ToTable("Campus");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.Name)
                 .HasMaxLength(200)
                 .HasColumnName("name");
