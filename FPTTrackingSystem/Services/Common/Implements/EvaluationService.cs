@@ -5,6 +5,9 @@ using FPTTrackingSystem.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Common.Implements;
 using Repositories.Common.Interfaces;
+using Repositories.Staff.Implements;
+using Repositories.Staff.Interfaces;
+using System.Threading.Tasks;
 
 namespace FPTTrackingSystem.Services.Common.Implements
 {
@@ -12,11 +15,13 @@ namespace FPTTrackingSystem.Services.Common.Implements
     {
         private readonly IEvaluationRepository _evaluationRepository;
         private readonly AuthUtils _authUtils;
+        private readonly IGroupRepository _groupRepository;
 
-        public EvaluationService(IEvaluationRepository evaluationRepository, AuthUtils authUtils)
+        public EvaluationService(IEvaluationRepository evaluationRepository, IGroupRepository groupRepository, AuthUtils authUtils)
         {
             _evaluationRepository = evaluationRepository;
             _authUtils = authUtils;
+            _groupRepository = groupRepository;
         }
 
         public async Task<EvaluationResponseDTO> CreateEvaluationAsync(EvaluationCreateDTO dto)
@@ -183,6 +188,125 @@ namespace FPTTrackingSystem.Services.Common.Implements
                 Type = e.Type
             }).ToList();
         }
+
+        public async Task<object> GetStudentEvaluationDetail(int groupId, int studentId, int deliverableId)
+        {
+            var currentUser = await _authUtils.GetUserInfoFromCookie();
+            if (currentUser.RoleInGroup != "Supervisor")
+                throw new UnauthorizedAccessException("Only Supervisor can view student evaluation.");
+
+            // 2. Check supervisor owns this group
+            var group = await _groupRepository.GetByIdAsync(groupId);
+            if (group == null)
+                throw new KeyNotFoundException("Group not found.");
+
+            var isSupervisorOfGroup = group.GroupUsers
+        .Any(gu => gu.UserId == currentUser.Id && gu.Role == "Supervisor");
+
+            if (!isSupervisorOfGroup)
+                throw new UnauthorizedAccessException("You do not have permission for this group.");
+
+            var tasks = await _evaluationRepository.GetTasksByStudentAsync(groupId, studentId, deliverableId);
+            var evaluation = await _evaluationRepository.GetEvaluationAsync(groupId, studentId, deliverableId);
+            var taskDtos = tasks.Select(t =>
+            {
+                var assignee = t.TaskUsers?.FirstOrDefault(tu => tu.Type == "Assignee");
+                var reviewer = t.TaskUsers?.FirstOrDefault(tu => tu.Type == "Reviewer");
+                bool isMeetingTask = t.MeetingMinuteId.HasValue;
+                return new
+                {
+                    id = t.Id,
+                    title = t.Name,
+                    description = t.Description,
+                    assigneeId = assignee?.UserId,
+                    assigneeName = assignee?.User?.Fullname,
+                    deadline = t.Deadline,
+                    priority = t.Priority,
+                    status = t.Status,
+                    milestone = new
+                    {
+                        id = t.Deliverable.Id,
+                        name = t.Deliverable.Name
+                    },
+                    reviewerId = reviewer?.UserId,
+                    reviewerName = reviewer?.User?.Fullname,
+                    isActive = t.IsActive,
+                    isMeetingTask = isMeetingTask,
+                    meetingId = t.MeetingMinuteId
+                };
+            }).ToList();
+
+            var evaluationDto = evaluation == null ? null : new
+            {
+                id = evaluation.Id,
+                groupId = evaluation.GroupId,
+                receiverId = evaluation.ReceiverId,
+                deliverableId = evaluation.DeliverableId,
+                deliverableName = evaluation.Deliverable?.Name,
+                type = evaluation.Type,
+                feedback = evaluation.Feedback,
+                createAt = evaluation.CreateAt,
+                updateAt = evaluation.UpdateAt,
+                evaluatorId = evaluation.EvaluatorId,
+                evaluatorName = evaluation.Evaluator.Fullname
+            };
+
+            return new
+            {
+                tasks = taskDtos,
+                currentEvaluation = evaluationDto
+            };
+        }
+
+        public async Task<object> GetStudentStatisticsAsync(int groupId, int studentId, int? deliverableId)
+        {
+            var currentUser = await _authUtils.GetUserInfoFromCookie();
+            if (currentUser.RoleInGroup != "Supervisor")
+                throw new UnauthorizedAccessException("Only Supervisor can view student evaluation.");
+
+            var group = await _groupRepository.GetByIdAsync(groupId);
+            if (group == null)
+                throw new KeyNotFoundException("Group not found.");
+
+            // Check supervisor belongs to this group
+            if (!group.GroupUsers.Any(gu => gu.UserId == currentUser.Id && gu.Role == "Supervisor"))
+                throw new UnauthorizedAccessException("You do not have permission for this group.");
+
+            // 1. Get tasks statistics
+            var (total, completed) = await _evaluationRepository.GetTaskStatisticsAsync(groupId, studentId, deliverableId);
+            var taskStats = new
+            {
+                totalTasks = total,
+                completedTasks = completed,
+                uncompletedTasks = total - completed,
+                completionRate = total == 0 ? 0 : (double)completed / total
+            };
+            // 2. Get evaluation history
+            var evaluations = await _evaluationRepository.GetEvaluationHistoryAsync(groupId, studentId, deliverableId);
+
+            var evaluationDtos = evaluations.Select(e => new
+            {
+                id = e.Id,
+                groupId = e.GroupId,
+                receiverId = e.ReceiverId,
+                receiverName = e.Receiver.Fullname,
+                deliverableId = e.DeliverableId,
+                deliverableName = e.Deliverable?.Name,
+                type = e.Type.ToLower(), 
+                feedback = e.Feedback,
+                createAt = e.CreateAt,
+                updateAt = e.UpdateAt,
+                evaluatorId = e.EvaluatorId,
+                evaluatorName = e.Evaluator.Fullname
+            }).ToList();
+
+            return new
+            {
+                taskStats,
+                evaluations = evaluationDtos
+            };
+        }
+
 
         public async Task<List<PenaltyCardResponseDto>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)
         {

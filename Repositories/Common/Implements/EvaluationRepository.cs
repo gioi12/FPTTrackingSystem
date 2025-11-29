@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Repositories.Common.Implements
 {
-    public class EvaluationRepository: IEvaluationRepository
+    public class EvaluationRepository : IEvaluationRepository
     {
         private readonly FpttrackingSystemContext _context;
 
@@ -144,5 +144,61 @@ namespace Repositories.Common.Implements
             await _context.SaveChangesAsync();
             return evaluation;
         }
+
+        public async Task<Evaluation?> GetEvaluationAsync(int groupId, int studentId, int deliverableId)
+        {
+            return await _context.Evaluations
+                .Include(e => e.Evaluator)
+                .Include(e => e.Deliverable)
+                .Where(e =>
+                    e.GroupId == groupId &&
+                    e.ReceiverId == studentId &&
+                    e.DeliverableId == deliverableId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Entities.Models.Task>> GetTasksByStudentAsync(int groupId, int studentId, int deliverableId)
+        {
+            return await _context.Tasks
+                .Include(t => t.Deliverable)
+                .Include(t => t.TaskUsers).ThenInclude(tu => tu.User)
+                .Where(t =>
+                    t.GroupId == groupId &&
+                    t.DeliverableId == deliverableId &&
+                    t.TaskUsers.Any(tu => tu.UserId == studentId))
+                .ToListAsync();
+        }
+
+        public async Task<List<Evaluation>> GetEvaluationHistoryAsync(int groupId, int studentId, int? deliverableId)
+        {
+            var query = _context.Evaluations
+                .Include(e => e.Deliverable)
+                .Include(e => e.Receiver)
+                .Include(e => e.Evaluator)
+                .Where(e => e.GroupId == groupId && e.ReceiverId == studentId);
+
+            if (deliverableId.HasValue)
+                query = query.Where(e => e.DeliverableId == deliverableId.Value);
+
+            return await query.OrderByDescending(e => e.CreateAt).ToListAsync();
+        }
+
+        public async Task<(int total, int completed)> GetTaskStatisticsAsync(int groupId, int studentId, int? deliverableId)
+        {
+            var query = _context.Tasks
+                .Include(t => t.TaskUsers)
+                .Where(t => t.GroupId == groupId &&
+                            t.TaskUsers.Any(tu => tu.UserId == studentId && tu.Type == "Assignee"));
+
+            if (deliverableId.HasValue)
+                query = query.Where(t => t.DeliverableId == deliverableId.Value);
+
+            int total = await query.CountAsync();
+            int completed = await query.CountAsync(t => t.Status == "Done");
+
+            return (total, completed);
+        }
+
+
     }
 }

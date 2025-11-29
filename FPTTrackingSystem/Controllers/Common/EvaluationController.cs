@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FPTTrackingSystem.Controllers.Common
 {
-    [Route("api/v1/Common/[controller]/")]
+    [Route("api/v1/")]
     [ApiController]
     public class EvaluationController : ControllerBase
     {
@@ -21,7 +21,7 @@ namespace FPTTrackingSystem.Controllers.Common
             _authUtils = authUtils;
         }
 
-        [HttpPost("create")]
+        [HttpPost("Common/[controller]/create")]
         public async Task<IActionResult> CreateEvaluation([FromBody] EvaluationCreateDTO dto)
         {
             try
@@ -43,7 +43,7 @@ namespace FPTTrackingSystem.Controllers.Common
             }
         }
 
-        [HttpGet("card-milestonse")]
+        [HttpGet("Common/[controller]/card-milestonse")]
         public async Task<IActionResult> GetMilestonePenaltyCards()
         {
             var result = await _evaluationService.GetAllMilestonePenaltyCardsAsync();
@@ -55,7 +55,7 @@ namespace FPTTrackingSystem.Controllers.Common
             });
         }
 
-        [HttpPost("create-card")]
+        [HttpPost("Common/[controller]/create-card")]
         public async Task<IActionResult> CreatePenaltyCard([FromBody] PenaltyCardCreateDTO dto)
         {
             try
@@ -77,7 +77,7 @@ namespace FPTTrackingSystem.Controllers.Common
             }
         }
 
-        [HttpGet("getCardGeneralFromMentorId")]
+        [HttpGet("Common/[controller]/getCardGeneralFromMentorId")]
         public async Task<IActionResult> GetCardsByMentorId()
         {
             var mentor = await _authUtils.GetUserInfoFromCookie();
@@ -89,7 +89,7 @@ namespace FPTTrackingSystem.Controllers.Common
             return Ok(cards);
         }
 
-        [HttpGet("getEvaluationFromDeliverableByStudent")]
+        [HttpGet("Common/[controller]/getEvaluationFromDeliverableByStudent")]
         public async Task<IActionResult> GetByDeliverable()
         {
             var user = await _authUtils.GetUserInfoFromCookie();
@@ -107,7 +107,7 @@ namespace FPTTrackingSystem.Controllers.Common
             return Ok(result);
         }
 
-        [HttpGet("getCardEvaluationGeneralByStudent")]
+        [HttpGet("Common/[controller]/getCardEvaluationGeneralByStudent")]
         public async Task<IActionResult> GetGeneralByStudent()
         {
             var user = await _authUtils.GetUserInfoFromCookie();
@@ -119,7 +119,7 @@ namespace FPTTrackingSystem.Controllers.Common
             return Ok(result);
         }
 
-        [HttpPut("update/penalty-card/{id}")]
+        [HttpPut("Common/[controller]/update/penalty-card/{id}")]
         public async Task<IActionResult> UpdatePenaltyCard(int id, [FromBody] PenaltyCardUpdateDTO dto)
         {
             try
@@ -152,7 +152,7 @@ namespace FPTTrackingSystem.Controllers.Common
             }
         }
 
-        [HttpPut("update/evaluation/{id}")]
+        [HttpPut("Common/[controller]/update/evaluation/{id}")]
         public async Task<IActionResult> UpdateEvaluation(int id, [FromBody] EvaluationUpdateDTO dto)
         {
             try
@@ -183,5 +183,38 @@ namespace FPTTrackingSystem.Controllers.Common
                 return StatusCode(500, ApiResponse<string>.InternalError(ex.Message));
             }
         }
+
+        [HttpGet("supervisor/evaluation/student-detail")]
+        public async Task<IActionResult> GetStudentEvaluationDetail([FromQuery] int groupId,[FromQuery] int studentId,[FromQuery] int deliverableId)
+        {
+            try
+            {
+                var result = await _evaluationService.GetStudentEvaluationDetail(groupId, studentId, deliverableId);
+                return Ok(new
+                {
+                    status = 200,
+                    message = "OK",
+                    data = result
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { status = 403, message = ex.Message });
+            }
+        }
+
+        [HttpGet("supervisor/evaluation/student-statistics")]
+        public async Task<IActionResult> GetStudentStatistics(int groupId,int studentId,int? deliverableId)
+        {
+            var result = await _evaluationService.GetStudentStatisticsAsync(groupId, studentId, deliverableId);
+            return Ok(new
+            {
+                status = 200,
+                message = "OK",
+                data = result
+            });
+        }
+
+
     }
 }

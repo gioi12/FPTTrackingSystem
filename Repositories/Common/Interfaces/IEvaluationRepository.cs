@@ -20,6 +20,10 @@ namespace Repositories.Common.Interfaces
         Task<PenatyCard?> UpdatePenaltyCardAsync(int id, string? name, string? description, int? userId, string? type);
         Task<Evaluation?> UpdateEvaluationAsync(int id, string? feedback, int? deliverableId, string? type);
         Task<bool> CheckUserInGroupAsync(int studentId, int groupId);
+        Task<Evaluation?> GetEvaluationAsync(int groupId, int studentId, int deliverableId);
+        Task<List<Entities.Models.Task>> GetTasksByStudentAsync(int groupId, int studentId, int deliverableId);
         Task<Evaluation?> GetByEvaluatorReceiverDeliverableAsync(int evaluatorId, int receiverId, int deliverableId, int groupId);
+        Task<(int total, int completed)> GetTaskStatisticsAsync(int groupId, int studentId, int? deliverableId);
+        Task<List<Evaluation>> GetEvaluationHistoryAsync(int groupId, int studentId, int? deliverableId);
     }
 }
