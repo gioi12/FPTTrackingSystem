@@ -1,5 +1,6 @@
 ﻿using DataTranferObjects.Common.Request;
 using DataTranferObjects.Common.Response;
+using DataTranferObjects.Enum;
 using Entities.Models;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Services.Common.MQ;
@@ -26,7 +27,7 @@ namespace FPTTrackingSystem.Services.Common.Implements
 
         public async System.Threading.Tasks.Task SendAnnounceMail(MailRequest request)
         {
-            await _rabbitMQProducer.SendMessage(new List<MailRequest> { request});
+            await _rabbitMQProducer.SendMessage(new List<MailRequest> { request}, StringEnum.Mail_Queue);
         }
 
         public async System.Threading.Tasks.Task SendEmailAsync(List<MailRequest> request)

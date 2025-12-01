@@ -1,4 +1,5 @@
 ﻿using DataTranferObjects.Common.Request;
+using DataTranferObjects.Enum;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Services.Common.MQ;
 using Quartz;
@@ -29,7 +30,7 @@ namespace FPTTrackingSystem.Services.Common.Schedules
                     Body = "Đây là mail gửi tự động vào 7h sáng.",
                     Cc = []
                 }
-            });
+            },StringEnum.Mail_Queue);
         }
 }
     }

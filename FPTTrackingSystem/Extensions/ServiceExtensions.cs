@@ -3,6 +3,7 @@ using FPTTrackingSystem.Mappers;
 using FPTTrackingSystem.Middlewares;
 using FPTTrackingSystem.Services.Admin;
 using FPTTrackingSystem.Services.Authentication;
+using FPTTrackingSystem.Services.Common.Gemini;
 using FPTTrackingSystem.Services.Common.Implements;
 using FPTTrackingSystem.Services.Common.Interfaces;
 using FPTTrackingSystem.Services.Login;
@@ -48,6 +49,8 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<ICampusRepository, CampusRepository>();
             services.AddSingleton<IMailSettingCache, MailSettingCache>();
             services.AddScoped<IMailRepository,MailRepository>();
+            services.AddScoped<IAISettingsRepository, AISettingsRepository>();
+            services.AddSingleton<IAISettingsCache, AISettingsCache>();
             return services;
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
@@ -69,6 +72,9 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IMeetingService, MeetingService>();
             services.AddScoped<ICampusService, CampusService>();
             services.AddScoped<IStorageService, StorageService>();
+            services.AddScoped<IAIService, AIService>();
+            services.AddScoped<IGeminiService, GeminiService>();
+
             return services;
         }
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)

@@ -37,5 +37,6 @@ namespace Repositories.Student.Interfaces
         Task<List<UserSlot>> GetUserSlotsAsync(int userId, int groupId);
         System.Threading.Tasks.Task DeleteUserSlotsAsync(List<UserSlot> slots);
         System.Threading.Tasks.Task AddUserSlotsAsync(List<UserSlot> slots);
+        Task<string> MeetingMinuteData(int groupId);
     }
 }

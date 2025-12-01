@@ -15,5 +15,9 @@ namespace DataTranferObjects.Enum
         public const string Supervior = "Supervior";
         public const string Leader = "Leader";
         public const string Secretary = "Secretary";
+        // name for queue job
+        public const string Mail_Queue = "mail_queue";
+        public const string AI_Queue = "ai_queue";
+
     }
 }
