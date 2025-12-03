@@ -83,7 +83,15 @@ namespace FPTTrackingSystem.Helper
         new Account { Username = "huongtthe172436@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170002", Fullname="TT Huong", Dob=new DateOnly(2001,6,10), Gender=true, Mail="huongtthe172436@fpt.edu.vn", Phone="0909888777", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Da Nang", StatusId="ACTIVE"} },
         new Account { Username = "haildhe172452@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170003", Fullname="Le Duy Hai", Dob=new DateOnly(2001,9,21), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0911222333", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ho Chi Minh", StatusId="ACTIVE"} },
         new Account { Username = "handghe170064@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170004", Fullname="Dinh Gia Han", Dob=new DateOnly(2001,4,5), Gender=true, Mail="handghe170064@fpt.edu.vn", Phone="0988777666", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
-        new Account { Username = "cuonghvhe176362@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170005", Fullname="Ha Van Cuong", Dob=new DateOnly(2001,4,5), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0988777666", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} }
+        new Account { Username = "cuonghvhe176362@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170005", Fullname="Ha Van Cuong", Dob=new DateOnly(2001,4,5), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0988777666", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
+
+        // Semester 2 students (Group 2)
+        new Account { Username = "se170006@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170006", Fullname="Student 006", Dob=new DateOnly(2001,1,1), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909111106", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
+        new Account { Username = "se170007@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170007", Fullname="Student 007", Dob=new DateOnly(2001,2,2), Gender=true, Mail="huongtthe172436@fpt.edu.vn", Phone="0909111107", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
+        new Account { Username = "se170008@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170008", Fullname="Student 008", Dob=new DateOnly(2001,3,3), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909111108", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
+        new Account { Username = "se170009@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170009", Fullname="Student 009", Dob=new DateOnly(2001,4,4), Gender=true, Mail="handghe170064@fpt.edu.vn", Phone="0909111109", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
+        new Account { Username = "se170010@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170010", Fullname="Student 010", Dob=new DateOnly(2001,5,5), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909111110", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
+
     };
 
         public static List<Group> GetGroupsForSemester(int semesterId)
@@ -136,52 +144,144 @@ namespace FPTTrackingSystem.Helper
         };
             }
 
-            if (semesterId == 4)
+            /*    if (semesterId == 4)
+                {
+                    var students = Accounts.Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE170")).ToList();
+                    var mentor = Accounts.FirstOrDefault(a => a.RoleId == 2 && a.User.RollNumber == "ME01");
+
+                    if (mentor == null)
+                        throw new Exception("Không tìm thấy mentor cho semester 2");
+
+                    return new List<Group>
             {
-                var students = Accounts.Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE170")).ToList();
+                new Group
+                {
+                    Code="G11",
+                    Name="FPT Tracking System",
+                    SemesterId=semesterId,
+                    CreateAt=DateTime.Now.AddMonths(-2),
+                    Profession="Software Engineer",
+                    MajorId=1,
+                    Description="System Tracking Capstone Group",
+                    VietnameseTitle="He thong theo doi do an",
+                    StatusId="ACTIVE",
+                    MeetingId=null,
+                    ExpireDate=DateTime.Now.AddMonths(6),
+                    GroupUsers=students.Select((s,i)=>new GroupUser
+                    {
+                        User=s.User,
+                        Role=i==0?"Leader":"Student",
+                        IsActive=true,
+                        CreateAt=DateTime.Now.AddMonths(-2),
+                        UpdateAt=DateTime.Now,
+                        Status="Active"
+                    })
+                    .Concat(new[]
+                    {
+                        new GroupUser
+                        {
+                            User=mentor.User,
+                            Role="Supervisor",
+                            IsActive=true,
+                            CreateAt=DateTime.Now.AddMonths(-1),
+                            UpdateAt=DateTime.Now,
+                            Status="Active"
+                        }
+                    }).ToList()
+                }*/
+            if (semesterId == 2)
+            {
+                var allStudents = Accounts.Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE170")).ToList();
+
+                var group1Students = allStudents.Where(a =>
+                    int.Parse(a.User.RollNumber.Substring(6)) >= 1 &&
+                    int.Parse(a.User.RollNumber.Substring(6)) <= 5
+                ).ToList();
+
+                var group2Students = allStudents.Where(a =>
+                    int.Parse(a.User.RollNumber.Substring(6)) >= 6 &&
+                    int.Parse(a.User.RollNumber.Substring(6)) <= 10
+                ).ToList();
+
                 var mentor = Accounts.FirstOrDefault(a => a.RoleId == 2 && a.User.RollNumber == "ME01");
 
                 if (mentor == null)
                     throw new Exception("Không tìm thấy mentor cho semester 2");
 
                 return new List<Group>
+    {
+        // GROUP 1
+        new Group
         {
-            new Group
+            Code="G11",
+            Name="FPT Tracking System - Team 1",
+            SemesterId=semesterId,
+            CreateAt=DateTime.Now.AddMonths(-2),
+            Profession="Software Engineer",
+            MajorId=1,
+            Description="Group 1 Capstone Team",
+            VietnameseTitle="Nhóm theo dõi số 1",
+            StatusId="ACTIVE",
+            ExpireDate=DateTime.Now.AddMonths(6),
+            GroupUsers= group1Students.Select((s,i)=>new GroupUser
             {
-                Code="G11",
-                Name="FPT Tracking System",
-                SemesterId=semesterId,
+                User=s.User,
+                Role=i==0?"Leader":"Student",
+                IsActive=true,
                 CreateAt=DateTime.Now.AddMonths(-2),
-                Profession="Software Engineer",
-                MajorId=1,
-                Description="System Tracking Capstone Group",
-                VietnameseTitle="He thong theo doi do an",
-                StatusId="ACTIVE",
-                MeetingId=null,
-                ExpireDate=DateTime.Now.AddMonths(6),
-                GroupUsers=students.Select((s,i)=>new GroupUser
+                UpdateAt=DateTime.Now,
+                Status="Active"
+            })
+            .Concat(new[]
+            {
+                new GroupUser
                 {
-                    User=s.User,
-                    Role=i==0?"Leader":"Student",
+                    User=mentor.User,
+                    Role="Supervisor",
                     IsActive=true,
-                    CreateAt=DateTime.Now.AddMonths(-2),
+                    CreateAt=DateTime.Now.AddMonths(-1),
                     UpdateAt=DateTime.Now,
                     Status="Active"
-                })
-                .Concat(new[]
+                }
+            }).ToList()
+        },
+
+        // GROUP 2
+        new Group
+        {
+            Code="G12",
+            Name="Booking Course System",
+            SemesterId=semesterId,
+            CreateAt=DateTime.Now.AddMonths(-2),
+            Profession="Software Engineer",
+            MajorId=1,
+            Description="Book Course For Student",
+            VietnameseTitle="Booking Course System",
+            StatusId="ACTIVE",
+            ExpireDate=DateTime.Now.AddMonths(6),
+            GroupUsers= group2Students.Select((s,i)=>new GroupUser
+            {
+                User=s.User,
+                Role=i==0?"Leader":"Student",
+                IsActive=true,
+                CreateAt=DateTime.Now.AddMonths(-2),
+                UpdateAt=DateTime.Now,
+                Status="Active"
+            })
+            .Concat(new[]
+            {
+                new GroupUser
                 {
-                    new GroupUser
-                    {
-                        User=mentor.User,
-                        Role="Supervisor",
-                        IsActive=true,
-                        CreateAt=DateTime.Now.AddMonths(-1),
-                        UpdateAt=DateTime.Now,
-                        Status="Active"
-                    }
-                }).ToList()
-            }
-        };
+                    User=mentor.User,
+                    Role="Supervisor",
+                    IsActive=true,
+                    CreateAt=DateTime.Now.AddMonths(-1),
+                    UpdateAt=DateTime.Now,
+                    Status="Active"
+                }
+            }).ToList()
+        }
+    };
             }
 
             return new List<Group>();

@@ -1,0 +1,700 @@
+﻿{
+  "Version": 3,
+  "AreNodeDescriptionsVisible": true,
+  "ContainerNodes": [
+    {
+      "Id": 774,
+      "ZIndex": 0,
+      "Name": "Common",
+      "FullyQualifiedName": "FPTTrackingSystem.Controllers.Common",
+      "Stereotype": "Namespace",
+      "ToolTip": "namespace FPTTrackingSystem.Controllers.Common\r\nassembly: FPTTrackingSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-1976.9744,2832.8589",
+      "Size": "538.59,144.2",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Controllers\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}"
+      ],
+      "NamespaceLevel": 3
+    },
+    {
+      "Id": 776,
+      "ZIndex": 2,
+      "Name": "Implements",
+      "FullyQualifiedName": "Repositories.Common.Implements",
+      "Stereotype": "Namespace",
+      "ToolTip": "namespace Repositories.Common.Implements\r\nassembly: Repositories, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-1995.651,3282.9089",
+      "Size": "515.89,162",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}"
+      ],
+      "NamespaceLevel": 3
+    },
+    {
+      "Id": 778,
+      "ZIndex": 4,
+      "Name": "Interfaces",
+      "FullyQualifiedName": "Repositories.Common.Interfaces",
+      "Stereotype": "Namespace",
+      "ToolTip": "namespace Repositories.Common.Interfaces\r\nassembly: Repositories, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-1962.3177,3037.4589",
+      "Size": "515.89,162",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}"
+      ],
+      "NamespaceLevel": 3
+    },
+    {
+      "Id": 781,
+      "ZIndex": 7,
+      "Name": "Implements",
+      "FullyQualifiedName": "FPTTrackingSystem.Services.Common.Implements",
+      "Stereotype": "Namespace",
+      "ToolTip": "namespace FPTTrackingSystem.Services.Common.Implements\r\nassembly: FPTTrackingSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-2660.9744,3038.0089",
+      "Size": "569.9267,162",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}"
+      ],
+      "NamespaceLevel": 4
+    },
+    {
+      "Id": 785,
+      "ZIndex": 11,
+      "Name": "Interfaces",
+      "FullyQualifiedName": "FPTTrackingSystem.Services.Common.Interfaces",
+      "Stereotype": "Namespace",
+      "ToolTip": "namespace FPTTrackingSystem.Services.Common.Interfaces\r\nassembly: FPTTrackingSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-2660.9744,2819.0589",
+      "Size": "569.9267,144.2",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}"
+      ],
+      "NamespaceLevel": 4
+    },
+    {
+      "Id": 790,
+      "ZIndex": 16,
+      "Name": "Models",
+      "FullyQualifiedName": "Entities.Models",
+      "Stereotype": "Namespace",
+      "ToolTip": "namespace Entities.Models\r\nassembly: Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-2627.3727,3270.6089",
+      "Size": "471.715,160.8",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"Namespace\",\"N\":\"Models\",\"C\":{\"K\":\"Namespace\",\"N\":\"Entities\",\"C\":{\"K\":\"Assembly\",\"N\":\"Entities\",\"V\":\"1.0.0.0\"}}}"
+      ],
+      "NamespaceLevel": 2
+    }
+  ],
+  "LeafNodes": [
+    {
+      "Id": 775,
+      "ParentId": 774,
+      "ZIndex": 1,
+      "Name": "EvaluationController",
+      "Stereotype": "Class",
+      "ToolTip": "class FPTTrackingSystem.Controllers.Common.EvaluationController\r\nassembly: FPTTrackingSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-1971.9744,2861.6589",
+      "MemberAreaSize": "528.59,60.4",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"NamedType\",\"N\":\"EvaluationController\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Controllers\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}"
+      ],
+      "FullName": "class FPTTrackingSystem.Controllers.Common.EvaluationController",
+      "Description": "",
+      "IsDescriptionVisible": true,
+      "IsAbstract": false,
+      "IsStatic": false,
+      "Accessibility": "Public",
+      "Origin": "SourceCode",
+      "IsDisposable": false,
+      "Members": [
+        {
+          "Name": "Task<IActionResult> GetStudentEvaluationDetail(int groupId, int studentId, int deliverableId)",
+          "Stereotype": "Method",
+          "FullName": "public Task<IActionResult> GetStudentEvaluationDetail(int groupId, int studentId, int deliverableId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetStudentEvaluationDetail(int, int, int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationController\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Controllers\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<IActionResult> GetGeneralByStudent()",
+          "Stereotype": "Method",
+          "FullName": "public Task<IActionResult> GetGeneralByStudent()",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetGeneralByStudent()\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationController\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Controllers\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<IActionResult> GetMilestonePenaltyCards()",
+          "Stereotype": "Method",
+          "FullName": "public Task<IActionResult> GetMilestonePenaltyCards()",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetMilestonePenaltyCards()\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationController\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Controllers\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        }
+      ]
+    },
+    {
+      "Id": 777,
+      "ParentId": 776,
+      "ZIndex": 3,
+      "Name": "EvaluationRepository",
+      "Stereotype": "Class",
+      "ToolTip": "class Repositories.Common.Implements.EvaluationRepository\r\nassembly: Repositories, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-1990.651,3311.7089",
+      "MemberAreaSize": "505.89,78.2",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"NamedType\",\"N\":\"EvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}"
+      ],
+      "FullName": "class Repositories.Common.Implements.EvaluationRepository",
+      "Description": "",
+      "IsDescriptionVisible": true,
+      "IsAbstract": false,
+      "IsStatic": false,
+      "Accessibility": "Public",
+      "Origin": "SourceCode",
+      "IsDisposable": false,
+      "Members": [
+        {
+          "Name": "Task<List<PenatyCard>> GetAllPenaltyCardsAsync()",
+          "Stereotype": "Method",
+          "FullName": "public Task<List<PenatyCard>> GetAllPenaltyCardsAsync()",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetAllPenaltyCardsAsync()\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<List<Task>> GetTasksByStudentAsync(int groupId, int studentId, int deliverableId)",
+          "Stereotype": "Method",
+          "FullName": "public Task<List<Task>> GetTasksByStudentAsync(int groupId, int studentId, int deliverableId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetTasksByStudentAsync(int, int, int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<Evaluation?> GetEvaluationAsync(int groupId, int studentId, int deliverableId)",
+          "Stereotype": "Method",
+          "FullName": "public Task<Evaluation?> GetEvaluationAsync(int groupId, int studentId, int deliverableId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetEvaluationAsync(int, int, int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)",
+          "Stereotype": "Method",
+          "FullName": "public Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetGeneralPenaltyCardsByStudentIdAsync(int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        }
+      ]
+    },
+    {
+      "Id": 779,
+      "ParentId": 778,
+      "ZIndex": 5,
+      "Name": "IEvaluationRepository",
+      "Stereotype": "Interface",
+      "ToolTip": "interface Repositories.Common.Interfaces.IEvaluationRepository\r\nassembly: Repositories, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-1957.3177,3066.2589",
+      "MemberAreaSize": "505.89,78.2",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"NamedType\",\"N\":\"IEvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}"
+      ],
+      "FullName": "interface Repositories.Common.Interfaces.IEvaluationRepository",
+      "Description": "",
+      "IsDescriptionVisible": true,
+      "IsAbstract": true,
+      "IsStatic": false,
+      "Accessibility": "Public",
+      "Origin": "SourceCode",
+      "IsDisposable": false,
+      "Members": [
+        {
+          "Name": "Task<List<PenatyCard>> GetAllPenaltyCardsAsync()",
+          "Stereotype": "Method",
+          "FullName": "Task<List<PenatyCard>> GetAllPenaltyCardsAsync()",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetAllPenaltyCardsAsync()\",\"C\":{\"K\":\"NamedType\",\"N\":\"IEvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<List<Task>> GetTasksByStudentAsync(int groupId, int studentId, int deliverableId)",
+          "Stereotype": "Method",
+          "FullName": "Task<List<Task>> GetTasksByStudentAsync(int groupId, int studentId, int deliverableId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetTasksByStudentAsync(int, int, int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"IEvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<Evaluation?> GetEvaluationAsync(int groupId, int studentId, int deliverableId)",
+          "Stereotype": "Method",
+          "FullName": "Task<Evaluation?> GetEvaluationAsync(int groupId, int studentId, int deliverableId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetEvaluationAsync(int, int, int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"IEvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)",
+          "Stereotype": "Method",
+          "FullName": "Task<List<PenatyCard>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetGeneralPenaltyCardsByStudentIdAsync(int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"IEvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        }
+      ]
+    },
+    {
+      "Id": 782,
+      "ParentId": 781,
+      "ZIndex": 8,
+      "Name": "EvaluationService",
+      "Stereotype": "Class",
+      "ToolTip": "class FPTTrackingSystem.Services.Common.Implements.EvaluationService\r\nassembly: FPTTrackingSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-2655.9744,3066.8089",
+      "MemberAreaSize": "559.9267,78.2",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"NamedType\",\"N\":\"EvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}"
+      ],
+      "FullName": "class FPTTrackingSystem.Services.Common.Implements.EvaluationService",
+      "Description": "",
+      "IsDescriptionVisible": true,
+      "IsAbstract": false,
+      "IsStatic": false,
+      "Accessibility": "Public",
+      "Origin": "SourceCode",
+      "IsDisposable": false,
+      "Members": [
+        {
+          "Name": "IEvaluationRepository _evaluationRepository",
+          "Stereotype": "Field",
+          "FullName": "private readonly IEvaluationRepository _evaluationRepository",
+          "Description": "",
+          "Symbol": "{\"K\":\"Field\",\"N\":\"_evaluationRepository\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}}",
+          "Accessibility": "Private",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<List<PenaltyCardResponseDTO>> GetAllMilestonePenaltyCardsAsync()",
+          "Stereotype": "Method",
+          "FullName": "public Task<List<PenaltyCardResponseDTO>> GetAllMilestonePenaltyCardsAsync()",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetAllMilestonePenaltyCardsAsync()\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<object> GetStudentEvaluationDetail(int groupId, int studentId, int deliverableId)",
+          "Stereotype": "Method",
+          "FullName": "public Task<object> GetStudentEvaluationDetail(int groupId, int studentId, int deliverableId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetStudentEvaluationDetail(int, int, int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<List<PenaltyCardResponseDto>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)",
+          "Stereotype": "Method",
+          "FullName": "public Task<List<PenaltyCardResponseDto>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetGeneralPenaltyCardsByStudentIdAsync(int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        }
+      ]
+    },
+    {
+      "Id": 786,
+      "ParentId": 785,
+      "ZIndex": 12,
+      "Name": "IEvaluationService",
+      "Stereotype": "Interface",
+      "ToolTip": "interface FPTTrackingSystem.Services.Common.Interfaces.IEvaluationService\r\nassembly: FPTTrackingSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-2655.9744,2847.8589",
+      "MemberAreaSize": "559.9267,60.4",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"NamedType\",\"N\":\"IEvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}"
+      ],
+      "FullName": "interface FPTTrackingSystem.Services.Common.Interfaces.IEvaluationService",
+      "Description": "",
+      "IsDescriptionVisible": true,
+      "IsAbstract": true,
+      "IsStatic": false,
+      "Accessibility": "Public",
+      "Origin": "SourceCode",
+      "IsDisposable": false,
+      "Members": [
+        {
+          "Name": "Task<List<PenaltyCardResponseDto>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)",
+          "Stereotype": "Method",
+          "FullName": "Task<List<PenaltyCardResponseDto>> GetGeneralPenaltyCardsByStudentIdAsync(int studentId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetGeneralPenaltyCardsByStudentIdAsync(int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"IEvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<object> GetStudentEvaluationDetail(int groupId, int studentId, int deliverableId)",
+          "Stereotype": "Method",
+          "FullName": "Task<object> GetStudentEvaluationDetail(int groupId, int studentId, int deliverableId)",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetStudentEvaluationDetail(int, int, int)\",\"C\":{\"K\":\"NamedType\",\"N\":\"IEvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "Task<List<PenaltyCardResponseDTO>> GetAllMilestonePenaltyCardsAsync()",
+          "Stereotype": "Method",
+          "FullName": "Task<List<PenaltyCardResponseDTO>> GetAllMilestonePenaltyCardsAsync()",
+          "Description": "",
+          "Symbol": "{\"K\":\"Method\",\"S\":\"GetAllMilestonePenaltyCardsAsync()\",\"C\":{\"K\":\"NamedType\",\"N\":\"IEvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Interfaces\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        }
+      ]
+    },
+    {
+      "Id": 791,
+      "ParentId": 790,
+      "ZIndex": 17,
+      "Name": "FpttrackingSystemContext",
+      "Stereotype": "Class",
+      "ToolTip": "class Entities.Models.FpttrackingSystemContext\r\nassembly: Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-2385.0877,3311.3589",
+      "MemberAreaSize": "224.43,42.6",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"NamedType\",\"N\":\"FpttrackingSystemContext\",\"C\":{\"K\":\"Namespace\",\"N\":\"Models\",\"C\":{\"K\":\"Namespace\",\"N\":\"Entities\",\"C\":{\"K\":\"Assembly\",\"N\":\"Entities\",\"V\":\"1.0.0.0\"}}}}"
+      ],
+      "FullName": "class Entities.Models.FpttrackingSystemContext",
+      "Description": "",
+      "IsDescriptionVisible": true,
+      "IsAbstract": false,
+      "IsStatic": false,
+      "Accessibility": "Public",
+      "Origin": "SourceCode",
+      "IsDisposable": true,
+      "Members": [
+        {
+          "Name": "DbSet<Evaluation> Evaluations",
+          "Stereotype": "Property",
+          "FullName": "public virtual DbSet<Evaluation> Evaluations { get; set; }",
+          "Description": "",
+          "Symbol": "{\"K\":\"Property\",\"N\":\"Evaluations\",\"C\":{\"K\":\"NamedType\",\"N\":\"FpttrackingSystemContext\",\"C\":{\"K\":\"Namespace\",\"N\":\"Models\",\"C\":{\"K\":\"Namespace\",\"N\":\"Entities\",\"C\":{\"K\":\"Assembly\",\"N\":\"Entities\",\"V\":\"1.0.0.0\"}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        },
+        {
+          "Name": "DbSet<PenatyCard> PenatyCards",
+          "Stereotype": "Property",
+          "FullName": "public virtual DbSet<PenatyCard> PenatyCards { get; set; }",
+          "Description": "",
+          "Symbol": "{\"K\":\"Property\",\"N\":\"PenatyCards\",\"C\":{\"K\":\"NamedType\",\"N\":\"FpttrackingSystemContext\",\"C\":{\"K\":\"Namespace\",\"N\":\"Models\",\"C\":{\"K\":\"Namespace\",\"N\":\"Entities\",\"C\":{\"K\":\"Assembly\",\"N\":\"Entities\",\"V\":\"1.0.0.0\"}}}}}",
+          "Accessibility": "Public",
+          "IsStatic": false
+        }
+      ]
+    },
+    {
+      "Id": 792,
+      "ParentId": 790,
+      "ZIndex": 18,
+      "Name": "Evaluation",
+      "Stereotype": "Class",
+      "ToolTip": "class Entities.Models.Evaluation\r\nassembly: Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-2621.3727,3299.4089",
+      "MemberAreaSize": "132,0",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"NamedType\",\"N\":\"Evaluation\",\"C\":{\"K\":\"Namespace\",\"N\":\"Models\",\"C\":{\"K\":\"Namespace\",\"N\":\"Entities\",\"C\":{\"K\":\"Assembly\",\"N\":\"Entities\",\"V\":\"1.0.0.0\"}}}}"
+      ],
+      "FullName": "class Entities.Models.Evaluation",
+      "Description": "",
+      "IsDescriptionVisible": true,
+      "IsAbstract": false,
+      "IsStatic": false,
+      "Accessibility": "Public",
+      "Origin": "SourceCode",
+      "IsDisposable": false
+    },
+    {
+      "Id": 793,
+      "ParentId": 790,
+      "ZIndex": 19,
+      "Name": "PenatyCard",
+      "Stereotype": "Class",
+      "ToolTip": "class Entities.Models.PenatyCard\r\nassembly: Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "Position": "-2622.3727,3376.4089",
+      "MemberAreaSize": "132,0",
+      "IsPinned": true,
+      "Symbols": [
+        "{\"K\":\"NamedType\",\"N\":\"PenatyCard\",\"C\":{\"K\":\"Namespace\",\"N\":\"Models\",\"C\":{\"K\":\"Namespace\",\"N\":\"Entities\",\"C\":{\"K\":\"Assembly\",\"N\":\"Entities\",\"V\":\"1.0.0.0\"}}}}"
+      ],
+      "FullName": "class Entities.Models.PenatyCard",
+      "Description": "",
+      "IsDescriptionVisible": true,
+      "IsAbstract": false,
+      "IsStatic": false,
+      "Accessibility": "Public",
+      "Origin": "SourceCode",
+      "IsDisposable": false
+    }
+  ],
+  "Connectors": [
+    {
+      "Id": 780,
+      "SourceId": 777,
+      "TargetId": 779,
+      "ZIndex": 6,
+      "Stereotype": "Implementation",
+      "RoutePoints": [
+        [
+          -1729.0009344140551,
+          3311.7088732963475,
+          true
+        ],
+        [
+          -1713.0778000350231,
+          3194.4588732963475,
+          true
+        ]
+      ],
+      "IsCreatedFromModelItem": true
+    },
+    {
+      "Id": 783,
+      "SourceId": 782,
+      "TargetId": 779,
+      "ZIndex": 9,
+      "Stereotype": "Association",
+      "RoutePoints": [
+        [
+          -2096.0477005578723,
+          3130.67961325312,
+          true
+        ],
+        [
+          -1957.3177005578721,
+          3130.5660082127088,
+          true
+        ]
+      ],
+      "IsCreatedFromModelItem": true
+    },
+    {
+      "Id": 787,
+      "SourceId": 775,
+      "TargetId": 786,
+      "ZIndex": 13,
+      "Stereotype": "Association",
+      "RoutePoints": [
+        [
+          -1971.974367224539,
+          2911.4015963455322,
+          true
+        ],
+        [
+          -2096.0477005578723,
+          2908.8396767397476,
+          true
+        ]
+      ],
+      "IsCreatedFromModelItem": true
+    },
+    {
+      "Id": 789,
+      "SourceId": 782,
+      "TargetId": 786,
+      "ZIndex": 15,
+      "Stereotype": "Implementation",
+      "RoutePoints": [
+        [
+          -2376.0110338912054,
+          3066.8088732963479,
+          true
+        ],
+        [
+          -2376.0110338912054,
+          2958.2588732963482,
+          true
+        ]
+      ],
+      "IsCreatedFromModelItem": true
+    },
+    {
+      "Id": 794,
+      "SourceId": 791,
+      "TargetId": 792,
+      "ZIndex": 20,
+      "Stereotype": "Association",
+      "RoutePoints": [
+        [
+          -2385.0877005578723,
+          3344.4512671016569,
+          true
+        ],
+        [
+          -2489.3727005578721,
+          3332.1770148892679,
+          true
+        ]
+      ],
+      "IsCreatedFromModelItem": true
+    },
+    {
+      "Id": 796,
+      "SourceId": 791,
+      "TargetId": 793,
+      "ZIndex": 22,
+      "Stereotype": "Association",
+      "RoutePoints": [
+        [
+          -2385.0877005578723,
+          3374.9760029259769,
+          true
+        ],
+        [
+          -2490.3727005578721,
+          3391.2236881111621,
+          true
+        ]
+      ],
+      "IsCreatedFromModelItem": true
+    },
+    {
+      "Id": 798,
+      "SourceId": 777,
+      "TargetId": 791,
+      "ZIndex": 24,
+      "Stereotype": "Association",
+      "RoutePoints": [
+        [
+          -1990.651033891206,
+          3367.2303275162167,
+          true
+        ],
+        [
+          -2160.657700557872,
+          3361.4646078027317,
+          true
+        ]
+      ],
+      "IsCreatedFromModelItem": true
+    }
+  ],
+  "Labels": [
+    {
+      "Id": 784,
+      "ConnectorId": 783,
+      "ZIndex": 10,
+      "AnchorKind": "End",
+      "AnchorVector": "-82.8844,-12.7603",
+      "Size": "107.9367,17.5",
+      "IsPinned": true,
+      "Entries": [
+        {
+          "TextColumn1": "",
+          "TextColumn2": "_evaluationRepository",
+          "Tooltip": "private readonly IEvaluationRepository _evaluationRepository",
+          "CanBeHidden": true,
+          "Symbol": "{\"K\":\"Field\",\"N\":\"_evaluationRepository\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationService\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Services\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}}"
+        }
+      ]
+    },
+    {
+      "Id": 788,
+      "ConnectorId": 787,
+      "ZIndex": 14,
+      "AnchorKind": "End",
+      "AnchorVector": "66.4509,-8.3401",
+      "Size": "93.4867,17.5",
+      "IsPinned": true,
+      "Entries": [
+        {
+          "TextColumn1": "",
+          "TextColumn2": "_evaluationService",
+          "Tooltip": "private readonly IEvaluationService _evaluationService",
+          "CanBeHidden": true,
+          "Symbol": "{\"K\":\"Field\",\"N\":\"_evaluationService\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationController\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Controllers\",\"C\":{\"K\":\"Namespace\",\"N\":\"FPTTrackingSystem\",\"C\":{\"K\":\"Assembly\",\"N\":\"FPTTrackingSystem\",\"V\":\"1.0.0.0\"}}}}}}"
+        }
+      ]
+    },
+    {
+      "Id": 795,
+      "ConnectorId": 794,
+      "ZIndex": 21,
+      "AnchorKind": "End",
+      "AnchorVector": "49,-2",
+      "Size": "66.5833,17.5",
+      "IsPinned": true,
+      "Entries": [
+        {
+          "TextColumn1": "*",
+          "TextColumn2": "Evaluations",
+          "Tooltip": "public virtual DbSet<Evaluation> Evaluations { get; set; }",
+          "CanBeHidden": false,
+          "Symbol": "{\"K\":\"Property\",\"N\":\"Evaluations\",\"C\":{\"K\":\"NamedType\",\"N\":\"FpttrackingSystemContext\",\"C\":{\"K\":\"Namespace\",\"N\":\"Models\",\"C\":{\"K\":\"Namespace\",\"N\":\"Entities\",\"C\":{\"K\":\"Assembly\",\"N\":\"Entities\",\"V\":\"1.0.0.0\"}}}}}"
+        }
+      ]
+    },
+    {
+      "Id": 797,
+      "ConnectorId": 796,
+      "ZIndex": 23,
+      "AnchorKind": "End",
+      "AnchorVector": "57,-15",
+      "Size": "72.69,17.5",
+      "IsPinned": true,
+      "Entries": [
+        {
+          "TextColumn1": "*",
+          "TextColumn2": "PenatyCards",
+          "Tooltip": "public virtual DbSet<PenatyCard> PenatyCards { get; set; }",
+          "CanBeHidden": false,
+          "Symbol": "{\"K\":\"Property\",\"N\":\"PenatyCards\",\"C\":{\"K\":\"NamedType\",\"N\":\"FpttrackingSystemContext\",\"C\":{\"K\":\"Namespace\",\"N\":\"Models\",\"C\":{\"K\":\"Namespace\",\"N\":\"Entities\",\"C\":{\"K\":\"Assembly\",\"N\":\"Entities\",\"V\":\"1.0.0.0\"}}}}}"
+        }
+      ]
+    },
+    {
+      "Id": 799,
+      "ConnectorId": 798,
+      "ZIndex": 25,
+      "AnchorKind": "End",
+      "AnchorVector": "65.7671,-7.9795",
+      "Size": "56,17.5",
+      "IsPinned": true,
+      "Entries": [
+        {
+          "TextColumn1": "",
+          "TextColumn2": "_context",
+          "Tooltip": "private readonly FpttrackingSystemContext _context",
+          "CanBeHidden": false,
+          "Symbol": "{\"K\":\"Field\",\"N\":\"_context\",\"C\":{\"K\":\"NamedType\",\"N\":\"EvaluationRepository\",\"C\":{\"K\":\"Namespace\",\"N\":\"Implements\",\"C\":{\"K\":\"Namespace\",\"N\":\"Common\",\"C\":{\"K\":\"Namespace\",\"N\":\"Repositories\",\"C\":{\"K\":\"Assembly\",\"N\":\"Repositories\",\"V\":\"1.0.0.0\"}}}}}}"
+        }
+      ]
+    }
+  ]
+}
