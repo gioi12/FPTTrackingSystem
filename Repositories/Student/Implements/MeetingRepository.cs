@@ -498,6 +498,28 @@ namespace Repositories.Student.Implements
             return group;
         }
 
+        public async Task<string> MeetingMinuteData(int groupId)
+        {
+            var data = await _context.Meetings
+          .Include(x => x.MeetingScheduleDates)
+              .ThenInclude(y => y.MeetingMinute)
+          .Where(m => m.Groups.Any(g => g.Id == groupId))
+          .SelectMany(m => m.MeetingScheduleDates)
+          .Where(msd => msd.MeetingMinute != null)
+          .Select(msd => new 
+          {
+             msd.MeetingDate,
+             msd.Description,
+             msd.MeetingMinute.MeetingContent,
+             msd.MeetingMinute.Attendance,
+             msd.MeetingMinute.Issue,
+             msd.MeetingMinute.Other,
+             msd.MeetingMinute.StartAt,
+             msd.MeetingMinute.EndAt
+          })
+          .ToListAsync();
 
+            return data?.ToString() ?? "";
+        }
     }
 }

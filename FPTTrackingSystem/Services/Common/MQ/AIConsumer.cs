@@ -1,27 +1,30 @@
 ﻿
 using DataTranferObjects.Common.Request;
-using FPTTrackingSystem.Services.Common.Interfaces;
+using DataTranferObjects.Enum;
+using FPTTrackingSystem.Services.Admin;
+using FPTTrackingSystem.Services.Common.Gemini;
+using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using DataTranferObjects.Enum;
+using System.Text.Json;
 
 namespace FPTTrackingSystem.Services.Common.MQ
 {
-    public class RabbitMQConsumer : BackgroundService
+    public class AIConsumer : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly RabbitMQSettings _settings;
-
-        public RabbitMQConsumer(IServiceProvider serviceProvider, IOptions<RabbitMQSettings> settings)
+        private readonly IMemoryCache _cache;
+        public AIConsumer(IServiceProvider serviceProvider, IOptions<RabbitMQSettings> settings,IMemoryCache cache)
         {
             _serviceProvider = serviceProvider;
             _settings = settings.Value;
+            _cache = cache;
         }
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var factory = new ConnectionFactory()
             {
@@ -32,7 +35,7 @@ namespace FPTTrackingSystem.Services.Common.MQ
 
             var connection = await factory.CreateConnectionAsync();
             var channel = await connection.CreateChannelAsync();
-            await channel.QueueDeclareAsync(queue: StringEnum.Mail_Queue,
+            await channel.QueueDeclareAsync(queue: StringEnum.AI_Queue,
                                  durable: false,
                                  exclusive: false,
                                  autoDelete: false,
@@ -43,19 +46,22 @@ namespace FPTTrackingSystem.Services.Common.MQ
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var mailRequest = JsonSerializer.Deserialize<List<MailRequest>>(message);
+                var task = JsonSerializer.Deserialize<AITaskMessage>(message);
 
                 using var scope = _serviceProvider.CreateScope();
-                var mailService = scope.ServiceProvider.GetRequiredService<IMailService>();
-                await mailService.SendEmailAsync(mailRequest);
+                var aiService = scope.ServiceProvider.GetRequiredService<IGeminiService>();
+                var result = await aiService.AskGeminiAsync(task.Prompt?.ToString() ?? "");
+                _cache.Set(task.TaskId, result, TimeSpan.FromMinutes(5));
+
             };
 
             await channel.BasicConsumeAsync(
-                queue: StringEnum.Mail_Queue,
+                queue: StringEnum.AI_Queue,
                 autoAck: true,
                 consumer: consumer);
 
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
+
     }
 }

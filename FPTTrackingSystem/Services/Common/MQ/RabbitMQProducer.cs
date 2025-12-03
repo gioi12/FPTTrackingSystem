@@ -15,7 +15,7 @@ namespace FPTTrackingSystem.Services.Common.MQ
             _settings = settings.Value;
         }
 
-        public async Task SendMessage<T>(T message)
+        public async Task SendMessage<T>(T message,string queueName)
         {
             var factory = new ConnectionFactory()
             {
@@ -27,7 +27,7 @@ namespace FPTTrackingSystem.Services.Common.MQ
             using var connection = await factory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
 
-            await channel.QueueDeclareAsync(queue: _settings.QueueName,
+            await channel.QueueDeclareAsync(queue: queueName,
                                  durable: false,
                                  exclusive: false,
                                  autoDelete: false,
@@ -40,7 +40,7 @@ namespace FPTTrackingSystem.Services.Common.MQ
 
             await channel.BasicPublishAsync(
                 exchange: "",
-                routingKey: _settings.QueueName,
+                routingKey: queueName,
                 mandatory: false,
                 basicProperties: properties,
                 body: body.AsMemory(),

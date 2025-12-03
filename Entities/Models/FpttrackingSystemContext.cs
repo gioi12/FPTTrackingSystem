@@ -13,6 +13,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<Account> Accounts { get; set; }
 
+    public virtual DbSet<Aisetting> Aisettings { get; set; }
+
     public virtual DbSet<Attachment> Attachments { get; set; }
 
     public virtual DbSet<Campus> Campuses { get; set; }
@@ -89,6 +91,18 @@ public partial class FpttrackingSystemContext : DbContext
             entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.RoleId)
                 .HasConstraintName("FK_Account_Role");
+        });
+
+        modelBuilder.Entity<Aisetting>(entity =>
+        {
+            entity.ToTable("AISettings");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .HasColumnName("name");
+            entity.Property(e => e.SecretKey).HasColumnName("secret_key");
         });
 
         modelBuilder.Entity<Attachment>(entity =>

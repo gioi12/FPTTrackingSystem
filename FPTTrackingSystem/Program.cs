@@ -11,6 +11,8 @@ builder.WebHost.UseWebRoot("wwwroot");
 builder.Services.AddControllers();
 builder.Services.AddRepositories();
 builder.Services.AddServices();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient();
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -20,6 +22,7 @@ builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailS
 builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.AddSingleton<RabbitMQProducer>();
 builder.Services.AddHostedService<RabbitMQConsumer>();
+builder.Services.AddHostedService<AIConsumer>();
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 builder.Services.AddQuartz(q =>
 {
@@ -61,7 +64,9 @@ var env = app.Environment;
 using (var scope = app.Services.CreateScope())
 {
     var cache = scope.ServiceProvider.GetRequiredService<IMailSettingCache>();
+    var aiCache = scope.ServiceProvider.GetRequiredService<IAISettingsCache>();
     await cache.ReloadAsync();
+    await aiCache.ReloadAsync();
 }
 app.UseCors("AllowFE");
 app.UseStaticFiles(new StaticFileOptions
