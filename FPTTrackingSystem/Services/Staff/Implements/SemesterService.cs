@@ -258,23 +258,30 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var mockSemester = MockData.AllSemesters
                 .FirstOrDefault(s => s.Name.Trim().Equals(name, StringComparison.OrdinalIgnoreCase));
 
-            DateTime? startAt = mockSemester?.StartAt;
-            DateTime? endAt = mockSemester?.EndAt;
-            var active = mockSemester.IsActive;
+            DateTime? startAt = null;
+            DateTime? endAt = null;
+            bool? active = null;
 
-/*            // Nếu có mock → semester đó auto active
-            bool isActivate = startAt.HasValue && endAt.HasValue;
-
-            // 3️⃣ Nếu mock có thời gian → disable semester đang active
-            if (isActivate)
+            if (mockSemester != null)
             {
-                var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
-                if (activeSemester != null)
-                {
-                    activeSemester.IsActive = false;
-                    _context.Semesters.Update(activeSemester);
-                }
-            }*/
+                startAt = mockSemester.StartAt;
+                endAt = mockSemester.EndAt;
+                active = mockSemester.IsActive;
+            }
+
+            /*            // Nếu có mock → semester đó auto active
+                        bool isActivate = startAt.HasValue && endAt.HasValue;
+
+                        // 3️⃣ Nếu mock có thời gian → disable semester đang active
+                        if (isActivate)
+                        {
+                            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
+                            if (activeSemester != null)
+                            {
+                                activeSemester.IsActive = false;
+                                _context.Semesters.Update(activeSemester);
+                            }
+                        }*/
 
             Semester semester;
 

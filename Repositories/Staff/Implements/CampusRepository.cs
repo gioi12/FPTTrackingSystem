@@ -70,5 +70,22 @@ namespace Repositories.Staff.Implements
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Campus?> GetCampusWithSlotsAsync(int campusId)
+        {
+            return await _context.Campuses
+                .Include(c => c.Slots)
+                .FirstOrDefaultAsync(c => c.Id == campusId);
+        }
+
+        public async System.Threading.Tasks.Task AddSlotsAsync(List<Slot> slots)
+        {
+            await _context.Slots.AddRangeAsync(slots);
+        }
+
+        public async System.Threading.Tasks.Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

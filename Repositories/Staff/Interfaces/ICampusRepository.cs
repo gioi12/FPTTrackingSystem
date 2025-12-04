@@ -18,5 +18,9 @@ namespace Repositories.Staff.Interfaces
         Task<Campus> AddCampusAsync(Campus campus);
         Task<Campus?> GetCampusByIdAsync(int id);
         System.Threading.Tasks.Task UpdateCampusAsync(Campus campus);
+
+        Task<Campus?> GetCampusWithSlotsAsync(int campusId);
+        System.Threading.Tasks.Task AddSlotsAsync(List<Slot> slots);
+        System.Threading.Tasks.Task SaveChangesAsync();
     }
 }
