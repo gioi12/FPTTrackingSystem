@@ -105,112 +105,106 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             };
         }
 
-
-        /*  public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
-          {
-              var user = await _authUtils.GetUserInfoFromCookie();
-              if (page <= 0) page = 1;
-              if (pageSize <= 0) pageSize = 10;
-
-              var query = _groupRepository.GetGroupsQuery();
-
-              if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
-              {
-                  if (user.Groups == null || !user.Groups.Any())
-                  {
-                      return new PagedResponse<GroupDto>
-                      {
-                          Status = 200,
-                          Message = "Không có nhóm nào thuộc quyền của bạn.",
-                          Data = new PagedData<GroupDto> { Items = new List<GroupDto>(), Total = 0 }
-                      };
-                  }
-
-                  var userGroupIds = user.Groups.ToList();
-                  query = query.Where(g => userGroupIds.Contains(int.Parse(g.Id)));
-              }
-
-              var total = await query.CountAsync();
-
-              // ✅ Lúc này EF chỉ lấy đúng page bạn cần
-              var groups = await query
-                  .OrderBy(g => g.Id)
-                  .Skip((page - 1) * pageSize)
-                  .Take(pageSize)
-                  .ToListAsync();
-
-              // ✅ Convert Supervisor sang List<string> nếu EF trả về IEnumerable
-              foreach (var g in groups)
-              {
-                  g.Supervisor = g.Supervisor?.ToList() ?? new List<string>();
-              }
-
-              return new PagedResponse<GroupDto>
-              {
-                  Status = 200,
-                  Message = "Lấy thành công",
-                  Data = new PagedData<GroupDto>
-                  {
-                      Items = groups,
-                      Total = total
-                  }
-              };
-          }*/
-
-
-        /*public async Task<PagedResponse<GroupDto>> GetGroupsAsync(int page, int pageSize)
+        public async Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int groupId)
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            if (page <= 0) page = 1;
-            if (pageSize <= 0) pageSize = 10;
-
-            var query = _groupRepository.GetGroupsQuery().AsNoTracking();
-            if (user.Role == "Student" || user.Role == "Supervisor" || user.Role == "SupervisorHead")
+            try
             {
-                if (user.Groups == null || !user.Groups.Any())
-                    return new PagedResponse<GroupDto>
-                    {
-                        Status = 200,
-                        Message = "Không có nhóm nào thuộc quyền của bạn.",
-                        Data = new PagedData<GroupDto> { Items = new List<GroupDto>(), Total = 0 }
-                    };
-                query = query.Where(g => user.Groups.Contains(g.Id));
-            }
-            var total = await _groupRepository.CountAsync(query);
+                var user = await _authUtils.GetUserInfoFromCookie();
+                if (user == null)
+                {
+                    return new ApiResponse<GroupDetailDto>(401, "User not authenticated.", null);
+                }
 
-            var groups = await query
-                .OrderBy(g => g.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                 .Select(g => new GroupDto
-                 {
-                     Id = g.Id.ToString(),
-                     CourseCode = g.Major.Code,
-                     GroupCode = g.Code,
-                     Term = g.Semester != null ? g.Semester.Name : "",
-                     Major = g.Major != null ? g.Major.Name : "",
-                     StudentCount = g.GroupUsers.Count(gu => gu.Role == RoleEnum.Student.ToString() || gu.Role == "Leader" || gu.Role == "Secretary"),
-                     Supervisor = g.GroupUsers
-                        .Where(gu => gu.Role == "Supervisor" || gu.Role == "SuperviorHead")
+                bool roleStaff = user.Role?.EndsWith(RoleEnum.Staff.ToString()) ?? false;
+
+                List<GroupMentorDto> accessibleGroups;
+
+                var activeGroups = (await GetGroupsByUserIdAsync(user.Id ?? 0)).Data ?? new List<GroupMentorDto>();
+                var expiredGroups = await _groupRepository.GetExpiredGroupsByUserIdAsync(user.Id ?? 0);
+
+                accessibleGroups = activeGroups
+                    .Concat(expiredGroups)
+                    .GroupBy(g => g.Id)
+                    .Select(g => g.First())
+                    .ToList();
+
+                bool inAccessibleGroups = accessibleGroups.Any(g => g.Id == groupId);
+                bool inUserGroups = user.Groups?.Contains(groupId) ?? false;
+
+                if (!roleStaff)
+                {
+                    if (!inAccessibleGroups && !inUserGroups)
+                    {
+                        return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền xem nhóm này.", null);
+                    }
+                }
+
+                var group = await _groupRepository.GetByIdAsync(groupId);
+                if (group == null)
+                {
+                    return new ApiResponse<GroupDetailDto>(404, "Group not found.", null);
+                }
+
+                var semesterName = group.Semester?.Name ?? "Unknown";
+
+                var dto = new GroupDetailDto
+                {
+                    Id = group.Id.ToString(),
+                    ProjectName = group.Name,
+                    SemesterName = semesterName,
+                    GroupCode = group.Code,
+                    SemesterId = group.SemesterId,
+                    IsExpired = group.ExpireDate != null && group.ExpireDate < DateTime.UtcNow,
+                    ExpireDate = group.ExpireDate,
+
+                    Supervisors = group.GroupUsers
+                        .Where(gu => gu.User != null &&
+                            (gu.Role == "Supervisor" || gu.Role == "SupervisorHead"))
                         .Select(gu => gu.User.Fullname)
                         .ToList(),
-                     SubmittedDocs = false,
-                 }).AsNoTracking()
-                  .ToListAsync();
 
-            return new PagedResponse<GroupDto>
+                    SupervisorsInfor = group.GroupUsers
+                        .Where(gu => gu.User != null &&
+                            (gu.Role == "Supervisor" || gu.Role == "SupervisorHead"))
+                        .Select(gu => new SuperviorDto
+                        {
+                            Id = gu.User.Id,
+                            Name = gu.User.Fullname,
+                            Email = gu.User.Mail
+                        }).ToList(),
+
+                    Status = group.Status?.Name,
+                    Risk = "Low",
+
+                    Students = group.GroupUsers
+                        .Where(gu => gu.User != null &&
+                            (gu.Role == "Student" || gu.Role == "Leader" || gu.Role == "Secretary"))
+                        .Select(gu => new StudentDto
+                        {
+                            Id = gu.User.Id,
+                            RollNumber = gu.User.RollNumber,
+                            Name = gu.User.Fullname,
+                            Email = gu.User.Mail,
+                            Role = gu.Role
+                        }).ToList(),
+
+                    ActivityLog = null
+                };
+
+                return new ApiResponse<GroupDetailDto>(200, "Lấy thành công", dto);
+            }
+            catch (Exception ex)
             {
-                Status = 200,
-                Message = "Lấy thành công",
-                Data = new PagedData<GroupDto>
-                {
-                    Items = groups,
-                    Total = 0
-                }
-            };
-        }*/
+                // LOG CHI TIẾT
+                Console.WriteLine($"[GetGroupByIdAsync] ERROR: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
 
-        public async Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int groupId)
+                return new ApiResponse<GroupDetailDto>(500, "Internal Server Error: " + ex.Message, null);
+            }
+        }
+
+
+        /*public async Task<ApiResponse<GroupDetailDto>> GetGroupByIdAsync(int groupId)
         {
             // Lấy user
             var user = await _authUtils.GetUserInfoFromCookie();
@@ -230,12 +224,15 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
            .ToList();
             bool inAccessibleGroups = accessibleGroups.Any(g => g.Id == groupId);
             bool inUserGroups = user.Groups?.Contains(groupId) ?? false;
+            bool roleStaff = user.Role.EndsWith(RoleEnum.Staff.ToString());
 
-            if (!inAccessibleGroups && !inUserGroups)
+            if (!roleStaff)
             {
-                return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền xem nhóm này.", null);
+                if (!inAccessibleGroups && !inUserGroups)
+                {
+                    return new ApiResponse<GroupDetailDto>(403, "Bạn không có quyền xem nhóm này.", null);
+                }
             }
-
 
             // Lấy group từ DB
             var group = await _groupRepository.GetByIdAsync(groupId);
@@ -291,7 +288,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             };
 
             return new ApiResponse<GroupDetailDto>(200, "Lấy thành công", dto);
-        }
+        }*/
 
         public async Task<ApiResponse<List<GroupMentorDto>>> GetExpiredGroupsBySupervisorAsync(int supervisorId)
         {
