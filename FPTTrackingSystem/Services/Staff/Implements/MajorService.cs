@@ -62,7 +62,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 Id = c.Id,
                 Code = c.Code,
                 Name = c.Name,
-                IsActive = c.IsActive
+                IsActive = c.IsActive,
+                Size = c.Size  
             }).ToList();
         }
 
@@ -75,7 +76,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 Name = entity.Name,
                 Code = entity.Code,
-                IsActive = entity.IsActive
+                IsActive = entity.IsActive,
+                Size = entity.Size
             };
         }
 
@@ -85,7 +87,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             {
                 Name = dto.Name,
                 Code = dto.Code,
-                IsActive = dto.IsActive
+                IsActive = dto.IsActive,
+                Size = dto.Size
             };
             return await _majorRepository.CreateAsync(entity);
         }
@@ -98,7 +101,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             existing.Name = dto.Name;
             existing.Code = dto.Code;
             existing.IsActive = dto.IsActive;
-
+            existing.Size = dto.Size;   
             return await _majorRepository.UpdateAsync(existing);
         }
 
