@@ -184,9 +184,11 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 MeetingContent = request.MeetingContent,
                 Other = request.Other,
                 CreateAt = DateTime.Now,
-                CreateBy = user.Id
+                CreateBy = user.Id,
             };
             var met = await _repo.CreateMeetingMinute(newMinute);
+            meeting.IsMeeting = true;
+            await _repo.UpdateMeetingScheduleDate(meeting);
             return met.Adapt<MeetingMinuteRes>();
         }
 

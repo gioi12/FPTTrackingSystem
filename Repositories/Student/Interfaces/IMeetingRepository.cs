@@ -27,7 +27,7 @@ namespace Repositories.Student.Interfaces
         Task<Meeting?> GetMeetingByIdAsync(int meetingId);
         Task<Meeting> FinalizeOrUpdateScheduleAsync(int groupId, FinalMeetingDto dto, int userId);
         Task<MeetingScheduleDate?> GetMeetingDateByIdAsync(int id);
-
+        System.Threading.Tasks.Task UpdateMeetingScheduleDate(MeetingScheduleDate m);
         Task<bool> CheckSecretary(int userId);
         Task<List<MeetingScheduleDate>> GetMeetingScheduleDatesByGroupIdAsync(int groupId);
         Task<MeetingScheduleDate?> GetByIdAsync(int id);

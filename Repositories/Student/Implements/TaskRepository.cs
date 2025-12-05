@@ -476,7 +476,16 @@ namespace Repositories.Student.Implements
                             t.Description,
                             t.Deadline,
                             t.IsActive,
-                            t.Status
+                            t.Status,
+                            t.Priority,
+                            AssigneeId = t.TaskUsers
+                        .Where(tu => tu.Type == "Assignee")
+                        .Select(tu => tu.User.Id)
+                        .FirstOrDefault(),
+                            AssigneeName = t.TaskUsers
+                        .Where(tu => tu.Type == "Assignee")
+                        .Select(tu => tu.User.Fullname)
+                        .FirstOrDefault(),
                         }).ToList()
                 })
                 .FirstOrDefaultAsync();
