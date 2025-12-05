@@ -1,4 +1,5 @@
-﻿using DataTranferObjects.Staff.Major;
+﻿using DataTranferObjects.Staff.Group;
+using DataTranferObjects.Staff.Major;
 using Entities.Models;
 using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Wrappers;
@@ -18,48 +19,49 @@ namespace FPTTrackingSystem.Controllers.Staff
             _majorService = majorService;
         }
 
-/*        [HttpGet("GetMajors")]  
-        public async Task<IActionResult> GetAll()
-        {
-            var response = await _majorService.GetAllMajors();
-            return StatusCode(response.Status, response);
-        }
+        /*        [HttpGet("GetMajors")]  
+                public async Task<IActionResult> GetAll()
+                {
+                    var response = await _majorService.GetAllMajors();
+                    return StatusCode(response.Status, response);
+                }
 
-        [HttpGet("getAllCodeCourseInMajor")]
-        public async Task<IActionResult> GetAllMajorsWithCategories()
-        {
-            try
-            {
-                var majors = await _majorService.GetAllMajorAndCategoriesAsync();
+                [HttpGet("getAllCodeCourseInMajor")]
+                public async Task<IActionResult> GetAllMajorsWithCategories()
+                {
+                    try
+                    {
+                        var majors = await _majorService.GetAllMajorAndCategoriesAsync();
 
-                if (majors == null || majors.Count == 0)
-                    return NotFound(ApiResponse<object>.Fail("Không có dữ liệu chuyên ngành nào."));
+                        if (majors == null || majors.Count == 0)
+                            return NotFound(ApiResponse<object>.Fail("Không có dữ liệu chuyên ngành nào."));
 
-                return Ok(ApiResponse<List<MajorDTO>>.Success(majors, "Lấy danh sách chuyên ngành thành công."));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
-            }
-        }*/
-
+                        return Ok(ApiResponse<List<MajorDTO>>.Success(majors, "Lấy danh sách chuyên ngành thành công."));
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
+                    }
+                }*/
         [HttpGet("getAllCodeCourse")]
-        public async Task<IActionResult> GetAllMajorsCategories()
+        public async Task<IActionResult> GetAllMajorsCategories(int page = 1, int pageSize = 10)
         {
             try
             {
-                var majors = await _majorService.GetAllCoursesAsync();
+                var result = await _majorService.GetAllCoursesPagedAsync(page, pageSize);
 
-                if (majors == null || majors.Count == 0)
-                    return NotFound(ApiResponse<object>.Fail("Không có dữ liệu chuyên ngành nào."));
+                if (result.Items == null)
+                    return NotFound(ApiResponse<object>.Fail("Không có dữ liệu môn học."));
 
-                return Ok(ApiResponse<List<MajorCategoryDTO>>.Success(majors, "Lấy danh sách môn học thành công."));
+                return Ok(ApiResponse<PagedData<MajorCategoryDTO>>.Success(result,
+                    "Lấy danh sách môn học thành công."));
             }
             catch (Exception ex)
             {
                 return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
             }
         }
+
 
         [HttpGet("GetCourseBy/{id}")]
         public async Task<IActionResult> GetCourseById(int id)

@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Staff.Group;
+using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Staff.Interfaces;
 using System;
@@ -24,6 +25,25 @@ namespace Repositories.Staff.Implements
         public async Task<List<MajorCategory>> getAllCourse()
         {
             return await _context.MajorCategories.ToListAsync();
+        }
+
+        public async Task<PagedData<MajorCategory>> GetAllCoursePagedAsync(int page, int pageSize)
+        {
+            var query = _context.MajorCategories.AsQueryable();
+
+            int total = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedData<MajorCategory>
+            {
+                Items = items,
+                Total = total
+            };
         }
 
         public async Task<List<Major>> getAllMajorAndCode()

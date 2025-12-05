@@ -1,4 +1,5 @@
-﻿using DataTranferObjects.Staff.Major;
+﻿using DataTranferObjects.Staff.Group;
+using DataTranferObjects.Staff.Major;
 using Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace Repositories.Staff.Interfaces
     {
         Task<List<Major>> findAll();
         Task<List<Major>> getAllMajorAndCode();
+        Task<PagedData<MajorCategory>> GetAllCoursePagedAsync(int page, int pageSize);
         Task<List<MajorCategory>> getAllCourse();
         Task<MajorCategory?> GetByIdAsync(int id);
         Task<MajorCategory?> FindByCodeAsync(string code);
