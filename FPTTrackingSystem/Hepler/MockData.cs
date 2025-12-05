@@ -24,8 +24,8 @@ namespace FPTTrackingSystem.Helper
             Name = "Fall 2025",
             IsActive = true,
             Description = "Fall semester for Capstone projects 2025",
-            StartAt = new DateTime(2025, 8, 18),
-            EndAt = new DateTime(2025, 12, 7)
+            StartAt = new DateTime(2025, 9, 8),
+            EndAt = new DateTime(2025, 12, 28)
         };
 
         // Spring 2026
