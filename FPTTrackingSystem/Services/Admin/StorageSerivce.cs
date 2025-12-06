@@ -60,18 +60,6 @@ namespace FPTTrackingSystem.Services.Admin
             return info;
         }
 
-        /// <summary>
-        /// Lấy cây thư mục của một kỳ học
-        /// </summary>
-        public FileNode GetFolderTree(string uploadsRoot, string semesterName)
-        {
-            var folderPath = Path.Combine(uploadsRoot, semesterName);
-
-            if (!Directory.Exists(folderPath))
-                throw new DirectoryNotFoundException($"Folder không tồn tại: {semesterName}");
-
-            return BuildFileNode(folderPath, semesterName);
-        }
        
         private FileNode BuildFileNode(string fullPath, string relativePath)
         {
@@ -207,64 +195,7 @@ namespace FPTTrackingSystem.Services.Admin
             }
         }
 
-        /// <summary>
-        /// Xóa một kỳ học (folder và/hoặc zip)
-        /// </summary>
-        public async Task<OperationResult> DeleteSemesterAsync(string uploadsRoot, string semesterName, bool deleteAll = false)
-        {
-            try
-            {
-                var folderPath = Path.Combine(uploadsRoot, semesterName);
-                var zipPath = Path.Combine(uploadsRoot, semesterName + ".zip");
-
-                bool folderExists = Directory.Exists(folderPath);
-                bool zipExists = File.Exists(zipPath);
-
-                if (!folderExists && !zipExists)
-                    return new OperationResult { Success = false, Message = $"Không tìm thấy: {semesterName}" };
-
-                var deletedItems = new List<string>();
-
-                if (deleteAll)
-                {
-                    if (folderExists)
-                    {
-                        await Task.Run(() => Directory.Delete(folderPath, true));
-                        deletedItems.Add($"Folder {semesterName}");
-                    }
-
-                    if (zipExists)
-                    {
-                        await Task.Run(() => File.Delete(zipPath));
-                        deletedItems.Add($"File {semesterName}.zip");
-                    }
-                }
-                else
-                {
-                    // Chỉ xóa ZIP nếu có cả folder và zip
-                    if (folderExists && zipExists)
-                    {
-                        await Task.Run(() => File.Delete(zipPath));
-                        deletedItems.Add($"File {semesterName}.zip (giữ lại folder)");
-                    }
-                    else
-                    {
-                        return new OperationResult { Success = false, Message = "Không thể xóa. Cần có cả folder và ZIP, hoặc dùng deleteAll=true" };
-                    }
-                }
-
-                return new OperationResult
-                {
-                    Success = true,
-                    Message = $"Đã xóa: {string.Join(", ", deletedItems)}",
-                    Data = new { DeletedItems = deletedItems }
-                };
-            }
-            catch (Exception ex)
-            {
-                return new OperationResult { Success = false, Message = $"Lỗi khi xóa: {ex.Message}" };
-            }
-        }
+       
 
         /// <summary>
         /// Tính dung lượng thư mục

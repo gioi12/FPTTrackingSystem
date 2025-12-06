@@ -44,5 +44,12 @@ namespace FPTTrackingSystem.Controllers.Student
             await _meetingService.DeleteMeetingMinute(id);
             return Ok(ApiResponse<object>.Success(null, "Update meeting minute success."));
         }
+
+        [HttpGet("v1/MeetingMinute/attendance")]
+        [Authorize]
+        public async Task<object> GetListAttens([FromQuery] int groupId)
+        {
+            return Ok(ApiResponse<object>.Success(await _meetingService.GetMeetingAttendances(groupId), "Find atts success."));
+        }
     }
 }

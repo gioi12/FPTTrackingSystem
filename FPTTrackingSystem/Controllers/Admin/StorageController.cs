@@ -72,28 +72,7 @@ namespace FPTTrackingSystem.Controllers.Admin
             return Ok(ApiResponse<object>.Success(result.Data, result.Message));
         }
 
-        /// <summary>
-        /// Xóa một kỳ học
-        /// DELETE: api/admin/storage/Fall25?deleteAll=true
-        /// </summary>
-        //[HttpDelete("{semesterName}")]
-        //public async Task<IActionResult> DeleteSemester(string semesterName, [FromQuery] bool deleteAll = false)
-        //{
-        //    if (string.IsNullOrWhiteSpace(semesterName))
-        //        throw new System.ComponentModel.DataAnnotations.ValidationException("SemesterName không được để trống");
 
-        //    var result = await _storageService.DeleteSemesterAsync(_uploadsRoot, semesterName, deleteAll);
-
-        //    if (!result.Success)
-        //        throw new System.ComponentModel.DataAnnotations.ValidationException(result.Message);
-
-        //    return Ok(ApiResponse<object>.Success(result.Data, result.Message));
-        //}
-
-        /// <summary>
-        /// Lấy dung lượng của một folder
-        /// GET: api/admin/storage/size/Fall25
-        /// </summary>
         [HttpGet("size/{semesterName}")]
         public IActionResult GetFolderSize(string semesterName)
         {

@@ -22,6 +22,5 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<object> GetMockData(int semesterId);
         Task<object> CreateMockData(int semesterId);
         Task<Group> UpdateExpireDateAsync(int groupId, DateTime newExpireDate, string userRole);
-
     }
 }
