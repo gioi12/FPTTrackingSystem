@@ -92,6 +92,9 @@ namespace FPTTrackingSystem.Controllers.Staff
         [HttpPost("createCourse")]
         public async Task<IActionResult> Create([FromBody] MajorCategoryDTO dto)
         {
+            if (dto.Size == null || dto.Size <= 0)
+                return BadRequest(ApiResponse<object>.Fail("Size must be greater than 0."));
+
             var success = await _majorService.CreateAsync(dto);
             if (!success)
                 return BadRequest(ApiResponse<object>.Fail("Tạo thất bại."));
@@ -102,6 +105,9 @@ namespace FPTTrackingSystem.Controllers.Staff
         public async Task<IActionResult> Update(int id, [FromBody] MajorCategoryDTO dto)
         {
             dto.Id = id;
+            if (dto.Size == null || dto.Size <= 0)
+                return BadRequest(ApiResponse<object>.Fail("Size must be greater than 0."));
+
             var success = await _majorService.UpdateAsync(dto);
             if (!success)
                 return Ok(ApiResponse<object>.Success(null,"Không tìm thấy bản ghi để cập nhật."));
