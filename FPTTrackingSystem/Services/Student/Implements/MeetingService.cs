@@ -1,11 +1,13 @@
 ﻿using DataTranferObjects.Enum;
 using DataTranferObjects.Student.Meeting;
 using Entities.Models;
+using FPTTrackingSystem.Services.Staff.Interfaces;
 using FPTTrackingSystem.Services.Student.Interfaces;
 using FPTTrackingSystem.Utilities;
 using FPTTrackingSystem.Wrappers;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Repositories.Staff.Interfaces;
 using Repositories.Student.Implements;
 using Repositories.Student.Interfaces;
 using System.ComponentModel.DataAnnotations;
@@ -19,12 +21,14 @@ namespace FPTTrackingSystem.Services.Student.Implements
         private readonly IMeetingRepository _repo;
         private readonly AuthUtils _authUtils;
         private readonly FpttrackingSystemContext _context;
+        private readonly IGroupRepository _groupRepo;
 
-        public MeetingService(IMeetingRepository repo, AuthUtils authUtils, FpttrackingSystemContext context)
+        public MeetingService(IMeetingRepository repo, AuthUtils authUtils, FpttrackingSystemContext context,IGroupRepository groupRepo)
         {
             _repo = repo;
             _authUtils = authUtils;
             _context = context;
+            _groupRepo = groupRepo;
         }
 
         public async Task<object> CreateOrUpdateFreeTimeSlotsAsync(int groupId, FreeTimeSlotsRequest request)
@@ -438,5 +442,25 @@ namespace FPTTrackingSystem.Services.Student.Implements
             return true;
         }
 
+        public async Task<List<MeetingAttendance>> GetMeetingAttendances(int groupId)
+        {
+            var group = await _groupRepo.GetByIdAsync(groupId)
+                ?? throw new ValidationException("Group not found.");
+
+            if (group.MeetingId == null)
+                throw new ValidationException("Group does not belong to a meeting.");
+
+            var list = await _repo.GetMeetingMinutesByMeetingId(group.MeetingId.Value);
+
+            return list
+                .Where(x => x != null) 
+                .Select(x => new MeetingAttendance
+                {
+                    MeetingScheduleDateId = (int)x.MeetingScheduleDateId,
+                    Attendance = x.Attendance ?? ""
+                }).ToList();
+        }
+
+        
     }
 }

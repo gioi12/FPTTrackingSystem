@@ -462,5 +462,13 @@ namespace Repositories.Student.Implements
 
             return data?.ToString() ?? "";
         }
+
+        public Task<List<MeetingMinute>?> GetMeetingMinutesByMeetingId(int meetingId)
+        {
+            return _context.MeetingScheduleDates
+                .Where(x => x.MeetingId == meetingId)
+                .Select(x => x.MeetingMinute)
+                .ToListAsync();
+        }
     }
 }
