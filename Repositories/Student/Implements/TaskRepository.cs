@@ -24,6 +24,8 @@ namespace Repositories.Student.Implements
         public async Task<List<Entities.Models.Task>> GetAllActiveMeetingTasksAsync(int groupId)
         {
             return await _context.Tasks
+                 .Include(t => t.TaskUsers)
+                    .ThenInclude(tu => tu.User)
                 .Where(t => t.GroupId == groupId &&
                 t.Type == "Meeting"
                             && (t.Status == "Todo" || t.Status == "InProgress")

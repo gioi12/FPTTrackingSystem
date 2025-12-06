@@ -148,6 +148,9 @@ namespace DataTranferObjects.Staff.Task
         public string? Priority { get; set; }
 
         public bool? IsActive { get; set; }
+        public int? AssignedTo { get; set; }
+        public string? AssignedToName { get; set; }
+
     }
 
 

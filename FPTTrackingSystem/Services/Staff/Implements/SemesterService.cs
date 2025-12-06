@@ -267,21 +267,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 startAt = mockSemester.StartAt;
                 endAt = mockSemester.EndAt;
                 active = mockSemester.IsActive;
-            }
-
-            /*            // Nếu có mock → semester đó auto active
-                        bool isActivate = startAt.HasValue && endAt.HasValue;
-
-                        // 3️⃣ Nếu mock có thời gian → disable semester đang active
-                        if (isActivate)
-                        {
-                            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive ?? false);
-                            if (activeSemester != null)
-                            {
-                                activeSemester.IsActive = false;
-                                _context.Semesters.Update(activeSemester);
-                            }
-                        }*/
+            }  
 
             Semester semester;
 

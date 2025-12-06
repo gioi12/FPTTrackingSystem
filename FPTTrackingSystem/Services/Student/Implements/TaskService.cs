@@ -15,6 +15,7 @@ using Repositories.Staff.Interfaces;
 using Repositories.Student.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace FPTTrackingSystem.Services.Student.Implements
 {
@@ -518,20 +519,29 @@ namespace FPTTrackingSystem.Services.Student.Implements
         {
             var tasks = await _taskRepository.GetAllActiveMeetingTasksAsync(groupId);
 
-            return tasks.Select(t => new TaskResponsesDto
+            return tasks.Select(t =>
             {
-                Id = t.Id,
-                GroupId = t.GroupId,
-                Name = t.Name,
-                Description = t.Description,
-                Deadline = t.Deadline,
-                Type = t.Type,
-                Status = t.Status,
-                CreatedAt = t.CreatedAt,
-                Priority = t.Priority,
-                IsActive = t.IsActive
+                var assignee = t.TaskUsers.FirstOrDefault(u => u.Type == "Assignee");
+
+                return new TaskResponsesDto
+                {
+                    Id = t.Id,
+                    GroupId = t.GroupId,
+                    Name = t.Name,
+                    Description = t.Description,
+                    Deadline = t.Deadline,
+                    Type = t.Type,
+                    Status = t.Status,
+                    CreatedAt = t.CreatedAt,
+                    Priority = t.Priority,
+                    IsActive = t.IsActive,
+
+                    AssignedTo = assignee?.UserId,
+                    AssignedToName = assignee?.User?.Fullname,
+                };
             }).ToList();
         }
+
 
 
         public async Task<List<TaskReviewerDTO>> GetReviewerTasksAsync(int userId, int groupId)
