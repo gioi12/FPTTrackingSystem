@@ -12,7 +12,7 @@ namespace DataTranferObjects.Staff.Major
         public string? Code { get; set; }
         public string? Name { get; set; }
         public bool? IsActive { get; set; }
-        public int? Size { get; set; }
+        public string? Size { get; set; }
 
     }
 

@@ -449,7 +449,9 @@ public partial class FpttrackingSystemContext : DbContext
             entity.Property(e => e.Code).HasMaxLength(20);
             entity.Property(e => e.MajorId).HasColumnName("Major_Id");
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Size).HasColumnName("size");
+            entity.Property(e => e.Size)
+                .HasMaxLength(50)
+                .HasColumnName("size");
 
             entity.HasOne(d => d.Major).WithMany(p => p.MajorCategories)
                 .HasForeignKey(d => d.MajorId)
