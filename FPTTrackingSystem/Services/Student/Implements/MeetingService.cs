@@ -456,7 +456,7 @@ namespace FPTTrackingSystem.Services.Student.Implements
                 .Where(x => x != null) 
                 .Select(x => new MeetingAttendance
                 {
-                    MeetingScheduleDateId = x.Id,
+                    MeetingScheduleDateId = (int)x.MeetingScheduleDateId,
                     Attendance = x.Attendance ?? ""
                 }).ToList();
         }
