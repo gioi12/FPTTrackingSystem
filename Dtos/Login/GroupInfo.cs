@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataTranferObjects.Staff.Major;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +15,6 @@ namespace DataTranferObjects.Login
         public int SemesterId { get; set; }
         public string SesesterName { get; set; }
         public bool IsExpired { get; set; }
+        public MajorCategoryDTO? MajorCategory { get; set; }
     }
 }

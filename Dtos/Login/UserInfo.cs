@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataTranferObjects.Staff.Major;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,5 +20,7 @@ namespace DataTranferObjects.Login
         public DateTime? ExpireDate { get; set; }
         public List<int>? Groups { get; set; }
         public List<GroupInfo>? GroupsInfo { get; set; }
+        public MajorCategoryDTO? MajorCategory { get; set; }
+
     }
 }

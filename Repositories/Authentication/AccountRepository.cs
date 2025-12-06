@@ -1,5 +1,7 @@
 ﻿using DataTranferObjects.Login;
+using DataTranferObjects.Staff.Major;
 using Entities.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 
 namespace Repositories.Authentication
@@ -41,7 +42,8 @@ namespace Repositories.Authentication
         {
             int? currentSemesterId = null;
 
-            if (!string.IsNullOrWhiteSpace(info.SemesterId) && int.TryParse(info.SemesterId, out int semesterIdValue))
+            if (!string.IsNullOrWhiteSpace(info.SemesterId) &&
+                int.TryParse(info.SemesterId, out int semesterIdValue))
             {
                 currentSemesterId = semesterIdValue;
             }
@@ -51,10 +53,14 @@ namespace Repositories.Authentication
                 .Include(a => a.User)
                     .ThenInclude(u => u.Campus)
                 .Include(a => a.User)
-                   .ThenInclude(u => u.GroupUsers)
+                    .ThenInclude(u => u.GroupUsers)
                         .ThenInclude(gu => gu.Group)
-                            .ThenInclude(sem => sem.Semester)
-                .FirstOrDefaultAsync(a => a.Id == int.Parse(info.UserId));
+                            .ThenInclude(g => g.Semester)
+                .Include(a => a.User)
+                    .ThenInclude(u => u.GroupUsers)
+                        .ThenInclude(gu => gu.Group)
+                            .ThenInclude(g => g.Major)   
+                .FirstOrDefaultAsync(a => a.Id == Convert.ToInt32(info.UserId));
 
             if (account == null)
                 return null;
@@ -63,43 +69,32 @@ namespace Repositories.Authentication
             if (user == null)
                 return null;
 
-            var groupIds = new List<int>();
-
-            if (currentSemesterId.HasValue)
-            {
-                groupIds = user.GroupUsers
+            // Lấy tất cả groupId theo semester hoặc lấy hết
+            var groupIds = currentSemesterId.HasValue
+                ? user.GroupUsers
                     .Where(gu => gu.Group != null && gu.Group.SemesterId == currentSemesterId.Value)
                     .Select(gu => gu.GroupId)
-                    .ToList();
-            }
-            else
-            {
-                groupIds = user.GroupUsers
+                    .ToList()
+                : user.GroupUsers
                     .Select(gu => gu.GroupId)
                     .ToList();
-            }
 
+            // Lấy semesterId đầu tiên user tham gia
             var semesterId = user.GroupUsers
-                    .Where(gu => gu.Group != null)
-                    .Select(gu => gu.Group.SemesterId)
-                    .FirstOrDefault();
+                .Where(gu => gu.Group != null)
+                .Select(gu => gu.Group.SemesterId)
+                .FirstOrDefault();
 
-            GroupUser? groupUser = null;
-
-            if (currentSemesterId.HasValue)
-            {
-                groupUser = user.GroupUsers
+            // Lấy groupUser theo semester hiện tại nếu có
+            GroupUser? groupUser = currentSemesterId.HasValue
+                ? user.GroupUsers
                     .Where(gu => gu.Group != null && gu.Group.SemesterId == currentSemesterId.Value)
-                    .FirstOrDefault();
-            }
-            else
-            {
-                groupUser = user.GroupUsers.FirstOrDefault();
-            }
+                    .FirstOrDefault()
+                : user.GroupUsers.FirstOrDefault();
 
             var roleInGroup = groupUser?.Role;
 
-            // lay group
+            // ⭐ Build GroupInfo list — full include MajorCategory
             var groups = user.GroupUsers
                 .Where(gu => gu.Group != null)
                 .Select(gu => new GroupInfo
@@ -108,15 +103,25 @@ namespace Repositories.Authentication
                     Name = gu.Group.Name,
                     Code = gu.Group.Code,
                     IsExpired = CheckNow(gu.Group.ExpireDate),
-                    SemesterId = (int)gu.Group.SemesterId,
-                    SesesterName = gu.Group.Semester != null ? gu.Group.Semester.Name : string.Empty
+                    SemesterId = gu.Group.SemesterId ?? 0,
+                    SesesterName = gu.Group.Semester?.Name ?? string.Empty,
+
+                    // ⭐⭐ Major của từng Group
+                    MajorCategory = gu.Group.Major != null
+                        ? new MajorCategoryDTO
+                        {
+                            Id = gu.Group.Major.Id,
+                            Code = gu.Group.Major.Code,
+                            Name = gu.Group.Major.Name
+                        }
+                        : null
                 })
                 .ToList();
 
             return new UserInfo
             {
                 Id = user.Id,
-                SemesterId = semesterId,
+                SemesterId = currentSemesterId ?? semesterId,
                 Name = user.Fullname,
                 Email = user.Mail,
                 RollNumber = user.RollNumber,
@@ -125,7 +130,18 @@ namespace Repositories.Authentication
                 RoleInGroup = roleInGroup,
                 CampusId = user.CampusId,
                 Groups = groupIds.Any() ? groupIds : new List<int>(),
-                GroupsInfo = groups
+                GroupsInfo = groups,
+
+                MajorCategory = groupUser?.Group?.Major != null
+                    ? new MajorCategoryDTO
+                    {
+                        Id = groupUser.Group.Major.Id,
+                        Code = groupUser.Group.Major.Code,
+                        Name = groupUser.Group.Major.Name,
+                        IsActive = groupUser.Group.Major.IsActive,
+                        Size = groupUser.Group.Major.Size
+                    }
+                    : null
             };
         }
 
