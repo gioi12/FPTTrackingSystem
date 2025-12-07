@@ -89,6 +89,11 @@ namespace Repositories.Staff.Implements
         {
             _context.Campuses.Remove(campus);
         }
+        public async Task<bool> IsNameExistAsync(string name)
+        {
+            return await _context.Campuses
+                .AnyAsync(c => c.Name!.ToLower() == name.ToLower());
+        }
 
     }
 }

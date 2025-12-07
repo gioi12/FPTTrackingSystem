@@ -24,5 +24,6 @@ namespace Repositories.Staff.Interfaces
         System.Threading.Tasks.Task SaveChangesAsync();
 
         System.Threading.Tasks.Task DeleteAsync(Campus campus);
+        Task<bool> IsNameExistAsync(string name);
     }
 }

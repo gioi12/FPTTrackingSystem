@@ -77,27 +77,35 @@ namespace FPTTrackingSystem.Services.Staff.Implements
             return ApiResponse<string>.Success($"Slot {statusText} successfully.");
         }
 
-        public async Task<Campus> CreateCampusAsync(CreateCampusDto dto)
+        public async Task<ApiResponse<object>> CreateCampusAsync(CreateCampusDto dto)
         {
+            if (await _campusRepository.IsNameExistAsync(dto.Name))
+            {
+                return ApiResponse<object>.Fail("Campus name already exists.");
+            }
+
             var campus = new Campus
             {
-                Name = dto.Name,
+                Name = dto.Name
             };
 
-            return await _campusRepository.AddCampusAsync(campus);
+            await _campusRepository.AddCampusAsync(campus);
+            await _campusRepository.SaveChangesAsync();
+
+            return ApiResponse<object>.Success(campus, "Create Campus Success", 201);
         }
 
-        public async Task<Campus> UpdateCampusAsync(int id, UpdateCampusDto dto)
+        public async Task<ApiResponse<object>> UpdateCampusAsync(int id, UpdateCampusDto dto)
         {
             var campus = await _campusRepository.GetCampusByIdAsync(id);
 
             if (campus == null)
-                throw new KeyNotFoundException("Campus not found");
+                return ApiResponse<object>.Fail("Campus not found", 400);
 
             campus.Name = dto.Name;
-
             await _campusRepository.UpdateCampusAsync(campus);
-            return campus;
+
+            return ApiResponse<object>.Success(campus, "Update successful", 201);
         }
 
         public async Task<ApiResponse<List<SlotCampusDto>>> CreateSlotsAsync(
