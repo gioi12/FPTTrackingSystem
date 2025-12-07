@@ -12,6 +12,7 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         Task<ApiResponse<string>> UpdateIsActiveAsync(int campusId, int slotId, bool isActive);
         Task<Campus> CreateCampusAsync(CreateCampusDto dto);
         Task<Campus> UpdateCampusAsync(int id, UpdateCampusDto dto);
+        Task<ApiResponse<object>> DeleteCampusAsync(int id);
         Task<ApiResponse<List<SlotCampusDto>>> CreateSlotsAsync(int campusId,List<SlotCreateDto> slots,string? userRole);
     }
 }

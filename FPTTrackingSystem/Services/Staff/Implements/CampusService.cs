@@ -190,5 +190,26 @@ namespace FPTTrackingSystem.Services.Staff.Implements
                 $"Created {response.Count} new slot(s) successfully."
             );
         }
+
+        public async Task<ApiResponse<object>> DeleteCampusAsync(int id)
+        {
+            // Load campus + slots
+            var campus = await _campusRepository.GetCampusWithSlotsAsync(id);
+
+            if (campus == null)
+                return ApiResponse<object>.Fail("Campus not found.");
+
+            // Check active slots
+            bool hasActiveSlot = campus.Slots.Any(s => s.IsActive == true);
+
+            if (hasActiveSlot)
+                return ApiResponse<object>.Fail("Campus is active and cannot be deleted.");
+
+            // Delete campus
+            await _campusRepository.DeleteAsync(campus);
+            await _campusRepository.SaveChangesAsync();
+
+            return ApiResponse<object>.Success(null, "Campus deleted successfully.");
+        }
     }
 }

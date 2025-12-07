@@ -22,5 +22,7 @@ namespace Repositories.Staff.Interfaces
         Task<Campus?> GetCampusWithSlotsAsync(int campusId);
         System.Threading.Tasks.Task AddSlotsAsync(List<Slot> slots);
         System.Threading.Tasks.Task SaveChangesAsync();
+
+        System.Threading.Tasks.Task DeleteAsync(Campus campus);
     }
 }

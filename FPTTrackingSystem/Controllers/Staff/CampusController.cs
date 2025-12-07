@@ -44,6 +44,14 @@ namespace FPTTrackingSystem.Controllers.Staff
             var campus = await _campusService.UpdateCampusAsync(id, dto);
             return Ok(campus);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCampus(int id)
+        {
+            var result = await _campusService.DeleteCampusAsync(id);
+            return result.Status == 200 ? Ok(result) : BadRequest(result);
+        }
+
         /*
                 [HttpGet("ById/{campusId}")]
                 public async Task<IActionResult> GetCampusByIdAsync(int campusId)

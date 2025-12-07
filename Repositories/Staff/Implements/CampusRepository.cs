@@ -85,6 +85,10 @@ namespace Repositories.Staff.Implements
         {
             await _context.SaveChangesAsync();
         }
+        public async System.Threading.Tasks.Task DeleteAsync(Campus campus)
+        {
+            _context.Campuses.Remove(campus);
+        }
 
     }
 }
