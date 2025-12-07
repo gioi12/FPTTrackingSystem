@@ -26,7 +26,6 @@ namespace DataTranferObjects.Staff.Campus
     public class UpdateCampusDto
     {
         public string Name { get; set; } = null!;
-        public bool IsActive { get; set; }
     }
 
 

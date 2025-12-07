@@ -82,7 +82,6 @@ namespace FPTTrackingSystem.Services.Staff.Implements
             var campus = new Campus
             {
                 Name = dto.Name,
-                IsActive = true
             };
 
             return await _campusRepository.AddCampusAsync(campus);
@@ -96,7 +95,6 @@ namespace FPTTrackingSystem.Services.Staff.Implements
                 throw new KeyNotFoundException("Campus not found");
 
             campus.Name = dto.Name;
-            campus.IsActive = dto.IsActive;
 
             await _campusRepository.UpdateCampusAsync(campus);
             return campus;

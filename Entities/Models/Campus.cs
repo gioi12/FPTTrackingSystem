@@ -9,8 +9,6 @@ public partial class Campus
 
     public string? Name { get; set; }
 
-    public bool? IsActive { get; set; }
-
     public virtual ICollection<Slot> Slots { get; set; } = new List<Slot>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();

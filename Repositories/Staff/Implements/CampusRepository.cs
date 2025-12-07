@@ -20,8 +20,7 @@ namespace Repositories.Staff.Implements
         }
         public async Task<IEnumerable<Campus>> GetAllCampusesAsync()
         {
-            return await _context.Campuses.Where(c => c.IsActive == true)
-/*                                 .Include(c => c.Slots)*/
+            return await _context.Campuses
                                  .ToListAsync();
         }
 
