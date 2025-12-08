@@ -1,0 +1,45 @@
+diff a/FPTTrackingSystem/Services/Staff/Implements/MajorService.cs b/FPTTrackingSystem/Services/Staff/Implements/MajorService.cs	(rejected hunks)
+@@ -1,8 +1,10 @@
+-﻿using DataTranferObjects.Staff.Major;
++﻿using DataTranferObjects.Staff.Group;
++using DataTranferObjects.Staff.Major;
+ using DataTranferObjects.Staff.Response;
+ using Entities.Models;
+ using FPTTrackingSystem.Services.Staff.Interfaces;
+ using FPTTrackingSystem.Wrappers;
++using iText.Kernel.Geom;
+ using Repositories.Staff.Interfaces;
+ 
+ namespace FPTTrackingSystem.Services.Staff.Implementations
+@@ -53,18 +55,22 @@
+             return result;
+         }
+ 
+-        public async Task<List<MajorCategoryDTO>> GetAllCoursesAsync()
++        public async Task<PagedData<MajorCategoryDTO>> GetAllCoursesPagedAsync(int page, int pageSize)
+         {
+-            var entities = await _majorRepository.getAllCourse();
++            var data = await _majorRepository.GetAllCoursePagedAsync(page, pageSize);
+ 
+-            return entities.Select(c => new MajorCategoryDTO
++            return new PagedData<MajorCategoryDTO>
+             {
+-                Id = c.Id,
+-                Code = c.Code,
+-                Name = c.Name,
+-                IsActive = c.IsActive,
+-                Size = c.Size  
+-            }).ToList();
++                Items = data.Items.Select(c => new MajorCategoryDTO
++                {
++                    Id = c.Id,
++                    Code = c.Code,
++                    Name = c.Name,
++                    IsActive = c.IsActive,
++                    Size = c.Size
++                }).ToList(),
++                Total = data.Total
++            };
+         }
+ 
+         public async Task<MajorCategoryDTO?> GetByIdAsync(int id)
