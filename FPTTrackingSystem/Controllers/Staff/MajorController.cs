@@ -19,30 +19,6 @@ namespace FPTTrackingSystem.Controllers.Staff
             _majorService = majorService;
         }
 
-        /*        [HttpGet("GetMajors")]  
-                public async Task<IActionResult> GetAll()
-                {
-                    var response = await _majorService.GetAllMajors();
-                    return StatusCode(response.Status, response);
-                }
-
-                [HttpGet("getAllCodeCourseInMajor")]
-                public async Task<IActionResult> GetAllMajorsWithCategories()
-                {
-                    try
-                    {
-                        var majors = await _majorService.GetAllMajorAndCategoriesAsync();
-
-                        if (majors == null || majors.Count == 0)
-                            return NotFound(ApiResponse<object>.Fail("Không có dữ liệu chuyên ngành nào."));
-
-                        return Ok(ApiResponse<List<MajorDTO>>.Success(majors, "Lấy danh sách chuyên ngành thành công."));
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(ApiResponse<object>.Fail($"Lỗi: {ex.Message}"));
-                    }
-                }*/
         [HttpGet("getAllCodeCourseV2")]
         public async Task<IActionResult> GetAllMajorsCategories(int page = 1, int pageSize = 10)
         {
