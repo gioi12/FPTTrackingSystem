@@ -63,7 +63,7 @@ namespace Repositories.Staff.Implements
             if (string.IsNullOrWhiteSpace(code))
                 return null;
 
-            return await _context.MajorCategories
+            return await _context.MajorCategories.AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Code.ToLower().Trim() == code.ToLower().Trim());
         }
 
