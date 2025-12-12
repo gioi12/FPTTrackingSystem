@@ -75,7 +75,6 @@ namespace FPTTrackingSystem.Helper
         new Account { Username = "user5@fpt.edu.vn", Password = "123456", RoleId = 1, User = new User { RollNumber = "SE140005", Fullname = "Nguyen Thi Mai", Dob = new DateOnly(2000,5,1), Gender = true, Mail = "cuonghvhe176362@fpt.edu.vn", Phone="0909000005", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
         new Account { Username = "user6@fpt.edu.vn", Password = "123456", RoleId = 1, User = new User { RollNumber = "SE140006", Fullname = "Le Van Cuong", Dob = new DateOnly(2000,6,1), Gender = true, Mail = "user6@fpt.edu.vn", Phone="0909000006", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
 
-        // Semester 1 mentor
         new Account { Username = "lampt2@gmail.com", Password = "123456", RoleId = 2, User = new User { RollNumber="ME01", Fullname="Mentor Phan Truong Lam", Dob=new DateOnly(1995,6,1), Gender=true, MajorId=1, CampusId=1, Mail="lampt2@gmail.com", Phone="0909123456", Address="Ha Noi", StatusId="ACTIVE"} },
 
         // Semester 2 students
