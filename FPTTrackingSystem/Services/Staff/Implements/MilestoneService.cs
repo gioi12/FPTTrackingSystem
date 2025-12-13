@@ -29,62 +29,77 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             _semesterRepository = semesterRepository;
         }
 
-        public async Task<ApiResponse<List<MilestoneResponse>>> CreateMilestoneInSemester(List<MilestoneCreateRequest> request)
+        public async Task<ApiResponse<List<MilestoneResponse>>> CreateMilestoneInSemester(
+          List<MilestoneCreateRequest> request)
         {
-            var user = await _authUtils.GetUserInfoFromCookie();
-            int majorCateId = request.FirstOrDefault().MajorCateId;
-            var semester = await _semesterRepository.findActive();
-            var milestones = request.Select(x => new Milestone
+            var user = await _authUtils.GetUserInfoFromCookie()
+                ?? throw new Exception("User not found");
+
+            var activeSemester = await _semesterRepository.findActive();
+
+            var milestones = request.Select(r => new Milestone
             {
-                Name = x.Name,
-                Description = x.Description,
-                MajorId = x.MajorCateId,
+                Name = r.Name,
+                Description = r.Description,
+                MajorId = r.MajorCateId,
                 CreateAt = DateTime.Now,
                 CreateBy = user.Id,
                 IsActive = true,
-                Deliverables = semester != null ? new List<Deliverable>
+                Deliverables = new List<Deliverable>()
+            }).ToList();
+
+            if (activeSemester != null)
+            {
+                foreach (var m in milestones)
                 {
-                    new Deliverable
+                    m.Deliverables.Add(new Deliverable
                     {
-                        Name = x.Name,
-                        Description = x.Description,
-                        SemesterId = semester.Id,
-                        IsActive = true,
-                        MajorId = x.MajorCateId
-                    }
-                } : new List<Deliverable>()
-            }).ToList();
-    
-            var list = await _milestoneRepository.NewMilestontes(milestones, majorCateId);
-            var logs = milestones.Select(x => new Log
-            {
-                Name = "Thêm milestone " + x.Name,
-                EntityName = "Milestone",
-                EntityId = x.Id,
-                Action = StringEnum.Create,
-                Description = x.Description,
-                UserId = (int)user.Id,
-                CreateAt = DateTime.Now
-            }).ToList();
-            if(semester != null)
-            {
-                var delilogs = milestones
-              .SelectMany(m => m.Deliverables.Select(d => new Log
-              {
-                  Name = "Thêm Deliverable " + d.Name,
-                  EntityName = "Deliverable",
-                  EntityId = d.Id,
-                  Action = StringEnum.Create,
-                  Description = d.Description,
-                  UserId = (int)user.Id,
-                  CreateAt = DateTime.Now
-              }))
-              .ToList();
-                logs.AddRange(delilogs);
+                        Name = m.Name,
+                        Description = m.Description,
+                        SemesterId = activeSemester.Id,
+                        MajorId = m.MajorId,
+                        IsActive = true
+                    });
+                }
             }
-            // gop 2 list
+
+            var createdMilestones =
+                await _milestoneRepository.NewMilestontes(milestones, request.First().MajorCateId);
+
+            var logs = new List<Log>();
+            foreach (var m in createdMilestones)
+            {
+                logs.Add(new Log
+                {
+                    EntityName = "Milestone",
+                    EntityId = m.Id,
+                    Action = "Create",
+                    UserId = user.Id ?? 0,
+                    CreateAt = DateTime.Now
+                });
+
+                foreach (var d in m.Deliverables)
+                {
+                    logs.Add(new Log
+                    {
+                        EntityName = "Deliverable",
+                        EntityId = d.Id,
+                        Action = "Create",
+                        UserId = user.Id ?? 0,
+                        CreateAt = DateTime.Now
+                    });
+                }
+            }
+
             await _logService.AddRangeLogAsync(logs);
-            var response = list.Adapt<List<MilestoneResponse>>();
+
+            // 🔥 MAP THỦ CÔNG
+            var response = createdMilestones.Select(m => new MilestoneResponse
+            {
+                Id = m.Id,
+                Name = m.Name,
+                Description = m.Description,
+            }).ToList();
 
             return ApiResponse<List<MilestoneResponse>>.Success(response);
         }

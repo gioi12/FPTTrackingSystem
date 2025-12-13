@@ -20,7 +20,7 @@ namespace FPTTrackingSystem.Utilities
             _jwtService = jwtService;
         }
 
-        public Task<UserInfo?> GetUserInfoFromCookie()
+        public virtual Task<UserInfo?> GetUserInfoFromCookie()
         {
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext == null) throw new Exception("No context in read cookie");
