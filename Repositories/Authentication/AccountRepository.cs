@@ -3,6 +3,8 @@ using DataTranferObjects.Staff.Major;
 using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Repositories.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,11 +28,18 @@ namespace Repositories.Authentication
 
         public async Task<Account?> LoginAsync(LoginDTO req)
         {
-            return await _context.Accounts
-                .Include(x=>x.Role)
-                .FirstOrDefaultAsync(x => x.Username == req.UserName && x.Password == req.Password);
-        }
+            var account = await _context.Accounts
+                .Include(x => x.Role)
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.Username == req.UserName);
 
+            if (account == null) return null;
+
+            if (!PasswordHelper.VerifyPassword(req.Password, account.Password))
+                return null;
+
+            return account;
+        }
         public async Task<List<Account>> GetAllAsync(Expression<Func<Account, bool>> predicate)
         {
             return await _context.Accounts.Include(u => u.User).Where(predicate).ToListAsync();
@@ -60,7 +69,7 @@ namespace Repositories.Authentication
                     .ThenInclude(u => u.GroupUsers)
                         .ThenInclude(gu => gu.Group)
                             .ThenInclude(g => g.Major)   
-                .FirstOrDefaultAsync(a => a.Id == Convert.ToInt32(info.UserId));
+                .FirstOrDefaultAsync(a => a.User.Id == Convert.ToInt32(info.UserId));
 
             if (account == null)
                 return null;
@@ -154,7 +163,13 @@ namespace Repositories.Authentication
         {
             if (accounts == null || accounts.Count == 0)
                 throw new Exception("Account list cannot be null or empty");
-
+            foreach (var account in accounts)
+            {
+                if (!string.IsNullOrEmpty(account.Password))
+                {
+                    account.Password = PasswordHelper.HashPassword(account.Password);
+                }
+            }
             await _context.Accounts.AddRangeAsync(accounts);
             await _context.SaveChangesAsync();
 
@@ -201,5 +216,7 @@ namespace Repositories.Authentication
             }
             return false;
         }
+
+
     }
 }

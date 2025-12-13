@@ -53,6 +53,8 @@ public partial class FpttrackingSystemContext : DbContext
 
     public virtual DbSet<PenatyCard> PenatyCards { get; set; }
 
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Semester> Semesters { get; set; }
@@ -621,6 +623,32 @@ public partial class FpttrackingSystemContext : DbContext
                 .HasConstraintName("FK_Penaty_Card_User");
         });
 
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.ToTable("RefreshToken");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("create_at");
+            entity.Property(e => e.Device)
+                .HasMaxLength(100)
+                .HasColumnName("device");
+            entity.Property(e => e.ExpireAt)
+                .HasColumnType("datetime")
+                .HasColumnName("expire_at");
+            entity.Property(e => e.IpAddress)
+                .HasMaxLength(50)
+                .HasColumnName("ip_address");
+            entity.Property(e => e.IsRevoked).HasColumnName("is_revoked");
+            entity.Property(e => e.Token).HasColumnName("token");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_RefreshToken_User");
+        });
+
         modelBuilder.Entity<Role>(entity =>
         {
             entity.ToTable("Role");
@@ -805,7 +833,9 @@ public partial class FpttrackingSystemContext : DbContext
         {
             entity.ToTable("User");
 
-            entity.HasIndex(e => e.AccountId, "IX_User").IsUnique();
+            entity.HasIndex(e => e.AccountId, "IX_User")
+                .IsUnique()
+                .HasFilter("([account_id] IS NOT NULL)");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AccountId).HasColumnName("account_id");

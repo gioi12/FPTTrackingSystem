@@ -8,5 +8,6 @@ namespace FPTTrackingSystem.Services.Login
     {
         Task<string> LoginAsync(LoginDTO req);
         Task<UserInfo?> GetUserInfo(SemesterInfo info);
+        Task<Account> GetUser(LoginDTO req);
     }
 }

@@ -57,6 +57,8 @@ public partial class User
 
     public virtual ICollection<PenatyCard> PenatyCards { get; set; } = new List<PenatyCard>();
 
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
     public virtual Status? Status { get; set; }
 
     public virtual ICollection<TaskUser> TaskUsers { get; set; } = new List<TaskUser>();

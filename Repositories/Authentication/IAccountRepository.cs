@@ -14,6 +14,8 @@ namespace Repositories.Authentication
     public interface IAccountRepository
     {
         public Task<Account?> LoginAsync(LoginDTO loginDto);
+
+
         public Task<UserInfo?> UserInfo(SemesterInfo info);
         Task<Semester?> GetSemesterByNow();
         Task<List<Account>> GetAllAsync(Expression<Func<Account, bool>> predicate);

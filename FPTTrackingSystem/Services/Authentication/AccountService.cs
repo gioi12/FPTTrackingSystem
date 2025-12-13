@@ -33,7 +33,7 @@ namespace FPTTrackingSystem.Services.Authentication
             var seName = semester?.Name ?? "No Active Semester";
             var startAt = semester?.StartAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
             var endAt = semester?.EndAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
-            string token = _jwtService.GenerateToken(acc.Id.ToString(), acc.Role.Name,seId,seName,startAt,endAt);
+            string token = _jwtService.GenerateToken(acc.User.Id.ToString(), acc.Role.Name,seId,seName,startAt,endAt);
             return token;
         }
 
@@ -41,6 +41,15 @@ namespace FPTTrackingSystem.Services.Authentication
         public Task<UserInfo?> GetUserInfo(SemesterInfo info)
         {
             return _accountRepository.UserInfo(info);
+        }
+
+        public async Task<Account> GetUser(LoginDTO req)
+        {
+            var account = await _accountRepository.LoginAsync(req);
+            if (account == null)
+                throw new ValidationException("Invalid username or password");
+
+            return account;
         }
     }
 }

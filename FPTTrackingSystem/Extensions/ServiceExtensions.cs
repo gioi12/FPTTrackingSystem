@@ -51,6 +51,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IMailRepository,MailRepository>();
             services.AddScoped<IAISettingsRepository, AISettingsRepository>();
             services.AddSingleton<IAISettingsCache, AISettingsCache>();
+            services.AddScoped<IRTRepository, RTRepository>();
             return services;
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
@@ -74,7 +75,7 @@ namespace FPTTrackingSystem.Extensions
             services.AddScoped<IStorageService, StorageService>();
             services.AddScoped<IAIService, AIService>();
             services.AddScoped<IGeminiService, GeminiService>();
-
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             return services;
         }
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)
