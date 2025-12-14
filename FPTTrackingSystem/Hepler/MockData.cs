@@ -294,51 +294,7 @@ namespace FPTTrackingSystem.Helper
             "Software Engineering",
             GetStudents(21,25),
             "ME04"
-        ), CreateGroup(
-        "G11",
-        "FPT Tracking System",
-        "Hệ thống theo dõi FPT",
-        "Software Engineering",
-        GetStudents(1,5),
-        "ME01"
-    ),
-
-    CreateGroup(
-        "G12",
-        "Smart Course Booking",
-        "Hệ thống đăng ký môn học thông minh",
-        "Software Engineering",
-        GetStudents(6,10),
-        "ME01"
-    ),
-
-    CreateGroup(
-        "G13",
-        "AI Student Progress Monitor",
-        "Theo dõi tiến độ sinh viên bằng AI",
-        "AI Development",
-        GetStudents(11,15),
-        "ME02"
-    ),
-
-    CreateGroup(
-        "G14",
-        "Campus Event Management System",
-        "Quản lý sự kiện trong campus",
-        "Software Engineering",
-        GetStudents(16,20),
-        "ME03"
-    ),
-
-    CreateGroup(
-        "G15",
-        "Internship Matching Platform",
-        "Nền tảng kết nối thực tập",
-        "Software Engineering",
-        GetStudents(21,25),
-        "ME04"
-    ),
-
+        ),
     CreateGroup(
         "G16",
         "Smart Attendance System",
