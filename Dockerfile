@@ -32,25 +32,36 @@ RUN dotnet publish "FPTTrackingSystem.csproj" -c Release -o /app/publish /p:UseA
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
+# Install curl for healthcheck
+USER root
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+
 # Create a non-root user for security
-RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /app
+RUN adduser --disabled-password --gecos "" appuser && \
+    chown -R appuser:appuser /app
 USER appuser
 
 # Copy published files from build stage
 COPY --from=publish /app/publish .
 
-# Expose port (default ASP.NET Core port)
-EXPOSE 8080
-EXPOSE 8081
+# Expose HTTPS port as configured in appsettings.json
+EXPOSE 5000
 
 # Set environment variables
-ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=https://+:5000
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+# Environment variables for RabbitMQ (can be overridden in docker-compose)
+ENV RabbitMQ__HostName=rabbitmq
+ENV RabbitMQ__UserName=guest
+ENV RabbitMQ__Password=guest
+ENV RabbitMQ__QueueName=mail_queue
+
+# Health check (skip SSL verification for self-signed cert)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD curl -k -f https://localhost:5000/health || exit 1
 
 # Entry point
 ENTRYPOINT ["dotnet", "FPTTrackingSystem.dll"]
