@@ -1,0 +1,70 @@
+# ============================================
+# Docker Compose for FPTTrackingSystem
+# ============================================
+
+version: '3.8'
+
+services:
+  # Main API Application
+  fpt-tracking-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fpt-tracking-api
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      # Database connection string (update with your actual values)
+      # - ConnectionStrings__DefaultConnection=Server=db;Database=FPTTrackingDB;User=sa;Password=YourPassword123!;TrustServerCertificate=True
+    volumes:
+      - app-data:/app/wwwroot
+    networks:
+      - fpt-network
+    restart: unless-stopped
+    # depends_on:
+    #   - db
+    #   - rabbitmq
+
+  # SQL Server Database (Optional - uncomment if needed)
+  # db:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   container_name: fpt-tracking-db
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #     - SA_PASSWORD=YourPassword123!
+  #     - MSSQL_PID=Express
+  #   ports:
+  #     - "1433:1433"
+  #   volumes:
+  #     - db-data:/var/opt/mssql
+  #   networks:
+  #     - fpt-network
+  #   restart: unless-stopped
+
+  # RabbitMQ (Optional - uncomment if needed for messaging)
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   container_name: fpt-tracking-rabbitmq
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+  #   environment:
+  #     - RABBITMQ_DEFAULT_USER=guest
+  #     - RABBITMQ_DEFAULT_PASS=guest
+  #   volumes:
+  #     - rabbitmq-data:/var/lib/rabbitmq
+  #   networks:
+  #     - fpt-network
+  #   restart: unless-stopped
+
+networks:
+  fpt-network:
+    driver: bridge
+
+volumes:
+  app-data:
+  # db-data:
+  # rabbitmq-data:

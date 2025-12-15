@@ -16,11 +16,11 @@ namespace Repositories.Staff.Implements
             _context = context;
         }
 
-        public async Task<List<Deliverable>> GetByCodeAndSemester(int code, int semesterId)
+        public async Task<List<Deliverable>> GetByCodeAndSemesterGroup(int code, int semesterId,int groupId)
         {
            var list = await _context.Deliverables.Include(x=>x.DeliveryItems)
                 .Include(x=>x.DeliverableGroups)
-                .Where(x=>x.MajorId == code && x.SemesterId == semesterId && x.IsActive == true)
+                .Where(x=>x.MajorId == code && x.SemesterId == semesterId && x.IsActive == true && x.DeliverableGroups.Any(dg => dg.GroupId == groupId))
                 .ToListAsync();
             return list;
         }
@@ -58,5 +58,13 @@ namespace Repositories.Staff.Implements
                 .ToListAsync();
         }
 
+        public async Task<List<Deliverable>> GetByCodeAndSemester(int code, int semesterId)
+        {
+            var list = await _context.Deliverables.Include(x => x.DeliveryItems)
+               .Include(x => x.DeliverableGroups)
+               .Where(x => x.MajorId == code && x.SemesterId == semesterId && x.IsActive == true)
+               .ToListAsync();
+            return list;
+        }
     }
 }

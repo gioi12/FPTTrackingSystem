@@ -54,7 +54,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var group = await _groupRepository.GetByIdAsync(groupId);
             if (group == null) throw new ValidationException("Not found group");
             if(!group.GroupUsers.Any(x=>x.UserId == user.Id)) throw new ValidationException("Not permission");
-            var list = await _deliverableRepository.GetByCodeAndSemester((int)group.MajorId, (int)group.SemesterId);
+            var list = await _deliverableRepository.GetByCodeAndSemesterGroup((int)group.MajorId, (int)group.SemesterId,groupId);
             var semester = await _semesterRepository.GetSemesterByIdAsync((int)group.SemesterId);
             var res = list.Adapt<List<GroupDeliverableRes>>();
             var holidays = semester.SemesterVacations
