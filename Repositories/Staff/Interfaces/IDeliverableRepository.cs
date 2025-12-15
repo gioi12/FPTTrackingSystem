@@ -13,7 +13,7 @@ namespace Repositories.Staff.Interfaces
         System.Threading.Tasks.Task UpdateDeliverable(Deliverable delivery);
 
         Task<List<Deliverable>> GetByCodeAndSemesterGroup(int code,int semesterId,int groupId);
-        Task<List<Deliverable>> GetByCodeAndSemester(int code, int semesterId, int groupId);
+        Task<List<Deliverable>> GetByCodeAndSemester(int code, int semesterId);
 
         Task<Deliverable?> GetById(int id);
 
