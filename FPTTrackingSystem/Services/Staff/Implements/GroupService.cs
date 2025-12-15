@@ -867,11 +867,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 {
                     // Đã có → update thông tin account nếu cần
                     bool isAccountUpdated = false;
-                    if (existingAccount.Password != account.Password)
+/*                    if (existingAccount.Password != account.Password)
                     {
                         existingAccount.Password = account.Password;
                         isAccountUpdated = true;
-                    }
+                    }*/
                     if (existingAccount.RoleId != account.RoleId)
                     {
                         existingAccount.RoleId = account.RoleId;
