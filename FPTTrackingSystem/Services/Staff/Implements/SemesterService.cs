@@ -445,7 +445,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 semester.StartAt = startAt;
                 semester.EndAt = endAt;
                 semester.Description = mockSemester.Description;
-                semester.IsActive = true;
+                /*semester.IsActive = true;*/
 
                 _context.SemesterWeeks.RemoveRange(semester.SemesterWeeks);
 

@@ -294,8 +294,7 @@ namespace FPTTrackingSystem.Helper
             "Software Engineering",
             GetStudents(21,25),
             "ME04"
-        ),
-    CreateGroup(
+        ), CreateGroup(
         "G16",
         "Smart Attendance System",
         "Hệ thống điểm danh thông minh",
@@ -303,7 +302,6 @@ namespace FPTTrackingSystem.Helper
         GetStudents(26,30),
         "ME05"
     ),
-
     CreateGroup(
         "G17",
         "AI Career Recommendation",
