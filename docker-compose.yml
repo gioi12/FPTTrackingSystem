@@ -13,15 +13,25 @@ services:
       - ConnectionStrings__DefaultConnection=Server=host.docker.internal,1433;Database=FPTTrackingSystem;User Id=sa;Password=StrongP@ssw0rd!;TrustServerCertificate=True;MultipleActiveResultSets=True
     volumes:
       - ./wwwroot/uploads:/app/wwwroot/uploads
-    # SQL Server và RabbitMQ đã được build riêng
-    # Kết nối qua host.docker.internal hoặc IP của host
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
     networks:
       - fpt-tracking-network
 
+  nginx:
+    image: nginx:alpine
+    container_name: fpt-tracking-nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - backend
+    networks:
+      - fpt-tracking-network
+
 networks:
   fpt-tracking-network:
     driver: bridge
-
