@@ -71,16 +71,19 @@ using (var scope = app.Services.CreateScope())
     await aiCache.ReloadAsync();
 }
 app.UseCors("AllowFE");
+app.UseStaticFiles();
 app.UseFileFallback(env.WebRootPath);
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(Path.Combine(env.WebRootPath, "uploads")),
-    RequestPath = "/uploads",
-    OnPrepareResponse = ctx =>
-    {
-        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-    }
-});
+
+
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(Path.Combine(env.WebRootPath, "uploads")),
+//    RequestPath = "/uploads",
+//    OnPrepareResponse = ctx =>
+//    {
+//        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+//    }
+//});
 
 
 // xoa sau khi deploy
