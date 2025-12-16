@@ -56,17 +56,16 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if(!group.GroupUsers.Any(x=>x.UserId == user.Id)) throw new ValidationException("Not permission");
             var list = await _deliverableRepository.GetByCodeAndSemesterGroup((int)group.MajorId, (int)group.SemesterId,groupId);
             var semester = await _semesterRepository.GetSemesterByIdAsync((int)group.SemesterId);
-            var res = list.Adapt<List<GroupDeliverableRes>>();
             var holidays = semester.SemesterVacations
                 .Where(x => x.StartAt.HasValue && x.EndAt.HasValue)
                 .Select(x => (x.StartAt.Value, x.EndAt.Value))
                 .ToList();
-            foreach (var item in res)
+            foreach (var item in list)
             {
                 item.StartAt = semester.StartAt;
                 item.EndAt = item.Deadline != null ? DateTimeUtils.GetTargetDate(item.Deadline, (DateTime)semester.StartAt, holidays) : null;
             }
-            return res;
+            return list;
         }
 
         public async Task<string> UploadFileMilestoneItem([Required]IFormFile file,int groupId,int deliveryItemId,string semester)

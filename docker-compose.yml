@@ -12,21 +12,42 @@ services:
       dockerfile: Dockerfile
     container_name: fpt-tracking-api
     ports:
-      - "8080:8080"
-      - "8081:8081"
+      - "5000:5000"  # HTTPS port
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:8080
-      # Database connection string (update with your actual values)
-      # - ConnectionStrings__DefaultConnection=Server=db;Database=FPTTrackingDB;User=sa;Password=YourPassword123!;TrustServerCertificate=True
+      - ASPNETCORE_URLS=http://+:5000
+      
+      # Database connection string - External SQL Server
+      - ConnectionStrings__DefaultConnection=Server=160.30.21.113;Database=FPTTrackingSystem;User Id=sa;Password=ak47;TrustServerCertificate=True
+      
+      # JWT Settings
+      - JwtSettings__SecretKey=mat-khau-sieu-manh-cua-gioi-doan
+      - JwtSettings__Issuer=FPTTrackingSystem
+      - JwtSettings__Audience=FPTTrackingUsers
+      - JwtSettings__ExpiryMinutes=60
+      
+      # Mail Settings
+      - MailSettings__Mail=gioidmhe171512@fpt.edu.vn
+      - MailSettings__DisplayName=FPTTrackingSystem
+      - MailSettings__Password=tbgk hauq ffqm zrtf
+      - MailSettings__Host=smtp.gmail.com
+      - MailSettings__Port=587
+      
+      # RabbitMQ Settings (if using external RabbitMQ, update hostname)
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+      - RabbitMQ__QueueName=mail_queue
+      
     volumes:
       - app-data:/app/wwwroot
+      # Mount certificate if you have one (optional for now)
+      # - ./certs/myappcert.pfx:/app/certs/myappcert.pfx:ro
     networks:
       - fpt-network
     restart: unless-stopped
-    # depends_on:
-    #   - db
-    #   - rabbitmq
+    depends_on:
+      - rabbitmq
 
   # SQL Server Database (Optional - uncomment if needed)
   # db:
@@ -44,21 +65,21 @@ services:
   #     - fpt-network
   #   restart: unless-stopped
 
-  # RabbitMQ (Optional - uncomment if needed for messaging)
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   container_name: fpt-tracking-rabbitmq
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
-  #   environment:
-  #     - RABBITMQ_DEFAULT_USER=guest
-  #     - RABBITMQ_DEFAULT_PASS=guest
-  #   volumes:
-  #     - rabbitmq-data:/var/lib/rabbitmq
-  #   networks:
-  #     - fpt-network
-  #   restart: unless-stopped
+  # RabbitMQ (for messaging)
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fpt-tracking-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - fpt-network
+    restart: unless-stopped
 
 networks:
   fpt-network:
@@ -66,5 +87,4 @@ networks:
 
 volumes:
   app-data:
-  # db-data:
-  # rabbitmq-data:
+  rabbitmq-data:

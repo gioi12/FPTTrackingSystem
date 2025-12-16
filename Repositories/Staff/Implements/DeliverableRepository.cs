@@ -1,4 +1,6 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Enum;
+using DataTranferObjects.Staff.Response;
+using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Staff.Interfaces;
 using System;
@@ -14,15 +16,6 @@ namespace Repositories.Staff.Implements
         public DeliverableRepository(FpttrackingSystemContext context)
         {
             _context = context;
-        }
-
-        public async Task<List<Deliverable>> GetByCodeAndSemesterGroup(int code, int semesterId,int groupId)
-        {
-           var list = await _context.Deliverables.Include(x=>x.DeliveryItems)
-                .Include(x=>x.DeliverableGroups)
-                .Where(x=>x.MajorId == code && x.SemesterId == semesterId && x.IsActive == true && x.DeliverableGroups.Any(dg => dg.GroupId == groupId))
-                .ToListAsync();
-            return list;
         }
 
         public async Task<Deliverable?> GetById(int id)
@@ -66,5 +59,33 @@ namespace Repositories.Staff.Implements
                .ToListAsync();
             return list;
         }
+
+        public async Task<List<GroupDeliverableRes>> GetByCodeAndSemesterGroup(
+         int code, int semesterId, int groupId)
+            {
+                return await _context.Deliverables
+                    .Where(x => x.MajorId == code && x.SemesterId == semesterId)
+                    .Select(x => new GroupDeliverableRes
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Description = x.Description,
+                        Deadline = x.Deadline,
+                        Status = x.DeliverableGroups
+                            .Where(g => g.GroupId == groupId)
+                            .Select(g => g.Status)
+                            .FirstOrDefault() ?? ProgressEnum.Unsubmitted,
+                        DeliveryItems = x.DeliveryItems
+                            .Select(di => new DeliverableItemRes
+                            {
+                                Id = di.Id,
+                                Name = di.Name,
+                                Description = di.Description
+                            })
+                            .ToList()
+                    })
+                    .ToListAsync();
+            }
+
     }
 }

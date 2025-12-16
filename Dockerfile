@@ -45,23 +45,39 @@ USER appuser
 # Copy published files from build stage
 COPY --from=publish /app/publish .
 
-# Expose HTTPS port as configured in appsettings.json
+# Expose HTTP port
 EXPOSE 5000
 
 # Set environment variables
-ENV ASPNETCORE_URLS=https://+:5000
+ENV ASPNETCORE_URLS=http://+:5000
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 
-# Environment variables for RabbitMQ (can be overridden in docker-compose)
+# Database Connection String (can be overridden in docker-compose)
+ENV ConnectionStrings__DefaultConnection="Server=sqlserver;Database=FPTTrackingSystem;User Id=sa;Password=YourPassword;TrustServerCertificate=True"
+
+# JWT Settings (can be overridden in docker-compose)
+ENV JwtSettings__SecretKey="mat-khau-sieu-manh-cua-gioi-doan"
+ENV JwtSettings__Issuer="FPTTrackingSystem"
+ENV JwtSettings__Audience="FPTTrackingUsers"
+ENV JwtSettings__ExpiryMinutes=60
+
+# Mail Settings (can be overridden in docker-compose)
+ENV MailSettings__Mail="gioidmhe171512@fpt.edu.vn"
+ENV MailSettings__DisplayName="FPTTrackingSystem"
+ENV MailSettings__Password="tbgk hauq ffqm zrtf"
+ENV MailSettings__Host="smtp.gmail.com"
+ENV MailSettings__Port=587
+
+# RabbitMQ Settings (can be overridden in docker-compose)
 ENV RabbitMQ__HostName=rabbitmq
 ENV RabbitMQ__UserName=guest
 ENV RabbitMQ__Password=guest
 ENV RabbitMQ__QueueName=mail_queue
 
-# Health check (skip SSL verification for self-signed cert)
+# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD curl -k -f https://localhost:5000/health || exit 1
+    CMD curl -f http://localhost:5000/health || exit 1
 
 # Entry point
 ENTRYPOINT ["dotnet", "FPTTrackingSystem.dll"]
