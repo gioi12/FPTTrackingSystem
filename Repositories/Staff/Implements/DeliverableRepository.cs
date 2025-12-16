@@ -31,6 +31,7 @@ namespace Repositories.Staff.Implements
 
         public async Task<DeliveryItem?> GetItemByItemId(int id, int groupId)
         {
+            // find by group
             return await _context.DeliveryItems
                 .Include(x => x.Deliverable)
                     .ThenInclude(x => x.DeliverableGroups
