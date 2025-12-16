@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using DataTranferObjects.Staff.Response;
+using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,13 @@ namespace Repositories.Staff.Interfaces
         Task<Deliverable?> GetByMileIdAndActiveSenmester(int mileId);
         System.Threading.Tasks.Task UpdateDeliverable(Deliverable delivery);
 
-        Task<List<Deliverable>> GetByCodeAndSemester(int code,int semesterId);
+        Task<List<Deliverable>> GetByCodeAndSemester(int code, int semesterId);
+        Task<List<GroupDeliverableRes>> GetByCodeAndSemesterGroup(int code, int semesterId,int groupId);
+
 
         Task<Deliverable?> GetById(int id);
 
-        Task<DeliveryItem?> GetItemByItemId(int id);
+        Task<DeliveryItem?> GetItemByItemId(int id, int groupId);
         Task<List<DeliverableGroup>> GetDeliverableGroupsByGroupIdAsync(int groupId);
 
     }
