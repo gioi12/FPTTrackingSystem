@@ -70,7 +70,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<string> UploadFileMilestoneItem([Required]IFormFile file,int groupId,int deliveryItemId,string semester)
         {
-            var itemDeli = await _deliverableRepository.GetItemByItemId(deliveryItemId);
+            var itemDeli = await _deliverableRepository.GetItemByItemId(deliveryItemId,groupId);
             var user = await _authUtils.GetUserInfoFromCookie();
             var group = await _groupRepository.GetByIdAsync(groupId);
             if (group == null)

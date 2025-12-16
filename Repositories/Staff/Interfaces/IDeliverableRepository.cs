@@ -19,7 +19,7 @@ namespace Repositories.Staff.Interfaces
 
         Task<Deliverable?> GetById(int id);
 
-        Task<DeliveryItem?> GetItemByItemId(int id);
+        Task<DeliveryItem?> GetItemByItemId(int id, int groupId);
         Task<List<DeliverableGroup>> GetDeliverableGroupsByGroupIdAsync(int groupId);
 
     }

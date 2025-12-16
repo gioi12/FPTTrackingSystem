@@ -29,11 +29,26 @@ namespace Repositories.Staff.Implements
             return await _context.Deliverables.Include(x => x.DeliveryItems).FirstOrDefaultAsync(x => x.MilestoneId == mileId && semester.Id == x.SemesterId);
         }
 
-        public async Task<DeliveryItem?> GetItemByItemId(int id)
+        public async Task<DeliveryItem?> GetItemByItemId(int id, int groupId)
         {
             return await _context.DeliveryItems
-                .Include(x => x.Deliverable)
-                    .ThenInclude(d => d.DeliverableGroups)
+                .AsNoTracking()
+                .Select(x => new DeliveryItem
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    Deliverable = x.Deliverable == null ? null : new Deliverable
+                    {
+                        Id = x.Deliverable.Id,
+                        Name = x.Deliverable.Name,
+                        Description = x.Deliverable.Description,
+                        Deadline = x.Deliverable.Deadline,
+                        DeliverableGroups = x.Deliverable.DeliverableGroups
+                            .Where(dg => dg.GroupId == groupId)
+                            .ToList()
+                    }
+                })
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
