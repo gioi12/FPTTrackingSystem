@@ -176,6 +176,10 @@ namespace FPTTrackingSystem.Extensions
         public static IApplicationBuilder UseFileFallback(this IApplicationBuilder services, string webRoot)
         {
             var uploadsRoot = Path.Combine(webRoot, "uploads");
+            if (!Directory.Exists(uploadsRoot))
+            {
+                Directory.CreateDirectory(uploadsRoot);
+            }
             services.UseMiddleware<ZipFallbackMiddleware>(uploadsRoot);
             return services;
         }
