@@ -20,12 +20,12 @@ services:
       - fpt-tracking-network
 
   nginx:
-    image: nginx:alpine
+    mage: nginx:alpine
     container_name: fpt-tracking-nginx
     ports:
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/nginx/certs:ro
     depends_on:
       - backend
