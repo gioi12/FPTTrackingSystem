@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: fpttrackingsystem-backend
     container_name: fpt-tracking-backend
     ports:
       - "5000:5000"
@@ -14,7 +12,7 @@ services:
       - RabbitMQ__HostName=host.docker.internal
       - ConnectionStrings__DefaultConnection=Server=host.docker.internal,1433;Database=FPTTrackingSystem;User Id=sa;Password=StrongP@ssw0rd!;TrustServerCertificate=True;MultipleActiveResultSets=True
     volumes:
-      - ./wwwroot:/app/wwwroot
+      - ./wwwroot/uploads:/app/wwwroot/uploads
     # SQL Server và RabbitMQ đã được build riêng
     # Kết nối qua host.docker.internal hoặc IP của host
     extra_hosts:
