@@ -24,70 +24,80 @@ public class ZipFallbackMiddleware
             return;
         }
 
-        // Gọi StaticFiles trước
-        await _next(context);
 
-        // Nếu đã serve thành công, return
-        if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
+        var served = await TryServeFromZip(context, path);
+        if (served) 
         {
             return;
         }
 
-        // Nếu 404 và chưa ghi response → thử ZIP
-        if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
-        {
-            await TryServeFromZip(context, path);
-        }
+        // Nếu không có trong ZIP, gọi StaticFiles xử lý
+        await _next(context);
     }
 
-    private async Task TryServeFromZip(HttpContext context, string path)
+    private async Task<bool> TryServeFromZip(HttpContext context, string path) 
     {
-        // path = "/uploads/Fall25/Group1/Fall25_GroupGroup1.pdf"
         var segments = path.TrimStart('/').Split('/');
 
-        // segments = ["uploads", "Fall25", "Group1", "Fall25_GroupGroup1.pdf"]
         if (segments.Length < 3)
         {
-            return;
+            return false;  
         }
 
-        string semesterFolder = segments[1]; // "Fall25"
+        string semesterFolder = segments[1];
         string zipPath = Path.Combine(_uploadsRoot, semesterFolder + ".zip");
 
         if (!File.Exists(zipPath))
         {
-            return;
+            return false;  
         }
 
-        // Path trong ZIP: GIỮ NGUYÊN từ Fall25 trở đi
-        // Vì bên trong ZIP có cấu trúc: Fall25/Group1/...
-        string insideZipPath = string.Join('/', segments.Skip(1)); // Bỏ "uploads"
+        string insideZipPath = string.Join('/', segments.Skip(1));
 
         try
         {
             using var zip = ZipFile.OpenRead(zipPath);
 
-            // Thử cả 2 cách: với và không có thư mục gốc
             var entry = zip.GetEntry(insideZipPath.Replace('\\', '/'))
                      ?? zip.GetEntry(insideZipPath.Replace('\\', '/').TrimStart('/'));
 
             if (entry == null)
             {
-                return;
+                return false; 
+            }
+
+            // ← QUAN TRỌNG: Response phải chưa bắt đầu
+            if (context.Response.HasStarted)
+            {
+                return false;
             }
 
             context.Response.StatusCode = 200;
             context.Response.ContentType = GetContentType(insideZipPath);
+
+            context.Response.ContentLength = entry.Length;
+
+            // ← THÊM: Accept-Ranges
+            context.Response.Headers.Append("Accept-Ranges", "bytes");
+
             context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+
+            // ← THÊM: Cache headers
+            context.Response.Headers.Append("Cache-Control", "public, max-age=31536000");
+            context.Response.Headers.Append("ETag", $"\"{entry.Crc32:X8}\"");
+
             context.Response.Headers.Append("Content-Disposition",
                 $"inline; filename=\"{Path.GetFileName(insideZipPath)}\"");
 
             using var stream = entry.Open();
-            await stream.CopyToAsync(context.Response.Body);
+            await stream.CopyToAsync(context.Response.Body, context.RequestAborted); 
+
+            return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error serving from ZIP: {ex.Message}");
+            return false; 
         }
     }
 
