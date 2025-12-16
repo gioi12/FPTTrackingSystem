@@ -17,31 +17,62 @@ public class ZipFallbackMiddleware
     {
         var path = context.Request.Path.Value;
 
-        // Chỉ xử lý /uploads
         if (!path.StartsWith("/uploads", StringComparison.OrdinalIgnoreCase))
         {
             await _next(context);
             return;
         }
 
+        // Kiểm tra file vật lý trước
+        var physicalPath = GetPhysicalFilePath(path);
+        if (File.Exists(physicalPath))
+        {
+            // File thật tồn tại → để StaticFiles xử lý
+            await _next(context);
+            return;
+        }
 
+        // File thật không tồn tại → thử ZIP
         var served = await TryServeFromZip(context, path);
-        if (served) 
+        if (served)
         {
             return;
         }
 
-        // Nếu không có trong ZIP, gọi StaticFiles xử lý
-        await _next(context);
+        // Không tìm thấy ở cả 2 nơi → 404
+        context.Response.StatusCode = 404;
     }
 
-    private async Task<bool> TryServeFromZip(HttpContext context, string path) 
+    private string GetPhysicalFilePath(string requestPath)
+    {
+        try
+        {
+            var relativePath = requestPath.Substring("/uploads".Length).TrimStart('/');
+            var fullPath = Path.Combine(_uploadsRoot, relativePath);
+
+            var normalizedPath = Path.GetFullPath(fullPath);
+            var normalizedRoot = Path.GetFullPath(_uploadsRoot);
+
+            if (!normalizedPath.StartsWith(normalizedRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return normalizedPath;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task<bool> TryServeFromZip(HttpContext context, string path)
     {
         var segments = path.TrimStart('/').Split('/');
 
         if (segments.Length < 3)
         {
-            return false;  
+            return false;
         }
 
         string semesterFolder = segments[1];
@@ -49,7 +80,7 @@ public class ZipFallbackMiddleware
 
         if (!File.Exists(zipPath))
         {
-            return false;  
+            return false;
         }
 
         string insideZipPath = string.Join('/', segments.Skip(1));
@@ -63,7 +94,7 @@ public class ZipFallbackMiddleware
 
             if (entry == null)
             {
-                return false; 
+                return false;
             }
 
             if (context.Response.HasStarted)
@@ -73,28 +104,22 @@ public class ZipFallbackMiddleware
 
             context.Response.StatusCode = 200;
             context.Response.ContentType = GetContentType(insideZipPath);
-
             context.Response.ContentLength = entry.Length;
-
-            context.Response.Headers.Append("Accept-Ranges", "bytes");
-
-            context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-
-            context.Response.Headers.Append("Cache-Control", "public, max-age=31536000");
-            context.Response.Headers.Append("ETag", $"\"{entry.Crc32:X8}\"");
-
-            context.Response.Headers.Append("Content-Disposition",
-                $"inline; filename=\"{Path.GetFileName(insideZipPath)}\"");
+            context.Response.Headers["Accept-Ranges"] = "bytes";
+            context.Response.Headers["Access-Control-Allow-Origin"] = "*";
+            context.Response.Headers["Cache-Control"] = "public, max-age=31536000";
+            context.Response.Headers["ETag"] = $"\"{entry.Crc32:X8}\"";
+            context.Response.Headers["Content-Disposition"] = $"inline; filename=\"{Path.GetFileName(insideZipPath)}\"";
 
             using var stream = entry.Open();
-            await stream.CopyToAsync(context.Response.Body, context.RequestAborted); 
+            await stream.CopyToAsync(context.Response.Body, context.RequestAborted);
 
             return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error serving from ZIP: {ex.Message}");
-            return false; 
+            return false;
         }
     }
 

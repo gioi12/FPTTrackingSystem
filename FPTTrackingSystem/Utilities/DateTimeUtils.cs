@@ -49,9 +49,9 @@ namespace FPTTrackingSystem.Utilities
             }
         }
         public static DateTime GetTargetDate(
-            string data,
-            DateTime startDate,
-            List<(DateTime startAt, DateTime endAt)> holidays)
+    string data,
+    DateTime startDate,
+    List<(DateTime startAt, DateTime endAt)> holidays)
         {
             var parts = data.Split('-', StringSplitOptions.TrimEntries);
             if (parts.Length != 3)
@@ -60,33 +60,36 @@ namespace FPTTrackingSystem.Utilities
             if (!int.TryParse(parts[0].Replace("Week", "").Trim(), out int week))
                 throw new ArgumentException("Invalid week format");
 
-            if (!Enum.TryParse<DayOfWeek>(parts[1].Trim(), true, out var dayOfWeek))
+            if (!Enum.TryParse(parts[1].Trim(), true, out DayOfWeek dayOfWeek))
                 throw new ArgumentException("Invalid day format");
 
             if (!TimeSpan.TryParseExact(parts[2].Trim(), "hh\\:mm", CultureInfo.InvariantCulture, out var time))
                 throw new ArgumentException("Invalid time format");
 
-            // Tính ngày gốc chưa tính nghỉ
             var result = startDate.AddDays((week - 1) * 7);
             while (result.DayOfWeek != dayOfWeek)
                 result = result.AddDays(1);
+
             result = result.Date.Add(time);
 
-            // Tính tổng số ngày nghỉ xảy ra TRƯỚC result
-            double extraDays = 0;
-
-            foreach (var (startAt, endAt) in holidays)
+            bool adjusted;
+            do
             {
-                if (endAt < startDate || startAt >= result)
-                    continue;
+                adjusted = false;
+                foreach (var (startAt, endAt) in holidays)
+                {
+                    if (result >= startAt && result < endAt)
+                    {
+                        result = endAt.Date.Add(time);
+                        adjusted = true;
+                        break;
+                    }
+                }
+            } while (adjusted);
 
-                var overlapStart = startAt > startDate ? startAt : startDate;
-                var overlapEnd = endAt < result ? endAt : result;
-                extraDays += (overlapEnd - overlapStart).TotalDays;
-            }
-
-            return result.AddDays(extraDays);
+            return result;
         }
+
 
         private static DateTime GetDayInWeek(DateTime startDate, DayOfWeek targetDay)
         {
