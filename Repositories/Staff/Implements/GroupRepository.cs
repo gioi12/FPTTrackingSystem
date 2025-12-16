@@ -238,7 +238,18 @@ namespace Repositories.Staff.Implements
                                  && gu.UserId != userId);
 
                 if (alreadyHasSecretary)
-                    throw new InvalidOperationException("Nhóm này đã có một Secretary.");
+                    throw new InvalidOperationException("This group has a secretary.");
+            }
+
+            if (newRole == "Leader")
+            {
+                bool alreadyHasSecretary = await _context.GroupUsers
+                    .AnyAsync(gu => gu.GroupId == groupId
+                                 && gu.Role == "Leader"
+                                 && gu.UserId != userId);
+
+                if (alreadyHasSecretary)
+                    throw new InvalidOperationException("This group has a leader.");
             }
 
             groupUser.Role = newRole;
