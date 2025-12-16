@@ -71,6 +71,7 @@ using (var scope = app.Services.CreateScope())
     await aiCache.ReloadAsync();
 }
 app.UseCors("AllowFE");
+//use static files if not found check zip
 app.UseStaticFiles();
 app.UseFileFallback(env.WebRootPath);
 
