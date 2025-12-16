@@ -71,6 +71,7 @@ using (var scope = app.Services.CreateScope())
     await aiCache.ReloadAsync();
 }
 app.UseCors("AllowFE");
+app.UseFileFallback(env.WebRootPath);
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(Path.Combine(env.WebRootPath, "uploads")),
@@ -80,7 +81,7 @@ app.UseStaticFiles(new StaticFileOptions
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
     }
 });
-app.UseFileFallback(env.WebRootPath);
+
 
 // xoa sau khi deploy
 app.UseSwagger();
