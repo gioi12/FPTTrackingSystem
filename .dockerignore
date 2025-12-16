@@ -58,3 +58,5 @@ node_modules/
 # Publish folder (we'll use production settings directly)
 publish/
 
+# SQL files (keep original, Docker version will be generated)
+FptTrackingSystem_FiNAL_Docker.sql

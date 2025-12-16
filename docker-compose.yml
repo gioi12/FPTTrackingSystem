@@ -1,6 +1,28 @@
 version: '3.8'
 
 services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: fpt-tracking-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Password123
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./scripts:/scripts:ro
+    restart: unless-stopped
+    networks:
+      - fpt-tracking-network
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Password123 -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
   backend:
     build:
       context: .
@@ -12,10 +34,14 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
       - RabbitMQ__HostName=rabbitmq
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FPTTrackingSystem;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;MultipleActiveResultSets=True
     volumes:
       - ./wwwroot:/app/wwwroot
     depends_on:
-      - rabbitmq
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     restart: unless-stopped
     networks:
       - fpt-tracking-network
@@ -37,6 +63,7 @@ services:
 
 volumes:
   rabbitmq_data:
+  sqlserver_data:
 
 networks:
   fpt-tracking-network:

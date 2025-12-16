@@ -25,7 +25,11 @@ docker-compose up -d --build
 
 # Kiểm tra trạng thái
 Write-Host "⏳ Đợi containers khởi động..." -ForegroundColor Yellow
-Start-Sleep -Seconds 10
+Start-Sleep -Seconds 15
+
+# Khởi tạo database
+Write-Host "🔧 Khởi tạo database..." -ForegroundColor Yellow
+.\init-database.ps1
 
 # Kiểm tra logs
 Write-Host "📋 Logs của backend:" -ForegroundColor Cyan

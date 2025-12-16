@@ -27,7 +27,13 @@ docker-compose up -d --build
 
 # Kiểm tra trạng thái
 echo "⏳ Đợi containers khởi động..."
-sleep 10
+sleep 15
+
+# Khởi tạo database
+echo "🔧 Khởi tạo database..."
+chmod +x init-database.sh
+chmod +x scripts/prepare-sql.sh 2>/dev/null || true
+./init-database.sh
 
 # Kiểm tra logs
 echo "📋 Logs của backend:"
