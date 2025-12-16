@@ -20,7 +20,7 @@ services:
       - fpt-tracking-network
 
   nginx:
-    mage: nginx:alpine
+    image: nginx:alpine
     container_name: fpt-tracking-nginx
     ports:
       - "443:443"
