@@ -3,15 +3,18 @@
 
 Write-Host "🔧 Đang khởi tạo database..." -ForegroundColor Green
 
+# SQL Server container name (đã được build riêng)
+$sqlContainer = "sqlpreview"
+
 # Đợi SQL Server sẵn sàng
-Write-Host "⏳ Đợi SQL Server khởi động..." -ForegroundColor Yellow
+Write-Host "⏳ Đợi SQL Server ($sqlContainer) khởi động..." -ForegroundColor Yellow
 $maxAttempts = 60
 $attempt = 0
 $ready = $false
 
 while (-not $ready -and $attempt -lt $maxAttempts) {
     try {
-        $result = docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Password123" -Q "SELECT 1" 2>&1
+        $result = docker exec $sqlContainer /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "StrongP@ssw0rd!" -C -Q "SELECT 1" 2>&1
         if ($LASTEXITCODE -eq 0) {
             $ready = $true
         }
@@ -27,7 +30,8 @@ while (-not $ready -and $attempt -lt $maxAttempts) {
 }
 
 if (-not $ready) {
-    Write-Host "❌ SQL Server không khởi động được sau $maxAttempts lần thử" -ForegroundColor Red
+    Write-Host "❌ SQL Server ($sqlContainer) không khởi động được sau $maxAttempts lần thử" -ForegroundColor Red
+    Write-Host "💡 Kiểm tra container: docker ps | grep $sqlContainer" -ForegroundColor Yellow
     exit 1
 }
 
@@ -35,10 +39,11 @@ Write-Host "✅ SQL Server đã sẵn sàng!" -ForegroundColor Green
 
 # Kiểm tra xem database đã tồn tại chưa
 Write-Host "🔍 Kiểm tra database..." -ForegroundColor Yellow
-$dbExists = docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd `
+$dbExists = docker exec $sqlContainer /opt/mssql-tools/bin/sqlcmd `
     -S localhost `
     -U sa `
-    -P "YourStrong@Password123" `
+    -P "StrongP@ssw0rd!" `
+    -C `
     -d master `
     -Q "SELECT COUNT(*) FROM sys.databases WHERE name = 'FPTTrackingSystem'" `
     -h -1 -W 2>$null
@@ -78,14 +83,15 @@ if ($dbExists -eq "1") {
     
     # Copy file SQL vào container
     Write-Host "📄 Đang copy file SQL vào container..." -ForegroundColor Yellow
-    docker cp $sqlFile fpt-tracking-sqlserver:/tmp/init.sql
+    docker cp $sqlFile "${sqlContainer}:/tmp/init.sql"
     
     # Chạy SQL script
     Write-Host "🚀 Đang chạy SQL script để tạo database và schema..." -ForegroundColor Yellow
-    docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd `
+    docker exec $sqlContainer /opt/mssql-tools/bin/sqlcmd `
         -S localhost `
         -U sa `
-        -P "YourStrong@Password123" `
+        -P "StrongP@ssw0rd!" `
+        -C `
         -i /tmp/init.sql `
         -l 30
     
@@ -94,19 +100,21 @@ if ($dbExists -eq "1") {
         
         # Phương pháp thay thế: Tạo database trước
         Write-Host "📦 Tạo database trước..." -ForegroundColor Yellow
-        docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd `
+        docker exec $sqlContainer /opt/mssql-tools/bin/sqlcmd `
             -S localhost `
             -U sa `
-            -P "YourStrong@Password123" `
+            -P "StrongP@ssw0rd!" `
+            -C `
             -d master `
             -Q "IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'FPTTrackingSystem') CREATE DATABASE [FPTTrackingSystem]"
         
         # Chạy phần còn lại của script
         Write-Host "🔄 Đang chạy schema và tables..." -ForegroundColor Yellow
-        docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd `
+        docker exec $sqlContainer /opt/mssql-tools/bin/sqlcmd `
             -S localhost `
             -U sa `
-            -P "YourStrong@Password123" `
+            -P "StrongP@ssw0rd!" `
+            -C `
             -d FPTTrackingSystem `
             -i /tmp/init.sql `
             -l 30

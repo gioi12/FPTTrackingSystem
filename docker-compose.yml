@@ -1,28 +1,6 @@
 version: '3.8'
 
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: fpt-tracking-sqlserver
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrong@Password123
-      - MSSQL_PID=Express
-    ports:
-      - "1433:1433"
-    volumes:
-      - sqlserver_data:/var/opt/mssql
-      - ./scripts:/scripts:ro
-    restart: unless-stopped
-    networks:
-      - fpt-tracking-network
-    healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Password123" -C -Q "SELECT 1" || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 20
-      start_period: 60s
-
   backend:
     build:
       context: .
@@ -33,39 +11,17 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
-      - RabbitMQ__HostName=rabbitmq
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FPTTrackingSystem;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;MultipleActiveResultSets=True
+      - RabbitMQ__HostName=host.docker.internal
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal,1433;Database=FPTTrackingSystem;User Id=sa;Password=StrongP@ssw0rd!;TrustServerCertificate=True;MultipleActiveResultSets=True
     volumes:
       - ./wwwroot:/app/wwwroot
-    depends_on:
-      sqlserver:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_started
-    # Tạm thời bỏ qua healthcheck nếu SQL Server chưa sẵn sàng (sẽ retry trong app)
-    # Nếu vẫn lỗi, có thể thay bằng: condition: service_started
+    # SQL Server và RabbitMQ đã được build riêng
+    # Kết nối qua host.docker.internal hoặc IP của host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     networks:
       - fpt-tracking-network
-
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: fpt-tracking-rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    restart: unless-stopped
-    networks:
-      - fpt-tracking-network
-
-volumes:
-  rabbitmq_data:
-  sqlserver_data:
 
 networks:
   fpt-tracking-network:

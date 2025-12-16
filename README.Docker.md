@@ -52,14 +52,15 @@ gcloud compute firewall-rules create allow-backend-port-5000 \
 
 ## Lưu ý
 - File `appsettings.Production.json` đã được cấu hình với connection string và các settings cần thiết
-- SQL Server sẽ chạy trong container với:
-  - Username: `sa`
-  - Password: `YourStrong@Password123` (nên thay đổi trong production)
-  - Port: `1433`
-- RabbitMQ sẽ chạy trong container riêng nếu sử dụng docker-compose
+- **SQL Server đã được build riêng** (container: `sqlpreview`)
+  - Backend sẽ kết nối qua `host.docker.internal:1433`
+  - Đảm bảo container `sqlpreview` đang chạy trước khi start backend
+- **RabbitMQ đã được build riêng**
+  - Backend sẽ kết nối qua `host.docker.internal:5672`
+  - Đảm bảo RabbitMQ đang chạy trước khi start backend
 - Thư mục `wwwroot` sẽ được mount để lưu trữ uploads
 - Container sẽ tự động restart nếu bị crash
-- Database sẽ được tạo tự động từ file `FptTrackingSystem_FiNAL.sql` khi chạy script deploy
+- Database sẽ được tạo tự động từ file `FptTrackingSystem_FiNAL.sql` khi chạy script `init-database.sh`
 
 ## Cấu hình Database
 
@@ -82,13 +83,18 @@ Nếu muốn thay đổi mật khẩu SQL Server, cập nhật trong:
 2. `docker-compose.yml` - connection string trong backend service
 3. `appsettings.Production.json` - connection string
 
-### Kết nối từ bên ngoài
-Để kết nối SQL Server từ máy tính khác:
-- Host: `YOUR_GCP_VM_IP`
-- Port: `1433`
+### Kết nối SQL Server
+SQL Server đã được build riêng (container: `sqlpreview`):
+- **Từ backend container**: `host.docker.internal:1433`
+- **Từ bên ngoài**: `YOUR_GCP_VM_IP:1433`
 - Username: `sa`
-- Password: `YourStrong@Password123`
+- Password: `YourStrong@Password123` (kiểm tra password của container `sqlpreview`)
 - Database: `FPTTrackingSystem`
+
+**Lưu ý**: Đảm bảo container `sqlpreview` đang chạy trước khi start backend:
+```bash
+docker ps | grep sqlpreview
+```
 
 ### Backup và Restore Database
 ```bash

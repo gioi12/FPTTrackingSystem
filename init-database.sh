@@ -5,16 +5,20 @@
 
 echo "🔧 Đang khởi tạo database..."
 
+# SQL Server container name (đã được build riêng)
+SQL_CONTAINER="sqlpreview"
+
 # Đợi SQL Server sẵn sàng
-echo "⏳ Đợi SQL Server khởi động..."
+echo "⏳ Đợi SQL Server ($SQL_CONTAINER) khởi động..."
 max_attempts=60
 attempt=0
 
-until docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Password123" -Q "SELECT 1" &> /dev/null
+until docker exec $SQL_CONTAINER /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "StrongP@ssw0rd!" -C -Q "SELECT 1" &> /dev/null
 do
     attempt=$((attempt + 1))
     if [ $attempt -ge $max_attempts ]; then
-        echo "❌ SQL Server không khởi động được sau $max_attempts lần thử"
+        echo "❌ SQL Server ($SQL_CONTAINER) không khởi động được sau $max_attempts lần thử"
+        echo "💡 Kiểm tra container: docker ps | grep $SQL_CONTAINER"
         exit 1
     fi
     echo "Đang đợi SQL Server... ($attempt/$max_attempts)"
@@ -24,10 +28,11 @@ done
 echo "✅ SQL Server đã sẵn sàng!"
 
 # Kiểm tra xem database đã tồn tại chưa
-DB_EXISTS=$(docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd \
+DB_EXISTS=$(docker exec $SQL_CONTAINER /opt/mssql-tools/bin/sqlcmd \
     -S localhost \
     -U sa \
-    -P "YourStrong@Password123" \
+    -P "StrongP@ssw0rd!" \
+    -C \
     -d master \
     -Q "SELECT COUNT(*) FROM sys.databases WHERE name = 'FPTTrackingSystem'" \
     -h -1 -W 2>/dev/null | tr -d ' ')
@@ -63,14 +68,15 @@ else
     fi
     
     echo "📄 Đang copy file SQL vào container..."
-    docker cp "$SQL_FILE" fpt-tracking-sqlserver:/tmp/init.sql
+    docker cp "$SQL_FILE" $SQL_CONTAINER:/tmp/init.sql
     
     # Chạy SQL script
     echo "🚀 Đang chạy SQL script để tạo database và schema..."
-    docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd \
+    docker exec $SQL_CONTAINER /opt/mssql-tools/bin/sqlcmd \
         -S localhost \
         -U sa \
-        -P "YourStrong@Password123" \
+        -P "StrongP@ssw0rd!" \
+        -C \
         -i /tmp/init.sql \
         -l 30 \
         || {
@@ -78,19 +84,21 @@ else
         
         # Phương pháp thay thế: Tạo database trước, sau đó chạy phần còn lại
         echo "📦 Tạo database trước..."
-        docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd \
+        docker exec $SQL_CONTAINER /opt/mssql-tools/bin/sqlcmd \
             -S localhost \
             -U sa \
-            -P "YourStrong@Password123" \
+            -P "StrongP@ssw0rd!" \
+            -C \
             -d master \
             -Q "IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'FPTTrackingSystem') CREATE DATABASE [FPTTrackingSystem]"
         
         # Chạy phần còn lại của script (bỏ qua phần CREATE DATABASE)
         echo "🔄 Đang chạy schema và tables..."
-        docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd \
+        docker exec $SQL_CONTAINER /opt/mssql-tools/bin/sqlcmd \
             -S localhost \
             -U sa \
-            -P "YourStrong@Password123" \
+            -P "StrongP@ssw0rd!" \
+            -C \
             -d FPTTrackingSystem \
             -i /tmp/init.sql \
             -l 30
