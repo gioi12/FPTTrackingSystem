@@ -32,23 +32,9 @@ namespace Repositories.Staff.Implements
         public async Task<DeliveryItem?> GetItemByItemId(int id, int groupId)
         {
             return await _context.DeliveryItems
-                .AsNoTracking()
-                .Select(x => new DeliveryItem
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Description = x.Description,
-                    Deliverable = x.Deliverable == null ? null : new Deliverable
-                    {
-                        Id = x.Deliverable.Id,
-                        Name = x.Deliverable.Name,
-                        Description = x.Deliverable.Description,
-                        Deadline = x.Deliverable.Deadline,
-                        DeliverableGroups = x.Deliverable.DeliverableGroups
-                            .Where(dg => dg.GroupId == groupId)
-                            .ToList()
-                    }
-                })
+                .Include(x => x.Deliverable)
+                    .ThenInclude(x => x.DeliverableGroups
+                        .Where(dg => dg.GroupId == groupId))
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
