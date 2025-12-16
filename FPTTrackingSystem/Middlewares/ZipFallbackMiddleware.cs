@@ -66,7 +66,6 @@ public class ZipFallbackMiddleware
                 return false; 
             }
 
-            // ← QUAN TRỌNG: Response phải chưa bắt đầu
             if (context.Response.HasStarted)
             {
                 return false;
@@ -77,12 +76,10 @@ public class ZipFallbackMiddleware
 
             context.Response.ContentLength = entry.Length;
 
-            // ← THÊM: Accept-Ranges
             context.Response.Headers.Append("Accept-Ranges", "bytes");
 
             context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
 
-            // ← THÊM: Cache headers
             context.Response.Headers.Append("Cache-Control", "public, max-age=31536000");
             context.Response.Headers.Append("ETag", $"\"{entry.Crc32:X8}\"");
 
