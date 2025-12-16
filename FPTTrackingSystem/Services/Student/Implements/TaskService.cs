@@ -331,7 +331,9 @@ namespace FPTTrackingSystem.Services.Student.Implements
             try
             {
                 var user = await _authUtils.GetUserInfoFromCookie();
-                var existingTask = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == dto.Id);
+                var existingTask = await _context.Tasks
+                                 .AsNoTracking()
+                                 .FirstOrDefaultAsync(t => t.Id == dto.Id);
 
                 if (existingTask == null)
                     return new ApiResponse<TaskResponseUpdateDto>(200, "Không tìm thấy task", null);
