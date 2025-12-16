@@ -17,11 +17,11 @@ services:
     networks:
       - fpt-tracking-network
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Password123 -Q "SELECT 1" || exit 1
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Password123" -C -Q "SELECT 1" || exit 1
       interval: 10s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
 
   backend:
     build:
@@ -42,6 +42,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_started
+    # Tạm thời bỏ qua healthcheck nếu SQL Server chưa sẵn sàng (sẽ retry trong app)
+    # Nếu vẫn lỗi, có thể thay bằng: condition: service_started
     restart: unless-stopped
     networks:
       - fpt-tracking-network

@@ -139,6 +139,26 @@ docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd \
 
 ## Troubleshooting
 
+### SQL Server container không healthy
+```bash
+# Kiểm tra logs SQL Server
+docker-compose logs sqlserver
+
+# Kiểm tra health status
+docker inspect --format='{{.State.Health.Status}}' fpt-tracking-sqlserver
+
+# Xem chi tiết healthcheck
+docker inspect --format='{{json .State.Health}}' fpt-tracking-sqlserver | python3 -m json.tool
+
+# Thử kết nối trực tiếp
+docker exec fpt-tracking-sqlserver /opt/mssql-tools/bin/sqlcmd \
+    -S localhost -U sa -P "YourStrong@Password123" -C -Q "SELECT 1"
+
+# Nếu vẫn lỗi, chạy script fix
+chmod +x fix-sqlserver.sh
+./fix-sqlserver.sh
+```
+
 ### Backend không kết nối được database
 ```bash
 # Kiểm tra SQL Server có chạy không
@@ -149,6 +169,9 @@ docker-compose logs sqlserver
 
 # Kiểm tra connection string
 docker exec fpt-tracking-backend printenv | grep ConnectionStrings
+
+# Kiểm tra network
+docker network inspect fpttrackingsystem_fpt-tracking-network
 ```
 
 ### Database chưa được tạo
