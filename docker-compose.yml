@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   backend:
+    build: .
     image: fpttrackingsystem-backend
     container_name: fpt-tracking-backend
     ports:
