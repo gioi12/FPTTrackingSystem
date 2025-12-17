@@ -217,57 +217,65 @@ namespace FPTTrackingSystem.Helper
 
     };
 
-        public static List<Group> GetGroupsForSemester(int semesterId)
+        public static List<Group> GetGroupsForSemester(int semesterId, string semesterName)
         {
-            if (semesterId == 1)
+            // =========================
+            // SUMMER 2025
+            // =========================
+            if (semesterName.Equals("Summer 2025"))
             {
-                var students = Accounts.Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE140")).ToList();
-                var mentor = Accounts.FirstOrDefault(a => a.RoleId == 2); // dùng FirstOrDefault để tránh lỗi
+                var students = Accounts
+                    .Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE140"))
+                    .ToList();
 
+                var mentor = Accounts.FirstOrDefault(a => a.RoleId == 2);
                 if (mentor == null)
-                    throw new Exception("Không tìm thấy mentor cho semester 1");
+                    throw new Exception("Không tìm thấy mentor cho Summer 2025");
 
                 return new List<Group>
         {
             new Group
             {
-                Code="G01",
-                Name="Capstone Team Vanguard",
-                SemesterId=semesterId,
-                CreateAt=DateTime.Now.AddMonths(-2),
-                Profession="AI Development",
-                MajorId=1,
-                Description="Team phát triển hệ thống AI",
-                VietnameseTitle="Nhóm Tiên Phong",
-                StatusId="ACTIVE",
-                MeetingId=1,
-                ExpireDate=DateTime.Now.AddMonths(6),
-                GroupUsers=students.Select((s,i)=>new GroupUser
+                Code = "G01",
+                Name = "Capstone Team Vanguard",
+                SemesterId = semesterId,
+                CreateAt = DateTime.Now.AddMonths(-2),
+                Profession = "AI Development",
+                MajorId = 1,
+                Description = "Team phát triển hệ thống AI",
+                VietnameseTitle = "Nhóm Tiên Phong",
+                StatusId = "ACTIVE",
+                MeetingId = 1,
+                ExpireDate = DateTime.Now.AddMonths(6),
+                GroupUsers = students.Select((s, i) => new GroupUser
                 {
-                    User=s.User,
-                    Role=i==0?"Leader":"Student",
-                    IsActive=true,
-                    CreateAt=DateTime.Now.AddMonths(-2),
-                    UpdateAt=DateTime.Now,
-                    Status="Active"
+                    User = s.User,
+                    Role = i == 0 ? "Leader" : "Student",
+                    IsActive = true,
+                    CreateAt = DateTime.Now.AddMonths(-2),
+                    UpdateAt = DateTime.Now,
+                    Status = "Active"
                 })
                 .Concat(new[]
                 {
                     new GroupUser
                     {
-                        User=mentor.User,
-                        Role="Supervisor",
-                        IsActive=true,
-                        CreateAt=DateTime.Now.AddMonths(-1),
-                        UpdateAt=DateTime.Now,
-                        Status="Active"
+                        User = mentor.User,
+                        Role = "Supervisor",
+                        IsActive = true,
+                        CreateAt = DateTime.Now.AddMonths(-1),
+                        UpdateAt = DateTime.Now,
+                        Status = "Active"
                     }
                 }).ToList()
             }
         };
             }
 
-            if (semesterId == 2)
+            // =========================
+            // FALL 2025 (G11 – G12)
+            // =========================
+            if (semesterName.Equals("Fall 2025"))
             {
                 var allStudents = Accounts
                     .Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE170"))
@@ -320,86 +328,123 @@ namespace FPTTrackingSystem.Helper
                         })
                         .Concat(new[]
                         {
-                new GroupUser
-                {
-                    User = mentor.User,
-                    Role = "Supervisor",
-                    IsActive = true,
-                    CreateAt = DateTime.Now.AddMonths(-1),
-                    UpdateAt = DateTime.Now,
-                    Status = "Active"
-                }
+                    new GroupUser
+                    {
+                        User = mentor.User,
+                        Role = "Supervisor",
+                        IsActive = true,
+                        CreateAt = DateTime.Now.AddMonths(-1),
+                        UpdateAt = DateTime.Now,
+                        Status = "Active"
+                    }
                         }).ToList()
                     };
                 }
 
                 return new List<Group>
-    {
-        CreateGroup(
-            "G11",
-            "FPT Tracking System",
-            "Hệ thống theo dõi FPT",
-            "Software Engineering",
-            GetStudents(1,5),
-            "ME01"
-        ),
+        {
+            CreateGroup(
+                "G11",
+                "FPT Tracking System",
+                "Hệ thống theo dõi FPT",
+                "Software Engineering",
+                GetStudents(1, 5),
+                "ME01"
+            ),
 
-        CreateGroup(
-            "G12",
-            "Smart Course Booking",
-            "Hệ thống đăng ký môn học thông minh",
-            "Software Engineering",
-            GetStudents(6,10),
-            "ME01"
-        ),
+            CreateGroup(
+                "G12",
+                "Smart Course Booking",
+                "Hệ thống đăng ký môn học thông minh",
+                "Software Engineering",
+                GetStudents(6, 10),
+                "ME01"
+            )
+        };
+            }
 
-        CreateGroup(
-            "G13",
-            "AI Student Progress Monitor",
-            "Theo dõi tiến độ sinh viên bằng AI",
-            "AI Development",
-            GetStudents(11,15),
-            "ME02"
-        ),
+            // =========================
+            // SPRING 2026 (G13 – G17)
+            // =========================
+            if (semesterName.Equals("Spring 2026"))
+            {
+                var allStudents = Accounts
+                    .Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE170"))
+                    .ToList();
 
-        CreateGroup(
-            "G14",
-            "Campus Event Management System",
-            "Quản lý sự kiện trong campus",
-            "Software Engineering",
-            GetStudents(16,20),
-            "ME03"
-        ),
+                var mentors = Accounts
+                    .Where(a => a.RoleId == 2)
+                    .ToDictionary(a => a.User.RollNumber);
 
-        CreateGroup(
-            "G15",
-            "Internship Matching Platform",
-            "Nền tảng kết nối thực tập",
-            "Software Engineering",
-            GetStudents(21,25),
-            "ME04"
-        ), CreateGroup(
-        "G16",
-        "Smart Attendance System",
-        "Hệ thống điểm danh thông minh",
-        "Software Engineering",
-        GetStudents(26,30),
-        "ME05"
-    ),
-    CreateGroup(
-        "G17",
-        "AI Career Recommendation",
-        "Gợi ý nghề nghiệp bằng AI",
-        "AI Development",
-        GetStudents(31,35),
-        "ME06"
-    )
-    };
-     }
+                List<Account> GetStudents(int from, int to) =>
+                    allStudents.Where(a =>
+                        int.Parse(a.User.RollNumber.Substring(6)) >= from &&
+                        int.Parse(a.User.RollNumber.Substring(6)) <= to
+                    ).ToList();
 
+                Group CreateGroup(
+                    string code,
+                    string name,
+                    string vnTitle,
+                    string profession,
+                    List<Account> students,
+                    string mentorRoll
+                )
+                {
+                    if (!mentors.ContainsKey(mentorRoll))
+                        throw new Exception($"Không tìm thấy mentor {mentorRoll}");
+
+                    var mentor = mentors[mentorRoll];
+
+                    return new Group
+                    {
+                        Code = code,
+                        Name = name,
+                        SemesterId = semesterId,
+                        CreateAt = DateTime.Now.AddMonths(-2),
+                        Profession = profession,
+                        MajorId = 1,
+                        Description = $"{name} Capstone Project",
+                        VietnameseTitle = vnTitle,
+                        StatusId = "ACTIVE",
+                        ExpireDate = DateTime.Now.AddMonths(6),
+                        GroupUsers = students.Select((s, i) => new GroupUser
+                        {
+                            User = s.User,
+                            Role = i == 0 ? "Leader" : "Student",
+                            IsActive = true,
+                            CreateAt = DateTime.Now.AddMonths(-2),
+                            UpdateAt = DateTime.Now,
+                            Status = "Active"
+                        })
+                        .Concat(new[]
+                        {
+                    new GroupUser
+                    {
+                        User = mentor.User,
+                        Role = "Supervisor",
+                        IsActive = true,
+                        CreateAt = DateTime.Now.AddMonths(-1),
+                        UpdateAt = DateTime.Now,
+                        Status = "Active"
+                    }
+                        }).ToList()
+                    };
+                }
+
+                return new List<Group>
+        {
+            CreateGroup("G1", "AI Student Progress Monitor", "Theo dõi tiến độ sinh viên bằng AI", "AI Development", GetStudents(11, 15), "ME02"),
+            CreateGroup("G2", "Campus Event Management System", "Quản lý sự kiện trong campus", "Software Engineering", GetStudents(16, 20), "ME03"),
+            CreateGroup("G3", "Internship Matching Platform", "Nền tảng kết nối thực tập", "Software Engineering", GetStudents(21, 25), "ME04"),
+            CreateGroup("G4", "Smart Attendance System", "Hệ thống điểm danh thông minh", "Software Engineering", GetStudents(26, 30), "ME05"),
+            CreateGroup("G5", "AI Career Recommendation", "Gợi ý nghề nghiệp bằng AI", "AI Development", GetStudents(31, 35), "ME06")
+        };
+            }
 
             return new List<Group>();
         }
+
 
     }
 }
