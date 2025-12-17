@@ -127,16 +127,16 @@ namespace FPTTrackingSystem.Controllers.Staff
         }
         [Authorize(Roles = "Staff")]
         [HttpGet("v1/mock-data/group")]
-        public async Task<object> MockDataGroup([FromQuery] int semesterId)
+        public async Task<object> MockDataGroup([FromQuery] string semesterName, [FromQuery] int semesterId)
         {
-            var data = await _groupService.GetMockData(semesterId);
+            var data = await _groupService.GetMockData(semesterId, semesterName);
             return Ok(ApiResponse<object>.Success(data, "Upload Successfully"));
         }
         [Authorize(Roles = "Staff")]
         [HttpPost("v1/mock-data/group")]
-        public async Task<object> CreateGroups([FromQuery] int semesterId)
+        public async Task<object> CreateGroups([FromQuery] string semesterName, [FromQuery] int semesterId)
         {
-            var message = await _groupService.CreateMockData(semesterId);
+            var message = await _groupService.CreateMockData(semesterId, semesterName);
             return Ok(ApiResponse<object>.Success(message, "Upload Successfully"));
         }
 

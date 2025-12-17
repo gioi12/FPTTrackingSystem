@@ -1,4 +1,6 @@
 ﻿using DataTranferObjects.Common.Request;
+using DataTranferObjects.Common.Response;
+using DataTranferObjects.Enum;
 using FPTTrackingSystem.Services.Admin;
 using FPTTrackingSystem.Wrappers;
 using Microsoft.AspNetCore.Authorization;
@@ -43,16 +45,30 @@ namespace FPTTrackingSystem.Controllers.Admin
 
         }
 
-        // 2️⃣ Poll kết quả theo taskId
         [HttpGet("v1/result/{taskId}")]
         public IActionResult GetResult(string taskId)
         {
-            if (_cache.TryGetValue(taskId, out string result))
+            if (!_cache.TryGetValue(taskId, out AITaskState task))
             {
-                return Ok(ApiResponse<object>.Success(new { status = "done", result }, "ask AI settings successfully"));
-
+                return Ok(ApiResponse<object>.Success(
+                    new { status = "not_found" },
+                    "task not found"
+                ));
             }
-            return Ok(ApiResponse<object>.Success(new { status = "processing" }, "ask AI settings successfully"));
+
+            if (task.Status == AIEnum.Processing &&
+                DateTime.UtcNow - task.CreatedAt > TimeSpan.FromMinutes(2))
+            {
+                task.Status = AIEnum.Timeout;
+                _cache.Set(taskId, task);
+            }
+
+            return Ok(ApiResponse<object>.Success(new
+            {
+                status = task.Status.ToString().ToLower(),
+                result = task.Result,
+                error = task.Error
+            }));
         }
     }
 }

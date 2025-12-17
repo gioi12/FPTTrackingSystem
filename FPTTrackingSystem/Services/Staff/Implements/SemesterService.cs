@@ -238,86 +238,56 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (request.Name.Length > 100)
                 throw new ArgumentException("Semester name cannot exceed 100 characters.");
 
-            if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
+            if (!string.IsNullOrWhiteSpace(request.Description) &&
+                request.Description.Length > 500)
                 throw new ArgumentException("Description cannot exceed 500 characters.");
 
-            // Lấy user
             var user = await _authUtils.GetUserInfoFromCookie();
             if (user == null)
                 throw new UnauthorizedAccessException("User authentication failed.");
+
             if (!user.Role.Equals(RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
                 throw new UnauthorizedAccessException("Only Staff members can create semesters.");
 
             string name = request.Name.Trim();
 
-            // 1️⃣ CHECK DB TRƯỚC
-            var existingSemester = await _context.Semesters
-                .FirstOrDefaultAsync(s => s.Name.Trim().ToLower() == name.ToLower());
+            bool exists = await _context.Semesters
+                .AnyAsync(s => s.Name.Trim().ToLower() == name.ToLower());
 
-            // 2️⃣ CHECK MOCKDATA (chỉ dùng nếu có)
+            if (exists)
+                throw new ArgumentException($"Semester '{name}' already exists.");
+
             var mockSemester = MockData.AllSemesters
-                .FirstOrDefault(s => s.Name.Trim().Equals(name, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(s =>
+                    s.Name.Trim().Equals(name, StringComparison.OrdinalIgnoreCase));
 
-            DateTime? startAt = null;
-            DateTime? endAt = null;
-            bool? active = null;
+            DateTime? startAt = mockSemester?.StartAt;
+            DateTime? endAt = mockSemester?.EndAt;
+            bool? isActive = mockSemester?.IsActive;
 
-            if (mockSemester != null)
+            var semester = new Semester
             {
-                startAt = mockSemester.StartAt;
-                endAt = mockSemester.EndAt;
-                active = mockSemester.IsActive;
-            }  
+                Name = name,
+                Description = request.Description?.Trim(),
+                StartAt = startAt,
+                EndAt = endAt,
+                IsActive = isActive
+            };
 
-            Semester semester;
-
-            // 4️⃣ ĐÃ TỒN TẠI TRONG DB → UPDATE
-            if (existingSemester != null)
-            {
-                existingSemester.Description = request.Description?.Trim();
-                if (mockSemester != null)
-                {
-                    existingSemester.StartAt = startAt;
-                    existingSemester.EndAt = endAt;
-                    existingSemester.IsActive = active;
-                }
-
-                _context.Semesters.Update(existingSemester);
-                semester = existingSemester;
-            }
-            else
-            {
-                // 5️⃣ CHƯA TỒN TẠI → TẠO MỚI
-                semester = new Semester
-                {
-                    Name = name,
-                    Description = request.Description?.Trim(),
-                    StartAt = startAt,
-                    EndAt = endAt,
-                    IsActive = active
-                };
-
-                await _context.Semesters.AddAsync(semester);
-            }
-
+            await _context.Semesters.AddAsync(semester);
             await _context.SaveChangesAsync();
 
-            // Log
             await _logService.AddLogAsync(new Log
             {
-                Name = existingSemester != null ? "Update semester" : "Create new semester",
+                Name = "Create new semester",
                 EntityName = "Semester",
                 EntityId = semester.Id,
-                Action = existingSemester != null ? "UPDATE" : "CREATE",
-/*                Description = isActivate
-                    ? $"Semester '{semester.Name}' active from {semester.StartAt:yyyy-MM-dd} to {semester.EndAt:yyyy-MM-dd}."
-                    : $"Semester '{semester.Name}' saved without dates.",*/
+                Action = "CREATE",
                 UserId = user.Id ?? 0,
                 CreateAt = DateTime.Now
             });
 
-            // 6️⃣ Nếu có start/end → Generate weeks + clone milestone
-            List<SemesterWeekDTO> weeks = new List<SemesterWeekDTO>();
+            List<SemesterWeekDTO> weeks = new();
 
             if (startAt.HasValue && endAt.HasValue)
             {
@@ -352,9 +322,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 await _context.SaveChangesAsync();
 
                 var activeMilestones = await _context.Milestones
-                     .Include(m => m.MilestoneItems)
-                     .Where(m => m.IsActive ?? false)
-                     .ToListAsync();
+                    .Include(m => m.MilestoneItems)
+                    .Where(m => m.IsActive ?? false)
+                    .ToListAsync();
 
                 var deliverables = new List<Deliverable>();
                 var deliveryItems = new List<DeliveryItem>();
@@ -371,6 +341,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                         IsActive = true,
                         MajorId = milestone.MajorId
                     };
+
                     deliverables.Add(deliverable);
 
                     foreach (var item in milestone.MilestoneItems)
@@ -388,13 +359,13 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 await _context.Deliverables.AddRangeAsync(deliverables);
                 await _context.DeliveryItems.AddRangeAsync(deliveryItems);
                 await _context.SaveChangesAsync();
-        }
+            }
 
             return new SemesterDTO
             {
-                IsActive = semester.IsActive,
                 Name = semester.Name,
                 Description = semester.Description,
+                IsActive = semester.IsActive,
                 StartAt = semester.StartAt,
                 EndAt = semester.EndAt,
                 Weeks = weeks
@@ -936,6 +907,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
         public async Task<ApiResponse<string>> AddVacationsAsync(List<SemesterVacationRequestDto> vacations)
         {
+            // =========================
+            // 1️⃣ AUTH
+            // =========================
             var user = await _authUtils.GetUserInfoFromCookie();
             if (user == null)
                 throw new UnauthorizedAccessException("User authentication failed.");
@@ -943,6 +917,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             if (!string.Equals(user.Role, RoleEnum.Staff.ToString(), StringComparison.OrdinalIgnoreCase))
                 throw new UnauthorizedAccessException("Only staff members are allowed to add semester vacations.");
 
+            // =========================
+            // 2️⃣ BASIC VALIDATION
+            // =========================
             if (vacations == null || vacations.Count == 0)
                 return new ApiResponse<string>(400, "Vacation list cannot be empty.");
 
@@ -952,37 +929,99 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     return new ApiResponse<string>(400, "SemesterId must be greater than 0.");
 
                 if (v.StartDate == default || v.EndDate == default)
-                    return new ApiResponse<string>(400, "StartDate and EndDate are required and must be valid dates.");
+                    return new ApiResponse<string>(400, "StartDate and EndDate are required.");
 
                 if (v.StartDate >= v.EndDate)
-                    return new ApiResponse<string>(400, $"StartDate must be earlier than EndDate (Vacation: {v.Description ?? "Unnamed"}).");
+                    return new ApiResponse<string>(400,
+                        $"StartDate must be earlier than EndDate (Vacation: {v.Description ?? "Unnamed"}).");
 
                 if (string.IsNullOrWhiteSpace(v.Description))
                     return new ApiResponse<string>(400, "Vacation description cannot be empty.");
 
-                var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == v.SemesterId);
-                if (semester == null)
-                    return new ApiResponse<string>(400, $"Semester with ID {v.SemesterId} not found.");
+                // =========================
+                // 3️⃣ CHECK SEMESTER EXIST
+                // =========================
+                var semester = await _context.Semesters
+                    .FirstOrDefaultAsync(s => s.Id == v.SemesterId);
 
+                if (semester == null)
+                    return new ApiResponse<string>(400,
+                        $"Semester with ID {v.SemesterId} not found.");
+
+                if (semester.StartAt == null || semester.EndAt == null)
+                    return new ApiResponse<string>(400,
+                        $"Semester {semester.Name} does not have valid start/end date.");
+
+                // =========================
+                // 4️⃣ CHECK VACATION RANGE
+                // =========================
                 if (v.StartDate < semester.StartAt || v.EndDate > semester.EndAt)
                     return new ApiResponse<string>(400,
-                        $"Vacation '{v.Description}' ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd}) must be within the semester period " +
-                        $"({semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}).");
+                        $"Vacation '{v.Description}' ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd}) " +
+                        $"must be within semester period ({semester.StartAt:yyyy-MM-dd} → {semester.EndAt:yyyy-MM-dd}).");
+
+                // =========================
+                // 5️⃣ CHECK TOTAL WEEKS (15-WEEK RULE)
+                // =========================
+                var semesterWeeks = await _context.SemesterWeeks
+                    .Where(sw => sw.SemesterId == v.SemesterId)
+                    .ToListAsync();
+
+                if (semesterWeeks == null || semesterWeeks.Count == 0)
+                    return new ApiResponse<string>(400,
+                        $"Semester {semester.Name} has no generated weeks.");
+
+                int totalWeeks = semesterWeeks.Count;
+
+                if (totalWeeks == 15)
+                    return new ApiResponse<string>(400,
+                        $"Semester {semester.Name} already has exactly 15 weeks. Vacation is not allowed.");
+
+                if (totalWeeks < 15)
+                    return new ApiResponse<string>(400,
+                        $"Semester {semester.Name} has less than 15 weeks. Invalid semester configuration.");
+
+                int extraWeeks = totalWeeks - 15;
+                int maxVacationDays = extraWeeks * 7;
+
+                // =========================
+                // 6️⃣ CHECK TOTAL VACATION DAYS
+                // =========================
+                int existingVacationDays =await _context.SemesterVacations
+                                            .Where(sv => sv.SemesterId == v.SemesterId)
+                                            .SumAsync(sv =>
+                                                (EF.Functions.DateDiffDay(sv.StartAt, sv.EndAt) ?? 0) + 1);
+
+                int newVacationDays =
+                    (v.EndDate.Date - v.StartDate.Date).Days + 1;
+
+                if (existingVacationDays + newVacationDays > maxVacationDays)
+                {
+                    return new ApiResponse<string>(400,
+                        $"Cannot add vacation '{v.Description}'. " +
+                        $"Total vacation days ({existingVacationDays + newVacationDays}) exceed " +
+                        $"allowed extra days ({maxVacationDays}) for semester {semester.Name}.");
+                }
 
                 bool isOverlapping = await _context.SemesterVacations
-                    .AnyAsync(sv => sv.SemesterId == v.SemesterId &&
-                                    ((v.StartDate >= sv.StartAt && v.StartDate <= sv.EndAt) ||
-                                     (v.EndDate >= sv.StartAt && v.EndDate <= sv.EndAt) ||
-                                     (v.StartDate <= sv.StartAt && v.EndDate >= sv.EndAt)));
+                    .AnyAsync(sv =>
+                        sv.SemesterId == v.SemesterId &&
+                        (
+                            (v.StartDate >= sv.StartAt && v.StartDate <= sv.EndAt) ||
+                            (v.EndDate >= sv.StartAt && v.EndDate <= sv.EndAt) ||
+                            (v.StartDate <= sv.StartAt && v.EndDate >= sv.EndAt)
+                        ));
 
                 if (isOverlapping)
                     return new ApiResponse<string>(400,
-                        $"Vacation '{v.Description}' ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd}) overlaps with another existing vacation.");
+                        $"Vacation '{v.Description}' ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd}) " +
+                        $"overlaps with another existing vacation.");
             }
 
             var success = await _semesterRepository.AddVacationsAsync(vacations);
             if (!success)
-                return new ApiResponse<string>(500, "Failed to add semester vacations due to a server error.");
+                return new ApiResponse<string>(500,
+                    "Failed to add semester vacations due to a server error.");
 
             var description = string.Join("; ", vacations.Select(v =>
                 $"{v.Description} ({v.StartDate:yyyy-MM-dd} → {v.EndDate:yyyy-MM-dd})"));
@@ -997,7 +1036,8 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 CreateAt = DateTime.Now
             });
 
-            return new ApiResponse<string>(200, "Semester vacations added successfully.");
+            return new ApiResponse<string>(200,
+                "Semester vacations added successfully.");
         }
 
         public async Task<ApiResponse<string>> UpdateSemesterVacationsAsync(int semesterId, List<SemesterUpdateVacationRequestDto> vacationDtos)

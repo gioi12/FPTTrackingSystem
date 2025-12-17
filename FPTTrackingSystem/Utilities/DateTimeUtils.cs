@@ -49,9 +49,9 @@ namespace FPTTrackingSystem.Utilities
             }
         }
         public static DateTime GetTargetDate(
-    string data,
-    DateTime startDate,
-    List<(DateTime startAt, DateTime endAt)> holidays)
+     string data,
+     DateTime startDate,
+     List<(DateTime startAt, DateTime endAt)> holidays)
         {
             var parts = data.Split('-', StringSplitOptions.TrimEntries);
             if (parts.Length != 3)
@@ -66,30 +66,55 @@ namespace FPTTrackingSystem.Utilities
             if (!TimeSpan.TryParseExact(parts[2].Trim(), "hh\\:mm", CultureInfo.InvariantCulture, out var time))
                 throw new ArgumentException("Invalid time format");
 
+            // Bước 1: Tính ngày mục tiêu ban đầu (chưa xét ngày nghỉ)
             var result = startDate.AddDays((week - 1) * 7);
+
+            // Bước 2: Tìm đúng ngày trong tuần
             while (result.DayOfWeek != dayOfWeek)
                 result = result.AddDays(1);
 
-            result = result.Date.Add(time);
+            // Bước 3: Cộng thêm số ngày nghỉ nằm GIỮA startDate và result
+            int totalHolidayDays = 0;
+            foreach (var (holidayStart, holidayEnd) in holidays.OrderBy(h => h.startAt))
+            {
+                // Chỉ tính ngày nghỉ nằm trong khoảng [startDate, result]
+                if (holidayEnd <= startDate || holidayStart >= result)
+                    continue; // Kỳ nghỉ nằm ngoài phạm vi
 
+                var overlapStart = holidayStart > startDate ? holidayStart : startDate;
+                var overlapEnd = holidayEnd < result ? holidayEnd : result;
+
+                totalHolidayDays += (int)(overlapEnd - overlapStart).TotalDays;
+            }
+
+            // Cộng thêm số ngày nghỉ vào kết quả
+            result = result.AddDays(totalHolidayDays);
+
+            // Bước 4: Nếu kết quả cuối cùng rơi vào kỳ nghỉ, đẩy ra sau kỳ nghỉ
             bool adjusted;
             do
             {
                 adjusted = false;
-                foreach (var (startAt, endAt) in holidays)
+                foreach (var (holidayStart, holidayEnd) in holidays.OrderBy(h => h.startAt))
                 {
-                    if (result >= startAt && result < endAt)
+                    if (result >= holidayStart && result < holidayEnd)
                     {
-                        result = endAt.Date.Add(time);
+                        result = holidayEnd;
                         adjusted = true;
                         break;
                     }
                 }
             } while (adjusted);
 
+            // Bước 5: Đảm bảo vẫn đúng ngày trong tuần sau khi điều chỉnh
+            while (result.DayOfWeek != dayOfWeek)
+                result = result.AddDays(1);
+
+            // Bước 6: Thêm giờ phút
+            result = result.Date.Add(time);
+
             return result;
         }
-
 
         private static DateTime GetDayInWeek(DateTime startDate, DayOfWeek targetDay)
         {

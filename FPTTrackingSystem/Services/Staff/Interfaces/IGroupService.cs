@@ -19,8 +19,8 @@ namespace FPTTrackingSystem.Services.Staff.Interfaces
         System.Threading.Tasks.Task DeleteFileGroup(int attachmentId);
         Task<List<AttachmentRes>> GetFilesGroup(int groupId);
         Task<ApiResponse<List<GroupMentorDto>>> GetExpiredGroupsBySupervisorAsync(int supervisorId);
-        Task<object> GetMockData(int semesterId);
-        Task<object> CreateMockData(int semesterId);
+        Task<object> GetMockData(int semesterId, string semesterName);
+        Task<object> CreateMockData(int semesterId, string semesterName);
         Task<Group> UpdateExpireDateAsync(int groupId, DateTime newExpireDate, string userRole);
     }
 }

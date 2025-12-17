@@ -442,25 +442,44 @@ namespace Repositories.Student.Implements
         public async Task<string> MeetingMinuteData(int groupId)
         {
             var data = await _context.Meetings
-          .Include(x => x.MeetingScheduleDates)
-              .ThenInclude(y => y.MeetingMinute)
-          .Where(m => m.Groups.Any(g => g.Id == groupId))
-          .SelectMany(m => m.MeetingScheduleDates)
-          .Where(msd => msd.MeetingMinute != null)
-          .Select(msd => new 
-          {
-             msd.MeetingDate,
-             msd.Description,
-             msd.MeetingMinute.MeetingContent,
-             msd.MeetingMinute.Attendance,
-             msd.MeetingMinute.Issue,
-             msd.MeetingMinute.Other,
-             msd.MeetingMinute.StartAt,
-             msd.MeetingMinute.EndAt
-          })
-          .ToListAsync();
+                .Include(x => x.MeetingScheduleDates)
+                    .ThenInclude(y => y.MeetingMinute)
+                .Where(m => m.Groups.Any(g => g.Id == groupId))
+                .SelectMany(m => m.MeetingScheduleDates)
+                .Where(msd => msd.MeetingMinute != null)
+                .Select(msd => new
+                {
+                    msd.MeetingDate,
+                    msd.Description,
+                    msd.MeetingMinute.MeetingContent,
+                    msd.MeetingMinute.Attendance,
+                    msd.MeetingMinute.Issue,
+                    msd.MeetingMinute.Other,
+                    msd.MeetingMinute.StartAt,
+                    msd.MeetingMinute.EndAt
+                })
+                .ToListAsync();
 
-            return data?.ToString() ?? "";
+            if (data == null || data.Count == 0)
+                return string.Empty;
+
+            var sb = new StringBuilder();
+
+            foreach (var x in data)
+            {
+                sb.AppendLine($"Meeting Date: {x.MeetingDate:yyyy-MM-dd}");
+                sb.AppendLine($"Description: {x.Description}");
+                sb.AppendLine($"Time: {x.StartAt:HH:mm} - {x.EndAt:HH:mm}");
+                sb.AppendLine("Content:");
+                sb.AppendLine(x.MeetingContent);
+
+                sb.AppendLine($"Attendance: {x.Attendance}");
+                sb.AppendLine($"Issues: {x.Issue}");
+                sb.AppendLine($"Other: {x.Other}");
+                sb.AppendLine(new string('-', 40));
+            }
+
+            return sb.ToString();
         }
 
         public Task<List<MeetingMinute>?> GetMeetingMinutesByMeetingId(int meetingId)
