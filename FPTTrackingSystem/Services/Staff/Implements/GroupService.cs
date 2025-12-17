@@ -988,7 +988,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return new
             {
-                Message = $"Create mock data successfully for semester {semesterId}"
+                Message = $"Create mock data successfully for semester {semesterName}"
             };
         }
     }
