@@ -1,5 +1,6 @@
 ﻿
 using DataTranferObjects.Common.Request;
+using DataTranferObjects.Common.Response;
 using DataTranferObjects.Enum;
 using FPTTrackingSystem.Services.Admin;
 using FPTTrackingSystem.Services.Common.Gemini;
@@ -10,6 +11,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace FPTTrackingSystem.Services.Common.MQ
 {
@@ -46,18 +48,56 @@ namespace FPTTrackingSystem.Services.Common.MQ
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var task = JsonSerializer.Deserialize<AITaskMessage>(message);
+                var taskMessage = JsonSerializer.Deserialize<AITaskMessage>(message);
 
-                using var scope = _serviceProvider.CreateScope();
-                var aiService = scope.ServiceProvider.GetRequiredService<IGeminiService>();
-                var result = await aiService.AskGeminiAsync(task.Prompt?.ToString() ?? "");
-                _cache.Set(task.TaskId, result, TimeSpan.FromMinutes(5));
+                if (taskMessage == null)
+                {
+                    await channel.BasicAckAsync(ea.DeliveryTag, false);
+                    return;
+                }
 
+                try
+                {
+                    // 🔹 set Processing
+                    _cache.Set(taskMessage.TaskId, new AITaskState
+                    {
+                        TaskId = taskMessage.TaskId,
+                        Status = AIEnum.Processing,
+                        CreatedAt = DateTime.UtcNow
+                    });
+
+                    using var scope = _serviceProvider.CreateScope();
+                    var aiService = scope.ServiceProvider.GetRequiredService<IGeminiService>();
+
+                    var result = await aiService.AskGeminiAsync(taskMessage.Prompt ?? "");
+
+                    // 🔹 Done
+                    _cache.Set(taskMessage.TaskId, new AITaskState
+                    {
+                        TaskId = taskMessage.TaskId,
+                        Status = AIEnum.Done,
+                        Result = result
+                    });
+
+                    await channel.BasicAckAsync(ea.DeliveryTag, false);
+                }
+                catch (Exception ex)
+                {
+                    _cache.Set(taskMessage.TaskId, new AITaskState
+                    {
+                        TaskId = taskMessage.TaskId,
+                        Status = AIEnum.Failed,
+                        Error = ex.Message
+                    });
+
+                    // khong retry de tiep tiem api ,co the them de nang cap
+                    await channel.BasicAckAsync(ea.DeliveryTag, false);
+                }
             };
 
             await channel.BasicConsumeAsync(
                 queue: StringEnum.AI_Queue,
-                autoAck: true,
+                autoAck: false,
                 consumer: consumer);
 
             await Task.Delay(Timeout.Infinite, stoppingToken);

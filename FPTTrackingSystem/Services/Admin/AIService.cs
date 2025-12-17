@@ -3,6 +3,7 @@ using DataTranferObjects.Common.Response;
 using DataTranferObjects.Enum;
 using Entities.Models;
 using FPTTrackingSystem.Services.Common.MQ;
+using Microsoft.Extensions.Caching.Memory;
 using Repositories.Common.Interfaces;
 using Repositories.Student.Interfaces;
 using System.Threading.Tasks;
@@ -14,17 +15,19 @@ namespace FPTTrackingSystem.Services.Admin
         private readonly IAISettingsRepository _repo;
         private readonly RabbitMQProducer _rabbitMQProducer;
         private readonly IMeetingRepository _meetingRepo;
-
-        public AIService(IAISettingsRepository repo,RabbitMQProducer rabbitMQProducer,IMeetingRepository meetingRepository)
+        private readonly IMemoryCache _cache;
+        public AIService(IAISettingsRepository repo,RabbitMQProducer rabbitMQProducer,IMeetingRepository meetingRepository,IMemoryCache cache)
         {
             _repo = repo;
             _rabbitMQProducer = rabbitMQProducer;
             _meetingRepo = meetingRepository;
+            _cache = cache;
         }
 
         public async Task<string> AskAsync(string prompt,int? groupId)
         {
             var taskId = Guid.NewGuid().ToString();
+
             if(groupId != null)
             {
                 prompt += await _meetingRepo.MeetingMinuteData((int)groupId);
@@ -35,7 +38,12 @@ namespace FPTTrackingSystem.Services.Admin
                 TaskId = taskId,
                 Prompt = prompt
             };
-            
+            _cache.Set(taskId, new AITaskState
+            {
+                TaskId = taskId,
+                Status = AIEnum.Pending,
+                CreatedAt = DateTime.UtcNow
+            }, TimeSpan.FromMinutes(10));
             await _rabbitMQProducer.SendMessage(message, StringEnum.AI_Queue);
             return taskId;
         }
