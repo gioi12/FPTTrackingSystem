@@ -1089,6 +1089,44 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     return new ApiResponse<string>(400, "Vacation periods overlap. Please adjust the dates.");
             }
 
+            // =========================
+            // 5️⃣ CHECK TOTAL WEEKS (15-WEEK RULE) - SAME AS ADD
+            // =========================
+            var semesterWeeks = await _context.SemesterWeeks
+                .Where(sw => sw.SemesterId == semesterId)
+                .ToListAsync();
+
+            if (semesterWeeks == null || semesterWeeks.Count == 0)
+                return new ApiResponse<string>(400,
+                    $"Semester {semester.Name} has no generated weeks.");
+
+            int totalWeeks = semesterWeeks.Count;
+
+            if (totalWeeks == 15)
+                return new ApiResponse<string>(400,
+                    $"Semester {semester.Name} already has exactly 15 weeks. Vacation is not allowed.");
+
+            if (totalWeeks < 15)
+                return new ApiResponse<string>(400,
+                    $"Semester {semester.Name} has less than 15 weeks. Invalid semester configuration.");
+
+            int extraWeeks = totalWeeks - 15;
+            int maxVacationDays = extraWeeks * 7;
+
+            // =========================
+            // 6️⃣ CHECK TOTAL VACATION DAYS (FULL NEW LIST)
+            // =========================
+            int totalNewVacationDays = vacationDtos.Sum(v =>
+                (v.EndDate.Date - v.StartDate.Date).Days + 1);
+
+            if (totalNewVacationDays > maxVacationDays)
+            {
+                return new ApiResponse<string>(400,
+                    $"Cannot update vacations. " +
+                    $"Total vacation days ({totalNewVacationDays}) exceed " +
+                    $"allowed extra days ({maxVacationDays}) for semester {semester.Name}.");
+            }
+
             var newVacations = vacationDtos.Select(dto => new SemesterVacation
             {
                 SemesterId = semesterId,
@@ -1113,9 +1151,6 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return new ApiResponse<string>(200, "Semester vacation list updated successfully.");
         }
-
-
-
         public Task<ApiResponse<List<SemesterVacationDto>>> GetBySemesterIdAsync(int semesterId)
         {
             throw new NotImplementedException();
