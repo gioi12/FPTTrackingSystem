@@ -1,5 +1,6 @@
 ﻿using DataTranferObjects.Staff.Group;
 using DataTranferObjects.Staff.Semester;
+using System.Globalization;
 
 namespace FPTTrackingSystem.Hepler
 {
@@ -35,14 +36,20 @@ namespace FPTTrackingSystem.Hepler
 
         public static DateTime ConvertSolarToLunar(DateTime solarDate)
         {
-            var calendar = new System.Globalization.ChineseLunisolarCalendar();
+            var calendar = new ChineseLunisolarCalendar();
 
-            int lunarYear = calendar.GetYear(solarDate);
-            int lunarMonth = calendar.GetMonth(solarDate);
-            int lunarDay = calendar.GetDayOfMonth(solarDate);
+            int year = calendar.GetYear(solarDate);
+            int month = calendar.GetMonth(solarDate);
+            int day = calendar.GetDayOfMonth(solarDate);
 
-            return new DateTime(lunarYear, lunarMonth, lunarDay);
+            int leapMonth = calendar.GetLeapMonth(year); 
+
+            if (leapMonth > 0 && month >= leapMonth)
+            {
+                month--; 
+            }
+
+            return new DateTime(year, month, day);
         }
-
     }
 }
