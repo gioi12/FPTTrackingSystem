@@ -140,41 +140,59 @@ public class ZipFallbackMiddleware
     {
         try
         {
-            // path = "/uploads/Fall25/Group1/file.pdf"
+            // Decode URL trước khi xử lý
+            path = Uri.UnescapeDataString(path);
+
+            // path = "/uploads/Fall25/Group1/documents/BÁOCÁOĐẶTHÀNG.pdf"
             var segments = path.TrimStart('/').Split('/');
 
-            // segments = ["uploads", "Fall25", "Group1", "file.pdf"]
-            if (segments.Length < 3)
+            // segments = ["uploads", "Fall25", "Group1", "documents", "BÁOCÁOĐẶTHÀNG.pdf"]
+            if (segments.Length < 4)
             {
                 return false;
             }
 
             string semesterFolder = segments[1]; // "Fall25"
-            string zipPath = Path.Combine(_uploadsRoot, semesterFolder + ".zip");
+            string groupFolder = segments[2];     // "Group1"
+
+            // Tạo path đến file ZIP: uploads/Fall25/Group1.zip
+            string zipPath = Path.Combine(_uploadsRoot, semesterFolder, groupFolder + ".zip");
 
             if (!File.Exists(zipPath))
             {
+                Console.WriteLine($"ZIP file not found: {zipPath}");
                 return false;
             }
 
-            // Path trong ZIP: bỏ "uploads" prefix
-            // insideZipPath = "Fall25/Group1/file.pdf"
-            string insideZipPath = string.Join('/', segments.Skip(1));
+            // Path trong ZIP có thể có 2 dạng:
+            // 1. Không có prefix: "documents/BÁOCÁOĐẶTHÀNG.pdf"
+            // 2. Có prefix folder: "Group1/documents/BÁOCÁOĐẶTHÀNG.pdf"
+
+            string pathWithoutGroup = string.Join('/', segments.Skip(3)); // "documents/BÁOCÁOĐẶTHÀNG.pdf"
+            string pathWithGroup = string.Join('/', segments.Skip(2));     // "Group1/documents/BÁOCÁOĐẶTHÀNG.pdf"
+
+            Console.WriteLine($"Looking in ZIP: {zipPath}");
+            Console.WriteLine($"Trying path without group: {pathWithoutGroup}");
+            Console.WriteLine($"Trying path with group: {pathWithGroup}");
 
             using var zip = ZipFile.OpenRead(zipPath);
 
-            // Thử nhiều cách tìm entry
-            var entry = zip.GetEntry(insideZipPath.Replace('\\', '/'))
-                     ?? zip.GetEntry(insideZipPath.Replace('\\', '/').TrimStart('/'))
-                     ?? zip.Entries.FirstOrDefault(e =>
-                         e.FullName.Replace('\\', '/').Equals(insideZipPath.Replace('\\', '/'),
-                         StringComparison.OrdinalIgnoreCase));
+            // Thử tìm với nhiều variants
+            var entry = TryFindEntry(zip, pathWithoutGroup)
+                     ?? TryFindEntry(zip, pathWithGroup);
 
             if (entry == null)
             {
-                Console.WriteLine($"Entry not found in ZIP: {insideZipPath}");
+                Console.WriteLine($"Entry not found!");
+                Console.WriteLine($"First 20 entries in ZIP:");
+                foreach (var e in zip.Entries.Take(20))
+                {
+                    Console.WriteLine($"  - [{e.FullName}]");
+                }
                 return false;
             }
+
+            Console.WriteLine($"✓ Found entry: {entry.FullName}");
 
             // Get content type
             if (!_contentTypeProvider.TryGetContentType(entry.Name, out var contentType))
@@ -192,8 +210,8 @@ public class ZipFallbackMiddleware
             var shouldInline = ShouldDisplayInline(contentType);
 
             context.Response.Headers["Content-Disposition"] = shouldInline
-                ? $"inline; filename=\"{fileName}\""
-                : $"attachment; filename=\"{fileName}\"";
+                ? $"inline; filename=\"{Uri.EscapeDataString(fileName)}\""
+                : $"attachment; filename=\"{Uri.EscapeDataString(fileName)}\"";
 
             context.Response.Headers["Accept-Ranges"] = "bytes";
             context.Response.Headers["Access-Control-Allow-Origin"] = "*";
@@ -212,6 +230,22 @@ public class ZipFallbackMiddleware
             Console.WriteLine($"Stack trace: {ex.StackTrace}");
             return false;
         }
+    }
+
+    private ZipArchiveEntry TryFindEntry(ZipArchive zip, string searchPath)
+    {
+        var normalizedSearch = searchPath.Replace('\\', '/').TrimStart('/');
+
+        // Thử exact match
+        var entry = zip.GetEntry(normalizedSearch);
+        if (entry != null) return entry;
+
+        // Thử case-insensitive
+        return zip.Entries.FirstOrDefault(e =>
+        {
+            var entryPath = e.FullName.Replace('\\', '/').TrimStart('/');
+            return entryPath.Equals(normalizedSearch, StringComparison.OrdinalIgnoreCase);
+        });
     }
 
     private static bool ShouldDisplayInline(string contentType)

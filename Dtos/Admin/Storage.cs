@@ -9,14 +9,21 @@ namespace DataTranferObjects.Admin
     public class SemesterStorageInfo
     {
         public string Name { get; set; }
-        public bool HasZipFile { get; set; }
+        public string ZipFolder { get; set; } // Format: "99/100"
+        public int ZippedSubFolders { get; set; }
+        public int TotalSubFolders { get; set; }
         public bool HasFolder { get; set; }
+        public bool HasZipFile { get; set; }
         public long FolderSize { get; set; } // bytes
         public long ZipSize { get; set; } // bytes
+
         public string FolderSizeFormatted => FormatSize(FolderSize);
         public string ZipSizeFormatted => FormatSize(ZipSize);
         public long TotalSize => FolderSize + ZipSize;
         public string TotalSizeFormatted => FormatSize(TotalSize);
+
+        public double ZipPercentage => TotalSubFolders > 0 ? (ZippedSubFolders * 100.0 / TotalSubFolders) : 0;
+        public string ZipPercentageFormatted => $"{ZipPercentage:0.#}%";
 
         public static string FormatSize(long bytes)
         {
@@ -50,6 +57,7 @@ namespace DataTranferObjects.Admin
 
     public class UnzipRequest
     {
+        public string parentFolder { get; set; } // "Fall25"
         public string ArchiveFileName { get; set; } // "Fall25.zip"
         public bool DeleteArchiveAfter { get; set; } = false;
     }
@@ -63,12 +71,14 @@ namespace DataTranferObjects.Admin
     public class GroupInfo
     {
         public string GroupName { get; set; }
+        public string ParentFolder { get; set; } 
+        public bool HasZip { get; set; }
         public string Path { get; set; }
         public long Size { get; set; }
         public string SizeFormatted { get; set; }
         public int FileCount { get; set; }
         public int SubFolderCount { get; set; }
-        public string PdfFilePath { get; set; } 
+        public string PdfFilePath { get; set; }
         public string PdfFileName { get; set; }
         public DateTime LastModified { get; set; }
     }

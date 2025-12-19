@@ -64,7 +64,7 @@ namespace FPTTrackingSystem.Controllers.Admin
             if (string.IsNullOrWhiteSpace(request.ArchiveFileName))
                 throw new System.ComponentModel.DataAnnotations.ValidationException("ArchiveFileName không được để trống");
 
-            var result = await _storageService.UnzipArchiveAsync(_uploadsRoot, request.ArchiveFileName, request.DeleteArchiveAfter);
+            var result = await _storageService.UnzipArchiveAsync(_uploadsRoot,request.parentFolder, request.ArchiveFileName, request.DeleteArchiveAfter);
 
             if (!result.Success)
                 throw new System.ComponentModel.DataAnnotations.ValidationException(result.Message);
