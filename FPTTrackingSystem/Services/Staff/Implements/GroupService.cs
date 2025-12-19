@@ -562,6 +562,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .Where(a => a.User != null)
                 .Select(u => new
                 {
+                    u.Id,
                     u.User.Fullname,
                     u.User.RollNumber,
                     u.User.Mail,
@@ -823,6 +824,30 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
              };
          }*/
 
+        private static List<Account> FilterAccountsBySemester(string semesterName)
+        {
+            // luôn cần mentors trong kỳ đó
+            bool IsMentor(Account a) => a.RoleId == 2;
+
+            bool IsStudentOfSemester(Account a)
+            {
+                if (a.RoleId != 1 || a.User == null || string.IsNullOrEmpty(a.User.RollNumber)) return false;
+
+                return semesterName switch
+                {
+                    "Summer 2025" => a.User.RollNumber.StartsWith("SE140"),
+                    "Fall 2025" => a.User.RollNumber.StartsWith("SE170") || a.User.RollNumber.StartsWith("SE180"),
+                    "Spring 2026" => a.User.RollNumber.StartsWith("SE190"),
+                    _ => false
+                };
+            }
+
+            return MockData.Accounts
+                .Where(a => IsStudentOfSemester(a) || IsMentor(a))
+                .ToList();
+        }
+
+
         public async Task<object> CreateMockData(int semesterId, string semesterName)
         {
             // 1️⃣ Tạo / cập nhật MajorCategories
@@ -833,11 +858,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 if (existingMajor == null)
                 {
                     await _majorRepository.CreateAsync(new MajorCategory
-                    {
-                        Code = major.Code,
-                        Name = major.Name,
-                        IsActive = major.IsActive
-                    });
+                            {
+                                Code = major.Code,
+                                Name = major.Name,
+                                IsActive = major.IsActive
+                            });
                 }
                 else
                 {
@@ -852,8 +877,14 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 }
             }
 
+            var existed = await _groupRepository.GetAllAsync(g => g.SemesterId == semesterId);
+            if (existed != null && existed.Any())
+            {
+                return new { Message = $"Semester {semesterName} (Id={semesterId}) already mocked" };
+            }
+
             // 2️⃣ Tạo / cập nhật Accounts và Users
-            var accounts = MockData.Accounts;
+            var accounts = FilterAccountsBySemester(semesterName);
             var usernames = accounts.Select(a => a.Username.ToLower()).ToList();
             var existingAccounts = await _accountRepository.GetAllAsync(a => usernames.Contains(a.Username.ToLower()));
 
@@ -957,13 +988,19 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                     if (existingGroup.VietnameseTitle != group.VietnameseTitle) { existingGroup.VietnameseTitle = group.VietnameseTitle; isGroupUpdated = true; }
                     if (existingGroup.StatusId != group.StatusId) { existingGroup.StatusId = group.StatusId; isGroupUpdated = true; }
                     if (existingGroup.ExpireDate != semester?.EndAt) { existingGroup.ExpireDate = semester?.EndAt; isGroupUpdated = true; }
+                    // Map UserId -> User (build 1 lần)
+                    var userMap = allAccounts
+                        .Where(a => a.User != null)
+                        .Select(a => a.User!)
+                        .ToDictionary(u => u.Id, u => u);
 
                     foreach (var newGU in group.GroupUsers)
                     {
-                        var userInDb = allAccounts.FirstOrDefault(a => a.User.RollNumber == newGU.User.RollNumber)?.User;
-                        if (userInDb == null) continue;
+                        if (!userMap.TryGetValue(newGU.UserId, out var userInDb))
+                            continue;
 
                         var existingGU = existingGroup.GroupUsers.FirstOrDefault(gu => gu.UserId == userInDb.Id);
+
                         if (existingGU == null)
                         {
                             existingGroup.GroupUsers.Add(new GroupUser
@@ -982,9 +1019,11 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                             if (existingGU.Role != newGU.Role) { existingGU.Role = newGU.Role; isGroupUpdated = true; }
                             if (existingGU.IsActive != newGU.IsActive) { existingGU.IsActive = newGU.IsActive; isGroupUpdated = true; }
                             if (existingGU.Status != newGU.Status) { existingGU.Status = newGU.Status; isGroupUpdated = true; }
+
                             existingGU.UpdateAt = DateTime.Now;
                         }
                     }
+
 
                     if (isGroupUpdated)
                         await _groupRepository.UpdateAsync(existingGroup);

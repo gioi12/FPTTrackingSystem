@@ -24,4 +24,11 @@ namespace DataTranferObjects.Staff.Major
         public List<MajorCategoryDTO>? MajorCategories { get; set; }
     }
 
+    public class MockGroupUser
+    {
+        public string RollNumber { get; set; }
+        public string Role { get; set; }
+    }
+
+
 }

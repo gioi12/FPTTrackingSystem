@@ -157,7 +157,6 @@ namespace FPTTrackingSystem.Helper
         new Account { Username = "user3@fpt.edu.vn", Password = "123456", RoleId = 1, User = new User { RollNumber = "SE140003", Fullname = "Le Thi Hoa", Dob = new DateOnly(2000,3,1), Gender = true, Mail = "haildhe172452@fpt.edu.vn", Phone="0909000003", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
         new Account { Username = "user4@fpt.edu.vn", Password = "123456", RoleId = 1, User = new User { RollNumber = "SE140004", Fullname = "Tran Van Binh", Dob = new DateOnly(2000,4,1), Gender = true, Mail = "handghe170064@fpt.edu.vn", Phone="0909000004", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
         new Account { Username = "user5@fpt.edu.vn", Password = "123456", RoleId = 1, User = new User { RollNumber = "SE140005", Fullname = "Nguyen Thi Mai", Dob = new DateOnly(2000,5,1), Gender = true, Mail = "cuonghvhe176362@fpt.edu.vn", Phone="0909000005", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
-        new Account { Username = "user6@fpt.edu.vn", Password = "123456", RoleId = 1, User = new User { RollNumber = "SE140006", Fullname = "Le Van Cuong", Dob = new DateOnly(2000,6,1), Gender = true, Mail = "user6@fpt.edu.vn", Phone="0909000006", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE"} },
 
         new Account { Username = "lampt2@gmail.com", Password = "123456", RoleId = 2, User = new User { RollNumber="ME01", Fullname="Mentor Phan Truong Lam", Dob=new DateOnly(1995,6,1), Gender=true, MajorId=1, CampusId=1, Mail="lampt2@gmail.com", Phone="0909123456", Address="Ha Noi", StatusId="ACTIVE"} },
 
@@ -313,7 +312,56 @@ namespace FPTTrackingSystem.Helper
         new Account { Username="sondvme19@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME19", Fullname="Do Van Son", Dob=new DateOnly(1983,2,17), Gender=true, Mail="sondv@fpt.edu.vn", Phone="0912111119", MajorId=1, CampusId=1, Address="Ha Noi", StatusId="ACTIVE"} },
     };
 
-        public static List<Group> GetGroupsForSemester(int semesterId, string semesterName)
+        private static IEnumerable<Account> GetMentorsBySemester(string semesterName)
+        {
+            return semesterName switch
+            {
+                "Summer 2025" => Accounts.Where(a =>
+                    a.RoleId == 2 && a.User.RollNumber == "ME01"),
+
+                "Fall 2025" => Accounts.Where(a =>
+                    a.RoleId == 2 &&
+                    new[] { "ME01", "ME02", "ME03", "ME04", "ME05", "ME06", "ME07", "ME08", "ME09" }
+                        .Contains(a.User.RollNumber)),
+
+                "Spring 2026" => Accounts.Where(a =>
+                    a.RoleId == 2 &&
+                    new[] { "ME10", "ME11" }.Contains(a.User.RollNumber)),
+
+                _ => Enumerable.Empty<Account>()
+            };
+        }
+
+        public static List<Account> FilterAccountsBySemester(string semesterName)
+        {
+            var mentorRolls = GetMentorsBySemester(semesterName)
+                .Select(m => m.User.RollNumber)
+                .ToHashSet();
+
+            bool IsStudent(Account a) =>
+                a.RoleId == 1 &&
+                a.User != null &&
+                semesterName switch
+                {
+                    "Summer 2025" => a.User.RollNumber.StartsWith("SE140"),
+                    "Fall 2025" => a.User.RollNumber.StartsWith("SE170") || a.User.RollNumber.StartsWith("SE180"),
+                    "Spring 2026" => a.User.RollNumber.StartsWith("SE190"),
+                    _ => false
+                };
+
+            bool IsMentor(Account a) =>
+                a.RoleId == 2 &&
+                a.User != null &&
+                mentorRolls.Contains(a.User.RollNumber);
+
+            return Accounts
+                .Where(a => IsStudent(a) || IsMentor(a))
+                .ToList();
+        }
+
+
+
+        /*public static List<Group> GetGroupsForSemester(int semesterId, string semesterName)
         {
             // =========================
             // SUMMER 2025
@@ -376,8 +424,7 @@ namespace FPTTrackingSystem.Helper
                 var allStudents = Accounts
                                 .Where(a => a.RoleId == 1 &&
                                     (a.User.RollNumber.StartsWith("SE170")
-                                  || a.User.RollNumber.StartsWith("SE180")
-                                  || a.User.RollNumber.StartsWith("SE190")))
+                                  || a.User.RollNumber.StartsWith("SE180")))
                                 .ToList();
                 var mentors = Accounts
                     .Where(a => a.RoleId == 2)
@@ -478,8 +525,6 @@ namespace FPTTrackingSystem.Helper
                                  .Where(a => a.RoleId == 1 &&
                                      (a.User.RollNumber.StartsWith("SE190")))
                                  .ToList();
-
-
                 var mentors = Accounts
                     .Where(a => a.RoleId == 2)
                     .ToDictionary(a => a.User.RollNumber);
@@ -556,7 +601,247 @@ namespace FPTTrackingSystem.Helper
             }
 
             return new List<Group>();
+        }*/
+
+        public static List<Group> GetGroupsForSemester(int semesterId, string semesterName)
+        {
+            // =========================
+            // SUMMER 2025
+            // =========================
+            if (semesterName == "Summer 2025")
+            {
+                var students = Accounts
+                    .Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE140"))
+                    .OrderBy(a => a.User.RollNumber)
+                    .ToList();
+
+                var mentor = Accounts.FirstOrDefault(a => a.RoleId == 2 && a.User.RollNumber == "ME01");
+                if (mentor == null) throw new Exception("Không tìm thấy mentor ME01");
+
+                return new List<Group>
+        {
+            new Group
+            {
+                Code = "G01",
+                Name = "Capstone Team Vanguard",
+                SemesterId = semesterId,
+                Profession = "AI Development",
+                MajorId = 1,
+                Description = "Team phát triển hệ thống AI",
+                VietnameseTitle = "Nhóm Tiên Phong",
+                StatusId = "ACTIVE",
+                ExpireDate = DateTime.Now.AddMonths(6),
+                GroupUsers = students.Select((s, i) => new GroupUser
+                {
+                    User = new User
+                    {
+                        RollNumber = s.User.RollNumber,
+                        Fullname = s.User.Fullname,
+                        Dob = s.User.Dob,
+                        Gender = s.User.Gender,
+                        Mail = s.User.Mail,
+                        Phone = s.User.Phone,
+                        MajorId = s.User.MajorId,
+                        CampusId = s.User.CampusId,
+                        CapstoneProject = s.User.CapstoneProject,
+                        Address = s.User.Address,
+                        StatusId = s.User.StatusId
+                    },
+                    Role = i == 0 ? "Leader" : "Student",
+                    Status = "Active",
+                    CreateAt = DateTime.Now
+                })
+                .Append(new GroupUser
+                {
+                    User = mentor.User,
+                    Role = "Supervisor",
+                    Status = "Active",
+                    CreateAt = DateTime.Now
+                }).ToList()
+            }
+        };
+            }
+
+            // =========================
+            // FALL 2025
+            // =========================
+            if (semesterName == "Fall 2025")
+            {
+                var students = Accounts
+                    .Where(a => a.RoleId == 1 &&
+                        (a.User.RollNumber.StartsWith("SE170") ||
+                         a.User.RollNumber.StartsWith("SE180")))
+                    .OrderBy(a => a.User.RollNumber)
+                    .ToList();
+
+                var mentorMap = new Dictionary<int, string>
+        {
+            { 0,"ME01" },{ 1,"ME02" },{ 2,"ME03" },{ 3,"ME04" },{ 4,"ME05" },
+            { 5,"ME06" },{ 6,"ME07" },{ 7,"ME07" },{ 8,"ME08" },{ 9,"ME09" }
+        };
+
+                return Enumerable.Range(0, 10).Select(i =>
+                {
+                    var mentorRoll = mentorMap[i];
+                    var mentor = Accounts.First(a => a.RoleId == 2 && a.User.RollNumber == mentorRoll);
+                    var descriptions = new[]
+                        {
+                            "A system for tracking and managing student progress at FPT University.",
+                            "An intelligent platform for course registration and academic scheduling.",
+                            "An AI-powered application for monitoring and evaluating student learning progress.",
+                            "A system for managing and organizing campus events efficiently.",
+                            "A platform that connects students with internship opportunities and enterprises.",
+                            "A smart attendance system using modern technologies.",
+                            "An AI-based system for career orientation and recommendation.",
+                            "An AI-powered automatic attendance solution.",
+                            "A smart dormitory management system for students.",
+                            "A platform for collecting and analyzing student feedback."
+                        };
+
+                    return new Group
+                    {
+                        Code = $"G{i + 1:D2}",
+                        Name = i switch
+                        {
+                            0 => "FPT Tracking System",
+                            1 => "Smart Course Booking",
+                            2 => "AI Student Progress Monitor",
+                            3 => "Campus Event Management System",
+                            4 => "Internship Matching Platform",
+                            5 => "Smart Attendance System",
+                            6 => "AI Career Recommendation",
+                            7 => "Digital Attendance AI",
+                            8 => "Smart Dormitory System",
+                            _ => "Student Feedback Platform"
+                        },
+                        VietnameseTitle = i switch
+                        {
+                            0 => "Hệ thống theo dõi FPT",
+                            1 => "Hệ thống đăng ký môn học thông minh",
+                            2 => "Theo dõi tiến độ sinh viên bằng AI",
+                            3 => "Quản lý sự kiện trong campus",
+                            4 => "Nền tảng kết nối thực tập",
+                            5 => "Hệ thống điểm danh thông minh",
+                            6 => "Gợi ý nghề nghiệp bằng AI",
+                            7 => "Điểm danh AI",
+                            8 => "Quản lý ký túc xá",
+                            _ => "Phản hồi sinh viên"
+                        },
+                        Profession = i is 2 or 6 or 7 ? "AI Development" : "Software Engineering",
+                        SemesterId = semesterId,
+                        Description = descriptions[i],
+                        StatusId = "ACTIVE",
+                        ExpireDate = DateTime.Now.AddMonths(6),
+                        GroupUsers = students
+                            .Skip(i * 5)
+                            .Take(5)
+                            .Select((s, idx) => new GroupUser
+                            {
+                                User = s.User,
+                                Role = idx == 0 ? "Leader" : "Student",
+                                Status = "Active",
+                                CreateAt = DateTime.Now
+                            })
+                            .Append(new GroupUser
+                            {
+                                User = mentor.User,
+                                Role = "Supervisor",
+                                Status = "Active",
+                                CreateAt = DateTime.Now
+                            }).ToList()
+                    };
+                }).ToList();
+            }
+
+            // =========================
+            // SPRING 2026
+            // =========================
+            if (semesterName == "Spring 2026")
+            {
+                var descriptions = new[]
+                {
+                    "An AI-based application that helps students plan and manage their study schedules.",
+                    "A smart library system with advanced management and search capabilities.",
+                    "An AI-powered solution for exam proctoring and anti-cheating.",
+                    "A system for tracking and managing student internship activities.",
+                    "A campus chatbot that supports students in academic and campus-related activities.",
+                    "A learning analytics platform to analyze academic performance data.",
+                    "An intelligent system for course and learning path recommendations.",
+                    "An online system for managing thesis and project defenses.",
+                    "A CRM system for managing student information and interactions.",
+                    "A comprehensive thesis and graduation project management platform."
+                };
+
+                var students = Accounts
+                    .Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE190"))
+                    .OrderBy(a => a.User.RollNumber)
+                    .ToList();
+
+                var mentorRolls = new[]
+                {
+            "ME10","ME11","ME12","ME13","ME14",
+            "ME15","ME16","ME17","ME18","ME19"
+        };
+
+                var names = new[]
+                {
+            "AI Study Planner","Smart Library","Exam Proctoring AI","Intern Tracker",
+            "Campus Chatbot","Learning Analytics","Course Recommendation",
+            "Online Defense System","Student CRM","Thesis Management"
+        };
+
+                var vnTitles = new[]
+                {
+            "Lập kế hoạch học AI","Thư viện thông minh","Giám sát thi AI","Theo dõi thực tập",
+            "Chatbot campus","Phân tích học tập","Gợi ý môn học",
+            "Bảo vệ online","CRM sinh viên","Quản lý khóa luận"
+        };
+
+                var professions = new[]
+                {
+            "AI Development","Software Engineering","AI Development","Software Engineering",
+            "AI Development","AI Development","AI Development",
+            "Software Engineering","Software Engineering","Software Engineering"
+        };
+
+                return Enumerable.Range(0, 10).Select(i =>
+                {
+                    var mentor = Accounts.First(a => a.RoleId == 2 && a.User.RollNumber == mentorRolls[i]);
+
+                    return new Group
+                    {
+                        Code = $"G{i + 1:D2}",
+                        Name = names[i],
+                        Description = descriptions[i],
+                        VietnameseTitle = vnTitles[i],
+                        Profession = professions[i],
+                        SemesterId = semesterId,
+                        StatusId = "ACTIVE",
+                        ExpireDate = DateTime.Now.AddMonths(6),
+                        GroupUsers = students
+                            .Skip(i * 5)
+                            .Take(5)
+                            .Select((s, idx) => new GroupUser
+                            {
+                                User = s.User,
+                                Role = idx == 0 ? "Leader" : "Student",
+                                Status = "Active",
+                                CreateAt = DateTime.Now
+                            })
+                            .Append(new GroupUser
+                            {
+                                User = mentor.User,
+                                Role = "Supervisor",
+                                Status = "Active",
+                                CreateAt = DateTime.Now
+                            }).ToList()
+                    };
+                }).ToList();
+            }
+
+            return new List<Group>();
         }
+
 
 
     }
