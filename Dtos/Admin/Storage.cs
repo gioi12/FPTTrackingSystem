@@ -12,20 +12,14 @@ namespace DataTranferObjects.Admin
         public string ZipFolder { get; set; } // Format: "99/100"
         public int ZippedSubFolders { get; set; }
         public int TotalSubFolders { get; set; }
-        public bool HasFolder { get; set; }
-        public bool HasZipFile { get; set; }
-        public long FolderSize { get; set; } // bytes
-        public long ZipSize { get; set; } // bytes
-
+        public long FolderSize { get; set; } // bytes - tổng size của folder
+        public long ZipSize { get; set; } // bytes - tổng size của tất cả file zip
         public string FolderSizeFormatted => FormatSize(FolderSize);
         public string ZipSizeFormatted => FormatSize(ZipSize);
-        public long TotalSize => FolderSize + ZipSize;
-        public string TotalSizeFormatted => FormatSize(TotalSize);
-
         public double ZipPercentage => TotalSubFolders > 0 ? (ZippedSubFolders * 100.0 / TotalSubFolders) : 0;
         public string ZipPercentageFormatted => $"{ZipPercentage:0.#}%";
 
-        public static string FormatSize(long bytes)
+        private static string FormatSize(long bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
             double len = bytes;
