@@ -72,27 +72,6 @@ namespace FPTTrackingSystem.Controllers.Admin
             return Ok(ApiResponse<object>.Success(result.Data, result.Message));
         }
 
-
-        [HttpGet("size/{semesterName}")]
-        public IActionResult GetFolderSize(string semesterName)
-        {
-            var folderPath = Path.Combine(_uploadsRoot, semesterName);
-
-            if (!Directory.Exists(folderPath))
-                throw new KeyNotFoundException($"Folder không tồn tại: {semesterName}");
-
-            var size = _storageService.GetDirectorySize(folderPath);
-
-            var data = new
-            {
-                SemesterName = semesterName,
-                SizeBytes = size,
-                SizeFormatted = SemesterStorageInfo.FormatSize(size)
-            };
-
-            return Ok(ApiResponse<object>.Success(data, "Lấy dung lượng thành công."));
-        }
-
         /// <summary>
         /// Lấy danh sách các nhóm trong một kỳ học (có phân trang)
         /// GET: api/admin/groups/Fall25?pageNumber=1&pageSize=10
@@ -111,41 +90,7 @@ namespace FPTTrackingSystem.Controllers.Admin
             ));
         }
 
-        /// <summary>
-        /// Lấy dung lượng của một nhóm cụ thể
-        /// GET: api/admin/groups/Fall25/Group1/size
-        /// </summary>
-        [HttpGet("{semesterName}/{groupName}/size")]
-        public IActionResult GetGroupSize(string semesterName, string groupName)
-        {
-            var groupPath = Path.Combine(_uploadsRoot, semesterName, groupName);
-
-            if (!Directory.Exists(groupPath))
-                throw new KeyNotFoundException($"Nhóm không tồn tại: {semesterName}/{groupName}");
-
-            var size = _storageService.GetDirectorySize(groupPath);
-
-            var data = new
-            {
-                SemesterName = semesterName,
-                GroupName = groupName,
-                SizeBytes = size,
-                SizeFormatted = FormatSize(size)
-            };
-
-            return Ok(ApiResponse<object>.Success(data, "Lấy dung lượng nhóm thành công."));
-        }
-        private static string FormatSize(long bytes)
-        {
-            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-            double len = bytes;
-            int order = 0;
-            while (len >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                len = len / 1024;
-            }
-            return $"{len:0.##} {sizes[order]}";
-        }
+       
+      
     }
 }

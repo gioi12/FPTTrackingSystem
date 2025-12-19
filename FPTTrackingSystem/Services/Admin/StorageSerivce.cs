@@ -42,58 +42,64 @@ namespace FPTTrackingSystem.Services.Admin
         {
             var info = new SemesterStorageInfo { Name = semesterName };
             var folderPath = Path.Combine(uploadsRoot, semesterName);
-            var zipPath = Path.Combine(uploadsRoot, semesterName + ".zip");
 
-            info.HasFolder = Directory.Exists(folderPath);
-            info.HasZipFile = File.Exists(zipPath);
-
-            if (info.HasFolder)
+            // Kiểm tra folder có tồn tại không
+            if (Directory.Exists(folderPath))
             {
+                // Tính tổng dung lượng folder (bao gồm cả file zip bên trong)
                 info.FolderSize = GetDirectorySize(folderPath);
 
-                // Sử dụng HashSet để tránh đếm trùng
+                // Thu thập tất cả subfolder và file zip
                 var allItems = new HashSet<string>();
 
-                // Thêm tất cả subfolder hiện có
+                // Thêm tất cả subfolder
                 foreach (var subDir in Directory.GetDirectories(folderPath, "*", SearchOption.TopDirectoryOnly))
                 {
                     var subDirName = Path.GetFileName(subDir);
                     allItems.Add(subDirName);
                 }
 
-                // Thêm tất cả file zip (đại diện cho folder đã bị zip và có thể đã xóa)
+                // Thêm tất cả file zip (đại diện cho folder đã bị zip)
                 foreach (var zipFile in Directory.GetFiles(folderPath, "*.zip", SearchOption.TopDirectoryOnly))
                 {
                     var zipNameWithoutExt = Path.GetFileNameWithoutExtension(zipFile);
                     allItems.Add(zipNameWithoutExt);
                 }
 
-                // Tổng số = folder + zip (không trùng lặp)
                 info.TotalSubFolders = allItems.Count;
 
-                // Đếm số item đã bị zip
+                // Đếm số item đã có file zip và tính tổng size của zip
                 info.ZippedSubFolders = 0;
+                info.ZipSize = 0;
+
                 foreach (var itemName in allItems)
                 {
                     var zipFilePath = Path.Combine(folderPath, itemName + ".zip");
                     if (File.Exists(zipFilePath))
                     {
                         info.ZippedSubFolders++;
+                        info.ZipSize += new FileInfo(zipFilePath).Length;
                     }
                 }
 
-                // Format chuỗi hiển thị: "số đã zip / tổng số"
                 info.ZipFolder = $"{info.ZippedSubFolders}/{info.TotalSubFolders}";
             }
             else
             {
-                info.ZipFolder = "N/A";
+                // Folder không tồn tại (chỉ có file zip của cả semester)
+                info.FolderSize = 0;
+                info.ZipSize = 0;
                 info.TotalSubFolders = 0;
                 info.ZippedSubFolders = 0;
-            }
+                info.ZipFolder = "N/A";
 
-            if (info.HasZipFile)
-                info.ZipSize = new FileInfo(zipPath).Length;
+                // Kiểm tra file zip của cả semester
+                var semesterZipPath = Path.Combine(uploadsRoot, semesterName + ".zip");
+                if (File.Exists(semesterZipPath))
+                {
+                    info.ZipSize = new FileInfo(semesterZipPath).Length;
+                }
+            }
 
             return info;
         }
@@ -398,26 +404,26 @@ namespace FPTTrackingSystem.Services.Admin
 
             if (pageNumber < 1) pageNumber = 1;
             if (pageSize < 1) pageSize = 10;
-            if (pageSize > 100) pageSize = 100; // Giới hạn tối đa 100 items/page
+            if (pageSize > 100) pageSize = 100;
 
             var allGroups = new List<GroupInfo>();
+            var processedGroups = new HashSet<string>(); // Tránh trùng lặp
 
+            // 1. Đọc các FOLDER groups
             foreach (var groupDir in Directory.GetDirectories(semesterPath))
             {
                 var groupName = Path.GetFileName(groupDir);
+                processedGroups.Add(groupName);
+
                 var dirInfo = new DirectoryInfo(groupDir);
-
-                // Tìm file PDF đầu tiên trong folder nhóm (không recursive)
                 var pdfFile = Directory.GetFiles(groupDir, "*.pdf", SearchOption.TopDirectoryOnly).FirstOrDefault();
-
-                // Kiểm tra xem có file zip tương ứng không
                 var zipFilePath = groupDir + ".zip";
                 bool hasZip = File.Exists(zipFilePath);
 
                 var groupInfo = new GroupInfo
                 {
                     GroupName = groupName,
-                    ParentFolder = semesterName, // Tên folder cha (semester)
+                    ParentFolder = semesterName,
                     HasZip = hasZip,
                     Path = $"{semesterName}/{groupName}",
                     Size = GetDirectorySize(groupDir),
@@ -425,7 +431,6 @@ namespace FPTTrackingSystem.Services.Admin
                     SubFolderCount = Directory.GetDirectories(groupDir, "*", SearchOption.AllDirectories).Length,
                     LastModified = dirInfo.LastWriteTime
                 };
-
                 groupInfo.SizeFormatted = FormatSize(groupInfo.Size);
 
                 if (pdfFile != null)
@@ -433,6 +438,35 @@ namespace FPTTrackingSystem.Services.Admin
                     groupInfo.PdfFileName = Path.GetFileName(pdfFile);
                     groupInfo.PdfFilePath = $"/uploads/{semesterName}/{groupName}/{groupInfo.PdfFileName}";
                 }
+
+                allGroups.Add(groupInfo);
+            }
+
+            // 2. Đọc các FILE .ZIP không có folder tương ứng (đã bị zip và xóa folder)
+            foreach (var zipFile in Directory.GetFiles(semesterPath, "*.zip"))
+            {
+                var zipFileName = Path.GetFileNameWithoutExtension(zipFile);
+
+                // Bỏ qua nếu đã xử lý folder này rồi
+                if (processedGroups.Contains(zipFileName))
+                    continue;
+
+                var zipFileInfo = new FileInfo(zipFile);
+
+                var groupInfo = new GroupInfo
+                {
+                    GroupName = zipFileName,
+                    ParentFolder = semesterName,
+                    HasZip = true, // ✅ TRUE vì chỉ có file zip
+                    Path = $"{semesterName}/{zipFileName}",
+                    Size = zipFileInfo.Length, // Size của file zip
+                    SizeFormatted = FormatSize(zipFileInfo.Length),
+                    FileCount = 0, // ❌ Không đọc được
+                    SubFolderCount = 0, // ❌ Không đọc được
+                    PdfFileName = null, // ❌ Không đọc được
+                    PdfFilePath = null, // ❌ Không đọc được
+                    LastModified = zipFileInfo.LastWriteTime
+                };
 
                 allGroups.Add(groupInfo);
             }
