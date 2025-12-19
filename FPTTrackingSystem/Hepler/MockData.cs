@@ -730,6 +730,7 @@ namespace FPTTrackingSystem.Helper
                         Profession = i is 2 or 6 or 7 ? "AI Development" : "Software Engineering",
                         SemesterId = semesterId,
                         Description = descriptions[i],
+                        CreateAt = DateTime.Now,
                         StatusId = "ACTIVE",
                         ExpireDate = DateTime.Now.AddMonths(6),
                         GroupUsers = students
@@ -810,8 +811,10 @@ namespace FPTTrackingSystem.Helper
 
                     return new Group
                     {
+                        MajorId = 1,
                         Code = $"G{i + 1:D2}",
                         Name = names[i],
+                        CreateAt = DateTime.Now,
                         Description = descriptions[i],
                         VietnameseTitle = vnTitles[i],
                         Profession = professions[i],
