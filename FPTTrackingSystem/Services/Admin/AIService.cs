@@ -16,12 +16,14 @@ namespace FPTTrackingSystem.Services.Admin
         private readonly RabbitMQProducer _rabbitMQProducer;
         private readonly IMeetingRepository _meetingRepo;
         private readonly IMemoryCache _cache;
-        public AIService(IAISettingsRepository repo,RabbitMQProducer rabbitMQProducer,IMeetingRepository meetingRepository,IMemoryCache cache)
+        private readonly IAISettingsCache _aiSettingsCache;
+        public AIService(IAISettingsRepository repo,RabbitMQProducer rabbitMQProducer,IMeetingRepository meetingRepository,IMemoryCache cache,IAISettingsCache aISettingsCache)
         {
             _repo = repo;
             _rabbitMQProducer = rabbitMQProducer;
             _meetingRepo = meetingRepository;
             _cache = cache;
+            _aiSettingsCache = aISettingsCache;
         }
 
         public async Task<string> AskAsync(string prompt,int? groupId)
@@ -77,6 +79,7 @@ namespace FPTTrackingSystem.Services.Admin
             {
                 throw new Exception("Create new AI settings failed");
             }
+            await _aiSettingsCache.ReloadAsync();
             var response = new AISettingsRes
             {
                 Id = newSetting.Id,
