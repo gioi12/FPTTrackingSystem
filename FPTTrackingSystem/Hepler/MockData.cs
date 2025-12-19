@@ -215,63 +215,270 @@ namespace FPTTrackingSystem.Helper
         new Account { Username = "vudkse170035@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE170035", Fullname="Dang Khac Vu", Dob=new DateOnly(2001,9,30), Gender=true, Mail="vudkse170035@fpt.edu.vn", Phone="0909111135", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Da Nang", StatusId="ACTIVE"} },
         new Account { Username = "quanghmmentor@fpt.edu.vn", Password="123456", RoleId=2, User=new User { RollNumber="ME06", Fullname="Hoang Minh Quang", Dob=new DateOnly(1991,9,14), Gender=true, Mail="quanghmmentor@fpt.edu.vn", Phone="0912000006", MajorId=1, CampusId=1, Address="Da Nang", StatusId="ACTIVE"} },
 
+        // FALL 2025 – GROUP 08
+        new Account { Username="datqtse180036@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180036", Fullname="Tran Quoc Dat", Dob=new DateOnly(2001,1,1), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909111136", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="lanntse180037@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180037", Fullname="Nguyen Thi Lan", Dob=new DateOnly(2001,2,2), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909111137", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="quanlmse180038@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180038", Fullname="Le Minh Quan", Dob=new DateOnly(2001,3,3), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909111138", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="trangptse180039@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180039", Fullname="Pham Thu Trang", Dob=new DateOnly(2001,4,4), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909111139", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="hungdvse180040@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180040", Fullname="Do Van Hung", Dob=new DateOnly(2001,5,5), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909111140", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="ngavme07@fpt.edu.vn", Password="123456", RoleId=2, User=new User { RollNumber="ME07", Fullname="Nguyen Van A", Dob=new DateOnly(1989,1,1), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0912000007", MajorId=1, CampusId=1, Address="Ha Noi", StatusId="ACTIVE" } },
+
+        // FALL 2025 – GROUP 09
+        new Account { Username="ducnmse180041@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180041", Fullname="Nguyen Minh Duc", Dob=new DateOnly(2001,6,6), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909111141", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="anhpnse180042@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180042", Fullname="Pham Ngoc Anh", Dob=new DateOnly(2001,7,7), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909111142", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="namlvse180043@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180043", Fullname="Le Van Nam", Dob=new DateOnly(2001,8,8), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909111143", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="bichttse180044@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180044", Fullname="Tran Thi Bich", Dob=new DateOnly(2001,9,9), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909111144", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="tuandvse180045@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180045", Fullname="Do Anh Tuan", Dob=new DateOnly(2001,10,10), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909111145", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="tranbvme08@fpt.edu.vn", Password="123456", RoleId=2, User=new User { RollNumber="ME08", Fullname="Tran Van B", Dob=new DateOnly(1988,2,2), Gender=true, Mail="huongtthe172436@fpt.edu.vn", Phone="0912000008", MajorId=1, CampusId=1, Address="Ha Noi", StatusId="ACTIVE" } },
+
+        // FALL 2025 – GROUP 10
+        new Account { Username="longnvse180046@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180046", Fullname="Nguyen Van Long", Dob=new DateOnly(2001,11,11), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909111146", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="haptse180047@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180047", Fullname="Pham Thi Ha", Dob=new DateOnly(2001,12,12), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909111147", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="hoanglmse180048@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180048", Fullname="Le Minh Hoang", Dob=new DateOnly(2001,3,13), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909111148", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="maitnse180049@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180049", Fullname="Tran Ngoc Mai", Dob=new DateOnly(2001,4,14), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909111149", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="dungdtse180050@fpt.edu.vn", Password="123456", RoleId=1, User=new User { RollNumber="SE180050", Fullname="Do Tien Dung", Dob=new DateOnly(2001,5,15), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909111150", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="Ha Noi", StatusId="ACTIVE" } },
+        new Account { Username="levcme09@fpt.edu.vn", Password="123456", RoleId=2, User=new User { RollNumber="ME09", Fullname="Le Van C", Dob=new DateOnly(1987,3,3), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0912000009", MajorId=1, CampusId=1, Address="Ha Noi", StatusId="ACTIVE" } },
+
+
+        // Spring 2026
+        //G01
+        new Account { Username="khanhdtse190051@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190051", Fullname="Do Tuan Khanh", Dob=new DateOnly(2002,11,3), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333051", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="myhnse190052@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190052", Fullname="Nguyen Hoang My", Dob=new DateOnly(2002,12,9), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333052", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="phucnvse190053@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190053", Fullname="Nguyen Van Phuc", Dob=new DateOnly(2002,1,6), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909333053", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="trangltse190054@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190054", Fullname="Le Thi Trang", Dob=new DateOnly(2002,2,14), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909333054", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="quocbmse190055@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190055", Fullname="Bui Minh Quoc", Dob=new DateOnly(2002,3,22), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333055", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="anhdume10@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME10", Fullname="Nguyen Duc Anh", Dob=new DateOnly(1984,3,12), Gender=true, Mail="anhnd@fpt.edu.vn", Phone="0912111110", MajorId=1, CampusId=1, Address="Ha Noi", StatusId="ACTIVE"} },
+        //G02
+        new Account { Username="linhntse190056@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190056", Fullname="Nguyen Thi Linh", Dob=new DateOnly(2002,4,18), Gender=false, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333056", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="hoangnvse190057@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190057", Fullname="Nguyen Van Hoang", Dob=new DateOnly(2002,5,27), Gender=true, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333057", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="anhptse190058@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190058", Fullname="Pham Thi Anh", Dob=new DateOnly(2002,6,8), Gender=false, Mail="haildhe172452@fpt.edu.vn", Phone="0909333058", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="duynmse190059@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190059", Fullname="Nguyen Minh Duy", Dob=new DateOnly(2002,7,19), Gender=true, Mail="handghe170064@fpt.edu.vn", Phone="0909333059", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="vyltse190060@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190060", Fullname="Le Thi Thanh Vy", Dob=new DateOnly(2002,8,26), Gender=false, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333060", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="hoanglvme11@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME11", Fullname="Le Van Hoang", Dob=new DateOnly(1983,7,18), Gender=true, Mail="hoanglv@fpt.edu.vn", Phone="0912111111", MajorId=1, CampusId=1, Address="Ha Noi", StatusId="ACTIVE"} },
+        //G03
+        new Account { Username="datqtse190011@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190011", Fullname="Tran Quoc Dat", Dob=new DateOnly(2002,1,11), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333011", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="lanntse190012@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190012", Fullname="Nguyen Thi Lan", Dob=new DateOnly(2002,2,12), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333012", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="quanlmse190013@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190013", Fullname="Le Minh Quan", Dob=new DateOnly(2002,3,13), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909333013", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="trangptse190014@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190014", Fullname="Pham Thu Trang", Dob=new DateOnly(2002,4,14), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909333014", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="hungdvse190015@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190015", Fullname="Do Van Hung", Dob=new DateOnly(2002,5,15), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333015", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="thuptme12@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME12", Fullname="Pham Thi Thu", Dob=new DateOnly(1986,1,25), Gender=false, Mail="thupt@fpt.edu.vn", Phone="0912111112", MajorId=1, CampusId=1, Address="Hai Phong", StatusId="ACTIVE"} },
+        //G04
+        new Account { Username="ducnmse190016@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190016", Fullname="Nguyen Minh Duc", Dob=new DateOnly(2002,6,16), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333016", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="anhpnse190017@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190017", Fullname="Pham Ngoc Anh", Dob=new DateOnly(2002,7,17), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333017", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="namlvse190018@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190018", Fullname="Le Van Nam", Dob=new DateOnly(2002,8,18), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909333018", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="bichttse190019@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190019", Fullname="Tran Thi Bich", Dob=new DateOnly(2002,9,19), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909333019", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="tuandvse190020@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190020", Fullname="Do Anh Tuan", Dob=new DateOnly(2002,10,20), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333020", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="minhntme13@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME13", Fullname="Nguyen Thanh Minh", Dob=new DateOnly(1982,11,9), Gender=true, Mail="minhnt@fpt.edu.vn", Phone="0912111113", MajorId=1, CampusId=1, Address="Da Nang", StatusId="ACTIVE"} },
+        //G05
+        new Account { Username="datqtse190021@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190021", Fullname="Tran Quoc Dat", Dob=new DateOnly(2002,1,21), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333021", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="lanntse190022@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190022", Fullname="Nguyen Thi Lan", Dob=new DateOnly(2002,2,22), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333022", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="quanlmse190023@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190023", Fullname="Le Minh Quan", Dob=new DateOnly(2002,3,23), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909333023", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="trangptse190024@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190024", Fullname="Pham Thu Trang", Dob=new DateOnly(2002,4,24), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909333024", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="hungdvse190025@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190025", Fullname="Do Van Hung", Dob=new DateOnly(2002,5,25), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333025", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+         new Account { Username="linhptme14@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME14", Fullname="Pham Thi Linh", Dob=new DateOnly(1987,6,2), Gender=false, Mail="linhpt@fpt.edu.vn", Phone="0912111114", MajorId=1, CampusId=1, Address="Ha Noi", StatusId="ACTIVE"} },
+        //G06
+        new Account { Username="ducnmse190026@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190026", Fullname="Nguyen Minh Duc", Dob=new DateOnly(2002,6,26), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333026", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="anhpnse190027@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190027", Fullname="Pham Ngoc Anh", Dob=new DateOnly(2002,7,27), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333027", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="namlvse190028@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190028", Fullname="Le Van Nam", Dob=new DateOnly(2002,8,28), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909333028", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="bichttse190029@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190029", Fullname="Tran Thi Bich", Dob=new DateOnly(2002,9,29), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909333029", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="tuandvse190030@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190030", Fullname="Do Anh Tuan", Dob=new DateOnly(2002,10,30), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333030", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="quanghmme15@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME15", Fullname="Hoang Minh Quang", Dob=new DateOnly(1981,9,14), Gender=true, Mail="quanghm@fpt.edu.vn", Phone="0912111115", MajorId=1, CampusId=1, Address="Da Nang", StatusId="ACTIVE"} },
+        //G07
+        new Account { Username="datqtse190031@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190031", Fullname="Tran Quoc Dat", Dob=new DateOnly(2002,1,31), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333031", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="lanntse190032@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190032", Fullname="Nguyen Thi Lan", Dob=new DateOnly(2002,2,15), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333032", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="quanlmse190033@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190033", Fullname="Le Minh Quan", Dob=new DateOnly(2002,3,16), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909333033", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="trangptse190034@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190034", Fullname="Pham Thu Trang", Dob=new DateOnly(2002,4,17), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909333034", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="hungdvse190035@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190035", Fullname="Do Van Hung", Dob=new DateOnly(2002,5,18), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333035", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="ngocttme16@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME16", Fullname="Tran Thi Ngoc", Dob=new DateOnly(1985,4,30), Gender=false, Mail="ngoctt@fpt.edu.vn", Phone="0912111116", MajorId=1, CampusId=1, Address="Ho Chi Minh", StatusId="ACTIVE"} },
+        //G08
+        new Account { Username="ducnmse190036@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190036", Fullname="Nguyen Minh Duc", Dob=new DateOnly(2002,6,19), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333036", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="anhpnse190037@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190037", Fullname="Pham Ngoc Anh", Dob=new DateOnly(2002,7,20), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333037", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="namlvse190038@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190038", Fullname="Le Van Nam", Dob=new DateOnly(2002,8,21), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909333038", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="bichttse190039@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190039", Fullname="Tran Thi Bich", Dob=new DateOnly(2002,9,22), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909333039", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="tuandvse190040@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190040", Fullname="Do Anh Tuan", Dob=new DateOnly(2002,10,23), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333040", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="duongnvme17@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME17", Fullname="Nguyen Van Duong", Dob=new DateOnly(1980,8,21), Gender=true, Mail="duongnv@fpt.edu.vn", Phone="0912111117", MajorId=1, CampusId=1, Address="Bac Ninh", StatusId="ACTIVE"} },
+        //G09
+        new Account { Username="datqtse190041@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190041", Fullname="Tran Quoc Dat", Dob=new DateOnly(2002,1,24), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333041", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="lanntse190042@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190042", Fullname="Nguyen Thi Lan", Dob=new DateOnly(2002,2,25), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333042", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="quanlmse190043@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190043", Fullname="Le Minh Quan", Dob=new DateOnly(2002,3,26), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909333043", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="trangptse190044@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190044", Fullname="Pham Thu Trang", Dob=new DateOnly(2002,4,27), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909333044", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="hungdvse190045@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190045", Fullname="Do Van Hung", Dob=new DateOnly(2002,5,28), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333045", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="huongntme18@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME18", Fullname="Nguyen Thi Huong", Dob=new DateOnly(1988,12,5), Gender=false, Mail="huongnt@fpt.edu.vn", Phone="0912111118", MajorId=1, CampusId=1, Address="Nam Dinh", StatusId="ACTIVE"} },
+        //G10
+        new Account { Username="ducnmse190046@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190046", Fullname="Nguyen Minh Duc", Dob=new DateOnly(2002,6,29), Gender=true, Mail="gioidmhe171512@fpt.edu.vn", Phone="0909333046", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="anhpnse190047@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190047", Fullname="Pham Ngoc Anh", Dob=new DateOnly(2002,7,30), Gender=false, Mail="huongtthe172436@fpt.edu.vn", Phone="0909333047", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="namlvse190048@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190048", Fullname="Le Van Nam", Dob=new DateOnly(2002,8,31), Gender=true, Mail="haildhe172452@fpt.edu.vn", Phone="0909333048", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="bichttse190049@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190049", Fullname="Tran Thi Bich", Dob=new DateOnly(2002,9,1), Gender=false, Mail="handghe170064@fpt.edu.vn", Phone="0909333049", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="tuandvse190050@fpt.edu.vn", Password="123456", RoleId=1, User=new User{ RollNumber="SE190050", Fullname="Do Anh Tuan", Dob=new DateOnly(2002,10,2), Gender=true, Mail="cuonghvhe176362@fpt.edu.vn", Phone="0909333050", MajorId=1, CampusId=1, CapstoneProject="FPT Tracking System", Address="VN", StatusId="ACTIVE"} },
+        new Account { Username="sondvme19@fpt.edu.vn", Password="123456", RoleId=2, User=new User{ RollNumber="ME19", Fullname="Do Van Son", Dob=new DateOnly(1983,2,17), Gender=true, Mail="sondv@fpt.edu.vn", Phone="0912111119", MajorId=1, CampusId=1, Address="Ha Noi", StatusId="ACTIVE"} },
     };
 
-        public static List<Group> GetGroupsForSemester(int semesterId)
+        public static List<Group> GetGroupsForSemester(int semesterId, string semesterName)
         {
-            if (semesterId == 1)
+            // =========================
+            // SUMMER 2025
+            // =========================
+            if (semesterName.Equals("Summer 2025"))
             {
-                var students = Accounts.Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE140")).ToList();
-                var mentor = Accounts.FirstOrDefault(a => a.RoleId == 2); // dùng FirstOrDefault để tránh lỗi
+                var students = Accounts
+                    .Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE140"))
+                    .ToList();
 
+                var mentor = Accounts.FirstOrDefault(a => a.RoleId == 2);
                 if (mentor == null)
-                    throw new Exception("Không tìm thấy mentor cho semester 1");
+                    throw new Exception("Không tìm thấy mentor cho Summer 2025");
 
                 return new List<Group>
         {
             new Group
             {
-                Code="G01",
-                Name="Capstone Team Vanguard",
-                SemesterId=semesterId,
-                CreateAt=DateTime.Now.AddMonths(-2),
-                Profession="AI Development",
-                MajorId=1,
-                Description="Team phát triển hệ thống AI",
-                VietnameseTitle="Nhóm Tiên Phong",
-                StatusId="ACTIVE",
-                MeetingId=1,
-                ExpireDate=DateTime.Now.AddMonths(6),
-                GroupUsers=students.Select((s,i)=>new GroupUser
+                Code = "G01",
+                Name = "Capstone Team Vanguard",
+                SemesterId = semesterId,
+                CreateAt = DateTime.Now.AddMonths(-2),
+                Profession = "AI Development",
+                MajorId = 1,
+                Description = "Team phát triển hệ thống AI",
+                VietnameseTitle = "Nhóm Tiên Phong",
+                StatusId = "ACTIVE",
+                MeetingId = 1,
+                ExpireDate = DateTime.Now.AddMonths(6),
+                GroupUsers = students.Select((s, i) => new GroupUser
                 {
-                    User=s.User,
-                    Role=i==0?"Leader":"Student",
-                    IsActive=true,
-                    CreateAt=DateTime.Now.AddMonths(-2),
-                    UpdateAt=DateTime.Now,
-                    Status="Active"
+                    User = s.User,
+                    Role = i == 0 ? "Leader" : "Student",
+                    IsActive = true,
+                    CreateAt = DateTime.Now.AddMonths(-2),
+                    UpdateAt = DateTime.Now,
+                    Status = "Active"
                 })
                 .Concat(new[]
                 {
                     new GroupUser
                     {
-                        User=mentor.User,
-                        Role="Supervisor",
-                        IsActive=true,
-                        CreateAt=DateTime.Now.AddMonths(-1),
-                        UpdateAt=DateTime.Now,
-                        Status="Active"
+                        User = mentor.User,
+                        Role = "Supervisor",
+                        IsActive = true,
+                        CreateAt = DateTime.Now.AddMonths(-1),
+                        UpdateAt = DateTime.Now,
+                        Status = "Active"
                     }
                 }).ToList()
             }
         };
             }
 
-            if (semesterId == 2)
+            // =========================
+            // FALL 2025 (G11 – G12)
+            // =========================
+            if (semesterName.Equals("Fall 2025"))
             {
                 var allStudents = Accounts
-                    .Where(a => a.RoleId == 1 && a.User.RollNumber.StartsWith("SE170"))
-                    .ToList();
+                                .Where(a => a.RoleId == 1 &&
+                                    (a.User.RollNumber.StartsWith("SE170")
+                                  || a.User.RollNumber.StartsWith("SE180")
+                                  || a.User.RollNumber.StartsWith("SE190")))
+                                .ToList();
+                var mentors = Accounts
+                    .Where(a => a.RoleId == 2)
+                    .ToDictionary(a => a.User.RollNumber);
+
+                List<Account> GetStudents(int from, int to) =>
+                    allStudents.Where(a =>
+                        int.Parse(a.User.RollNumber.Substring(6)) >= from &&
+                        int.Parse(a.User.RollNumber.Substring(6)) <= to
+                    ).ToList();
+
+                Group CreateGroup(
+                    string code,
+                    string name,
+                    string vnTitle,
+                    string profession,
+                    List<Account> students,
+                    string mentorRoll
+                )
+                {
+                    if (!mentors.ContainsKey(mentorRoll))
+                        throw new Exception($"Không tìm thấy mentor {mentorRoll}");
+
+                    var mentor = mentors[mentorRoll];
+
+                    return new Group
+                    {
+                        Code = code,
+                        Name = name,
+                        SemesterId = semesterId,
+                        CreateAt = DateTime.Now.AddMonths(-2),
+                        Profession = profession,
+                        MajorId = 1,
+                        Description = $"{name} Capstone Project",
+                        VietnameseTitle = vnTitle,
+                        StatusId = "ACTIVE",
+                        ExpireDate = DateTime.Now.AddMonths(6),
+                        GroupUsers = students.Select((s, i) => new GroupUser
+                        {
+                            User = s.User,
+                            Role = i == 0 ? "Leader" : "Student",
+                            IsActive = true,
+                            CreateAt = DateTime.Now.AddMonths(-2),
+                            UpdateAt = DateTime.Now,
+                            Status = "Active"
+                        })
+                        .Concat(new[]
+                        {
+                    new GroupUser
+                    {
+                        User = mentor.User,
+                        Role = "Supervisor",
+                        IsActive = true,
+                        CreateAt = DateTime.Now.AddMonths(-1),
+                        UpdateAt = DateTime.Now,
+                        Status = "Active"
+                    }
+                        }).ToList()
+                    };
+                }
+
+                return new List<Group>
+        {
+            CreateGroup(
+                "G01",
+                "FPT Tracking System",
+                "Hệ thống theo dõi FPT",
+                "Software Engineering",
+                GetStudents(1, 5),
+                "ME01"
+            ),
+
+            CreateGroup(
+                "G02",
+                "Smart Course Booking",
+                "Hệ thống đăng ký môn học thông minh",
+                "Software Engineering",
+                GetStudents(6, 10),
+                "ME02"
+            ),
+            CreateGroup("G03", "AI Student Progress Monitor", "Theo dõi tiến độ sinh viên bằng AI", "AI Development", GetStudents(11, 15), "ME03"),
+            CreateGroup("G04", "Campus Event Management System", "Quản lý sự kiện trong campus", "Software Engineering", GetStudents(16, 20), "ME04"),
+            CreateGroup("G05", "Internship Matching Platform", "Nền tảng kết nối thực tập", "Software Engineering", GetStudents(21, 25), "ME05"),
+            CreateGroup("G06", "Smart Attendance System", "Hệ thống điểm danh thông minh", "Software Engineering", GetStudents(26, 30), "ME06"),
+            CreateGroup("G07", "AI Career Recommendation", "Gợi ý nghề nghiệp bằng AI", "AI Development", GetStudents(31, 35), "ME07"),
+            CreateGroup("G08", "Digital Attendance AI", "Điểm danh AI", "AI Development", GetStudents(36, 40), "ME07"),
+            CreateGroup("G09", "Smart Dormitory System", "Quản lý ký túc xá", "Software Engineering", GetStudents(41, 45), "ME08"),
+            CreateGroup("G10", "Student Feedback Platform", "Phản hồi sinh viên", "Software Engineering", GetStudents(46, 50), "ME09"),
+        };
+            }
+
+            // =========================
+            // SPRING 2026 (G13 – G17)
+            // =========================
+            if (semesterName.Equals("Spring 2026"))
+            {
+                var allStudents = Accounts
+                                 .Where(a => a.RoleId == 1 &&
+                                     (a.User.RollNumber.StartsWith("SE190")))
+                                 .ToList();
+
 
                 var mentors = Accounts
                     .Where(a => a.RoleId == 2)
@@ -320,86 +527,37 @@ namespace FPTTrackingSystem.Helper
                         })
                         .Concat(new[]
                         {
-                new GroupUser
-                {
-                    User = mentor.User,
-                    Role = "Supervisor",
-                    IsActive = true,
-                    CreateAt = DateTime.Now.AddMonths(-1),
-                    UpdateAt = DateTime.Now,
-                    Status = "Active"
-                }
+                    new GroupUser
+                    {
+                        User = mentor.User,
+                        Role = "Supervisor",
+                        IsActive = true,
+                        CreateAt = DateTime.Now.AddMonths(-1),
+                        UpdateAt = DateTime.Now,
+                        Status = "Active"
+                    }
                         }).ToList()
                     };
                 }
 
                 return new List<Group>
-    {
-        CreateGroup(
-            "G11",
-            "FPT Tracking System",
-            "Hệ thống theo dõi FPT",
-            "Software Engineering",
-            GetStudents(1,5),
-            "ME01"
-        ),
-
-        CreateGroup(
-            "G12",
-            "Smart Course Booking",
-            "Hệ thống đăng ký môn học thông minh",
-            "Software Engineering",
-            GetStudents(6,10),
-            "ME01"
-        ),
-
-        CreateGroup(
-            "G13",
-            "AI Student Progress Monitor",
-            "Theo dõi tiến độ sinh viên bằng AI",
-            "AI Development",
-            GetStudents(11,15),
-            "ME02"
-        ),
-
-        CreateGroup(
-            "G14",
-            "Campus Event Management System",
-            "Quản lý sự kiện trong campus",
-            "Software Engineering",
-            GetStudents(16,20),
-            "ME03"
-        ),
-
-        CreateGroup(
-            "G15",
-            "Internship Matching Platform",
-            "Nền tảng kết nối thực tập",
-            "Software Engineering",
-            GetStudents(21,25),
-            "ME04"
-        ), CreateGroup(
-        "G16",
-        "Smart Attendance System",
-        "Hệ thống điểm danh thông minh",
-        "Software Engineering",
-        GetStudents(26,30),
-        "ME05"
-    ),
-    CreateGroup(
-        "G17",
-        "AI Career Recommendation",
-        "Gợi ý nghề nghiệp bằng AI",
-        "AI Development",
-        GetStudents(31,35),
-        "ME06"
-    )
-    };
-     }
-
+                {
+                    CreateGroup("G01","AI Study Planner","Lập kế hoạch học AI","AI Development",GetStudents(51,55),"ME10"),
+                    CreateGroup("G02","Smart Library","Thư viện thông minh","Software Engineering",GetStudents(56,60),"ME11"),
+                    CreateGroup("G03","Exam Proctoring AI","Giám sát thi AI","AI Development",GetStudents(11,15),"ME12"),
+                    CreateGroup("G04","Intern Tracker","Theo dõi thực tập","Software Engineering",GetStudents(16,20),"ME13"),
+                    CreateGroup("G05","Campus Chatbot","Chatbot campus","AI Development",GetStudents(21,25),"ME14"),
+                    CreateGroup("G06","Learning Analytics","Phân tích học tập","AI Development",GetStudents(26,30),"ME15"),
+                    CreateGroup("G07","Course Recommendation","Gợi ý môn học","AI Development",GetStudents(31,35),"ME16"),
+                    CreateGroup("G08","Online Defense System","Bảo vệ online","Software Engineering",GetStudents(36,40),"ME17"),
+                    CreateGroup("G09","Student CRM","CRM sinh viên","Software Engineering",GetStudents(41,45),"ME18"),
+                    CreateGroup("G10","Thesis Management","Quản lý khóa luận","Software Engineering",GetStudents(46,50),"ME19"),
+                };
+            }
 
             return new List<Group>();
         }
+
 
     }
 }

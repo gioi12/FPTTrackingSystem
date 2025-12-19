@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    image: fpttrackingsystem-backend
+    container_name: fpt-tracking-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - RabbitMQ__HostName=host.docker.internal
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal,1433;Database=FPTTrackingSystem;User Id=sa;Password=StrongP@ssw0rd!;TrustServerCertificate=True;MultipleActiveResultSets=True
+    volumes:
+      - ./wwwroot/uploads:/app/wwwroot/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    networks:
+      - fpt-tracking-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: fpt-tracking-nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - backend
+    networks:
+      - fpt-tracking-network
+
+networks:
+  fpt-tracking-network:
+    driver: bridge

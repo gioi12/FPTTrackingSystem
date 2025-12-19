@@ -555,7 +555,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             return allAttachments.Adapt<List<AttachmentRes>>();
         }
 
-        public async Task<object> GetMockData(int semesterId)
+        public async Task<object> GetMockData(int semesterId, string semesterName)
         {
             // 1️⃣ Lấy tất cả users từ mock, giữ nguyên thông tin
             var allUsers = MockData.Accounts
@@ -570,7 +570,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 .ToList();
 
             // 2️⃣ Lấy tất cả groups của semester từ MockData
-            var groups = MockData.GetGroupsForSemester(semesterId);
+            var groups = MockData.GetGroupsForSemester(semesterId, semesterName);
 
             // 3️⃣ Lấy danh sách nhóm hiện có trong DB
             var dbGroups = await _groupRepository.GetAllAsync(); // giả sử trả về List<Group> có Code + SemesterId
@@ -823,7 +823,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
              };
          }*/
 
-        public async Task<object> CreateMockData(int semesterId)
+        public async Task<object> CreateMockData(int semesterId, string semesterName)
         {
             // 1️⃣ Tạo / cập nhật MajorCategories
             var majorCategories = MockData.MajorCategories;
@@ -832,7 +832,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 var existingMajor = await _majorRepository.FindByCodeAsync(major.Code);
                 if (existingMajor == null)
                 {
-                    await _majorRepository.CreateAsync(major);
+                    await _majorRepository.CreateAsync(new MajorCategory
+                    {
+                        Code = major.Code,
+                        Name = major.Name,
+                        IsActive = major.IsActive
+                    });
                 }
                 else
                 {
@@ -907,7 +912,7 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
             var allAccounts = await _accountRepository.GetAllAsync(a => usernames.Contains(a.Username.ToLower()));
 
             // 4️⃣ Tạo groups
-            var groups = MockData.GetGroupsForSemester(semesterId);
+            var groups = MockData.GetGroupsForSemester(semesterId, semesterName);
 
             var existingGroups = await _groupRepository.GetAllAsync(g =>
                 groups.Select(gr => gr.Code).Contains(g.Code) && g.SemesterId == semesterId);
@@ -988,12 +993,9 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
 
             return new
             {
-                Message = $"Create mock data successfully for semester {semesterId}"
+                Message = $"Create mock data successfully for semester {semesterName}"
             };
         }
-
-
-
     }
 
 }
