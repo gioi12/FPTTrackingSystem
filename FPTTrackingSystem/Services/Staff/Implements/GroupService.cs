@@ -832,7 +832,12 @@ namespace FPTTrackingSystem.Services.Staff.Implementations
                 var existingMajor = await _majorRepository.FindByCodeAsync(major.Code);
                 if (existingMajor == null)
                 {
-                    await _majorRepository.CreateAsync(major);
+                    await _majorRepository.CreateAsync(new MajorCategory
+                    {
+                        Code = major.Code,
+                        Name = major.Name,
+                        IsActive = major.IsActive
+                    });
                 }
                 else
                 {
